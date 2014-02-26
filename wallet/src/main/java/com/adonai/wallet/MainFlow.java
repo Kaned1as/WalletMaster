@@ -25,8 +25,7 @@ public class MainFlow extends ActionBarActivity implements NavigationDrawerFragm
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_flow);
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
         // Set up the drawer.
@@ -47,13 +46,13 @@ public class MainFlow extends ActionBarActivity implements NavigationDrawerFragm
     public void onSectionAttached(int number) {
         switch (number) {
             case 1:
-                mTitle = getString(R.string.title_section1);
+                mTitle = getString(R.string.title_accounts);
                 break;
             case 2:
-                mTitle = getString(R.string.title_section2);
+                mTitle = getString(R.string.title_operations);
                 break;
             case 3:
-                mTitle = getString(R.string.title_section3);
+                mTitle = getString(R.string.title_budget);
                 break;
         }
     }
@@ -72,7 +71,7 @@ public class MainFlow extends ActionBarActivity implements NavigationDrawerFragm
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.main_flow, menu);
+            //getMenuInflater().inflate(R.menu.accounts_flow, menu);
             restoreActionBar();
             return true;
         }

@@ -288,7 +288,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         db.close();
 
         //log
-        Log.d("deleteAccount", operation.getAmountCharged().toPlainString());
+        Log.d("deleteOperation", operation.getAmountCharged().toPlainString());
     }
 }
 
