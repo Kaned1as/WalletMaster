@@ -1,7 +1,6 @@
 package com.adonai.wallet;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -70,10 +69,8 @@ public class PlaceholderFragment extends Fragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add_account:
-                View dialog = getActivity().getLayoutInflater().inflate(R.layout.account_create_dialog, null);
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.create_new_account).setView(dialog).create().show();
+                CreateAccountDialogFragment accountCreate = new CreateAccountDialogFragment();
+                accountCreate.show(getFragmentManager(), "accCreate");
 
                 break;
             default :
