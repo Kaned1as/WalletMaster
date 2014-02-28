@@ -5,15 +5,18 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 import android.util.Log;
 
 import com.adonai.wallet.entities.Account;
+import com.adonai.wallet.entities.Currency;
 import com.adonai.wallet.entities.Operation;
 
 import java.math.BigDecimal;
-import java.util.Currency;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -32,7 +35,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
             put("amount", "AMOUNT");                // 4
         }};
 
-    private static final String operationsTable="operations";
+    private static final String operationsTable = "operations";
     private static final Map<String, String> operationsCols = new LinkedHashMap<String, String>()
     {{
             put("ID", "_id");                       // 0
@@ -44,8 +47,17 @@ public class DatabaseDAO extends SQLiteOpenHelper
             put("comission", "COMISSION");          // 6
         }};
 
-    private static String[] accountKeys = accountCols.values().toArray(new String[accountCols.values().size()]);
+    private static final String currenciesTable = "currencies";
+    private static final Map<String, String> currenciesCols = new LinkedHashMap<String, String>()
+    {{
+            put("code", "CODE");                    // 0
+            put("description", "DESCRIPTION");      // 1
+            put("usedIn", "USED_IN");               // 2
+        }};
+
+    private String[] accountKeys = accountCols.values().toArray(new String[accountCols.values().size()]);
     private String[] operationsKeys = operationsCols.values().toArray(new String[operationsCols.values().size()]);
+    private String[] currenciesKeys = currenciesCols.values().toArray(new String[currenciesCols.values().size()]);
 
 
     public DatabaseDAO(Context context) {
@@ -54,8 +66,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     @Override
     public void onConfigure(SQLiteDatabase db) {
-        db.setForeignKeyConstraintsEnabled(true);
-        super.onConfigure(db);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            db.setForeignKeyConstraintsEnabled(true);
+            super.onConfigure(db);
+        }
     }
 
     @Override
@@ -65,12 +79,9 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 accountKeys[1] + " TEXT DEFAULT '' NOT NULL, " +
                 accountKeys[2] + " TEXT DEFAULT NULL, " +
                 accountKeys[3] + " TEXT DEFAULT 'RUB' NOT NULL, " +
-                accountKeys[4] + " TEXT DEFAULT '0' NOT NULL, " +
+                accountKeys[4] + " TEXT DEFAULT '0' NOT NULL " +
                 ")");
-
-        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "ACCOUNT_NAME_IDX ON " + accountTable + "(" +
-                accountCols.get("name") +
-                ")");
+        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "ACCOUNT_NAME_IDX ON " + accountTable + " (" + accountCols.get("name") + ")");
 
         sqLiteDatabase.execSQL("CREATE TABLE " + operationsTable + " (" +
                 operationsKeys[0] +" INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -79,48 +90,55 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 operationsKeys[3] +" INTEGER NOT NULL, " +
                 operationsKeys[4] +" INTEGER DEFAULT NULL, " +
                 operationsKeys[5] +" TEXT DEFAULT '0', " +
-                operationsKeys[6] +" REAL NOT NULL" +
-                " FOREIGN KEY (" + operationsKeys[3] + ") REFERENCES " + accountTable + " (" + accountKeys[0] + ")" +
+                operationsKeys[6] +" REAL NOT NULL, " +
+                " FOREIGN KEY (" + operationsKeys[3] + ") REFERENCES " + accountTable + " (" + accountKeys[0] + ")," +
                 " FOREIGN KEY (" + operationsKeys[4] + ") REFERENCES " + accountTable + " (" + accountKeys[0] + ")" +
                 ")");
+
+        sqLiteDatabase.execSQL("CREATE TABLE " + currenciesTable + " (" +
+                currenciesKeys[0] +" TEXT NOT NULL, " +
+                currenciesKeys[1] +" TEXT DEFAULT NULL, " +
+                currenciesKeys[2] +" TEXT DEFAULT NULL" +
+                ")");
+        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CURRENCY_IDX ON " + currenciesTable + " (" +  currenciesCols.get("code") + ")");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i2) {
     }
 
-    public void addAccount(Account account) {
+    public long addAccount(Account account) {
         //for logging
         Log.d("addAccount", account.getName());
 
         // 1. get reference to writable DB
-        SQLiteDatabase db = getWritableDatabase();
+        final SQLiteDatabase db = getWritableDatabase();
         assert db != null;
 
         // 2. create ContentValues to add key "column"/value
-        ContentValues values = new ContentValues();
+        final ContentValues values = new ContentValues();
         values.put(accountCols.get("name"), account.getName());
         values.put(accountCols.get("description"), account.getDescription());
         values.put(accountCols.get("currency"), account.getCurrency().toString());
         values.put(accountCols.get("amount"), account.getAmount().toString());
 
         // 3. insert
-        db.insert(accountTable, null, values);
-
-        // 4. close
+        long result = db.insert(accountTable, null, values);
         db.close();
+
+        return result;
     }
 
-    public void addOperation(Operation operation) {
+    public long addOperation(Operation operation) {
         //for logging
         Log.d("addOperation", operation.getAmountCharged().toPlainString());
 
         // 1. get reference to writable DB
-        SQLiteDatabase db = getWritableDatabase();
+        final SQLiteDatabase db = getWritableDatabase();
         assert db != null;
 
         // 2. create ContentValues to add key "column"/value
-        ContentValues values = new ContentValues();
+        final ContentValues values = new ContentValues();
         values.put(operationsCols.get("description"), operation.getDescription());
         if(operation.getTime() != null)
             values.put(operationsCols.get("time"), operation.getTimeString());
@@ -131,34 +149,32 @@ public class DatabaseDAO extends SQLiteOpenHelper
         values.put(operationsCols.get("comission"), operation.getConvertingComission());
 
         // 3. insert
-        db.insert(operationsTable, null, values);
-
-        // 4. close
+        long result = db.insert(operationsTable, null, values);
         db.close();
+
+        return result;
     }
 
     public Account getAccount(long id) {
         // 1. get reference to readable DB
-        SQLiteDatabase db = getReadableDatabase();
+        final SQLiteDatabase db = getReadableDatabase();
         assert db != null;
 
         // 2. build query
-        Cursor cursor = db.query(accountTable, accountKeys, " id = ?", new String[] { String.valueOf(id) }, // d. selections args
+        final Cursor cursor = db.query(accountTable, accountKeys, " id = ?", new String[] { String.valueOf(id) }, // d. selections args
                                  null, // e. group by
                                  null, // f. having
                                  null, // g. order by
                                  null); // h. limit
 
         // 3. if we got results get the first one
-        if (cursor != null) {
-            cursor.moveToFirst();
-
+        if (cursor.moveToFirst()) {
             // 4. build book object
             Account acc = new Account();
             acc.setId(cursor.getLong(0));
             acc.setName(cursor.getString(1));
             acc.setDescription(cursor.getString(2));
-            acc.setCurrency(Currency.getInstance(cursor.getString(3)));
+            acc.setCurrency(Currency.getCurrencyForCode(cursor.getString(3)));
             acc.setAmount(new BigDecimal(cursor.getString(2)));
 
             //log
@@ -171,20 +187,18 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     public Operation getOperaion(long id) {
         // 1. get reference to readable DB
-        SQLiteDatabase db = getReadableDatabase();
+        final SQLiteDatabase db = getReadableDatabase();
         assert db != null;
 
         // 2. build query
-        Cursor cursor = db.query(operationsTable, operationsKeys, " id = ?", new String[] { String.valueOf(id) }, // d. selections args
+        final Cursor cursor = db.query(operationsTable, operationsKeys, " id = ?", new String[] { String.valueOf(id) }, // d. selections args
                 null, // e. group by
                 null, // f. having
                 null, // g. order by
                 null); // h. limit
 
         // 3. if we got results get the first one
-        if (cursor != null) {
-            cursor.moveToFirst();
-
+        if (cursor.moveToFirst()) {
             // 4. build operation object
             Operation op = new Operation();
             op.setId(cursor.getLong(0));
@@ -211,7 +225,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         assert db != null;
 
         // 2. create ContentValues to add key "column"/value
-        ContentValues values = new ContentValues();
+        final ContentValues values = new ContentValues();
         values.put(accountCols.get("name"), account.getName());
         values.put(accountCols.get("description"), account.getDescription());
         values.put(accountCols.get("currency"), account.getCurrency().toString());
@@ -231,11 +245,11 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     public int updateOperation(Operation operation) {
         // 1. get reference to writable DB
-        SQLiteDatabase db = this.getWritableDatabase();
+        final SQLiteDatabase db = this.getWritableDatabase();
         assert db != null;
 
         // 2. create ContentValues to add key "column"/value
-        ContentValues values = new ContentValues();
+        final ContentValues values = new ContentValues();
         values.put(operationsCols.get("description"), operation.getDescription());
         if(operation.getTime() != null)
             values.put(operationsCols.get("time"), operation.getTimeString());
@@ -257,38 +271,78 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return i;
     }
 
-    public void deleteAccount(Account account) {
+    public int deleteAccount(Account account) {
         // 1. get reference to writable DB
-        SQLiteDatabase db = this.getWritableDatabase();
+        final SQLiteDatabase db = this.getWritableDatabase();
         assert db != null;
 
         // 2. delete
-        db.delete(accountTable, //table name
+        int result = db.delete(accountTable, //table name
                 accountCols.get("ID") + " = ?",  // selections
                 new String[] { String.valueOf(account.getId()) }); //selections args
-
-        // 3. close
         db.close();
 
         //log
         Log.d("deleteAccount", account.getName());
+
+        return result;
     }
 
-    public void deleteOperation(Operation operation) {
+    public int deleteOperation(Operation operation) {
         // 1. get reference to writable DB
-        SQLiteDatabase db = this.getWritableDatabase();
+        final SQLiteDatabase db = this.getWritableDatabase();
         assert db != null;
 
-        // 2. delete
-        db.delete(operationsTable, //table name
+        int result = db.delete(operationsTable, //table name
                 operationsCols.get("ID") + " = ?",  // selections
                 new String[] { String.valueOf(operation.getId()) }); //selections args
-
-        // 3. close
         db.close();
 
-        //log
         Log.d("deleteOperation", operation.getAmountCharged().toPlainString());
+
+        return result;
+    }
+
+    public long addCustomCurrency(Currency curr) {
+        Currency.addCustomCurrency(curr);
+
+        final SQLiteDatabase db = this.getWritableDatabase();
+        assert db != null;
+
+        final ContentValues values = new ContentValues();
+        values.put(currenciesCols.get("code"), curr.getDescription());
+        if(curr.getDescription() != null)
+            values.put(currenciesCols.get("description"), curr.getDescription());
+        if(curr.getUsedIn() != null)
+            values.put(currenciesCols.get("usedIn"), curr.getUsedIn());
+
+        // 3. insert
+        long result = db.insert(currenciesTable, null, values);
+        db.close();
+
+        Log.d("addCurrency", curr.toString());
+
+        return result;
+    }
+
+    public List<Currency> getCustomCurrencies() {
+        final SQLiteDatabase db = getReadableDatabase();
+        assert db != null;
+
+        // 2. build query
+        final Cursor cursor = db.query(currenciesTable, currenciesKeys, null, null, null,  null,  null, null);
+
+        // 3. if we got results get the first one
+        final List<Currency> result = new ArrayList<>();
+        if (cursor.moveToFirst())
+            while(cursor.moveToNext())
+            result.add(new Currency(cursor.getString(0), cursor.getString(1), cursor.getString(2)));
+
+
+        //log
+        Log.d("getAllCurrencies", String.valueOf(result.size()));
+
+        return result;
     }
 }
 

@@ -1,7 +1,6 @@
 package com.adonai.wallet.entities;
 
 import java.math.BigDecimal;
-import java.util.Currency;
 import java.util.List;
 
 /**

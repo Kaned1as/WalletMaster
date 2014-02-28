@@ -16,5 +16,7 @@
     <string name="initial_amount">Initial amount</string>
     <string name="create">Create</string>
     <string name="create_new_account">Create new account</string>
+    <string name="account_already_exist">Account with that name already exists!</string>
+    <string name="account_name_invalid">You should provide valid account name!</string>
 
 </resources>
