@@ -24,28 +24,28 @@ import java.util.List;
  * @author adonai
  */
 public class CreateAccountDialogFragment extends DialogFragment implements View.OnClickListener {
-    Button createButton;
-    EditText accountName;
-    EditText accountDescription;
-    Spinner currencySelector;
-    EditText initialAmount;
+    private Button mCreateButton;
+    private EditText mAccountName;
+    private EditText mAccountDescription;
+    private Spinner mCurrencySelector;
+    private EditText mInitialAmount;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final View dialog = getActivity().getLayoutInflater().inflate(R.layout.account_create_dialog, null);
         assert dialog != null;
 
-        accountName = (EditText) dialog.findViewById(R.id.name_edit);
-        accountDescription = (EditText) dialog.findViewById(R.id.description_edit);
-        currencySelector = (Spinner) dialog.findViewById(R.id.currency_spinner);
-        initialAmount = (EditText) dialog.findViewById(R.id.initial_amount_edit);
-        createButton = (Button) dialog.findViewById(R.id.create_account_button);
+        mAccountName = (EditText) dialog.findViewById(R.id.name_edit);
+        mAccountDescription = (EditText) dialog.findViewById(R.id.description_edit);
+        mCurrencySelector = (Spinner) dialog.findViewById(R.id.currency_spinner);
+        mInitialAmount = (EditText) dialog.findViewById(R.id.initial_amount_edit);
+        mCreateButton = (Button) dialog.findViewById(R.id.create_account_button);
 
         CurrencyAdapter adapter = new CurrencyAdapter(getActivity(), android.R.layout.simple_spinner_item, Currency.getAvailableCurrencies());
-        currencySelector.setAdapter(adapter);
-        currencySelector.setSelection(adapter.getPosition(Currency.getCurrencyForCode("RUB")));
-        initialAmount.setText("0.0");
-        createButton.setOnClickListener(this);
+        mCurrencySelector.setAdapter(adapter);
+        mCurrencySelector.setSelection(adapter.getPosition(Currency.getCurrencyForCode("RUB")));
+        mInitialAmount.setText("0.0");
+        mCreateButton.setOnClickListener(this);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.create_new_account).setView(dialog);
@@ -57,18 +57,18 @@ public class CreateAccountDialogFragment extends DialogFragment implements View.
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.create_account_button: {
-                if(accountName.getText() == null || accountName.getText().equals("")) {
+                if(mAccountName.getText() == null || mAccountName.getText().equals("")) {
                     Toast.makeText(getActivity(), R.string.account_name_invalid, Toast.LENGTH_SHORT).show();
                     break;
                 }
 
                 final Account acc = new Account();
-                acc.setName(accountName.getText().toString());
-                acc.setDescription(accountDescription.getText().toString());
-                acc.setCurrency((Currency) currencySelector.getSelectedItem());
-                acc.setAmount(Utils.getValue(initialAmount.getText().toString(), BigDecimal.ZERO));
+                acc.setName(mAccountName.getText().toString());
+                acc.setDescription(mAccountDescription.getText().toString());
+                acc.setCurrency((Currency) mCurrencySelector.getSelectedItem());
+                acc.setAmount(Utils.getValue(mInitialAmount.getText().toString(), BigDecimal.ZERO));
 
-                long insertRes = ((WalletBaseActivity) getActivity()).getDatabase().addAccount(acc);
+                long insertRes = ((WalletBaseActivity) getActivity()).getEntityDAO().addAccount(acc);
                 if(insertRes != -1)
                     dismiss();
                 else

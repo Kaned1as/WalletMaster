@@ -12,24 +12,26 @@ import java.util.List;
  */
 public class WalletBaseActivity extends ActionBarActivity {
 
-    protected DatabaseDAO database;
+    protected DatabaseDAO mEntityDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // add all the currencies that are stored within database
-        database = new DatabaseDAO(this);
-        final List<Currency> customCurrs = database.getCustomCurrencies();
+        // add all the currencies that are stored within mEntityDAO
+        mEntityDAO = new DatabaseDAO(this);
+        final List<Currency> customCurrs = mEntityDAO.getCustomCurrencies();
         for(final Currency curr : customCurrs)
             Currency.addCustomCurrency(curr);
     }
 
-    public DatabaseDAO getDatabase() {
-        return database;
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mEntityDAO.close();
     }
 
-    public void setDatabase(DatabaseDAO database) {
-        this.database = database;
+    public DatabaseDAO getEntityDAO() {
+        return mEntityDAO;
     }
 }

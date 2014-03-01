@@ -12,6 +12,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
+
     private NavigationDrawerFragment mNavigationDrawerFragment;
 
     /**
@@ -37,7 +38,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
         FragmentManager fragmentManager = getSupportFragmentManager();
         switch (position) {
             default:
-                fragmentManager.beginTransaction().replace(R.id.container, PlaceholderFragment.newInstance(position + 1)).commit();
+                fragmentManager.beginTransaction().replace(R.id.container, AccountFragment.newInstance(position + 1)).commit();
                 break;
         }
     }
@@ -88,5 +89,4 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
         }
         return super.onOptionsItemSelected(item);
     }
-
 }
