@@ -3,7 +3,12 @@ package com.adonai.wallet;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Point;
+import android.graphics.Shader;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RoundRectShape;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -20,6 +25,8 @@ import android.widget.TextView;
 
 import com.adonai.wallet.entities.Account;
 import com.daniel.lupianez.casares.PopoverView;
+
+import java.util.Arrays;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -106,24 +113,28 @@ public class AccountFragment extends Fragment {
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
             final LayoutInflater inflater = LayoutInflater.from(context);
-            final View newView = inflater.inflate(R.layout.account_list_item, viewGroup, false);
-
-            final TextView name = (TextView) newView.findViewById(R.id.account_name_label);
-            name.setText(cursor.getString(1));
-            final TextView description = (TextView) newView.findViewById(R.id.account_description_label);
-            description.setText(cursor.getString(2));
-            final TextView amount = (TextView) newView.findViewById(R.id.account_amount_label);
-            amount.setText(cursor.getString(3));
-
-            return newView;
+            return inflater.inflate(R.layout.account_list_item, viewGroup, false);
         }
 
         @Override
+        @SuppressWarnings("deprecation") // for compat with older APIs
         public void bindView(View view, Context context, Cursor cursor) {
+
+            final int accColor = cursor.getInt(5);
+            final float[] rounds = new float[8];
+            Arrays.fill(rounds, Utils.convertDpToPixel(10f, context));
+            final ShapeDrawable mDrawable = new ShapeDrawable(new RoundRectShape(rounds, null, null));
+            mDrawable.getPaint().setShader(new LinearGradient(0, 0, context.getResources().getDisplayMetrics().widthPixels, 0,
+               Color.argb(50, Color.red(accColor), Color.green(accColor), Color.blue(accColor)),
+               Color.argb(0, Color.red(accColor), Color.green(accColor), Color.blue(accColor)), Shader.TileMode.CLAMP));
+            view.setBackgroundDrawable(mDrawable);
+
             final TextView name = (TextView) view.findViewById(R.id.account_name_label);
             name.setText(cursor.getString(1));
             final TextView description = (TextView) view.findViewById(R.id.account_description_label);
             description.setText(cursor.getString(2));
+            final TextView currency = (TextView) view.findViewById(R.id.account_currency_label);
+            currency.setText(cursor.getString(3));
             final TextView amount = (TextView) view.findViewById(R.id.account_amount_label);
             amount.setText(cursor.getString(4));
         }

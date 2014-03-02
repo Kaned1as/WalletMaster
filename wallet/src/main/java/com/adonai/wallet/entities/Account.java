@@ -12,6 +12,7 @@ public class Account {
     private String description;
     private Currency currency;
     private BigDecimal amount;
+    private Integer color;
     private List<Operation> operations; // foreign key from operations to budget (OneToMany)
 
     public Long getId() {
@@ -60,5 +61,13 @@ public class Account {
 
     public void setOperations(List<Operation> operations) {
         this.operations = operations;
+    }
+
+    public Integer getColor() {
+        return color;
+    }
+
+    public void setColor(Integer color) {
+        this.color = color;
     }
 }

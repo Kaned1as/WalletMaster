@@ -21,5 +21,8 @@
     <string name="edit">Edit</string>
     <string name="remove">Remove</string>
     <string name="account_not_found">Account not found!</string>
+    <string name="placeholder_text">Placeholder text</string>
+    <string name="edit_account">Edit account</string>
+    <string name="color">Color</string>
 
 </resources>

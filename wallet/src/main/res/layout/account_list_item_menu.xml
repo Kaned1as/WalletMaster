@@ -21,7 +21,7 @@
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
         android:background="@null"
-        android:text="@string/remove"
-        android:src="@android:drawable/ic_menu_delete" />
+        android:src="@android:drawable/ic_menu_delete"
+        android:text="@string/placeholder_text" />
 
 </LinearLayout>

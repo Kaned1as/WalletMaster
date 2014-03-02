@@ -50,6 +50,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         put("description", "DESCRIPTION");      // 2
         put("currency", "CURRENCY");            // 3
         put("amount", "AMOUNT");                // 4
+        put("color", "COLOR");                  // 5
     }};
 
     public static final String OPERATIONS_TABLE_NAME = "operations";
@@ -99,7 +100,8 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 accountKeys[1] + " TEXT DEFAULT '' NOT NULL, " +
                 accountKeys[2] + " TEXT DEFAULT NULL, " +
                 accountKeys[3] + " TEXT DEFAULT 'RUB' NOT NULL, " +
-                accountKeys[4] + " TEXT DEFAULT '0' NOT NULL " +
+                accountKeys[4] + " TEXT DEFAULT '0' NOT NULL, " +
+                accountKeys[5] + " TEXT DEFAULT NULL " +
                 ")");
         sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "ACCOUNT_NAME_IDX ON " + ACCOUNTS_TABLE_NAME + " (" + accountCols.get("name") + ")");
 
@@ -135,6 +137,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         values.put(accountCols.get("description"), account.getDescription());
         values.put(accountCols.get("currency"), account.getCurrency().toString());
         values.put(accountCols.get("amount"), account.getAmount().toPlainString());
+        values.put(accountCols.get("color"), account.getColor());
 
         long result = mDatabase.insert(ACCOUNTS_TABLE_NAME, null, values);
 
@@ -178,10 +181,8 @@ public class DatabaseDAO extends SQLiteOpenHelper
             acc.setName(cursor.getString(1));
             acc.setDescription(cursor.getString(2));
             acc.setCurrency(Currency.getCurrencyForCode(cursor.getString(3)));
-            if(cursor.isNull(4))
-                acc.setAmount(BigDecimal.ZERO);
-            else
-                acc.setAmount(new BigDecimal(cursor.getString(4)));
+            acc.setAmount(new BigDecimal(cursor.getString(4)));
+            acc.setColor(cursor.getInt(5));
 
             Log.d("getAccount(" + id + ")", acc.getName());
             cursor.close();
@@ -237,6 +238,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         values.put(accountCols.get("description"), account.getDescription());
         values.put(accountCols.get("currency"), account.getCurrency().toString());
         values.put(accountCols.get("amount"), account.getAmount().toPlainString());
+        values.put(accountCols.get("color"), account.getColor());
 
         final int result = mDatabase.update(ACCOUNTS_TABLE_NAME,  values,  accountCols.get("ID") + " = ?",  new String[] { String.valueOf(account.getId()) });
 

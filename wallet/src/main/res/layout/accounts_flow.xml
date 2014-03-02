@@ -14,7 +14,8 @@
         android:background="@drawable/account_listview_bg"
         android:footerDividersEnabled="false"
         android:scrollbars="none"
-        android:padding="5dp" />
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp" />
 
     <TextView
         android:layout_width="wrap_content"
