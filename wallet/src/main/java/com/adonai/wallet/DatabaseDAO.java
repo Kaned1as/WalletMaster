@@ -34,6 +34,11 @@ public class DatabaseDAO extends SQLiteOpenHelper
             listenerMap.put(table, new ArrayList<DatabaseListener>() {{ add(listener); }});
     }
 
+    public void unregisterDatabaseListener(final String table, final DatabaseListener listener) {
+        if(listenerMap.containsKey(table))
+            listenerMap.get(table).remove(listener);
+    }
+
     public static final String dbName = "moneyDB";
     public static final int dbVersion = 1;
 
@@ -129,13 +134,12 @@ public class DatabaseDAO extends SQLiteOpenHelper
         values.put(accountCols.get("name"), account.getName());
         values.put(accountCols.get("description"), account.getDescription());
         values.put(accountCols.get("currency"), account.getCurrency().toString());
-        values.put(accountCols.get("amount"), account.getAmount().toString());
+        values.put(accountCols.get("amount"), account.getAmount().toPlainString());
 
         long result = mDatabase.insert(ACCOUNTS_TABLE_NAME, null, values);
 
-        if(result != -1 && listenerMap.containsKey(ACCOUNTS_TABLE_NAME))
-            for(final DatabaseListener listener : listenerMap.get(ACCOUNTS_TABLE_NAME))
-                listener.handleUpdate();
+        if(result != -1)
+            notifyListeners(ACCOUNTS_TABLE_NAME);
 
         return result;
     }
@@ -150,20 +154,19 @@ public class DatabaseDAO extends SQLiteOpenHelper
         values.put(operationsCols.get("charger"), operation.getCharger().getId());
         if(operation.getReceiver() != null)
             values.put(operationsCols.get("receiver"), operation.getReceiver().getId());
-        values.put(operationsCols.get("amount"), operation.getAmountCharged().toString());
+        values.put(operationsCols.get("amount"), operation.getAmountCharged().toPlainString());
         values.put(operationsCols.get("comission"), operation.getConvertingComission());
 
         long result = mDatabase.insert(OPERATIONS_TABLE_NAME, null, values);
 
-        if(result != -1 && listenerMap.containsKey(OPERATIONS_TABLE_NAME))
-            for(final DatabaseListener listener : listenerMap.get(OPERATIONS_TABLE_NAME))
-                listener.handleUpdate();
+        if(result != -1)
+            notifyListeners(OPERATIONS_TABLE_NAME);
 
         return result;
     }
 
     public Account getAccount(long id) {
-        final Cursor cursor = mDatabase.query(ACCOUNTS_TABLE_NAME, accountKeys, " id = ?", new String[] { String.valueOf(id) }, // d. selections args
+        final Cursor cursor = mDatabase.query(ACCOUNTS_TABLE_NAME, accountKeys, " _id = ?", new String[] { String.valueOf(id) }, // d. selections args
                                  null, // e. group by
                                  null, // f. having
                                  null, // g. order by
@@ -175,7 +178,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
             acc.setName(cursor.getString(1));
             acc.setDescription(cursor.getString(2));
             acc.setCurrency(Currency.getCurrencyForCode(cursor.getString(3)));
-            acc.setAmount(new BigDecimal(cursor.getString(2)));
+            if(cursor.isNull(4))
+                acc.setAmount(BigDecimal.ZERO);
+            else
+                acc.setAmount(new BigDecimal(cursor.getString(4)));
 
             Log.d("getAccount(" + id + ")", acc.getName());
             cursor.close();
@@ -219,17 +225,25 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return null;
     }
 
+    public void notifyListeners(String table) {
+        if(listenerMap.containsKey(table))
+            for(final DatabaseListener listener : listenerMap.get(table))
+                listener.handleUpdate();
+    }
+
     public int updateAccount(Account account) {
         final ContentValues values = new ContentValues();
         values.put(accountCols.get("name"), account.getName());
         values.put(accountCols.get("description"), account.getDescription());
         values.put(accountCols.get("currency"), account.getCurrency().toString());
-        values.put(accountCols.get("amount"), account.getAmount().toString());
+        values.put(accountCols.get("amount"), account.getAmount().toPlainString());
 
-        return mDatabase.update(ACCOUNTS_TABLE_NAME, //table
-                values, // column/value
-                accountCols.get("ID") + " = ?", // selections
-                new String[] { String.valueOf(account.getId()) });
+        final int result = mDatabase.update(ACCOUNTS_TABLE_NAME,  values,  accountCols.get("ID") + " = ?",  new String[] { String.valueOf(account.getId()) });
+
+        if(result > 0)
+            notifyListeners(ACCOUNTS_TABLE_NAME);
+
+        return result;
     }
 
     public int updateOperation(Operation operation) {
@@ -241,28 +255,51 @@ public class DatabaseDAO extends SQLiteOpenHelper
         values.put(operationsCols.get("charger"), operation.getCharger().getId());
         if(operation.getReceiver() != null)
             values.put(operationsCols.get("receiver"), operation.getReceiver().getId());
-        values.put(operationsCols.get("amount"), operation.getAmountCharged().toString());
+        values.put(operationsCols.get("amount"), operation.getAmountCharged().toPlainString());
         values.put(operationsCols.get("comission"), operation.getConvertingComission());
 
-        return mDatabase.update(ACCOUNTS_TABLE_NAME, //table
-                values, // column/value
-                operationsCols.get("ID") + " = ?", // selections
-                new String[] { String.valueOf(operation.getId()) }); //selection args
+        final int result = mDatabase.update(OPERATIONS_TABLE_NAME,  values, operationsCols.get("ID") + " = ?",  new String[] { String.valueOf(operation.getId()) }); //selection args
+
+        if(result > 0)
+            notifyListeners(OPERATIONS_TABLE_NAME);
+
+        return result;
     }
 
     public int deleteAccount(Account account) {
         Log.d("deleteAccount", account.getName());
 
-        return mDatabase.delete(ACCOUNTS_TABLE_NAME, //table name
+        int count = mDatabase.delete(ACCOUNTS_TABLE_NAME, //table name
                 accountCols.get("ID") + " = ?",  // selections
                 new String[] { String.valueOf(account.getId()) });
+
+        if(count > 0)
+            notifyListeners(ACCOUNTS_TABLE_NAME);
+
+        return count;
+    }
+
+    public int deleteAccount(final Long id) {
+        Log.d("deleteAccount", String.valueOf(id));
+
+        int count = mDatabase.delete(ACCOUNTS_TABLE_NAME, accountCols.get("ID") + " = ?", new String[] { String.valueOf(id) });
+
+        if(count > 0)
+            notifyListeners(ACCOUNTS_TABLE_NAME);
+
+        return count;
     }
 
     public int deleteOperation(Operation operation) {
         Log.d("deleteOperation", operation.getAmountCharged().toPlainString());
-        return mDatabase.delete(OPERATIONS_TABLE_NAME, //table name
+        int count = mDatabase.delete(OPERATIONS_TABLE_NAME, //table name
                 operationsCols.get("ID") + " = ?",  // selections
                 new String[] { String.valueOf(operation.getId()) });
+
+        if(count > 0)
+            notifyListeners(OPERATIONS_TABLE_NAME);
+
+        return count;
     }
 
     public long addCustomCurrency(Currency curr) {

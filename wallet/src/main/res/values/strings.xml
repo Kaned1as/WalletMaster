@@ -18,5 +18,8 @@
     <string name="create_new_account">Create new account</string>
     <string name="account_already_exist">Account with that name already exists!</string>
     <string name="account_name_invalid">You should provide valid account name!</string>
+    <string name="edit">Edit</string>
+    <string name="remove">Remove</string>
+    <string name="account_not_found">Account not found!</string>
 
 </resources>

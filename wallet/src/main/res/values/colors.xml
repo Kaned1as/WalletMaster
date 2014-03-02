@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="account_list_bg">#F0F0F0</color>
+    <color name="account_list_border">#E0E0E0</color>
+</resources>

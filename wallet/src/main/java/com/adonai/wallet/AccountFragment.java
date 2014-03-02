@@ -3,6 +3,7 @@ package com.adonai.wallet;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -11,9 +12,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CursorAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.adonai.wallet.entities.Account;
+import com.daniel.lupianez.casares.PopoverView;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -54,9 +60,10 @@ public class AccountFragment extends Fragment {
         mAccountList = (ListView) rootView.findViewById(R.id.account_list);
         budgetSum = (TextView) rootView.findViewById(R.id.account_sum);
 
-        AccountsAdapter adapter = new AccountsAdapter(getActivity(), getWalletActivity().getEntityDAO().getAcountCursor(), false);
+        AccountsAdapter adapter = new AccountsAdapter(getActivity(), false);
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, adapter);
         mAccountList.setAdapter(adapter);
+        mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
 
         return rootView;
     }
@@ -91,9 +98,9 @@ public class AccountFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    public class AccountsAdapter extends CursorAdapter implements DatabaseDAO.DatabaseListener {
-        public AccountsAdapter(Context context, Cursor c, boolean autoRequery) {
-            super(context, c, autoRequery);
+    private class AccountsAdapter extends CursorAdapter implements DatabaseDAO.DatabaseListener {
+        public AccountsAdapter(Context context, boolean autoRequery) {
+            super(context, getWalletActivity().getEntityDAO().getAcountCursor(), autoRequery);
         }
 
         @Override
@@ -134,5 +141,35 @@ public class AccountFragment extends Fragment {
         }
     }
 
+    private class AccountLongClickListener implements AdapterView.OnItemLongClickListener {
 
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, final long id) {
+            final View newView = LayoutInflater.from(getActivity()).inflate(R.layout.account_list_item_menu, null, false);
+            final PopoverView popover = new PopoverView(getActivity(), newView);
+            popover.setContentSizeForViewInPopover(new Point(100, 50));
+
+            final ImageButton delete = (ImageButton) newView.findViewById(R.id.delete_button);
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getWalletActivity().getEntityDAO().deleteAccount(id);
+                    popover.dissmissPopover(true);
+                }
+            });
+
+            final ImageButton edit = (ImageButton) newView.findViewById(R.id.edit_button);
+            edit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Account managed = getWalletActivity().getEntityDAO().getAccount(id);
+                    new CreateAccountDialogFragment(managed).show(getFragmentManager(), "accModify");
+                    popover.dissmissPopover(true);
+                }
+            });
+
+            popover.showPopoverFromRectInViewGroup((ViewGroup) parent.getRootView(), PopoverView.getFrameForView(view), PopoverView.PopoverArrowDirectionUp, true);
+            return true;
+        }
+    }
 }
