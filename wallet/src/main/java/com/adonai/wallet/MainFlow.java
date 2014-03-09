@@ -37,21 +37,15 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
         switch (position) {
-            default:
-                fragmentManager.beginTransaction().replace(R.id.container, AccountFragment.newInstance(position + 1)).commit();
-                break;
-        }
-    }
-
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
+            case 0:
                 mTitle = getString(R.string.title_accounts);
+                fragmentManager.beginTransaction().replace(R.id.container, new AccountsFragment()).commit();
                 break;
-            case 2:
+            case 1:
+                fragmentManager.beginTransaction().replace(R.id.container, new OperationsFragment()).commit();
                 mTitle = getString(R.string.title_operations);
                 break;
-            case 3:
+            case 2:
                 mTitle = getString(R.string.title_budget);
                 break;
         }

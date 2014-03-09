@@ -1,6 +1,5 @@
 package com.adonai.wallet;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -10,7 +9,6 @@ import android.graphics.Shader;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,31 +29,11 @@ import java.util.Arrays;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class AccountFragment extends Fragment {
+public class AccountsFragment extends WalletBaseFragment {
 
     ListView mAccountList;
+    AccountsAdapter mAccountsAdapter;
     TextView budgetSum;
-    /**
-     * The fragment argument representing the section number for this
-     * fragment.
-     */
-    private static final String ARG_SECTION_NUMBER = "section_number";
-
-    /**
-     * Returns a new instance of this fragment for the given section
-     * number.
-     */
-    public static AccountFragment newInstance(int sectionNumber) {
-        AccountFragment fragment = new AccountFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public WalletBaseActivity getWalletActivity() {
-        return (WalletBaseActivity) getActivity();
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -67,18 +45,12 @@ public class AccountFragment extends Fragment {
         mAccountList = (ListView) rootView.findViewById(R.id.account_list);
         budgetSum = (TextView) rootView.findViewById(R.id.account_sum);
 
-        AccountsAdapter adapter = new AccountsAdapter(getActivity(), false);
-        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, adapter);
-        mAccountList.setAdapter(adapter);
+        mAccountsAdapter = new AccountsAdapter(getActivity(), false);
+        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, mAccountsAdapter);
+        mAccountList.setAdapter(mAccountsAdapter);
         mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
 
         return rootView;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        ((MainFlow) activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
     }
 
     @Override
@@ -88,15 +60,10 @@ public class AccountFragment extends Fragment {
     }
 
     @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add_account:
-                final CreateAccountDialogFragment accountCreate = new CreateAccountDialogFragment();
+                final AccountDialogFragment accountCreate = new AccountDialogFragment();
                 accountCreate.show(getFragmentManager(), "accCreate");
                 break;
             default :
@@ -174,7 +141,7 @@ public class AccountFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     Account managed = getWalletActivity().getEntityDAO().getAccount(id);
-                    new CreateAccountDialogFragment(managed).show(getFragmentManager(), "accModify");
+                    new AccountDialogFragment(managed).show(getFragmentManager(), "accModify");
                     popover.dissmissPopover(true);
                 }
             });
@@ -182,5 +149,12 @@ public class AccountFragment extends Fragment {
             popover.showPopoverFromRectInViewGroup((ViewGroup) parent.getRootView(), PopoverView.getFrameForView(view), PopoverView.PopoverArrowDirectionUp, true);
             return true;
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, mAccountsAdapter);
+        mAccountsAdapter.changeCursor(null); // close opened cursor
     }
 }

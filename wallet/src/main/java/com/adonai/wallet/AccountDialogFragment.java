@@ -26,8 +26,8 @@ import java.util.List;
 /**
  * @author adonai
  */
-public class CreateAccountDialogFragment extends DialogFragment implements View.OnClickListener {
-    private Button mCreateButton;
+public class AccountDialogFragment extends DialogFragment implements View.OnClickListener {
+    private Button mCreateAccount;
     private EditText mAccountName;
     private EditText mAccountDescription;
     private Spinner mCurrencySelector;
@@ -36,11 +36,11 @@ public class CreateAccountDialogFragment extends DialogFragment implements View.
 
     private Account mAccount;
 
-    public CreateAccountDialogFragment() {
-        super();
+    public AccountDialogFragment() {
+        //super();
     }
 
-    public CreateAccountDialogFragment(Account toModify) {
+    public AccountDialogFragment(Account toModify) {
         super();
 
         if(toModify != null)
@@ -49,7 +49,7 @@ public class CreateAccountDialogFragment extends DialogFragment implements View.
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final View dialog = getActivity().getLayoutInflater().inflate(R.layout.account_create_dialog, null);
+        final View dialog = getActivity().getLayoutInflater().inflate(R.layout.account_create_modify_dialog, null);
         assert dialog != null;
 
         mAccountName = (EditText) dialog.findViewById(R.id.name_edit);
@@ -57,18 +57,18 @@ public class CreateAccountDialogFragment extends DialogFragment implements View.
         mCurrencySelector = (Spinner) dialog.findViewById(R.id.currency_spinner);
         mColorSelector = (Spinner) dialog.findViewById(R.id.color_spinner);
         mInitialAmount = (EditText) dialog.findViewById(R.id.initial_amount_edit);
-        mCreateButton = (Button) dialog.findViewById(R.id.create_modify_account_button);
+        mCreateAccount = (Button) dialog.findViewById(R.id.create_modify_account_button);
 
         CurrencyAdapter adapter = new CurrencyAdapter(getActivity(), android.R.layout.simple_spinner_item, Currency.getAvailableCurrencies());
         mCurrencySelector.setAdapter(adapter);
-        mCreateButton.setOnClickListener(this);
+        mCreateAccount.setOnClickListener(this);
         ColorSpinnerAdapter colorAdapter = new ColorSpinnerAdapter(getActivity(), getResources().getStringArray(R.array.colors));
         mColorSelector.setAdapter(colorAdapter);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // if we are modifying existing account
         if(mAccount != null) {
-            mCreateButton.setText(R.string.edit);
+            mCreateAccount.setText(R.string.edit);
             builder.setTitle(R.string.edit_account).setView(dialog);
 
             mAccountName.setText(mAccount.getName());
@@ -81,9 +81,6 @@ public class CreateAccountDialogFragment extends DialogFragment implements View.
             mCurrencySelector.setSelection(adapter.getPosition(Currency.getCurrencyForCode("RUB")));
             mInitialAmount.setText("0.0");
         }
-
-
-
 
         return builder.create();
     }

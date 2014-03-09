@@ -2,4 +2,5 @@
 <resources>
     <color name="account_list_bg">#F0F0F0</color>
     <color name="account_list_border">#E0E0E0</color>
+    <color name="green_amount">#ff13ac00</color>
 </resources>
