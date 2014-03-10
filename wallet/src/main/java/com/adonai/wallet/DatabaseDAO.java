@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,39 +42,42 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public static final int dbVersion = 1;
 
     public static final String ACCOUNTS_TABLE_NAME = "accounts";
-    private static final Map<String, String> accountCols = new LinkedHashMap<String, String>() // такая реализация не прерывает порядок очередности вставки
-    {{
-        put("ID", "_id");                       // 0
-        put("name", "NAME");                    // 1
-        put("description", "DESCRIPTION");      // 2
-        put("currency", "CURRENCY");            // 3
-        put("amount", "AMOUNT");                // 4
-        put("color", "COLOR");                  // 5
-    }};
+    public static enum AccountFields {
+        _id,
+        NAME,
+        DESCRIPTION,
+        CURRENCY,
+        AMOUNT,
+        COLOR
+    }
 
     public static final String OPERATIONS_TABLE_NAME = "operations";
-    private static final Map<String, String> operationsCols = new LinkedHashMap<String, String>()
-    {{
-        put("ID", "_id");                       // 0
-        put("description", "DESCRIPTION");      // 1
-        put("time", "TIME");                    // 2
-        put("charger", "CHARGER_ID");           // 3
-        put("receiver", "RECEIVER_ID");         // 4
-        put("amount", "AMOUNT");                // 5
-        put("comission", "COMISSION");          // 6
-    }};
+    public static enum OperationsFields {
+        _id,
+        DESCRIPTION,
+        TIME,
+        CHARGER,
+        RECEIVER,
+        AMOUNT,
+        COMISSION
+    }
 
     public static final String CURRENCIES_TABLE_NAME = "currencies";
-    private static final Map<String, String> currenciesCols = new LinkedHashMap<String, String>()
-    {{
-        put("code", "CODE");                    // 0
-        put("description", "DESCRIPTION");      // 1
-        put("usedIn", "USED_IN");               // 2
-    }};
+    public static enum CurrenciesFields {
+        CODE,
+        DESCRIPTION,
+        USED_IN
+    }
 
-    private final String[] accountKeys = accountCols.values().toArray(new String[accountCols.values().size()]);
-    private final String[] operationsKeys = operationsCols.values().toArray(new String[operationsCols.values().size()]);
-    private final String[] currenciesKeys = currenciesCols.values().toArray(new String[currenciesCols.values().size()]);
+
+    public static final String CATEGORIES_TABLE_NAME = "categories";
+    public static enum CategoriesFields {
+        _id,
+        NAME,
+        TYPE,
+        PREFERRED_ACCOUNT
+    }
+
     private final Map<String, List<DatabaseListener>> listenerMap = new HashMap<>();
     private final SQLiteDatabase mDatabase;
 
@@ -96,33 +98,42 @@ public class DatabaseDAO extends SQLiteOpenHelper
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("CREATE TABLE " + ACCOUNTS_TABLE_NAME + " ("+
-                accountKeys[0] + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                accountKeys[1] + " TEXT DEFAULT '' NOT NULL, " +
-                accountKeys[2] + " TEXT DEFAULT NULL, " +
-                accountKeys[3] + " TEXT DEFAULT 'RUB' NOT NULL, " +
-                accountKeys[4] + " TEXT DEFAULT '0' NOT NULL, " +
-                accountKeys[5] + " TEXT DEFAULT NULL " +
+                AccountFields._id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                AccountFields.NAME + " TEXT DEFAULT '' NOT NULL, " +
+                AccountFields.DESCRIPTION + " TEXT DEFAULT NULL, " +
+                AccountFields.CURRENCY + " TEXT DEFAULT 'RUB' NOT NULL, " +
+                AccountFields.AMOUNT + " TEXT DEFAULT '0' NOT NULL, " +
+                AccountFields.COLOR + " TEXT DEFAULT NULL " +
                 ")");
-        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "ACCOUNT_NAME_IDX ON " + ACCOUNTS_TABLE_NAME + " (" + accountCols.get("name") + ")");
+        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "ACCOUNT_NAME_IDX ON " + ACCOUNTS_TABLE_NAME + " (" + AccountFields.NAME + ")");
 
         sqLiteDatabase.execSQL("CREATE TABLE " + OPERATIONS_TABLE_NAME + " (" +
-                operationsKeys[0] +" INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                operationsKeys[1] +" TEXT DEFAULT NULL, " +
-                operationsKeys[2] +" DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, " +
-                operationsKeys[3] +" INTEGER NOT NULL, " +
-                operationsKeys[4] +" INTEGER DEFAULT NULL, " +
-                operationsKeys[5] +" TEXT DEFAULT '0', " +
-                operationsKeys[6] +" REAL NOT NULL, " +
-                " FOREIGN KEY (" + operationsKeys[3] + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + accountKeys[0] + ")," +
-                " FOREIGN KEY (" + operationsKeys[4] + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + accountKeys[0] + ")" +
+                OperationsFields._id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                OperationsFields.DESCRIPTION + " TEXT DEFAULT NULL, " +
+                OperationsFields.TIME + " DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, " +
+                OperationsFields.CHARGER + " INTEGER NOT NULL, " +
+                OperationsFields.RECEIVER + " INTEGER DEFAULT NULL, " +
+                OperationsFields.AMOUNT + " TEXT DEFAULT '0', " +
+                OperationsFields.COMISSION + " REAL NOT NULL, " +
+                " FOREIGN KEY (" + OperationsFields.CHARGER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ")," +
+                " FOREIGN KEY (" + OperationsFields.RECEIVER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ")" +
                 ")");
 
         sqLiteDatabase.execSQL("CREATE TABLE " + CURRENCIES_TABLE_NAME + " (" +
-                currenciesKeys[0] +" TEXT NOT NULL, " +
-                currenciesKeys[1] +" TEXT DEFAULT NULL, " +
-                currenciesKeys[2] +" TEXT DEFAULT NULL" +
+                CurrenciesFields.CODE + " TEXT NOT NULL, " +
+                CurrenciesFields.DESCRIPTION + " TEXT DEFAULT NULL, " +
+                CurrenciesFields.USED_IN + " TEXT DEFAULT NULL" +
                 ")");
-        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CURRENCY_IDX ON " + CURRENCIES_TABLE_NAME + " (" +  currenciesCols.get("code") + ")");
+        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CURRENCY_IDX ON " + CURRENCIES_TABLE_NAME + " (" +  CurrenciesFields.CODE + ")");
+
+        sqLiteDatabase.execSQL("CREATE TABLE " + CATEGORIES_TABLE_NAME + " (" +
+                CategoriesFields._id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                CategoriesFields.NAME + " TEXT DEFAULT '' NOT NULL, " +
+                CategoriesFields.TYPE + " INTEGER DEFAULT 0 NOT NULL, " +
+                CategoriesFields.PREFERRED_ACCOUNT + " INTEGER DEFAULT NULL, " +
+                " FOREIGN KEY (" + CategoriesFields.PREFERRED_ACCOUNT + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ")" +
+                ")");
+        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CATEGORY_UNIQUE_NAME_IDX ON " + CATEGORIES_TABLE_NAME + " (" +  CategoriesFields.NAME + ")");
     }
 
     @Override
@@ -133,11 +144,11 @@ public class DatabaseDAO extends SQLiteOpenHelper
         Log.d("addAccount", account.getName());
 
         final ContentValues values = new ContentValues();
-        values.put(accountCols.get("name"), account.getName());
-        values.put(accountCols.get("description"), account.getDescription());
-        values.put(accountCols.get("currency"), account.getCurrency().toString());
-        values.put(accountCols.get("amount"), account.getAmount().toPlainString());
-        values.put(accountCols.get("color"), account.getColor());
+        values.put(AccountFields.NAME.toString(), account.getName());
+        values.put(AccountFields.DESCRIPTION.toString(), account.getDescription());
+        values.put(AccountFields.CURRENCY.toString(), account.getCurrency().toString());
+        values.put(AccountFields.AMOUNT.toString(), account.getAmount().toPlainString());
+        values.put(AccountFields.COLOR.toString(), account.getColor());
 
         long result = mDatabase.insert(ACCOUNTS_TABLE_NAME, null, values);
 
@@ -151,14 +162,14 @@ public class DatabaseDAO extends SQLiteOpenHelper
         Log.d("addOperation", operation.getAmountCharged().toPlainString());
 
         final ContentValues values = new ContentValues();
-        values.put(operationsCols.get("description"), operation.getDescription());
+        values.put(OperationsFields.DESCRIPTION.toString(), operation.getDescription());
         if(operation.getTime() != null)
-            values.put(operationsCols.get("time"), operation.getTimeString());
-        values.put(operationsCols.get("charger"), operation.getCharger().getId());
+            values.put(OperationsFields.TIME.toString(), operation.getTimeString());
+        values.put(OperationsFields.CHARGER.toString(), operation.getCharger().getId());
         if(operation.getReceiver() != null)
-            values.put(operationsCols.get("receiver"), operation.getReceiver().getId());
-        values.put(operationsCols.get("amount"), operation.getAmountCharged().toPlainString());
-        values.put(operationsCols.get("comission"), operation.getConvertingComission());
+            values.put(OperationsFields.RECEIVER.toString(), operation.getReceiver().getId());
+        values.put(OperationsFields.AMOUNT.toString(), operation.getAmountCharged().toPlainString());
+        values.put(OperationsFields.COMISSION.toString(), operation.getConvertingComission());
 
         long result = mDatabase.insert(OPERATIONS_TABLE_NAME, null, values);
 
@@ -169,7 +180,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public Account getAccount(long id) {
-        final Cursor cursor = mDatabase.query(ACCOUNTS_TABLE_NAME, accountKeys, " _id = ?", new String[] { String.valueOf(id) }, // d. selections args
+        final Cursor cursor = mDatabase.query(ACCOUNTS_TABLE_NAME, Utils.allKeys(AccountFields.class), " _id = ?", new String[] { String.valueOf(id) }, // d. selections args
                                  null, // e. group by
                                  null, // f. having
                                  null, // g. order by
@@ -194,11 +205,11 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public Cursor getAcountCursor() {
-        return mDatabase.query(ACCOUNTS_TABLE_NAME, accountKeys, null, null, null, null, null, null);
+        return mDatabase.query(ACCOUNTS_TABLE_NAME, Utils.allKeys(AccountFields.class), null, null, null, null, null, null);
     }
 
-    public Operation getOperaion(long id) {
-        final Cursor cursor = mDatabase.query(OPERATIONS_TABLE_NAME, operationsKeys, " id = ?", new String[] { String.valueOf(id) }, // d. selections args
+    public Operation getOperation(long id) {
+        final Cursor cursor = mDatabase.query(OPERATIONS_TABLE_NAME, Utils.allKeys(OperationsFields.class), OperationsFields._id + " = ?", new String[] { String.valueOf(id) }, // d. selections args
                 null, // e. group by
                 null, // f. having
                 null, // g. order by
@@ -234,13 +245,13 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     public int updateAccount(Account account) {
         final ContentValues values = new ContentValues();
-        values.put(accountCols.get("name"), account.getName());
-        values.put(accountCols.get("description"), account.getDescription());
-        values.put(accountCols.get("currency"), account.getCurrency().toString());
-        values.put(accountCols.get("amount"), account.getAmount().toPlainString());
-        values.put(accountCols.get("color"), account.getColor());
+        values.put(AccountFields.NAME.toString(), account.getName());
+        values.put(AccountFields.DESCRIPTION.toString(), account.getDescription());
+        values.put(AccountFields.CURRENCY.toString(), account.getCurrency().toString());
+        values.put(AccountFields.AMOUNT.toString(), account.getAmount().toPlainString());
+        values.put(AccountFields.COLOR.toString(), account.getColor());
 
-        final int result = mDatabase.update(ACCOUNTS_TABLE_NAME,  values,  accountCols.get("ID") + " = ?",  new String[] { String.valueOf(account.getId()) });
+        final int result = mDatabase.update(ACCOUNTS_TABLE_NAME,  values,  AccountFields._id + " = ?",  new String[] { String.valueOf(account.getId()) });
 
         if(result > 0)
             notifyListeners(ACCOUNTS_TABLE_NAME);
@@ -251,16 +262,16 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public int updateOperation(Operation operation) {
         // 2. create ContentValues to add key "column"/value
         final ContentValues values = new ContentValues();
-        values.put(operationsCols.get("description"), operation.getDescription());
+        values.put(OperationsFields.DESCRIPTION.toString(), operation.getDescription());
         if(operation.getTime() != null)
-            values.put(operationsCols.get("time"), operation.getTimeString());
-        values.put(operationsCols.get("charger"), operation.getCharger().getId());
+            values.put(OperationsFields.TIME.toString(), operation.getTimeString());
+        values.put(OperationsFields.CHARGER.toString(), operation.getCharger().getId());
         if(operation.getReceiver() != null)
-            values.put(operationsCols.get("receiver"), operation.getReceiver().getId());
-        values.put(operationsCols.get("amount"), operation.getAmountCharged().toPlainString());
-        values.put(operationsCols.get("comission"), operation.getConvertingComission());
+            values.put(OperationsFields.RECEIVER.toString(), operation.getReceiver().getId());
+        values.put(OperationsFields.AMOUNT.toString(), operation.getAmountCharged().toPlainString());
+        values.put(OperationsFields.COMISSION.toString(), operation.getConvertingComission());
 
-        final int result = mDatabase.update(OPERATIONS_TABLE_NAME,  values, operationsCols.get("ID") + " = ?",  new String[] { String.valueOf(operation.getId()) }); //selection args
+        final int result = mDatabase.update(OPERATIONS_TABLE_NAME,  values, OperationsFields._id + " = ?",  new String[] { String.valueOf(operation.getId()) }); //selection args
 
         if(result > 0)
             notifyListeners(OPERATIONS_TABLE_NAME);
@@ -272,7 +283,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         Log.d("deleteAccount", account.getName());
 
         int count = mDatabase.delete(ACCOUNTS_TABLE_NAME, //table name
-                accountCols.get("ID") + " = ?",  // selections
+                AccountFields._id + " = ?",  // selections
                 new String[] { String.valueOf(account.getId()) });
 
         if(count > 0)
@@ -284,7 +295,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public int deleteAccount(final Long id) {
         Log.d("deleteAccount", String.valueOf(id));
 
-        int count = mDatabase.delete(ACCOUNTS_TABLE_NAME, accountCols.get("ID") + " = ?", new String[] { String.valueOf(id) });
+        int count = mDatabase.delete(ACCOUNTS_TABLE_NAME, AccountFields._id + " = ?", new String[] { String.valueOf(id) });
 
         if(count > 0)
             notifyListeners(ACCOUNTS_TABLE_NAME);
@@ -295,7 +306,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public int deleteOperation(Operation operation) {
         Log.d("deleteOperation", operation.getAmountCharged().toPlainString());
         int count = mDatabase.delete(OPERATIONS_TABLE_NAME, //table name
-                operationsCols.get("ID") + " = ?",  // selections
+                OperationsFields._id + " = ?",  // selections
                 new String[] { String.valueOf(operation.getId()) });
 
         if(count > 0)
@@ -309,17 +320,17 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
         Log.d("addCurrency", curr.toString());
         final ContentValues values = new ContentValues();
-        values.put(currenciesCols.get("code"), curr.getDescription());
+        values.put(CurrenciesFields.CODE.toString(), curr.getDescription());
         if(curr.getDescription() != null)
-            values.put(currenciesCols.get("description"), curr.getDescription());
+            values.put(CurrenciesFields.DESCRIPTION.toString(), curr.getDescription());
         if(curr.getUsedIn() != null)
-            values.put(currenciesCols.get("usedIn"), curr.getUsedIn());
+            values.put(CurrenciesFields.USED_IN.toString(), curr.getUsedIn());
 
         return mDatabase.insert(CURRENCIES_TABLE_NAME, null, values);
     }
 
     public List<Currency> getCustomCurrencies() {
-        final Cursor cursor = mDatabase.query(CURRENCIES_TABLE_NAME, currenciesKeys, null, null, null,  null,  null, null);
+        final Cursor cursor = mDatabase.query(CURRENCIES_TABLE_NAME, Utils.allKeys(CurrenciesFields.class), null, null, null,  null,  null, null);
 
         final List<Currency> result = new ArrayList<>();
         if (cursor.moveToFirst())

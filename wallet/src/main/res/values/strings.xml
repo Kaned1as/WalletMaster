@@ -35,5 +35,8 @@
     <string name="category">Category</string>
     <string name="date">Date</string>
     <string name="select_date">Please select date</string>
+    <string name="income">Income</string>
+    <string name="outcome">Outcome</string>
+    <string name="optional">Optional</string>
 
 </resources>

@@ -1,207 +1,241 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:stretchColumns="1">
+    android:layout_height="wrap_content">
 
-    <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="10dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/date"
-            android:id="@+id/date_label"
-            android:paddingRight="15dp" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/date_picker_button"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="50dp" />
-
-
-    </TableRow>
-
-    <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="10dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/description"
-            android:id="@+id/description_label"
-            android:paddingRight="15dp" />
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/description_edit" />
-    </TableRow>
-
-    <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="10dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/category"
-            android:id="@+id/category_label"
-            android:paddingRight="15dp" />
-
-        <Spinner
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/category_spinner"
-            android:layout_marginRight="20dp" />
-    </TableRow>
-
-    <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="10dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/from"
-            android:id="@+id/charge_account_label"
-            android:paddingRight="15dp" />
-
-        <Spinner
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/charge_account_spinner"
-            android:layout_marginRight="20dp" />
-
-    </TableRow>
-
-    <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="10dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/amount"
-            android:id="@+id/charge_amount_label"
-            android:paddingRight="15dp" />
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/charge_amount_edit"
-            android:inputType="numberDecimal|numberSigned" />
-    </TableRow>
-
-    <CheckBox
-        android:layout_width="wrap_content"
+    <TableLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/transfer"
-        android:id="@+id/transfer_switch" />
+        android:stretchColumns="*"
+        android:paddingEnd="10dp"
+        android:paddingStart="10dp"
+        android:id="@+id/dialog_table">
 
-    <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="10dp"
-        android:id="@+id/beneficiar_layout"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/to"
-            android:id="@+id/beneficiar_account_label"
-            android:paddingRight="15dp" />
-
-        <Spinner
+        <TableRow
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/beneficiar_account_spinner"
-            android:layout_marginRight="20dp" />
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
 
-    </TableRow>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/date"
+                android:id="@+id/date_label" />
 
-    <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="10dp"
-        android:id="@+id/beneficiar_conversion"
-        android:visibility="gone">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/date_picker_button"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/conversion"
-            android:id="@+id/beneficiar_conversion_label"
-            android:paddingRight="15dp" />
 
-        <EditText
+        </TableRow>
+
+        <TableRow
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
-            android:ems="10"
-            android:id="@+id/beneficiar_conversion_edit"
-            android:hint="@string/rate" />
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
 
-    </TableRow>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/description"
+                android:id="@+id/description_label" />
 
-    <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="10dp"
-        android:id="@+id/beneficiar_amount"
-        android:visibility="gone">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/optional"
+                android:id="@+id/description_edit" />
+        </TableRow>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/delivered"
-            android:id="@+id/beneficiar_amount_label"
-            android:paddingRight="15dp" />
-
-        <TextView
+        <TableRow
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/beneficiar_amount_value_label"
-            android:textColor="@color/green_amount"
-            android:textStyle="bold"
-            android:editable="false"
-            android:layout_marginRight="20dp"
-            android:gravity="right" />
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
 
-    </TableRow>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/category"
+                android:id="@+id/category_label" />
 
-    <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="10dp">
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/category_spinner" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/from"
+                android:id="@+id/charge_account_label" />
+
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/charge_account_spinner" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/amount"
+                android:id="@+id/charge_amount_label" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/charge_amount_edit"
+                android:inputType="numberDecimal|numberSigned" />
+        </TableRow>
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:id="@+id/operation_type_switch">
+
+            <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/transfer"
+                android:id="@+id/transfer_radio"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:ellipsize="marquee" />
+
+            <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/income"
+                android:id="@+id/income_radio"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:ellipsize="marquee" />
+
+            <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/outcome"
+                android:id="@+id/outcome_radio"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:ellipsize="marquee" />
+        </RadioGroup>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/beneficiar_layout"
+            android:visibility="gone"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/to"
+                android:id="@+id/beneficiar_account_label" />
+
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/beneficiar_account_spinner" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/beneficiar_conversion"
+            android:visibility="gone"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/conversion"
+                android:id="@+id/beneficiar_conversion_label" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:id="@+id/beneficiar_conversion_edit"
+                android:hint="@string/rate" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/beneficiar_amount"
+            android:visibility="gone"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/delivered"
+                android:id="@+id/beneficiar_amount_label" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/beneficiar_amount_value_label"
+                android:textColor="@color/green_amount"
+                android:textStyle="bold"
+                android:editable="false"
+                android:gravity="right" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp">
 
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/create"
-            android:id="@+id/create_modify_operation_button"
-            android:layout_span="2" />
-    </TableRow>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/create"
+                android:id="@+id/create_modify_operation_button"
+                android:layout_span="2" />
+        </TableRow>
 
-</TableLayout>
+    </TableLayout>
+
+</ScrollView>

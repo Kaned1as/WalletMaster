@@ -4,34 +4,34 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.adonai.wallet.entities.Account;
-import com.adonai.wallet.entities.Currency;
 import com.adonai.wallet.entities.Operation;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 /**
- * Created by adonai on 09.03.14.
+ * @author adonai
  */
-public class OperationDialogFragment extends DialogFragment implements View.OnClickListener {
+public class OperationDialogFragment extends WalletBaseDialogFragment implements View.OnClickListener {
 
     private EditText mDescription;
     private Button mCreateOperation;
@@ -42,13 +42,15 @@ public class OperationDialogFragment extends DialogFragment implements View.OnCl
 
     private Spinner mChargeAccountSelector;
     private Spinner mCategorySelector;
+    private AccountsAdapter mAccountAdapter;
     private EditText mAmountCharged;
 
-    private CheckBox mTransferSwitch;
+    private RadioGroup mTypeSwitch;
 
+    private final List<TableRow> beneficiarRows = new ArrayList<>();
     private Spinner mBeneficiarAccountSelector;
     private EditText mBeneficiarConversionRate;
-    private TextView mAmountDelivered;
+    private TextView mBeneficiarAmountDelivered;
 
     private Operation mOperation;
 
@@ -65,6 +67,8 @@ public class OperationDialogFragment extends DialogFragment implements View.OnCl
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        mAccountAdapter = new AccountsAdapter(getWalletActivity(), false);
+
         final View dialog = getActivity().getLayoutInflater().inflate(R.layout.operation_create_modify_dialog, null);
         assert dialog != null;
 
@@ -75,13 +79,23 @@ public class OperationDialogFragment extends DialogFragment implements View.OnCl
         mDatePicker.setOnClickListener(this);
 
         mChargeAccountSelector = (Spinner) dialog.findViewById(R.id.charge_account_spinner);
+        mChargeAccountSelector.setAdapter(mAccountAdapter);
+
         mCategorySelector = (Spinner) dialog.findViewById(R.id.category_spinner);
         mAmountCharged = (EditText) dialog.findViewById(R.id.charge_amount_edit);
 
-        mTransferSwitch = (CheckBox) dialog.findViewById(R.id.transfer_switch);
+        mTypeSwitch = (RadioGroup) dialog.findViewById(R.id.operation_type_switch);
+        mTypeSwitch.setOnCheckedChangeListener(new TypeSelector());
+
+        beneficiarRows.add((TableRow) dialog.findViewById(R.id.beneficiar_layout));
+        beneficiarRows.add((TableRow) dialog.findViewById(R.id.beneficiar_conversion));
+        beneficiarRows.add((TableRow) dialog.findViewById(R.id.beneficiar_amount));
+
         mBeneficiarAccountSelector = (Spinner) dialog.findViewById(R.id.beneficiar_account_spinner);
+        mBeneficiarAccountSelector.setAdapter(mAccountAdapter);
+
         mBeneficiarConversionRate = (EditText) dialog.findViewById(R.id.beneficiar_conversion_edit);
-        mAmountDelivered = (TextView) dialog.findViewById(R.id.beneficiar_amount_value_label);
+        mBeneficiarAmountDelivered = (TextView) dialog.findViewById(R.id.beneficiar_amount_value_label);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(dialog);
@@ -96,29 +110,50 @@ public class OperationDialogFragment extends DialogFragment implements View.OnCl
         return builder.create();
     }
 
-    public class AccountsAdapter extends CursorAdapter<Account> implements SpinnerAdapter {
-
-        public CurrencyAdapter(Context context, int resource, List<Currency> objects) {
-            super(context, resource, objects);
+    private class AccountsAdapter extends CursorAdapter implements SpinnerAdapter {
+        public AccountsAdapter(Context context, boolean autoRequery) {
+            super(context, getWalletActivity().getEntityDAO().getAcountCursor(), autoRequery);
         }
 
         @Override
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            View view;
-            Currency currency = getItem(position);
-            if (convertView == null)
-                view = View.inflate(getContext(), R.layout.currency_list_item, null);
-            else
-                view = convertView;
+        public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
+            final LayoutInflater inflater = LayoutInflater.from(context);
+            return inflater.inflate(android.R.layout.simple_spinner_item, viewGroup, false);
+        }
 
-            TextView title = (TextView) view.findViewById(R.id.curr_caption_text);
-            title.setText(currency.getCode());
-            TextView author = (TextView) view.findViewById(R.id.curr_description_text);
-            author.setText(currency.getDescription());
-            TextView last_post = (TextView) view.findViewById(R.id.curr_usedin_text);
-            last_post.setText(currency.getUsedIn());
+        @Override
+        @SuppressWarnings("deprecation") // for compat with older APIs
+        public void bindView(View view, Context context, Cursor cursor) {
+            final TextView name = (TextView) view.findViewById(android.R.id.text1);
+            name.setText(cursor.getString(1));
+        }
 
-            return view;
+        @Override
+        public long getItemId(int position) {
+            getCursor().moveToPosition(position);
+
+            return getCursor().getLong(0);
+        }
+    }
+
+    private class TypeSelector implements RadioGroup.OnCheckedChangeListener {
+
+        @Override
+        public void onCheckedChanged(RadioGroup group, int checkedId) {
+            switch (checkedId) {
+                case R.id.transfer_radio:
+                    for(TableRow row : beneficiarRows)
+                        row.setVisibility(View.VISIBLE);
+                    break;
+                case R.id.income_radio:
+                    for(TableRow row : beneficiarRows)
+                        row.setVisibility(View.GONE);
+                    break;
+                case R.id.outcome_radio:
+                    for(TableRow row : beneficiarRows)
+                        row.setVisibility(View.GONE);
+                    break;
+            }
         }
     }
 
@@ -150,5 +185,11 @@ public class OperationDialogFragment extends DialogFragment implements View.OnCl
                 new DatePickerDialog(getActivity(), listener, mNow.get(Calendar.YEAR), mNow.get(Calendar.MONTH), mNow.get(Calendar.DAY_OF_MONTH)).show();
             }
         }
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+        mAccountAdapter.changeCursor(null); // close old cursor
     }
 }

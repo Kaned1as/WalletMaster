@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +25,7 @@ import java.util.List;
 /**
  * @author adonai
  */
-public class AccountDialogFragment extends DialogFragment implements View.OnClickListener {
+public class AccountDialogFragment extends WalletBaseDialogFragment implements View.OnClickListener {
     private Button mCreateAccount;
     private EditText mAccountName;
     private EditText mAccountDescription;

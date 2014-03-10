@@ -3,20 +3,21 @@
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:stretchColumns="1">
+    android:stretchColumns="*"
+    android:paddingEnd="10dp">
 
     <TableRow
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="10dp">
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/name"
-            android:id="@+id/name_label"
-            android:paddingRight="15dp" />
+            android:id="@+id/name_label" />
 
         <EditText
             android:layout_width="match_parent"
@@ -26,17 +27,17 @@
     </TableRow>
 
     <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="10dp">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/description"
-            android:id="@+id/sort_spinner"
-            android:paddingRight="15dp" />
+            android:id="@+id/sort_spinner" />
 
         <EditText
             android:layout_width="match_parent"
@@ -45,17 +46,17 @@
     </TableRow>
 
     <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="10dp">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/currency"
-            android:id="@+id/currency_label"
-            android:paddingRight="15dp" />
+            android:id="@+id/currency_label" />
 
         <Spinner
             android:layout_width="match_parent"
@@ -66,17 +67,17 @@
     </TableRow>
 
     <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="10dp">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/color"
-            android:id="@+id/color_label"
-            android:paddingRight="15dp" />
+            android:id="@+id/color_label" />
 
         <Spinner
             android:layout_width="match_parent"
@@ -87,17 +88,17 @@
     </TableRow>
 
     <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="10dp">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/initial_amount"
-            android:id="@+id/initial_amount_label"
-            android:paddingRight="15dp" />
+            android:id="@+id/initial_amount_label" />
 
         <EditText
             android:layout_width="match_parent"
@@ -107,9 +108,10 @@
     </TableRow>
 
     <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="10dp">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
 
 
         <Button

@@ -6,6 +6,8 @@ import android.util.DisplayMetrics;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.EnumSet;
+import java.util.Iterator;
 
 /**
  * @author adonai
@@ -29,8 +31,6 @@ public class Utils {
         }
         return result;
     }
-
-
 
     /**
      * This method converts dp unit to equivalent pixels, depending on device density.
@@ -56,5 +56,15 @@ public class Utils {
         final Resources resources = context.getResources();
         final DisplayMetrics metrics = resources.getDisplayMetrics();
         return px / (metrics.densityDpi / 160f);
+    }
+
+    public static <E extends Enum<E>> String[] allKeys(Class<E> clazz) {
+        EnumSet<E> set = EnumSet.allOf(clazz);
+        String[] result = new String[set.size()];
+        Iterator<E> iter = set.iterator();
+        for(int i = 0; i < set.size(); ++i) {
+            result[i] = iter.next().toString();
+        }
+        return result;
     }
 }
