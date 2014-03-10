@@ -13,7 +13,8 @@ import java.util.Iterator;
  * @author adonai
  */
 public class Utils {
-    public static <T extends Object> T getValue(String value, T defaultValue) {
+    @SuppressWarnings("unchecked") // we know what we want
+    public static <T> T getValue(String value, T defaultValue) {
         T result;
         try {
             try {
@@ -58,6 +59,11 @@ public class Utils {
         return px / (metrics.densityDpi / 160f);
     }
 
+    /**
+     * Retrieves all keys of enum as string array
+     * @param clazz class of enum
+     * @return String array
+     */
     public static <E extends Enum<E>> String[] allKeys(Class<E> clazz) {
         EnumSet<E> set = EnumSet.allOf(clazz);
         String[] result = new String[set.size()];
