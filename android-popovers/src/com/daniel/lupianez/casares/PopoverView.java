@@ -1,7 +1,7 @@
 /**
  * Popover View
  *
- * Copyright 2012 Daniel Lupia�ez Casares <lupidan@gmail.com>
+ * Copyright 2012 Daniel Lupianiez Casares <lupidan@gmail.com>
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -287,6 +287,7 @@ public class PopoverView extends RelativeLayout implements OnTouchListener{
 	 * Init the popover view
 	 * @param viewToEnclose The view we wan to insert inside the popover
 	 */
+    @SuppressWarnings("deprecation") // for compatibility with older apis
 	private void initPopoverView(View viewToEnclose){
 		
 		//Configure self
@@ -304,7 +305,7 @@ public class PopoverView extends RelativeLayout implements OnTouchListener{
 		//Init the relative layout
 		popoverView = new RelativeLayout(getContext());
 		popoverView.setBackgroundDrawable(getResources().getDrawable(popoverBackgroundDrawable));
-		popoverView.addView(viewToEnclose,LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+		popoverView.addView(viewToEnclose,LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		
 	}
 	

@@ -9,6 +9,7 @@ import android.os.Build;
 import android.util.Log;
 
 import com.adonai.wallet.entities.Account;
+import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Currency;
 import com.adonai.wallet.entities.Operation;
 
@@ -115,8 +116,8 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 OperationsFields.RECEIVER + " INTEGER DEFAULT NULL, " +
                 OperationsFields.AMOUNT + " TEXT DEFAULT '0', " +
                 OperationsFields.COMISSION + " REAL NOT NULL, " +
-                " FOREIGN KEY (" + OperationsFields.CHARGER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ")," +
-                " FOREIGN KEY (" + OperationsFields.RECEIVER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ")" +
+                " FOREIGN KEY (" + OperationsFields.CHARGER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE," +
+                " FOREIGN KEY (" + OperationsFields.RECEIVER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE SET NULL" +
                 ")");
 
         sqLiteDatabase.execSQL("CREATE TABLE " + CURRENCIES_TABLE_NAME + " (" +
@@ -131,7 +132,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 CategoriesFields.NAME + " TEXT DEFAULT '' NOT NULL, " +
                 CategoriesFields.TYPE + " INTEGER DEFAULT 0 NOT NULL, " +
                 CategoriesFields.PREFERRED_ACCOUNT + " INTEGER DEFAULT NULL, " +
-                " FOREIGN KEY (" + CategoriesFields.PREFERRED_ACCOUNT + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ")" +
+                " FOREIGN KEY (" + CategoriesFields.PREFERRED_ACCOUNT + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE SET NULL" +
                 ")");
         sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CATEGORY_UNIQUE_NAME_IDX ON " + CATEGORIES_TABLE_NAME + " (" +  CategoriesFields.NAME + ")");
     }
@@ -175,6 +176,22 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
         if(result != -1)
             notifyListeners(OPERATIONS_TABLE_NAME);
+
+        return result;
+    }
+
+    public long addCategory(Category category) {
+        Log.d("addCategory", category.getName());
+        final ContentValues values = new ContentValues();
+        values.put(CategoriesFields.NAME.toString(), category.getName());
+        values.put(CategoriesFields.TYPE.toString(), category.getType());
+        if(category.getPreferredAccount() != null)
+            values.put(CategoriesFields.PREFERRED_ACCOUNT.toString(), category.getPreferredAccount().getId());
+
+        long result = mDatabase.insert(CATEGORIES_TABLE_NAME, null, values);
+
+        if(result != -1)
+            notifyListeners(CATEGORIES_TABLE_NAME);
 
         return result;
     }
@@ -299,6 +316,17 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
         if(count > 0)
             notifyListeners(ACCOUNTS_TABLE_NAME);
+
+        return count;
+    }
+
+    public int deleteCategory(final Long id) {
+        Log.d("deleteCategory", String.valueOf(id));
+
+        int count = mDatabase.delete(CATEGORIES_TABLE_NAME, CategoriesFields._id + " = ?", new String[] { String.valueOf(id) });
+
+        if(count > 0)
+            notifyListeners(CATEGORIES_TABLE_NAME);
 
         return count;
     }
