@@ -8,6 +8,14 @@ public class Category {
     private Integer type;
     private Account preferredAccount;
 
+    public Category() {
+    }
+
+    public Category(String name, Integer type) {
+        this.name = name;
+        this.type = type;
+    }
+
     public String getName() {
         return name;
     }

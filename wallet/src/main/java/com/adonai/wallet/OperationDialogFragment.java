@@ -112,7 +112,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
     private class AccountsAdapter extends CursorAdapter implements SpinnerAdapter {
         public AccountsAdapter(Context context, boolean autoRequery) {
-            super(context, getWalletActivity().getEntityDAO().getAcountCursor(), autoRequery);
+            super(context, getWalletActivity().getEntityDAO().getAccountCursor(), autoRequery);
         }
 
         @Override

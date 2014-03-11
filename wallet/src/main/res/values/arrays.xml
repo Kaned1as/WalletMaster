@@ -18,4 +18,22 @@
         <item name="navy">#000080</item>
         <item name="black">#000000</item>
     </string-array>
+    <string-array name="out_categories">
+        <item>Clothes</item>
+        <item>Accessories</item>
+        <item>Cosmetics</item>
+        <item>Food</item>
+        <item>Interior</item>
+        <item>Technics</item>
+        <item>Gifts</item>
+        <item>Gasoline</item>
+        <item>Unexpected</item>
+        <item>Children items</item>
+        <item>House payment</item>
+        <item>Credits</item>
+        <item>Internet</item>
+        <item>Subscriptions</item>
+        <item>Mobile network</item>
+        <item>Other</item>
+    </string-array>
 </resources>

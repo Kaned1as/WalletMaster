@@ -221,8 +221,19 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return null;
     }
 
-    public Cursor getAcountCursor() {
+    public Cursor getAccountCursor() {
         return mDatabase.query(ACCOUNTS_TABLE_NAME, Utils.allKeys(AccountFields.class), null, null, null, null, null, null);
+    }
+
+    public Cursor getCategoryCursor() {
+        return mDatabase.query(CATEGORIES_TABLE_NAME, Utils.allKeys(CategoriesFields.class), null, null, null, null, null, null);
+    }
+
+    public boolean hasCategories() {
+        final Cursor cur = getCategoryCursor();
+        final boolean result = cur.moveToNext();
+        cur.close();
+        return result;
     }
 
     public Operation getOperation(long id) {
@@ -301,7 +312,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
         int count = mDatabase.delete(ACCOUNTS_TABLE_NAME, //table name
                 AccountFields._id + " = ?",  // selections
-                new String[] { String.valueOf(account.getId()) });
+                new String[]{String.valueOf(account.getId())});
 
         if(count > 0)
             notifyListeners(ACCOUNTS_TABLE_NAME);

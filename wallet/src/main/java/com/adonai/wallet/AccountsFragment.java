@@ -74,7 +74,7 @@ public class AccountsFragment extends WalletBaseFragment {
 
     private class AccountsAdapter extends CursorAdapter implements DatabaseDAO.DatabaseListener {
         public AccountsAdapter(Context context, boolean autoRequery) {
-            super(context, getWalletActivity().getEntityDAO().getAcountCursor(), autoRequery);
+            super(context, getWalletActivity().getEntityDAO().getAccountCursor(), autoRequery);
         }
 
         @Override
@@ -115,7 +115,7 @@ public class AccountsFragment extends WalletBaseFragment {
 
         @Override
         public void handleUpdate() {
-            changeCursor(getWalletActivity().getEntityDAO().getAcountCursor());
+            changeCursor(getWalletActivity().getEntityDAO().getAccountCursor());
         }
     }
 
