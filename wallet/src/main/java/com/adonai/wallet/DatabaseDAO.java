@@ -49,7 +49,8 @@ public class DatabaseDAO extends SQLiteOpenHelper
         DESCRIPTION,
         CURRENCY,
         AMOUNT,
-        COLOR
+        COLOR,
+        GUID
     }
 
     public static final String OPERATIONS_TABLE_NAME = "operations";
@@ -60,14 +61,15 @@ public class DatabaseDAO extends SQLiteOpenHelper
         CHARGER,
         RECEIVER,
         AMOUNT,
-        COMISSION
+        COMISSION,
+        GUID
     }
 
     public static final String CURRENCIES_TABLE_NAME = "currencies";
     public static enum CurrenciesFields {
         CODE,
         DESCRIPTION,
-        USED_IN
+        USED_IN,
     }
 
 
@@ -76,7 +78,8 @@ public class DatabaseDAO extends SQLiteOpenHelper
         _id,
         NAME,
         TYPE,
-        PREFERRED_ACCOUNT
+        PREFERRED_ACCOUNT,
+        GUID
     }
 
     private final Map<String, List<DatabaseListener>> listenerMap = new HashMap<>();
@@ -98,13 +101,14 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL("CREATE TABLE " + ACCOUNTS_TABLE_NAME + " ("+
+        sqLiteDatabase.execSQL("CREATE TABLE " + ACCOUNTS_TABLE_NAME + " (" +
                 AccountFields._id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 AccountFields.NAME + " TEXT DEFAULT '' NOT NULL, " +
                 AccountFields.DESCRIPTION + " TEXT DEFAULT NULL, " +
                 AccountFields.CURRENCY + " TEXT DEFAULT 'RUB' NOT NULL, " +
                 AccountFields.AMOUNT + " TEXT DEFAULT '0' NOT NULL, " +
-                AccountFields.COLOR + " TEXT DEFAULT NULL " +
+                AccountFields.COLOR + " TEXT DEFAULT NULL, " +
+                AccountFields.GUID + " TEXT DEFAULT NULL " +
                 ")");
         sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "ACCOUNT_NAME_IDX ON " + ACCOUNTS_TABLE_NAME + " (" + AccountFields.NAME + ")");
 
@@ -115,7 +119,8 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 OperationsFields.CHARGER + " INTEGER NOT NULL, " +
                 OperationsFields.RECEIVER + " INTEGER DEFAULT NULL, " +
                 OperationsFields.AMOUNT + " TEXT DEFAULT '0', " +
-                OperationsFields.COMISSION + " REAL NOT NULL, " +
+                OperationsFields.COMISSION + " REAL DEFAULT NULL, " +
+                OperationsFields.GUID + " TEXT DEFAULT NULL, " +
                 " FOREIGN KEY (" + OperationsFields.CHARGER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE," +
                 " FOREIGN KEY (" + OperationsFields.RECEIVER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE SET NULL" +
                 ")");
@@ -132,6 +137,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 CategoriesFields.NAME + " TEXT DEFAULT '' NOT NULL, " +
                 CategoriesFields.TYPE + " INTEGER DEFAULT 0 NOT NULL, " +
                 CategoriesFields.PREFERRED_ACCOUNT + " INTEGER DEFAULT NULL, " +
+                CategoriesFields.GUID + " TEXT DEFAULT NULL, " +
                 " FOREIGN KEY (" + CategoriesFields.PREFERRED_ACCOUNT + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE SET NULL" +
                 ")");
         sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CATEGORY_UNIQUE_NAME_IDX ON " + CATEGORIES_TABLE_NAME + " (" +  CategoriesFields.NAME + ")");
@@ -184,7 +190,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         Log.d("addCategory", category.getName());
         final ContentValues values = new ContentValues();
         values.put(CategoriesFields.NAME.toString(), category.getName());
-        values.put(CategoriesFields.TYPE.toString(), category.getType().ordinal());
+        values.put(CategoriesFields.TYPE.toString(), category.getType());
         if(category.getPreferredAccount() != null)
             values.put(CategoriesFields.PREFERRED_ACCOUNT.toString(), category.getPreferredAccount().getId());
 
@@ -229,13 +235,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return mDatabase.query(CATEGORIES_TABLE_NAME, Utils.allKeys(CategoriesFields.class), null, null, null, null, null, null);
     }
 
-    public Cursor getOutcomeCategoryCursor() {
-        return mDatabase.query(CATEGORIES_TABLE_NAME, Utils.allKeys(CategoriesFields.class), CategoriesFields.TYPE + " = " + Category.CategoryType.EXPENSE.ordinal(), null, null, null, null, null);
+    public Cursor getCategoryCursor(int type) {
+        return mDatabase.query(CATEGORIES_TABLE_NAME, Utils.allKeys(CategoriesFields.class), CategoriesFields.TYPE + " = ?", new String[]{String.valueOf(type)}, null, null, null, null);
     }
 
-    public Cursor getIncomeCategoryCursor() {
-        return mDatabase.query(CATEGORIES_TABLE_NAME, Utils.allKeys(CategoriesFields.class), CategoriesFields.TYPE + " = " + Category.CategoryType.INCOME.ordinal(), null, null, null, null, null);
-    }
 
     public boolean hasCategories() {
         final Cursor cur = getCategoryCursor();
@@ -245,7 +248,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public Operation getOperation(long id) {
-        final Cursor cursor = mDatabase.query(OPERATIONS_TABLE_NAME, Utils.allKeys(OperationsFields.class), OperationsFields._id + " = ?", new String[] { String.valueOf(id) }, // d. selections args
+        final Cursor cursor = mDatabase.query(OPERATIONS_TABLE_NAME, Utils.allKeys(OperationsFields.class), OperationsFields._id + " = ?", new String[] {String.valueOf(id)}, // d. selections args
                 null, // e. group by
                 null, // f. having
                 null, // g. order by
@@ -267,6 +270,31 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
             Log.d("getOperation(" + id + ")", op.getAmountCharged().toPlainString());
             return op;
+        }
+
+        cursor.close();
+        return null;
+    }
+
+    public Category getCategory(long id) {
+        final Cursor cursor = mDatabase.query(CATEGORIES_TABLE_NAME, Utils.allKeys(CategoriesFields.class), CategoriesFields._id + " = ?", new String[] {String.valueOf(id)}, // d. selections args
+                null, // e. group by
+                null, // f. having
+                null, // g. order by
+                null); // h. limit
+
+        if (cursor.moveToFirst()) {
+            // 4. build operation object
+            final Category cat = new Category();
+            cat.setId(cursor.getLong(0));
+            cat.setName(cursor.getString(1));
+            cat.setType(cursor.getInt(2));
+            if(!cursor.isNull(3))
+                cat.setPreferredAccount(getAccount(cursor.getLong(3)));
+            cursor.close();
+
+            Log.d(String.format("getCategory(%d)", id), cat.getName());
+            return cat;
         }
 
         cursor.close();

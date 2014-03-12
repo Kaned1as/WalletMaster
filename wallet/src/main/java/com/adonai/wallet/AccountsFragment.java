@@ -107,13 +107,6 @@ public class AccountsFragment extends WalletBaseFragment {
         }
 
         @Override
-        public long getItemId(int position) {
-            getCursor().moveToPosition(position);
-
-            return getCursor().getLong(0);
-        }
-
-        @Override
         public void handleUpdate() {
             changeCursor(getWalletActivity().getEntityDAO().getAccountCursor());
         }

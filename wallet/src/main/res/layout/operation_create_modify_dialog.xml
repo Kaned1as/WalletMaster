@@ -36,6 +36,40 @@
 
         </TableRow>
 
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:id="@+id/operation_type_switch">
+
+            <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/transfer"
+                android:id="@+id/transfer_radio"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:ellipsize="marquee" />
+
+            <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/income"
+                android:id="@+id/income_radio"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:ellipsize="marquee" />
+
+            <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/outcome"
+                android:id="@+id/outcome_radio"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:ellipsize="marquee" />
+        </RadioGroup>
+
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -115,40 +149,6 @@
                 android:id="@+id/charge_amount_edit"
                 android:inputType="numberDecimal|numberSigned" />
         </TableRow>
-
-        <RadioGroup
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:id="@+id/operation_type_switch">
-
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/transfer"
-                android:id="@+id/transfer_radio"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:ellipsize="marquee" />
-
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/income"
-                android:id="@+id/income_radio"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:ellipsize="marquee" />
-
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/outcome"
-                android:id="@+id/outcome_radio"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:ellipsize="marquee" />
-        </RadioGroup>
 
         <TableRow
             android:layout_width="match_parent"

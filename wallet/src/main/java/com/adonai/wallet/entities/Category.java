@@ -5,21 +5,28 @@ package com.adonai.wallet.entities;
  */
 public class Category {
 
-    public enum CategoryType {
-        EXPENSE,
-        INCOME
-    }
+    final public static int EXPENSE = 0;
+    final public static int INCOME = 1;
 
+    private long id;
     private String name;
-    private CategoryType type;
+    private int type;
     private Account preferredAccount;
 
     public Category() {
     }
 
-    public Category(String name, CategoryType type) {
+    public Category(String name, int type) {
         this.name = name;
         this.type = type;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -30,11 +37,11 @@ public class Category {
         this.name = name;
     }
 
-    public CategoryType getType() {
+    public int getType() {
         return type;
     }
 
-    public void setType(CategoryType type) {
+    public void setType(int type) {
         this.type = type;
     }
 

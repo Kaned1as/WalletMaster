@@ -29,9 +29,9 @@ public class WalletBaseActivity extends ActionBarActivity {
             final String[] defaultOutcomeCategories = getResources().getStringArray(R.array.out_categories);
             final String[] defaultIncomeCategories = getResources().getStringArray(R.array.inc_categories);
             for(final String outCategory : defaultOutcomeCategories)
-                mEntityDAO.addCategory(new Category(outCategory, Category.CategoryType.EXPENSE));
+                mEntityDAO.addCategory(new Category(outCategory, Category.EXPENSE));
             for(final String inCategory : defaultIncomeCategories)
-                mEntityDAO.addCategory(new Category(inCategory, Category.CategoryType.INCOME));
+                mEntityDAO.addCategory(new Category(inCategory, Category.INCOME));
         }
     }
 
