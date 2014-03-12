@@ -4,14 +4,20 @@ package com.adonai.wallet.entities;
  * Created by adonai on 23.02.14.
  */
 public class Category {
+
+    public enum CategoryType {
+        EXPENSE,
+        INCOME
+    }
+
     private String name;
-    private Integer type;
+    private CategoryType type;
     private Account preferredAccount;
 
     public Category() {
     }
 
-    public Category(String name, Integer type) {
+    public Category(String name, CategoryType type) {
         this.name = name;
         this.type = type;
     }
@@ -24,11 +30,11 @@ public class Category {
         this.name = name;
     }
 
-    public Integer getType() {
+    public CategoryType getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(CategoryType type) {
         this.type = type;
     }
 

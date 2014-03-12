@@ -26,9 +26,12 @@ public class WalletBaseActivity extends ActionBarActivity {
             Currency.addCustomCurrency(curr);
 
         if(!mEntityDAO.hasCategories()) {
-            String[] defaultOutcomeCategories = getResources().getStringArray(R.array.out_categories);
-            for(String category : defaultOutcomeCategories)
-                mEntityDAO.addCategory(new Category(category, 0));
+            final String[] defaultOutcomeCategories = getResources().getStringArray(R.array.out_categories);
+            final String[] defaultIncomeCategories = getResources().getStringArray(R.array.inc_categories);
+            for(final String outCategory : defaultOutcomeCategories)
+                mEntityDAO.addCategory(new Category(outCategory, Category.CategoryType.EXPENSE));
+            for(final String inCategory : defaultIncomeCategories)
+                mEntityDAO.addCategory(new Category(inCategory, Category.CategoryType.INCOME));
         }
     }
 

@@ -29,11 +29,30 @@
         <item>Gasoline</item>
         <item>Unexpected</item>
         <item>Children items</item>
-        <item>House payment</item>
-        <item>Credits</item>
+        <item>Rental expense</item>
+        <item>Annuities</item>
         <item>Internet</item>
         <item>Subscriptions</item>
         <item>Mobile network</item>
         <item>Other</item>
+        <item>Debt</item>
+    </string-array>
+    <string-array name="inc_categories">
+        <item>Salary/Wage</item>
+        <item>Dividends</item>
+        <item>Debt recover</item>
+        <item>Gifts</item>
+        <item>Unexpected</item>
+        <item>Other</item>
+        <item>Business income</item>
+        <item>Pension</item>
+        <item>Rental Income</item>
+        <item>Social payments</item>
+        <item>Donations</item>
+        <item>Stock trade</item>
+        <item>Grants</item>
+        <item>Unemployment Compensation</item>
+        <item>Trade</item>
+        <item>Capital income</item>
     </string-array>
 </resources>

@@ -45,7 +45,7 @@ public class AccountsFragment extends WalletBaseFragment {
         mAccountList = (ListView) rootView.findViewById(R.id.account_list);
         budgetSum = (TextView) rootView.findViewById(R.id.account_sum);
 
-        mAccountsAdapter = new AccountsAdapter(getActivity(), false);
+        mAccountsAdapter = new AccountsAdapter(getActivity());
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, mAccountsAdapter);
         mAccountList.setAdapter(mAccountsAdapter);
         mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
@@ -73,8 +73,8 @@ public class AccountsFragment extends WalletBaseFragment {
     }
 
     private class AccountsAdapter extends CursorAdapter implements DatabaseDAO.DatabaseListener {
-        public AccountsAdapter(Context context, boolean autoRequery) {
-            super(context, getWalletActivity().getEntityDAO().getAccountCursor(), autoRequery);
+        public AccountsAdapter(Context context) {
+            super(context, getWalletActivity().getEntityDAO().getAccountCursor(), false);
         }
 
         @Override

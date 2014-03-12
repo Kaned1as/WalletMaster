@@ -184,7 +184,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         Log.d("addCategory", category.getName());
         final ContentValues values = new ContentValues();
         values.put(CategoriesFields.NAME.toString(), category.getName());
-        values.put(CategoriesFields.TYPE.toString(), category.getType());
+        values.put(CategoriesFields.TYPE.toString(), category.getType().ordinal());
         if(category.getPreferredAccount() != null)
             values.put(CategoriesFields.PREFERRED_ACCOUNT.toString(), category.getPreferredAccount().getId());
 
@@ -227,6 +227,14 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     public Cursor getCategoryCursor() {
         return mDatabase.query(CATEGORIES_TABLE_NAME, Utils.allKeys(CategoriesFields.class), null, null, null, null, null, null);
+    }
+
+    public Cursor getOutcomeCategoryCursor() {
+        return mDatabase.query(CATEGORIES_TABLE_NAME, Utils.allKeys(CategoriesFields.class), CategoriesFields.TYPE + " = " + Category.CategoryType.EXPENSE.ordinal(), null, null, null, null, null);
+    }
+
+    public Cursor getIncomeCategoryCursor() {
+        return mDatabase.query(CATEGORIES_TABLE_NAME, Utils.allKeys(CategoriesFields.class), CategoriesFields.TYPE + " = " + Category.CategoryType.INCOME.ordinal(), null, null, null, null, null);
     }
 
     public boolean hasCategories() {

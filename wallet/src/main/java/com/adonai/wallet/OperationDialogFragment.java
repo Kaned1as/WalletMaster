@@ -48,9 +48,14 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private RadioGroup mTypeSwitch;
 
     private final List<TableRow> beneficiarRows = new ArrayList<>();
+    private TableRow mCategoryRow;
+
     private Spinner mBeneficiarAccountSelector;
     private EditText mBeneficiarConversionRate;
     private TextView mBeneficiarAmountDelivered;
+
+    private InCategoriesAdapter mInCategoriesAdapter;
+    private OutCategoriesAdapter mOutCategoriesAdapter;
 
     private Operation mOperation;
 
@@ -81,7 +86,10 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         mChargeAccountSelector = (Spinner) dialog.findViewById(R.id.charge_account_spinner);
         mChargeAccountSelector.setAdapter(mAccountAdapter);
 
+        mInCategoriesAdapter = new InCategoriesAdapter(getWalletActivity());
+        mOutCategoriesAdapter = new OutCategoriesAdapter(getWalletActivity());
         mCategorySelector = (Spinner) dialog.findViewById(R.id.category_spinner);
+
         mAmountCharged = (EditText) dialog.findViewById(R.id.charge_amount_edit);
 
         mTypeSwitch = (RadioGroup) dialog.findViewById(R.id.operation_type_switch);
@@ -90,6 +98,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         beneficiarRows.add((TableRow) dialog.findViewById(R.id.beneficiar_layout));
         beneficiarRows.add((TableRow) dialog.findViewById(R.id.beneficiar_conversion));
         beneficiarRows.add((TableRow) dialog.findViewById(R.id.beneficiar_amount));
+        mCategoryRow = (TableRow) dialog.findViewById(R.id.operation_category_row);
 
         mBeneficiarAccountSelector = (Spinner) dialog.findViewById(R.id.beneficiar_account_spinner);
         mBeneficiarAccountSelector.setAdapter(mAccountAdapter);
@@ -104,6 +113,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         if(mOperation != null) {
 
         } else {
+            mCategorySelector.setAdapter(mOutCategoriesAdapter);
             mDatePicker.setText(mDateFormatter.format(mNow.getTime())); // current time
         }
 
@@ -136,6 +146,68 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         }
     }
 
+    private class InCategoriesAdapter extends CursorAdapter implements SpinnerAdapter, DatabaseDAO.DatabaseListener {
+        public InCategoriesAdapter(Context context) {
+            super(context, getWalletActivity().getEntityDAO().getIncomeCategoryCursor(), false);
+        }
+
+        @Override
+        public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
+            final LayoutInflater inflater = LayoutInflater.from(context);
+            return inflater.inflate(android.R.layout.simple_spinner_item, viewGroup, false);
+        }
+
+        @Override
+        @SuppressWarnings("deprecation") // for compat with older APIs
+        public void bindView(View view, Context context, Cursor cursor) {
+            final TextView name = (TextView) view.findViewById(android.R.id.text1);
+            name.setText(cursor.getString(2));
+        }
+
+        @Override
+        public long getItemId(int position) {
+            getCursor().moveToPosition(position);
+
+            return getCursor().getLong(0);
+        }
+
+        @Override
+        public void handleUpdate() {
+            changeCursor(getWalletActivity().getEntityDAO().getIncomeCategoryCursor());
+        }
+    }
+
+    private class OutCategoriesAdapter extends CursorAdapter implements SpinnerAdapter, DatabaseDAO.DatabaseListener {
+        public OutCategoriesAdapter(Context context) {
+            super(context, getWalletActivity().getEntityDAO().getOutcomeCategoryCursor(), false);
+        }
+
+        @Override
+        public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
+            final LayoutInflater inflater = LayoutInflater.from(context);
+            return inflater.inflate(android.R.layout.simple_spinner_item, viewGroup, false);
+        }
+
+        @Override
+        @SuppressWarnings("deprecation") // for compat with older APIs
+        public void bindView(View view, Context context, Cursor cursor) {
+            final TextView name = (TextView) view.findViewById(android.R.id.text1);
+            name.setText(cursor.getString(2));
+        }
+
+        @Override
+        public long getItemId(int position) {
+            getCursor().moveToPosition(position);
+
+            return getCursor().getLong(0);
+        }
+
+        @Override
+        public void handleUpdate() {
+            changeCursor(getWalletActivity().getEntityDAO().getOutcomeCategoryCursor());
+        }
+    }
+
     private class TypeSelector implements RadioGroup.OnCheckedChangeListener {
 
         @Override
@@ -144,14 +216,22 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                 case R.id.transfer_radio:
                     for(TableRow row : beneficiarRows)
                         row.setVisibility(View.VISIBLE);
+
+                    mCategoryRow.setVisibility(View.GONE);
                     break;
                 case R.id.income_radio:
                     for(TableRow row : beneficiarRows)
                         row.setVisibility(View.GONE);
+
+                    mCategoryRow.setVisibility(View.VISIBLE);
+                    mCategorySelector.setAdapter(mInCategoriesAdapter);
                     break;
                 case R.id.outcome_radio:
                     for(TableRow row : beneficiarRows)
                         row.setVisibility(View.GONE);
+
+                    mCategoryRow.setVisibility(View.VISIBLE);
+                    mCategorySelector.setAdapter(mOutCategoriesAdapter);
                     break;
             }
         }
