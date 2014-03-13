@@ -13,10 +13,19 @@ public class Operation {
     private String description;
     private Calendar time;
     private Account charger;
-    private Account receiver;
+    private Account beneficiar;
     private BigDecimal amountCharged;
-    private Double convertingComission;
+    private Double convertingRate;
     private Category category;
+
+    public Operation() {
+    }
+
+    public Operation(Account charger, BigDecimal amountCharged, Category category) {
+        this.charger = charger;
+        this.amountCharged = amountCharged;
+        this.category = category;
+    }
 
     public Long getId() {
         return id;
@@ -34,12 +43,12 @@ public class Operation {
         this.charger = charger;
     }
 
-    public Account getReceiver() {
-        return receiver;
+    public Account getBeneficiar() {
+        return beneficiar;
     }
 
-    public void setReceiver(Account receiver) {
-        this.receiver = receiver;
+    public void setBeneficiar(Account beneficiar) {
+        this.beneficiar = beneficiar;
     }
 
     public BigDecimal getAmountCharged() {
@@ -50,12 +59,12 @@ public class Operation {
         this.amountCharged = amountCharged;
     }
 
-    public Double getConvertingComission() {
-        return convertingComission;
+    public Double getConvertingRate() {
+        return convertingRate;
     }
 
-    public void setConvertingComission(Double convertingComission) {
-        this.convertingComission = convertingComission;
+    public void setConvertingRate(Double convertingRate) {
+        this.convertingRate = convertingRate;
     }
 
     public Category getCategory() {

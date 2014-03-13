@@ -94,4 +94,14 @@ public class Currency {
     public String toString() {
         return code;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Currency currency = (Currency) o;
+
+        return code.equals(currency.code);
+    }
 }

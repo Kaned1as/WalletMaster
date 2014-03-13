@@ -17,7 +17,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="10dp"
+            android:id="@+id/operation_date_row">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -64,7 +65,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/outcome"
-                android:id="@+id/outcome_radio"
+                android:id="@+id/expense_radio"
                 android:layout_weight="1"
                 android:maxLines="1"
                 android:ellipsize="marquee" />
@@ -74,7 +75,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="10dp"
+            android:id="@+id/operation_description_row">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -111,6 +113,7 @@
         </TableRow>
 
         <TableRow
+            android:id="@+id/operation_charge_row"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="10dp"
@@ -133,27 +136,7 @@
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/amount"
-                android:id="@+id/charge_amount_label" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/charge_amount_edit"
-                android:inputType="numberDecimal|numberSigned" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/beneficiar_layout"
+            android:id="@+id/beneficiar_row"
             android:visibility="gone"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp">
@@ -170,6 +153,27 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/beneficiar_account_spinner" />
 
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/operation_charge_amount_row"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/amount"
+                android:id="@+id/charge_amount_label" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/charge_amount_edit"
+                android:inputType="numberDecimal" />
         </TableRow>
 
         <TableRow
@@ -224,6 +228,7 @@
         </TableRow>
 
         <TableRow
+            android:id="@+id/operation_confirm_row"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="10dp">

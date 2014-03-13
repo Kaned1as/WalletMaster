@@ -23,6 +23,90 @@ import java.util.Map;
 
 public class DatabaseDAO extends SQLiteOpenHelper
 {
+    /**
+     * Calling this method means we have full operation object with all data built and ready for applying
+     * @param operation operation to be applied
+     */
+    public boolean applyOperation(Operation operation) {
+        final Account chargeAcc = operation.getCharger();
+        final BigDecimal chargeAmount = operation.getAmountCharged();
+        int successFlag = 0;
+        boolean allSucceeded = false;
+        mDatabase.beginTransaction();
+
+        if(operation.getBeneficiar() != null) { // transfer
+            final Account beneficiarAcc = operation.getBeneficiar();
+            final BigDecimal benAmount = operation.getConvertingRate() != null
+                    ? chargeAmount.divide(BigDecimal.valueOf(operation.getConvertingRate()))
+                    : chargeAmount;
+
+            beneficiarAcc.setAmount(beneficiarAcc.getAmount().add(benAmount));
+            successFlag += updateAccount(beneficiarAcc); // apply to db
+
+            chargeAcc.setAmount(chargeAcc.getAmount().subtract(chargeAmount));
+        } else
+            switch (operation.getCategory().getType()) {
+                case Category.EXPENSE: // subtract value
+                    chargeAcc.setAmount(chargeAcc.getAmount().subtract(chargeAmount));
+                    break;
+                case Category.INCOME: // add value
+                    chargeAcc.setAmount(chargeAcc.getAmount().add(chargeAmount));
+                    break;
+            }
+        successFlag += updateAccount(chargeAcc);
+
+            // transfer complete                                        // income/expense complete
+        if(operation.getBeneficiar() != null && successFlag == 2 || operation.getBeneficiar() == null && successFlag == 1) {
+            mDatabase.setTransactionSuccessful();
+            allSucceeded = true;
+        }
+
+        mDatabase.endTransaction();
+        return allSucceeded;
+    }
+
+    /**
+     * Calling this method means we have full operation object with all data built and ready for reverting
+     * @param operation operation to be reverted
+     */
+    public boolean revertOperation(Operation operation) {
+        final Account chargeAcc = operation.getCharger();
+        final BigDecimal chargeAmount = operation.getAmountCharged();
+        int successFlag = 0;
+        boolean allSucceeded = false;
+        mDatabase.beginTransaction();
+
+        if(operation.getBeneficiar() != null) { // transfer
+            final Account beneficiarAcc = operation.getBeneficiar();
+            final BigDecimal benAmount = operation.getConvertingRate() != null
+                    ? chargeAmount.divide(BigDecimal.valueOf(operation.getConvertingRate()))
+                    : chargeAmount;
+
+            beneficiarAcc.setAmount(beneficiarAcc.getAmount().subtract(benAmount)); // subtract added
+            successFlag += updateAccount(beneficiarAcc); // apply to db
+
+            chargeAcc.setAmount(chargeAcc.getAmount().add(chargeAmount)); // add subtracted
+        } else
+            switch (operation.getCategory().getType()) {
+                case Category.EXPENSE: // add subtracted value
+                    chargeAcc.setAmount(chargeAcc.getAmount().add(chargeAmount));
+                    break;
+                case Category.INCOME: // subtract added value
+                    chargeAcc.setAmount(chargeAcc.getAmount().subtract(chargeAmount));
+                    break;
+            }
+        successFlag += updateAccount(chargeAcc);
+
+        // transfer complete                                        // income/expense complete
+        if(operation.getBeneficiar() != null && successFlag == 2 || operation.getBeneficiar() == null && successFlag == 1) {
+            mDatabase.setTransactionSuccessful();
+            allSucceeded = true;
+        }
+
+        mDatabase.endTransaction();
+        return allSucceeded;
+    }
+
     public interface DatabaseListener {
         void handleUpdate();
     }
@@ -61,7 +145,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         CHARGER,
         RECEIVER,
         AMOUNT,
-        COMISSION,
+        CONVERT_RATE,
         GUID
     }
 
@@ -119,7 +203,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 OperationsFields.CHARGER + " INTEGER NOT NULL, " +
                 OperationsFields.RECEIVER + " INTEGER DEFAULT NULL, " +
                 OperationsFields.AMOUNT + " TEXT DEFAULT '0', " +
-                OperationsFields.COMISSION + " REAL DEFAULT NULL, " +
+                OperationsFields.CONVERT_RATE + " REAL DEFAULT NULL, " +
                 OperationsFields.GUID + " TEXT DEFAULT NULL, " +
                 " FOREIGN KEY (" + OperationsFields.CHARGER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE," +
                 " FOREIGN KEY (" + OperationsFields.RECEIVER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE SET NULL" +
@@ -173,10 +257,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
         if(operation.getTime() != null)
             values.put(OperationsFields.TIME.toString(), operation.getTimeString());
         values.put(OperationsFields.CHARGER.toString(), operation.getCharger().getId());
-        if(operation.getReceiver() != null)
-            values.put(OperationsFields.RECEIVER.toString(), operation.getReceiver().getId());
+        if(operation.getBeneficiar() != null)
+            values.put(OperationsFields.RECEIVER.toString(), operation.getBeneficiar().getId());
         values.put(OperationsFields.AMOUNT.toString(), operation.getAmountCharged().toPlainString());
-        values.put(OperationsFields.COMISSION.toString(), operation.getConvertingComission());
+        values.put(OperationsFields.CONVERT_RATE.toString(), operation.getConvertingRate());
 
         long result = mDatabase.insert(OPERATIONS_TABLE_NAME, null, values);
 
@@ -262,10 +346,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
             op.setTime(new Date(cursor.getLong(2)));
             op.setCharger(getAccount(cursor.getInt(3)));
             if(!cursor.isNull(4))
-                op.setReceiver(getAccount(cursor.getInt(4)));
+                op.setBeneficiar(getAccount(cursor.getInt(4)));
             op.setAmountCharged(new BigDecimal(cursor.getString(5)));
             if(!cursor.isNull(6))
-                op.setConvertingComission(cursor.getDouble(6));
+                op.setConvertingRate(cursor.getDouble(6));
             cursor.close();
 
             Log.d("getOperation(" + id + ")", op.getAmountCharged().toPlainString());
@@ -330,10 +414,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
         if(operation.getTime() != null)
             values.put(OperationsFields.TIME.toString(), operation.getTimeString());
         values.put(OperationsFields.CHARGER.toString(), operation.getCharger().getId());
-        if(operation.getReceiver() != null)
-            values.put(OperationsFields.RECEIVER.toString(), operation.getReceiver().getId());
+        if(operation.getBeneficiar() != null)
+            values.put(OperationsFields.RECEIVER.toString(), operation.getBeneficiar().getId());
         values.put(OperationsFields.AMOUNT.toString(), operation.getAmountCharged().toPlainString());
-        values.put(OperationsFields.COMISSION.toString(), operation.getConvertingComission());
+        values.put(OperationsFields.CONVERT_RATE.toString(), operation.getConvertingRate());
 
         final int result = mDatabase.update(OPERATIONS_TABLE_NAME,  values, OperationsFields._id + " = ?",  new String[] { String.valueOf(operation.getId()) }); //selection args
 
