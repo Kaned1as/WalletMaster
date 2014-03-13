@@ -2,7 +2,6 @@ package com.adonai.wallet;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -58,10 +57,10 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
         mInitialAmount = (EditText) dialog.findViewById(R.id.initial_amount_edit);
         mCreateAccount = (Button) dialog.findViewById(R.id.create_modify_account_button);
 
-        CurrencyAdapter adapter = new CurrencyAdapter(getActivity(), android.R.layout.simple_spinner_item, Currency.getAvailableCurrencies());
+        CurrencyAdapter adapter = new CurrencyAdapter(android.R.layout.simple_spinner_item, Currency.getAvailableCurrencies());
         mCurrencySelector.setAdapter(adapter);
         mCreateAccount.setOnClickListener(this);
-        ColorSpinnerAdapter colorAdapter = new ColorSpinnerAdapter(getActivity(), getResources().getStringArray(R.array.colors));
+        ColorSpinnerAdapter colorAdapter = new ColorSpinnerAdapter(getResources().getStringArray(R.array.colors));
         mColorSelector.setAdapter(colorAdapter);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -124,8 +123,8 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
     }
 
     public class ColorSpinnerAdapter extends ArrayAdapter<String> implements SpinnerAdapter {
-        public ColorSpinnerAdapter(Context context, String[] objects) {
-            super(context, R.layout.color_list_item, objects);
+        public ColorSpinnerAdapter(String[] objects) {
+            super(getActivity(), R.layout.color_list_item, objects);
         }
 
         @Override
@@ -158,8 +157,8 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
 
     public class CurrencyAdapter extends ArrayAdapter<Currency> implements SpinnerAdapter {
 
-        public CurrencyAdapter(Context context, int resource, List<Currency> objects) {
-            super(context, resource, objects);
+        public CurrencyAdapter(int resource, List<Currency> objects) {
+            super(getActivity(), resource, objects);
         }
 
         @Override

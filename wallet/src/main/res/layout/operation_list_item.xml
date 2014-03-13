@@ -16,15 +16,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/account_name_label"
+            android:id="@+id/charge_account_label"
             android:maxLines="1"
             android:text="@string/placeholder_text" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/beneficiar_account_label"
+            android:maxLines="1"
+            android:text="@string/placeholder_text"
+            android:visibility="gone" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:id="@+id/account_description_label"
+            android:id="@+id/operation_description_label"
             android:maxLines="1"
             android:text="@string/placeholder_text" />
     </LinearLayout>
@@ -39,7 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/account_amount_label"
+            android:id="@+id/charge_amount_label"
             android:gravity="center_vertical|right"
             android:maxLines="1"
             android:text="@string/placeholder_text" />
@@ -47,9 +56,19 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/beneficiar_amount_label"
+            android:gravity="center_vertical|right"
+            android:maxLines="1"
+            android:text="@string/placeholder_text"
+            android:visibility="gone" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/placeholder_text"
-            android:id="@+id/account_currency_label"
+            android:id="@+id/operation_time_label"
             android:layout_marginRight="10dp" />
     </LinearLayout>
 

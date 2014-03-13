@@ -45,7 +45,7 @@ public class AccountsFragment extends WalletBaseFragment {
         mAccountList = (ListView) rootView.findViewById(R.id.account_list);
         budgetSum = (TextView) rootView.findViewById(R.id.account_sum);
 
-        mAccountsAdapter = new AccountsAdapter(getActivity());
+        mAccountsAdapter = new AccountsAdapter();
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, mAccountsAdapter);
         mAccountList.setAdapter(mAccountsAdapter);
         mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
@@ -66,15 +66,15 @@ public class AccountsFragment extends WalletBaseFragment {
                 final AccountDialogFragment accountCreate = new AccountDialogFragment();
                 accountCreate.show(getFragmentManager(), "accCreate");
                 break;
-            default :
+            default:
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     private class AccountsAdapter extends CursorAdapter implements DatabaseDAO.DatabaseListener {
-        public AccountsAdapter(Context context) {
-            super(context, getWalletActivity().getEntityDAO().getAccountCursor(), false);
+        public AccountsAdapter() {
+            super(getActivity(), getWalletActivity().getEntityDAO().getAccountCursor(), false);
         }
 
         @Override
@@ -118,7 +118,7 @@ public class AccountsFragment extends WalletBaseFragment {
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, final long id) {
             final View newView = LayoutInflater.from(getActivity()).inflate(R.layout.account_list_item_menu, null, false);
             final PopoverView popover = new PopoverView(getActivity(), newView);
-            popover.setContentSizeForViewInPopover(new Point(100, 50));
+            popover.setContentSizeForViewInPopover(new Point((int) Utils.convertDpToPixel(100, getActivity()), (int) Utils.convertDpToPixel(50, getActivity())));
 
             final ImageButton delete = (ImageButton) newView.findViewById(R.id.delete_button);
             delete.setOnClickListener(new View.OnClickListener() {

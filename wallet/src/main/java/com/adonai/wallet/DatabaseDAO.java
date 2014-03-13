@@ -14,6 +14,7 @@ import com.adonai.wallet.entities.Currency;
 import com.adonai.wallet.entities.Operation;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,7 +38,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         if(operation.getBeneficiar() != null) { // transfer
             final Account beneficiarAcc = operation.getBeneficiar();
             final BigDecimal benAmount = operation.getConvertingRate() != null
-                    ? chargeAmount.divide(BigDecimal.valueOf(operation.getConvertingRate()))
+                    ? chargeAmount.divide(BigDecimal.valueOf(operation.getConvertingRate()), 2, RoundingMode.HALF_UP)
                     : chargeAmount;
 
             beneficiarAcc.setAmount(beneficiarAcc.getAmount().add(benAmount));
@@ -79,7 +80,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         if(operation.getBeneficiar() != null) { // transfer
             final Account beneficiarAcc = operation.getBeneficiar();
             final BigDecimal benAmount = operation.getConvertingRate() != null
-                    ? chargeAmount.divide(BigDecimal.valueOf(operation.getConvertingRate()))
+                    ? chargeAmount.divide(BigDecimal.valueOf(operation.getConvertingRate()), 2, RoundingMode.HALF_UP)
                     : chargeAmount;
 
             beneficiarAcc.setAmount(beneficiarAcc.getAmount().subtract(benAmount)); // subtract added
@@ -313,6 +314,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     public Cursor getAccountCursor() {
         return mDatabase.query(ACCOUNTS_TABLE_NAME, Utils.allKeys(AccountFields.class), null, null, null, null, null, null);
+    }
+
+    public Cursor getOperationsCursor() {
+        return mDatabase.query(OPERATIONS_TABLE_NAME, Utils.allKeys(OperationsFields.class), null, null, null, null, null, null);
     }
 
     public Cursor getCategoryCursor() {

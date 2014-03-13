@@ -30,6 +30,7 @@ import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Operation;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -80,7 +81,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mAccountAdapter = new AccountsAdapter(getWalletActivity());
+        mAccountAdapter = new AccountsAdapter();
         final AccountSelectListener accountSelectListener = new AccountSelectListener();
         final CountChangedWatcher textWatcher = new CountChangedWatcher();
 
@@ -97,8 +98,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         mChargeAccountSelector.setAdapter(mAccountAdapter);
         mChargeAccountSelector.setOnItemSelectedListener(accountSelectListener);
 
-        mInCategoriesAdapter = new CategoriesAdapter(getWalletActivity(), Category.INCOME);
-        mOutCategoriesAdapter = new CategoriesAdapter(getWalletActivity(), Category.EXPENSE);
+        mInCategoriesAdapter = new CategoriesAdapter(Category.INCOME);
+        mOutCategoriesAdapter = new CategoriesAdapter(Category.EXPENSE);
         mCategorySelector = (Spinner) dialog.findViewById(R.id.category_spinner);
         mCategorySelector.setOnItemSelectedListener(new CategorySelectListener());
 
@@ -179,13 +180,13 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     public void updateConversionAmount() {
         final BigDecimal amount = Utils.getValue(mAmountCharged.getText().toString(), BigDecimal.ZERO);
         final Double rate = Utils.getValue(mBeneficiarConversionRate.getText().toString(), 1d);
-        final BigDecimal beneficiarAmount = amount.divide(BigDecimal.valueOf(rate));
+        final BigDecimal beneficiarAmount = amount.divide(BigDecimal.valueOf(rate), 2, RoundingMode.HALF_UP);
         mBeneficiarAmountDelivered.setText(beneficiarAmount.toPlainString());
     }
 
     private class AccountsAdapter extends CursorAdapter implements SpinnerAdapter {
-        public AccountsAdapter(Context context) {
-            super(context, getWalletActivity().getEntityDAO().getAccountCursor(), false);
+        public AccountsAdapter() {
+            super(getActivity(), getWalletActivity().getEntityDAO().getAccountCursor(), false);
         }
 
         @Override
@@ -195,7 +196,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         }
 
         @Override
-        @SuppressWarnings("deprecation") // for compat with older APIs
         public void bindView(View view, Context context, Cursor cursor) {
             final TextView name = (TextView) view.findViewById(android.R.id.text1);
             name.setText(cursor.getString(1));
@@ -221,8 +221,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private class CategoriesAdapter extends CursorAdapter implements SpinnerAdapter, DatabaseDAO.DatabaseListener {
         private final int mCategoryType;
 
-        public CategoriesAdapter(Context context, int categoryType) {
-            super(context, getWalletActivity().getEntityDAO().getCategoryCursor(categoryType), false);
+        public CategoriesAdapter(int categoryType) {
+            super(getActivity(), getWalletActivity().getEntityDAO().getCategoryCursor(categoryType), false);
             mCategoryType = categoryType;
         }
 
