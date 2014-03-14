@@ -2,7 +2,10 @@ package com.adonai.wallet;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Path;
+import android.graphics.Shader;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 import android.graphics.drawable.shapes.Shape;
@@ -17,6 +20,7 @@ import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Operation;
 
 import java.text.SimpleDateFormat;
@@ -80,19 +84,27 @@ public class OperationsFragment extends WalletBaseFragment {
             final DatabaseDAO db = getWalletActivity().getEntityDAO();
             final Operation op = db.getOperation(cursor.getLong(DatabaseDAO.OperationsFields._id.ordinal()));
             final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+            final int accColor = op.getBeneficiar() != null
+                    ? Color.BLUE
+                    : op.getCategory().getType() == Category.EXPENSE
+                        ? Color.RED
+                        : Color.GREEN;
 
-            Path path = new Path();
+            final Path path = new Path();
             path.moveTo(0, 50);
             path.lineTo(15, 100);
-            path.lineTo(200, 100);
-            path.lineTo(200, 0);
+            path.lineTo(400, 100);
+            path.lineTo(400, 0);
             path.lineTo(15, 0);
             //path.lineTo(0, 50);
             path.close();
 
 
-            Shape hexagonalShape = new PathShape(path, context.getResources().getDisplayMetrics().widthPixels, context.getResources().getDisplayMetrics().heightPixels / 6);
+            Shape hexagonalShape = new PathShape(path, 400, 100);
             final ShapeDrawable mDrawable = new ShapeDrawable(hexagonalShape);
+            mDrawable.getPaint().setShader(new LinearGradient(0, 0, context.getResources().getDisplayMetrics().widthPixels, 0,
+                    Color.argb(50, Color.red(accColor), Color.green(accColor), Color.blue(accColor)),
+                    Color.argb(0, Color.red(accColor), Color.green(accColor), Color.blue(accColor)), Shader.TileMode.CLAMP));
             view.setBackgroundDrawable(mDrawable);
 
             final TextView chargeAcc = (TextView) view.findViewById(R.id.charge_account_label);
