@@ -31,10 +31,11 @@ import com.adonai.wallet.entities.Operation;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import static com.adonai.wallet.Utils.*;
 
 /**
  * @author adonai
@@ -44,7 +45,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private EditText mDescription;
     private Button mCreateOperation;
 
-    private final SimpleDateFormat mDateFormatter = new SimpleDateFormat("dd.MM.yyyy");
     private final Calendar mNow = Calendar.getInstance();
     private Button mDatePicker;
 
@@ -128,10 +128,25 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
         // if we are modifying existing operation
         if(mOperation != null) {
+            mDescription.setText(mOperation.getDescription());
+            mAmountCharged.setText(mOperation.getAmountCharged().toPlainString());
+            mNow.setTime(mOperation.getTime().getTime());
+            mDatePicker.setText(DATE_FORMAT.format(mNow));
 
+            switch (mOperation.getOperationType()) {
+                case TRANSFER:
+                    mTypeSwitch.check(R.id.transfer_radio);
+                    break;
+                case EXPENSE:
+                    mTypeSwitch.check(R.id.expense_radio);
+                    break;
+                case INCOME:
+                    mTypeSwitch.check(R.id.income_radio);
+                    break;
+            }
         } else {
             mTypeSwitch.check(R.id.expense_radio);
-            mDatePicker.setText(mDateFormatter.format(mNow.getTime())); // current time
+            mDatePicker.setText(DATE_FORMAT.format(mNow.getTime())); // current time
         }
 
         return builder.create();
@@ -160,7 +175,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             Account chargeAcc = getWalletActivity().getEntityDAO().getAccount(mChargeAccountSelector.getSelectedItemId());
             Account beneficiarAcc = getWalletActivity().getEntityDAO().getAccount(mBeneficiarAccountSelector.getSelectedItemId());
-            if(!chargeAcc.getCurrency().equals(beneficiarAcc.getCurrency())) { // show conversion rows when curencies are different
+            if(!chargeAcc.getCurrency().equals(beneficiarAcc.getCurrency())) { // show conversion rows when currencies are different
                 for(TableRow row : conversionRows)
                     row.setVisibility(View.VISIBLE);
 
@@ -178,8 +193,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     }
 
     public void updateConversionAmount() {
-        final BigDecimal amount = Utils.getValue(mAmountCharged.getText().toString(), BigDecimal.ZERO);
-        final Double rate = Utils.getValue(mBeneficiarConversionRate.getText().toString(), 1d);
+        final BigDecimal amount = getValue(mAmountCharged.getText().toString(), BigDecimal.ZERO);
+        final Double rate = getValue(mBeneficiarConversionRate.getText().toString(), 1d);
         final BigDecimal beneficiarAmount = amount.divide(BigDecimal.valueOf(rate), 2, RoundingMode.HALF_UP);
         mBeneficiarAmountDelivered.setText(beneficiarAmount.toPlainString());
     }
@@ -288,7 +303,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     if(chargeAcc == null)
                         throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
 
-                    final BigDecimal chargeAmount = Utils.getValue(mAmountCharged.getText().toString(), BigDecimal.ZERO);
+                    final BigDecimal chargeAmount = getValue(mAmountCharged.getText().toString(), BigDecimal.ZERO);
                     if(chargeAmount.equals(BigDecimal.ZERO))
                         throw new IllegalArgumentException(getString(R.string.operation_needs_amount));
 
@@ -305,13 +320,13 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
                         operation.setBeneficiar(db.getAccount(mBeneficiarAccountSelector.getSelectedItemId()));
                         if(!operation.getBeneficiar().getCurrency().equals(operation.getCharger().getCurrency())) // different currencies
-                            operation.setConvertingRate(Utils.getValue(mBeneficiarConversionRate.getText().toString(), 1d));
+                            operation.setConvertingRate(getValue(mBeneficiarConversionRate.getText().toString(), 1d));
 
                     }
-                    if(db.addOperation(operation) != -1 && db.applyOperation(operation)) // all succeeded
+                    if(db.applyOperation(operation)) // all succeeded
                         dismiss();
                     else
-                        Toast.makeText(getWalletActivity(), getString(R.string.cannot_apply_op), Toast.LENGTH_SHORT).show();
+                        throw new IllegalStateException("Cannot apply operation!"); // shouldn't happen!!
 
                 } catch (IllegalArgumentException ex) {
                     Toast.makeText(getWalletActivity(), ex.getMessage(), Toast.LENGTH_SHORT).show();
@@ -323,7 +338,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         mNow.set(year, monthOfYear, dayOfMonth);
-                        mDatePicker.setText(mDateFormatter.format(mNow.getTime()));
+                        mDatePicker.setText(DATE_FORMAT.format(mNow.getTime()));
                     }
                 };
                 new DatePickerDialog(getActivity(), listener, mNow.get(Calendar.YEAR), mNow.get(Calendar.MONTH), mNow.get(Calendar.DAY_OF_MONTH)).show();
@@ -350,8 +365,10 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
         @Override
         public void afterTextChanged(Editable s) {
-            if(Utils.getValue(mBeneficiarConversionRate.getText().toString(), 1d) == 0d) // do not divide by zero
+            if(getValue(mBeneficiarConversionRate.getText().toString(), 1d) == 0d) { // do not divide by zero
                 mBeneficiarConversionRate.setText("1");
+                return; // update will be called on pending callback
+            }
 
             updateConversionAmount();
         }

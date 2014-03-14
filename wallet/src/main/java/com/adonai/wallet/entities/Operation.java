@@ -9,6 +9,13 @@ import java.util.Date;
  * Created by adonai on 23.02.14.
  */
 public class Operation {
+
+    public enum OperationType {
+        EXPENSE,
+        INCOME,
+        TRANSFER
+    }
+
     private Long id;
     private String description;
     private Calendar time;
@@ -100,5 +107,15 @@ public class Operation {
     public String getTimeString() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return dateFormat.format(this.time.getTime());
+    }
+
+    public OperationType getOperationType() {
+        if(getBeneficiar() != null)
+            return OperationType.TRANSFER;
+
+        if(getCategory().getType() == Category.EXPENSE)
+            return OperationType.EXPENSE;
+
+        return OperationType.INCOME;
     }
 }

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Build;
 import android.util.Log;
 
 import com.adonai.wallet.entities.Account;
@@ -31,35 +30,41 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public boolean applyOperation(Operation operation) {
         final Account chargeAcc = operation.getCharger();
         final BigDecimal chargeAmount = operation.getAmountCharged();
-        int successFlag = 0;
+        long successFlag = 0;
         boolean allSucceeded = false;
         mDatabase.beginTransaction();
 
-        if(operation.getBeneficiar() != null) { // transfer
-            final Account beneficiarAcc = operation.getBeneficiar();
-            final BigDecimal benAmount = operation.getConvertingRate() != null
-                    ? chargeAmount.divide(BigDecimal.valueOf(operation.getConvertingRate()), 2, RoundingMode.HALF_UP)
-                    : chargeAmount;
+        successFlag += addOperation(operation);
 
-            beneficiarAcc.setAmount(beneficiarAcc.getAmount().add(benAmount));
-            successFlag += updateAccount(beneficiarAcc); // apply to db
+        switch (operation.getOperationType()) {
+            case TRANSFER:
+                final Account beneficiarAcc = operation.getBeneficiar();
+                final BigDecimal benAmount = operation.getConvertingRate() != null
+                        ? chargeAmount.divide(BigDecimal.valueOf(operation.getConvertingRate()), 2, RoundingMode.HALF_UP)
+                        : chargeAmount;
 
-            chargeAcc.setAmount(chargeAcc.getAmount().subtract(chargeAmount));
-        } else
-            switch (operation.getCategory().getType()) {
-                case Category.EXPENSE: // subtract value
-                    chargeAcc.setAmount(chargeAcc.getAmount().subtract(chargeAmount));
-                    break;
-                case Category.INCOME: // add value
-                    chargeAcc.setAmount(chargeAcc.getAmount().add(chargeAmount));
-                    break;
-            }
+                beneficiarAcc.setAmount(beneficiarAcc.getAmount().add(benAmount));
+                successFlag += updateAccount(beneficiarAcc); // apply to db
+
+                chargeAcc.setAmount(chargeAcc.getAmount().subtract(chargeAmount));
+                break;
+
+            case EXPENSE: // subtract value
+                chargeAcc.setAmount(chargeAcc.getAmount().subtract(chargeAmount));
+                break;
+            case INCOME: // add value
+                chargeAcc.setAmount(chargeAcc.getAmount().add(chargeAmount));
+                break;
+        }
         successFlag += updateAccount(chargeAcc);
 
             // transfer complete                                        // income/expense complete
-        if(operation.getBeneficiar() != null && successFlag == 2 || operation.getBeneficiar() == null && successFlag == 1) {
+        if(operation.getOperationType() == Operation.OperationType.TRANSFER && successFlag == 3 || operation.getOperationType() != Operation.OperationType.TRANSFER && successFlag == 2) {
             mDatabase.setTransactionSuccessful();
             allSucceeded = true;
+
+            notifyListeners(OPERATIONS_TABLE_NAME);
+            notifyListeners(ACCOUNTS_TABLE_NAME);
         }
 
         mDatabase.endTransaction();
@@ -77,31 +82,37 @@ public class DatabaseDAO extends SQLiteOpenHelper
         boolean allSucceeded = false;
         mDatabase.beginTransaction();
 
-        if(operation.getBeneficiar() != null) { // transfer
-            final Account beneficiarAcc = operation.getBeneficiar();
-            final BigDecimal benAmount = operation.getConvertingRate() != null
-                    ? chargeAmount.divide(BigDecimal.valueOf(operation.getConvertingRate()), 2, RoundingMode.HALF_UP)
-                    : chargeAmount;
+        successFlag += deleteOperation(operation);
 
-            beneficiarAcc.setAmount(beneficiarAcc.getAmount().subtract(benAmount)); // subtract added
-            successFlag += updateAccount(beneficiarAcc); // apply to db
+        switch (operation.getOperationType()) {
+            case TRANSFER:
+                final Account beneficiarAcc = operation.getBeneficiar();
+                final BigDecimal benAmount = operation.getConvertingRate() != null
+                        ? chargeAmount.divide(BigDecimal.valueOf(operation.getConvertingRate()), 2, RoundingMode.HALF_UP)
+                        : chargeAmount;
 
-            chargeAcc.setAmount(chargeAcc.getAmount().add(chargeAmount)); // add subtracted
-        } else
-            switch (operation.getCategory().getType()) {
-                case Category.EXPENSE: // add subtracted value
-                    chargeAcc.setAmount(chargeAcc.getAmount().add(chargeAmount));
-                    break;
-                case Category.INCOME: // subtract added value
-                    chargeAcc.setAmount(chargeAcc.getAmount().subtract(chargeAmount));
-                    break;
-            }
+                beneficiarAcc.setAmount(beneficiarAcc.getAmount().subtract(benAmount));
+                successFlag += updateAccount(beneficiarAcc); // apply to db
+
+                chargeAcc.setAmount(chargeAcc.getAmount().add(chargeAmount));
+                break;
+
+            case EXPENSE: // add subtracted value
+                chargeAcc.setAmount(chargeAcc.getAmount().add(chargeAmount));
+                break;
+            case INCOME: // subtract added value
+                chargeAcc.setAmount(chargeAcc.getAmount().subtract(chargeAmount));
+                break;
+        }
         successFlag += updateAccount(chargeAcc);
 
         // transfer complete                                        // income/expense complete
-        if(operation.getBeneficiar() != null && successFlag == 2 || operation.getBeneficiar() == null && successFlag == 1) {
+        if(operation.getOperationType() == Operation.OperationType.TRANSFER && successFlag == 3 || operation.getOperationType() != Operation.OperationType.TRANSFER && successFlag == 2) {
             mDatabase.setTransactionSuccessful();
             allSucceeded = true;
+
+            notifyListeners(OPERATIONS_TABLE_NAME);
+            notifyListeners(ACCOUNTS_TABLE_NAME);
         }
 
         mDatabase.endTransaction();
@@ -177,11 +188,11 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     @Override
-    public void onConfigure(SQLiteDatabase db) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            db.setForeignKeyConstraintsEnabled(true);
-            super.onConfigure(db);
-        }
+    public void onOpen(SQLiteDatabase db) { // called AFTER upgrade!
+        super.onOpen(db);
+        if (!db.isReadOnly())
+            // Enable foreign key constraints
+            db.execSQL("PRAGMA foreign_keys = ON");
     }
 
     @Override
@@ -206,8 +217,8 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 OperationsFields.AMOUNT + " TEXT DEFAULT '0', " +
                 OperationsFields.CONVERT_RATE + " REAL DEFAULT NULL, " +
                 OperationsFields.GUID + " TEXT DEFAULT NULL, " +
-                " FOREIGN KEY (" + OperationsFields.CHARGER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE," +
-                " FOREIGN KEY (" + OperationsFields.RECEIVER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE SET NULL" +
+                " FOREIGN KEY (" + OperationsFields.CHARGER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE," + // delete associated transactions
+                " FOREIGN KEY (" + OperationsFields.RECEIVER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE" + // delete associated transactions
                 ")");
 
         sqLiteDatabase.execSQL("CREATE TABLE " + CURRENCIES_TABLE_NAME + " (" +
@@ -472,6 +483,16 @@ public class DatabaseDAO extends SQLiteOpenHelper
         int count = mDatabase.delete(OPERATIONS_TABLE_NAME, //table name
                 OperationsFields._id + " = ?",  // selections
                 new String[] { String.valueOf(operation.getId()) });
+
+        if(count > 0)
+            notifyListeners(OPERATIONS_TABLE_NAME);
+
+        return count;
+    }
+
+    public int deleteOperation(Long id) {
+        Log.d("deleteOperation", id.toString());
+        int count = mDatabase.delete(OPERATIONS_TABLE_NAME,  OperationsFields._id + " = ?", new String[] { String.valueOf(id) });
 
         if(count > 0)
             notifyListeners(OPERATIONS_TABLE_NAME);

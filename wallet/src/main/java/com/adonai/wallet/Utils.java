@@ -6,6 +6,7 @@ import android.util.DisplayMetrics;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.EnumSet;
 import java.util.Iterator;
 
@@ -13,6 +14,8 @@ import java.util.Iterator;
  * @author adonai
  */
 public class Utils {
+    public final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
+
     @SuppressWarnings("unchecked") // we know what we want
     public static <T> T getValue(String value, T defaultValue) {
         T result;

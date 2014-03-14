@@ -19,10 +19,12 @@
     <string name="account_already_exist">Account with that name already exists!</string>
     <string name="account_name_invalid">You should provide valid account name!</string>
     <string name="edit">Edit</string>
+    <string name="confirm">Confirm</string>
     <string name="remove">Remove</string>
     <string name="account_not_found">Account not found!</string>
     <string name="placeholder_text">Placeholder text</string>
     <string name="edit_account">Edit account</string>
+    <string name="edit_operation">Edit operation</string>
     <string name="color">Color</string>
     <string name="action_add_operation">Add operation</string>
     <string name="from">From</string>
@@ -43,5 +45,8 @@
     <string name="operation_needs_acc">Operation needs at least one account to succeed!</string>
     <string name="operation_needs_amount">Cannot perform operation without amount!</string>
     <string name="operation_needs_category">Operation needs category!</string>
+    <string name="confirm_action">Confirm action</string>
+    <string name="really_delete_account">Do you really want to delete this account? All linked operations will be deleted too!</string>
+    <string name="really_delete_operation">Really delete this operation? All changes to amounts will be reverted!</string>
 
 </resources>

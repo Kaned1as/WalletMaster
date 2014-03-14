@@ -1,6 +1,8 @@
 package com.adonai.wallet;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
@@ -25,6 +27,8 @@ import com.adonai.wallet.entities.Account;
 import com.daniel.lupianez.casares.PopoverView;
 
 import java.util.Arrays;
+
+import static com.adonai.wallet.Utils.*;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -89,7 +93,7 @@ public class AccountsFragment extends WalletBaseFragment {
 
             final int accColor = cursor.getInt(5);
             final float[] rounds = new float[8];
-            Arrays.fill(rounds, Utils.convertDpToPixel(10f, context));
+            Arrays.fill(rounds, convertDpToPixel(10f, context));
             final ShapeDrawable mDrawable = new ShapeDrawable(new RoundRectShape(rounds, null, null));
             mDrawable.getPaint().setShader(new LinearGradient(0, 0, context.getResources().getDisplayMetrics().widthPixels, 0,
                Color.argb(50, Color.red(accColor), Color.green(accColor), Color.blue(accColor)),
@@ -118,13 +122,22 @@ public class AccountsFragment extends WalletBaseFragment {
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, final long id) {
             final View newView = LayoutInflater.from(getActivity()).inflate(R.layout.account_list_item_menu, null, false);
             final PopoverView popover = new PopoverView(getActivity(), newView);
-            popover.setContentSizeForViewInPopover(new Point((int) Utils.convertDpToPixel(100, getActivity()), (int) Utils.convertDpToPixel(50, getActivity())));
+            popover.setContentSizeForViewInPopover(new Point((int) convertDpToPixel(100, getActivity()), (int) convertDpToPixel(50, getActivity())));
 
             final ImageButton delete = (ImageButton) newView.findViewById(R.id.delete_button);
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    getWalletActivity().getEntityDAO().deleteAccount(id);
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.confirm_action)
+                            .setMessage(R.string.really_delete_account)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    getWalletActivity().getEntityDAO().deleteAccount(id);
+                                }
+                            }).create().show();
+
                     popover.dissmissPopover(true);
                 }
             });

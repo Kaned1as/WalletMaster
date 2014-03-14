@@ -66,7 +66,7 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // if we are modifying existing account
         if(mAccount != null) {
-            mCreateAccount.setText(R.string.edit);
+            mCreateAccount.setText(R.string.confirm);
             builder.setTitle(R.string.edit_account).setView(dialog);
 
             mAccountName.setText(mAccount.getName());
