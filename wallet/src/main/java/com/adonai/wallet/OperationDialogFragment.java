@@ -131,7 +131,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             mDescription.setText(mOperation.getDescription());
             mAmountCharged.setText(mOperation.getAmountCharged().toPlainString());
             mNow.setTime(mOperation.getTime().getTime());
-            mDatePicker.setText(DATE_FORMAT.format(mNow));
+            mDatePicker.setText(VIEW_DATE_FORMAT.format(mNow));
 
             switch (mOperation.getOperationType()) {
                 case TRANSFER:
@@ -146,7 +146,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             }
         } else {
             mTypeSwitch.check(R.id.expense_radio);
-            mDatePicker.setText(DATE_FORMAT.format(mNow.getTime())); // current time
+            mDatePicker.setText(VIEW_DATE_FORMAT.format(mNow.getTime())); // current time
         }
 
         return builder.create();
@@ -338,7 +338,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         mNow.set(year, monthOfYear, dayOfMonth);
-                        mDatePicker.setText(DATE_FORMAT.format(mNow.getTime()));
+                        mDatePicker.setText(VIEW_DATE_FORMAT.format(mNow.getTime()));
                     }
                 };
                 new DatePickerDialog(getActivity(), listener, mNow.get(Calendar.YEAR), mNow.get(Calendar.MONTH), mNow.get(Calendar.DAY_OF_MONTH)).show();

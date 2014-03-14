@@ -29,11 +29,13 @@ import com.adonai.wallet.entities.Operation;
 import com.daniel.lupianez.casares.PopoverView;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.EnumMap;
 import java.util.Map;
 
-import static com.adonai.wallet.Utils.DATE_FORMAT;
+import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
 import static com.adonai.wallet.Utils.convertDpToPixel;
+import static com.adonai.wallet.Utils.convertPixelsToDp;
 import static com.adonai.wallet.entities.Operation.OperationType;
 
 /**
@@ -58,7 +60,6 @@ public class OperationsFragment extends WalletBaseFragment {
         mOperationsList.setAdapter(mOpAdapter);
         mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.OPERATIONS_TABLE_NAME, mOpAdapter);
-
         return rootView;
     }
 
@@ -93,8 +94,8 @@ public class OperationsFragment extends WalletBaseFragment {
         }
 
         @Override
-        @SuppressWarnings("deprecation") // for compat with older APIs
-        public void bindView(View view, Context context, Cursor cursor) {
+        @SuppressWarnings({"deprecation", "unchecked"}) // for compat with older APIs
+        public void bindView(final View view, Context context, final Cursor cursor) {
             final DatabaseDAO db = getWalletActivity().getEntityDAO();
             final Operation op = db.getOperation(cursor.getLong(DatabaseDAO.OperationsFields._id.ordinal()));
 
@@ -109,7 +110,10 @@ public class OperationsFragment extends WalletBaseFragment {
                 benefAcc.setText(op.getBeneficiar().getName());
 
                 benefAmount.setVisibility(View.VISIBLE);
-                benefAmount.setText(op.getAmountCharged().divide(BigDecimal.valueOf(op.getConvertingRate())).toPlainString());
+                if(op.getConvertingRate() != null)
+                    benefAmount.setText(op.getAmountCharged().divide(BigDecimal.valueOf(op.getConvertingRate()), 2, RoundingMode.HALF_UP).toPlainString());
+                else
+                    benefAmount.setText(op.getAmountCharged().toPlainString());
             }
             else {
                 benefAcc.setVisibility(View.GONE);
@@ -123,7 +127,7 @@ public class OperationsFragment extends WalletBaseFragment {
             chargeAmount.setText(op.getAmountCharged().toPlainString());
 
             final TextView operationTime = (TextView) view.findViewById(R.id.operation_time_label);
-            operationTime.setText(DATE_FORMAT.format(op.getTime().getTime()));
+            operationTime.setText(VIEW_DATE_FORMAT.format(op.getTime().getTime()));
         }
 
         @Override
@@ -190,7 +194,7 @@ public class OperationsFragment extends WalletBaseFragment {
         expensePath.close();
 
         final ShapeDrawable expenseDrawable = new ShapeDrawable(new PathShape(expensePath, 400, 100));
-        expenseDrawable.getPaint().setShader(new LinearGradient(0, 0, getActivity().getResources().getDisplayMetrics().widthPixels, 0,
+        expenseDrawable.getPaint().setShader(new LinearGradient(0, 0, convertPixelsToDp(getActivity().getResources().getDisplayMetrics().widthPixels, getActivity()), 0,
                 Color.argb(50, 255, 0, 0), Color.argb(0, 255, 0, 0), Shader.TileMode.CLAMP)); // RED
 
         result.put(OperationType.EXPENSE, expenseDrawable);
@@ -206,24 +210,24 @@ public class OperationsFragment extends WalletBaseFragment {
         incomePath.close();
 
         final ShapeDrawable incomeDrawable = new ShapeDrawable(new PathShape(incomePath, 400, 100));
-        incomeDrawable.getPaint().setShader(new LinearGradient(0, 0, getActivity().getResources().getDisplayMetrics().widthPixels, 0,
+        incomeDrawable.getPaint().setShader(new LinearGradient(0, 0, convertPixelsToDp(getActivity().getResources().getDisplayMetrics().widthPixels, getActivity()), 0,
                 Color.argb(0, 0, 255, 0), Color.argb(50, 0, 255, 0), Shader.TileMode.CLAMP)); // GREEN
 
-        result.put(OperationType.EXPENSE, incomeDrawable);
+        result.put(OperationType.INCOME, incomeDrawable);
 
         // TRANSFER
         final Path transferPath = new Path();
-        expensePath.moveTo(0, 50);
-        expensePath.lineTo(15, 100);
+        transferPath.moveTo(0, 50);
+        transferPath.lineTo(15, 100);
         transferPath.lineTo(385, 100);
         transferPath.lineTo(400, 50);
         transferPath.lineTo(385, 0);
-        expensePath.lineTo(15, 0);
+        transferPath.lineTo(15, 0);
         //path.lineTo(0, 50);
         transferPath.close();
 
         final ShapeDrawable transferDrawable = new ShapeDrawable(new PathShape(transferPath, 400, 100));
-        transferDrawable.getPaint().setShader(new LinearGradient(0, 0, getActivity().getResources().getDisplayMetrics().widthPixels, 0,
+        transferDrawable.getPaint().setShader(new LinearGradient(0, 0, convertPixelsToDp(getActivity().getResources().getDisplayMetrics().widthPixels, getActivity()), 0,
                 Color.argb(50, 255, 0, 0), Color.argb(50, 0, 255, 0), Shader.TileMode.CLAMP)); // RED -> GREEN
 
         result.put(OperationType.TRANSFER, transferDrawable);

@@ -1,7 +1,8 @@
 package com.adonai.wallet.entities;
 
+import com.adonai.wallet.Utils;
+
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -105,8 +106,7 @@ public class Operation {
     }
 
     public String getTimeString() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return dateFormat.format(this.time.getTime());
+        return Utils.SQLITE_DATE_FORMAT.format(this.time.getTime());
     }
 
     public OperationType getOperationType() {

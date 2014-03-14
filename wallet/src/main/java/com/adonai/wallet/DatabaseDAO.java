@@ -14,8 +14,8 @@ import com.adonai.wallet.entities.Operation;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         boolean allSucceeded = false;
         mDatabase.beginTransaction();
 
-        successFlag += addOperation(operation);
+        successFlag += addOperation(operation) > 0 ? 1 : 0;
 
         switch (operation.getOperationType()) {
             case TRANSFER:
@@ -153,6 +153,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public static enum OperationsFields {
         _id,
         DESCRIPTION,
+        CATEGORY,
         TIME,
         CHARGER,
         RECEIVER,
@@ -211,12 +212,14 @@ public class DatabaseDAO extends SQLiteOpenHelper
         sqLiteDatabase.execSQL("CREATE TABLE " + OPERATIONS_TABLE_NAME + " (" +
                 OperationsFields._id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 OperationsFields.DESCRIPTION + " TEXT DEFAULT NULL, " +
+                OperationsFields.CATEGORY + " INTEGER NOT NULL, " +
                 OperationsFields.TIME + " DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, " +
                 OperationsFields.CHARGER + " INTEGER NOT NULL, " +
                 OperationsFields.RECEIVER + " INTEGER DEFAULT NULL, " +
-                OperationsFields.AMOUNT + " TEXT DEFAULT '0', " +
+                OperationsFields.AMOUNT + " TEXT DEFAULT '0' NOT NULL, " +
                 OperationsFields.CONVERT_RATE + " REAL DEFAULT NULL, " +
                 OperationsFields.GUID + " TEXT DEFAULT NULL, " +
+                " FOREIGN KEY (" + OperationsFields.CATEGORY + ") REFERENCES " + CATEGORIES_TABLE_NAME + " (" + CategoriesFields._id + ") ON DELETE SET NULL," +
                 " FOREIGN KEY (" + OperationsFields.CHARGER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE," + // delete associated transactions
                 " FOREIGN KEY (" + OperationsFields.RECEIVER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE" + // delete associated transactions
                 ")");
@@ -265,13 +268,15 @@ public class DatabaseDAO extends SQLiteOpenHelper
         Log.d("addOperation", operation.getAmountCharged().toPlainString());
 
         final ContentValues values = new ContentValues();
-        values.put(OperationsFields.DESCRIPTION.toString(), operation.getDescription());
+        values.put(OperationsFields.DESCRIPTION.toString(), operation.getDescription()); // mandatory
+        values.put(OperationsFields.CATEGORY.toString(), operation.getCategory().getId()); // mandatory
+        values.put(OperationsFields.AMOUNT.toString(), operation.getAmountCharged().toPlainString()); // mandatory
+
         if(operation.getTime() != null)
             values.put(OperationsFields.TIME.toString(), operation.getTimeString());
         values.put(OperationsFields.CHARGER.toString(), operation.getCharger().getId());
         if(operation.getBeneficiar() != null)
             values.put(OperationsFields.RECEIVER.toString(), operation.getBeneficiar().getId());
-        values.put(OperationsFields.AMOUNT.toString(), operation.getAmountCharged().toPlainString());
         values.put(OperationsFields.CONVERT_RATE.toString(), operation.getConvertingRate());
 
         long result = mDatabase.insert(OPERATIONS_TABLE_NAME, null, values);
@@ -354,22 +359,25 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 null, // g. order by
                 null); // h. limit
 
-        if (cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) try {
             // 4. build operation object
             final Operation op = new Operation();
-            op.setId(cursor.getLong(0));
-            op.setDescription(cursor.getString(1));
-            op.setTime(new Date(cursor.getLong(2)));
-            op.setCharger(getAccount(cursor.getInt(3)));
-            if(!cursor.isNull(4))
-                op.setBeneficiar(getAccount(cursor.getInt(4)));
-            op.setAmountCharged(new BigDecimal(cursor.getString(5)));
-            if(!cursor.isNull(6))
-                op.setConvertingRate(cursor.getDouble(6));
+            op.setId(cursor.getLong(OperationsFields._id.ordinal()));
+            op.setDescription(cursor.getString(OperationsFields.DESCRIPTION.ordinal()));
+            op.setCategory(getCategory(cursor.getLong(OperationsFields.CATEGORY.ordinal())));
+            op.setTime(Utils.SQLITE_DATE_FORMAT.parse(cursor.getString(OperationsFields.TIME.ordinal())));
+            op.setCharger(getAccount(cursor.getInt(OperationsFields.CHARGER.ordinal())));
+            if(!cursor.isNull(OperationsFields.RECEIVER.ordinal()))
+                op.setBeneficiar(getAccount(cursor.getInt(OperationsFields.RECEIVER.ordinal())));
+            op.setAmountCharged(new BigDecimal(cursor.getString(OperationsFields.AMOUNT.ordinal())));
+            if(!cursor.isNull(OperationsFields.CONVERT_RATE.ordinal()))
+                op.setConvertingRate(cursor.getDouble(OperationsFields.CONVERT_RATE.ordinal()));
             cursor.close();
 
             Log.d("getOperation(" + id + ")", op.getAmountCharged().toPlainString());
             return op;
+        } catch (ParseException ex) {
+            throw new RuntimeException(ex); // shouldn't happen
         }
 
         cursor.close();

@@ -2,6 +2,7 @@ package com.adonai.wallet;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.util.DisplayMetrics;
 
 import java.lang.reflect.Constructor;
@@ -9,12 +10,14 @@ import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.concurrent.Callable;
 
 /**
  * @author adonai
  */
 public class Utils {
-    public final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
+    public final static SimpleDateFormat VIEW_DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
+    public final static SimpleDateFormat SQLITE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @SuppressWarnings("unchecked") // we know what we want
     public static <T> T getValue(String value, T defaultValue) {
@@ -75,5 +78,26 @@ public class Utils {
             result[i] = iter.next().toString();
         }
         return result;
+    }
+
+    public abstract static class AsyncDbQuery<T> extends AsyncTask<Callable<T>, Void, T> {
+
+        @Override
+        protected T doInBackground(Callable<T>... params) {
+            try {
+                return params[0].call();
+            } catch (Exception e) {
+                // should not happen!
+                throw new RuntimeException(e);
+            }
+        }
+
+        protected abstract void onFinishLoad(T t);
+
+        @Override
+        protected void onPostExecute(T t) {
+            super.onPostExecute(t);
+            onFinishLoad(t);
+        }
     }
 }
