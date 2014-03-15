@@ -64,6 +64,11 @@ public class OperationsFragment extends WalletBaseFragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.operations_flow, menu);
         super.onCreateOptionsMenu(menu, inflater);
@@ -94,40 +99,43 @@ public class OperationsFragment extends WalletBaseFragment {
         }
 
         @Override
-        @SuppressWarnings({"deprecation", "unchecked"}) // for compat with older APIs
+        @SuppressWarnings("deprecation") // for compat with older APIs
         public void bindView(final View view, Context context, final Cursor cursor) {
             final DatabaseDAO db = getWalletActivity().getEntityDAO();
-            final Operation op = db.getOperation(cursor.getLong(DatabaseDAO.OperationsFields._id.ordinal()));
+            db.getAsyncOperation(cursor.getLong(DatabaseDAO.OperationsFields._id.ordinal()), new DatabaseDAO.AsyncDbQuery.Listener<Operation>() {
+                @Override
+                public void onFinishLoad(Operation op) {
+                    view.setBackgroundDrawable(mDrawableMap.get(op.getOperationType()));
+                    final TextView chargeAcc = (TextView) view.findViewById(R.id.charge_account_label);
+                    chargeAcc.setText(op.getCharger().getName());
 
-            view.setBackgroundDrawable(mDrawableMap.get(op.getOperationType()));
-            final TextView chargeAcc = (TextView) view.findViewById(R.id.charge_account_label);
-            chargeAcc.setText(op.getCharger().getName());
+                    final TextView benefAcc = (TextView) view.findViewById(R.id.beneficiar_account_label);
+                    final TextView benefAmount = (TextView) view.findViewById(R.id.beneficiar_amount_label);
+                    if(op.getBeneficiar() != null) {
+                        benefAcc.setVisibility(View.VISIBLE);
+                        benefAcc.setText(op.getBeneficiar().getName());
 
-            final TextView benefAcc = (TextView) view.findViewById(R.id.beneficiar_account_label);
-            final TextView benefAmount = (TextView) view.findViewById(R.id.beneficiar_amount_label);
-            if(op.getBeneficiar() != null) {
-                benefAcc.setVisibility(View.VISIBLE);
-                benefAcc.setText(op.getBeneficiar().getName());
+                        benefAmount.setVisibility(View.VISIBLE);
+                        if(op.getConvertingRate() != null)
+                            benefAmount.setText(op.getAmountCharged().divide(BigDecimal.valueOf(op.getConvertingRate()), 2, RoundingMode.HALF_UP).toPlainString());
+                        else
+                            benefAmount.setText(op.getAmountCharged().toPlainString());
+                    }
+                    else {
+                        benefAcc.setVisibility(View.GONE);
+                        benefAmount.setVisibility(View.GONE);
+                    }
 
-                benefAmount.setVisibility(View.VISIBLE);
-                if(op.getConvertingRate() != null)
-                    benefAmount.setText(op.getAmountCharged().divide(BigDecimal.valueOf(op.getConvertingRate()), 2, RoundingMode.HALF_UP).toPlainString());
-                else
-                    benefAmount.setText(op.getAmountCharged().toPlainString());
-            }
-            else {
-                benefAcc.setVisibility(View.GONE);
-                benefAmount.setVisibility(View.GONE);
-            }
+                    final TextView description = (TextView) view.findViewById(R.id.operation_description_label);
+                    description.setText(op.getDescription());
 
-            final TextView description = (TextView) view.findViewById(R.id.operation_description_label);
-            description.setText(op.getDescription());
+                    final TextView chargeAmount = (TextView) view.findViewById(R.id.charge_amount_label);
+                    chargeAmount.setText(op.getAmountCharged().toPlainString());
 
-            final TextView chargeAmount = (TextView) view.findViewById(R.id.charge_amount_label);
-            chargeAmount.setText(op.getAmountCharged().toPlainString());
-
-            final TextView operationTime = (TextView) view.findViewById(R.id.operation_time_label);
-            operationTime.setText(VIEW_DATE_FORMAT.format(op.getTime().getTime()));
+                    final TextView operationTime = (TextView) view.findViewById(R.id.operation_time_label);
+                    operationTime.setText(VIEW_DATE_FORMAT.format(op.getTime().getTime()));
+                }
+            });
         }
 
         @Override

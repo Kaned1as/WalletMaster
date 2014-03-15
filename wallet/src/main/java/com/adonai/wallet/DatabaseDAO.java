@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.adonai.wallet.entities.Account;
@@ -12,6 +13,10 @@ import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Currency;
 import com.adonai.wallet.entities.Operation;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;
@@ -19,10 +24,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 
 public class DatabaseDAO extends SQLiteOpenHelper
 {
+    private final Context mContext;
     /**
      * Calling this method means we have full operation object with all data built and ready for applying
      * @param operation operation to be applied
@@ -184,6 +191,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     public DatabaseDAO(Context context) {
         super(context, dbName, null, dbVersion);
+        mContext = context;
         mDatabase = getWritableDatabase();
         assert mDatabase != null;
     }
@@ -225,7 +233,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 ")");
 
         sqLiteDatabase.execSQL("CREATE TABLE " + CURRENCIES_TABLE_NAME + " (" +
-                CurrenciesFields.CODE + " TEXT NOT NULL, " +
+                CurrenciesFields.CODE + " TEXT PRIMARY KEY NOT NULL, " +
                 CurrenciesFields.DESCRIPTION + " TEXT DEFAULT NULL, " +
                 CurrenciesFields.USED_IN + " TEXT DEFAULT NULL" +
                 ")");
@@ -240,6 +248,50 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 " FOREIGN KEY (" + CategoriesFields.PREFERRED_ACCOUNT + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE SET NULL" +
                 ")");
         sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CATEGORY_UNIQUE_NAME_IDX ON " + CATEGORIES_TABLE_NAME + " (" +  CategoriesFields.NAME + ")");
+
+        sqLiteDatabase.beginTransaction(); // initial fill
+        // fill Categories
+        final String[] defaultOutcomeCategories = mContext.getResources().getStringArray(R.array.out_categories);
+        final String[] defaultIncomeCategories = mContext.getResources().getStringArray(R.array.inc_categories);
+        for(final String outCategory : defaultOutcomeCategories) {
+            final ContentValues values = new ContentValues(2);
+            values.put(CategoriesFields.NAME.toString(), outCategory);
+            values.put(CategoriesFields.TYPE.toString(), Category.EXPENSE);
+            sqLiteDatabase.insert(CATEGORIES_TABLE_NAME, null, values);
+        }
+        for(final String inCategory : defaultIncomeCategories) {
+            final ContentValues values = new ContentValues(2);
+            values.put(CategoriesFields.NAME.toString(), inCategory);
+            values.put(CategoriesFields.TYPE.toString(), Category.INCOME);
+            sqLiteDatabase.insert(CATEGORIES_TABLE_NAME, null, values);
+        }
+
+        //fill Currencies
+        final InputStream allCurrencies = getClass().getResourceAsStream("/assets/currencies.csv");
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(allCurrencies));
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                final String[] tokens = line.split(":");
+                final ContentValues values = new ContentValues(3);
+                switch (tokens.length) { // case-no-break magic!
+                    case 3:
+                        values.put(CurrenciesFields.USED_IN.toString(), tokens[2]);
+                    case 2:
+                        values.put(CurrenciesFields.DESCRIPTION.toString(), tokens[1]);
+                    case 1:
+                        values.put(CurrenciesFields.CODE.toString(), tokens[0]);
+                        break;
+                }
+                sqLiteDatabase.insert(CURRENCIES_TABLE_NAME, null, values);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e); // should not happen!
+        }
+
+        sqLiteDatabase.setTransactionSuccessful(); // batch insert
+        sqLiteDatabase.endTransaction();
+        // fill
     }
 
     @Override
@@ -249,7 +301,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public long addAccount(Account account) {
         Log.d("addAccount", account.getName());
 
-        final ContentValues values = new ContentValues();
+        final ContentValues values = new ContentValues(5);
         values.put(AccountFields.NAME.toString(), account.getName());
         values.put(AccountFields.DESCRIPTION.toString(), account.getDescription());
         values.put(AccountFields.CURRENCY.toString(), account.getCurrency().toString());
@@ -267,7 +319,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public long addOperation(Operation operation) {
         Log.d("addOperation", operation.getAmountCharged().toPlainString());
 
-        final ContentValues values = new ContentValues();
+        final ContentValues values = new ContentValues(7);
         values.put(OperationsFields.DESCRIPTION.toString(), operation.getDescription()); // mandatory
         values.put(OperationsFields.CATEGORY.toString(), operation.getCategory().getId()); // mandatory
         values.put(OperationsFields.AMOUNT.toString(), operation.getAmountCharged().toPlainString()); // mandatory
@@ -289,7 +341,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     public long addCategory(Category category) {
         Log.d("addCategory", category.getName());
-        final ContentValues values = new ContentValues();
+        final ContentValues values = new ContentValues(3);
         values.put(CategoriesFields.NAME.toString(), category.getName());
         values.put(CategoriesFields.TYPE.toString(), category.getType());
         if(category.getPreferredAccount() != null)
@@ -304,20 +356,19 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public Account getAccount(long id) {
-        final Cursor cursor = mDatabase.query(ACCOUNTS_TABLE_NAME, Utils.allKeys(AccountFields.class), " _id = ?", new String[] { String.valueOf(id) }, // d. selections args
+        final Cursor cursor = mDatabase.query(ACCOUNTS_TABLE_NAME, null, " _id = ?", new String[] { String.valueOf(id) }, // d. selections args
                                  null, // e. group by
                                  null, // f. having
                                  null, // g. order by
                                  null); // h. limit
-
         if (cursor.moveToFirst()) {
             final Account acc = new Account();
-            acc.setId(cursor.getLong(0));
-            acc.setName(cursor.getString(1));
-            acc.setDescription(cursor.getString(2));
-            acc.setCurrency(Currency.getCurrencyForCode(cursor.getString(3)));
-            acc.setAmount(new BigDecimal(cursor.getString(4)));
-            acc.setColor(cursor.getInt(5));
+            acc.setId(cursor.getLong(AccountFields._id.ordinal()));
+            acc.setName(cursor.getString(AccountFields.NAME.ordinal()));
+            acc.setDescription(cursor.getString(AccountFields.DESCRIPTION.ordinal()));
+            acc.setCurrency(getCurrency(cursor.getString(AccountFields.CURRENCY.ordinal())));
+            acc.setAmount(new BigDecimal(cursor.getString(AccountFields.AMOUNT.ordinal())));
+            acc.setColor(cursor.getInt(AccountFields.COLOR.ordinal()));
 
             Log.d("getAccount(" + id + ")", acc.getName());
             cursor.close();
@@ -329,38 +380,38 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public Cursor getAccountCursor() {
-        return mDatabase.query(ACCOUNTS_TABLE_NAME, Utils.allKeys(AccountFields.class), null, null, null, null, null, null);
+        Log.d("Query", "getAccountCursor");
+        return mDatabase.query(ACCOUNTS_TABLE_NAME, null, null, null, null, null, null, null);
+    }
+
+    public Cursor getCurrencyCursor() {
+        Log.d("Query", "getCurrencyCursor");
+        return mDatabase.query(CURRENCIES_TABLE_NAME, null, null, null, null, null, null, null);
     }
 
     public Cursor getOperationsCursor() {
-        return mDatabase.query(OPERATIONS_TABLE_NAME, Utils.allKeys(OperationsFields.class), null, null, null, null, null, null);
+        Log.d("Query", "getOperationsCursor");
+        return mDatabase.query(OPERATIONS_TABLE_NAME, null, null, null, null, null, null, null);
     }
 
     public Cursor getCategoryCursor() {
-        return mDatabase.query(CATEGORIES_TABLE_NAME, Utils.allKeys(CategoriesFields.class), null, null, null, null, null, null);
+        Log.d("Query", "getCategoryCursor");
+        return mDatabase.query(CATEGORIES_TABLE_NAME, null, null, null, null, null, null, null);
     }
 
     public Cursor getCategoryCursor(int type) {
-        return mDatabase.query(CATEGORIES_TABLE_NAME, Utils.allKeys(CategoriesFields.class), CategoriesFields.TYPE + " = ?", new String[]{String.valueOf(type)}, null, null, null, null);
-    }
-
-
-    public boolean hasCategories() {
-        final Cursor cur = getCategoryCursor();
-        final boolean result = cur.moveToNext();
-        cur.close();
-        return result;
+        Log.d("Query", "getCategoryCursorWithType");
+        return mDatabase.query(CATEGORIES_TABLE_NAME, null, CategoriesFields.TYPE + " = ?", new String[]{String.valueOf(type)}, null, null, null, null);
     }
 
     public Operation getOperation(long id) {
-        final Cursor cursor = mDatabase.query(OPERATIONS_TABLE_NAME, Utils.allKeys(OperationsFields.class), OperationsFields._id + " = ?", new String[] {String.valueOf(id)}, // d. selections args
+        final Long preciseTime = System.currentTimeMillis();
+        final Cursor cursor = mDatabase.query(OPERATIONS_TABLE_NAME, null, OperationsFields._id + " = ?", new String[] {String.valueOf(id)}, // d. selections args
                 null, // e. group by
                 null, // f. having
                 null, // g. order by
                 null); // h. limit
-
         if (cursor.moveToFirst()) try {
-            // 4. build operation object
             final Operation op = new Operation();
             op.setId(cursor.getLong(OperationsFields._id.ordinal()));
             op.setDescription(cursor.getString(OperationsFields.DESCRIPTION.ordinal()));
@@ -374,7 +425,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 op.setConvertingRate(cursor.getDouble(OperationsFields.CONVERT_RATE.ordinal()));
             cursor.close();
 
-            Log.d("getOperation(" + id + ")", op.getAmountCharged().toPlainString());
+            Log.d(String.format("getOperation(%d), took %d ms", id, System.currentTimeMillis() - preciseTime), op.getAmountCharged().toPlainString());
             return op;
         } catch (ParseException ex) {
             throw new RuntimeException(ex); // shouldn't happen
@@ -385,20 +436,19 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public Category getCategory(long id) {
-        final Cursor cursor = mDatabase.query(CATEGORIES_TABLE_NAME, Utils.allKeys(CategoriesFields.class), CategoriesFields._id + " = ?", new String[] {String.valueOf(id)}, // d. selections args
+        final Cursor cursor = mDatabase.query(CATEGORIES_TABLE_NAME, null, CategoriesFields._id + " = ?", new String[] {String.valueOf(id)}, // d. selections args
                 null, // e. group by
                 null, // f. having
                 null, // g. order by
                 null); // h. limit
-
         if (cursor.moveToFirst()) {
             // 4. build operation object
             final Category cat = new Category();
-            cat.setId(cursor.getLong(0));
-            cat.setName(cursor.getString(1));
-            cat.setType(cursor.getInt(2));
-            if(!cursor.isNull(3))
-                cat.setPreferredAccount(getAccount(cursor.getLong(3)));
+            cat.setId(cursor.getLong(CategoriesFields._id.ordinal()));
+            cat.setName(cursor.getString(CategoriesFields.NAME.ordinal()));
+            cat.setType(cursor.getInt(CategoriesFields.TYPE.ordinal()));
+            if(!cursor.isNull(CategoriesFields.PREFERRED_ACCOUNT.ordinal()))
+                cat.setPreferredAccount(getAccount(cursor.getLong(CategoriesFields.PREFERRED_ACCOUNT.ordinal())));
             cursor.close();
 
             Log.d(String.format("getCategory(%d)", id), cat.getName());
@@ -487,7 +537,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public int deleteOperation(Operation operation) {
-        Log.d("deleteOperation", operation.getAmountCharged().toPlainString());
+        Log.d("deleteOperation", operation.getId().toString());
         int count = mDatabase.delete(OPERATIONS_TABLE_NAME, //table name
                 OperationsFields._id + " = ?",  // selections
                 new String[] { String.valueOf(operation.getId()) });
@@ -508,11 +558,9 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return count;
     }
 
-    public long addCustomCurrency(Currency curr) {
-        Currency.addCustomCurrency(curr);
-
+    public long addCurrency(Currency curr) {
         Log.d("addCurrency", curr.toString());
-        final ContentValues values = new ContentValues();
+        final ContentValues values = new ContentValues(3);
         values.put(CurrenciesFields.CODE.toString(), curr.getDescription());
         if(curr.getDescription() != null)
             values.put(CurrenciesFields.DESCRIPTION.toString(), curr.getDescription());
@@ -522,19 +570,57 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return mDatabase.insert(CURRENCIES_TABLE_NAME, null, values);
     }
 
-    public List<Currency> getCustomCurrencies() {
-        final Cursor cursor = mDatabase.query(CURRENCIES_TABLE_NAME, Utils.allKeys(CurrenciesFields.class), null, null, null,  null,  null, null);
+    public Currency getCurrency(String code) {
+        Log.d("getCurrency", code);
+        final Cursor cursor = mDatabase.query(CURRENCIES_TABLE_NAME, null, CurrenciesFields.CODE + " = ?", new String[]{code}, null,  null,  null, null);
 
-        final List<Currency> result = new ArrayList<>();
-        if (cursor.moveToFirst())
-            while(cursor.moveToNext())
-                result.add(new Currency(cursor.getString(0), cursor.getString(1), cursor.getString(2)));
+        if (cursor.moveToNext()) {
+            final Currency result = new Currency(cursor.getString(0), cursor.getString(1), cursor.getString(2));
+            cursor.close();
+            return result;
+        }
+
         cursor.close();
-
-        Log.d("getAllCurrencies", String.valueOf(result.size()));
-        return result;
+        return null;
     }
 
+    public static class AsyncDbQuery<T> extends AsyncTask<Callable<T>, Void, T> {
+        private final Listener<T> listener;
 
+        protected AsyncDbQuery(Listener<T> listener) {
+            this.listener = listener;
+        }
+
+        public interface Listener<T> {
+            void onFinishLoad(T what);
+        }
+
+        @Override
+        @SafeVarargs
+        final protected T doInBackground(Callable<T>... params) {
+            try {
+                return params[0].call();
+            } catch (Exception e) {
+                // should not happen!
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(T t) {
+            super.onPostExecute(t);
+            listener.onFinishLoad(t);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void getAsyncOperation(final long id, AsyncDbQuery.Listener<Operation> lst) {
+        new AsyncDbQuery<>(lst).execute(new Callable<Operation>() {
+            @Override
+            public Operation call() throws Exception {
+                return getOperation(id);
+            }
+        });
+    }
 }
 

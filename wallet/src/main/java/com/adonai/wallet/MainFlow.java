@@ -35,7 +35,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        final FragmentManager fragmentManager = getSupportFragmentManager();
         switch (position) {
             case 0:
                 mTitle = getString(R.string.title_accounts);
@@ -52,7 +52,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     }
 
     public void restoreActionBar() {
-        ActionBar actionBar = getSupportActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);

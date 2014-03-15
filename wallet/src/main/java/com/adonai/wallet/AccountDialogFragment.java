@@ -2,12 +2,15 @@ package com.adonai.wallet;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -19,7 +22,6 @@ import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Currency;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * @author adonai
@@ -57,7 +59,7 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
         mInitialAmount = (EditText) dialog.findViewById(R.id.initial_amount_edit);
         mCreateAccount = (Button) dialog.findViewById(R.id.create_modify_account_button);
 
-        CurrencyAdapter adapter = new CurrencyAdapter(android.R.layout.simple_spinner_item, Currency.getAvailableCurrencies());
+        CurrencyAdapter adapter = new CurrencyAdapter();
         mCurrencySelector.setAdapter(adapter);
         mCreateAccount.setOnClickListener(this);
         ColorSpinnerAdapter colorAdapter = new ColorSpinnerAdapter(getResources().getStringArray(R.array.colors));
@@ -71,12 +73,12 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
 
             mAccountName.setText(mAccount.getName());
             mAccountDescription.setText(mAccount.getDescription());
-            mCurrencySelector.setSelection(adapter.getPosition(mAccount.getCurrency()));
+            mCurrencySelector.setSelection(adapter.getPosition(mAccount.getCurrency().getCode()));
             mColorSelector.setSelection(colorAdapter.getPosition(String.format("#%06X", (0xFFFFFF & mAccount.getColor()))));
             mInitialAmount.setText(mAccount.getAmount().toPlainString());
         } else {
             builder.setTitle(R.string.create_new_account).setView(dialog);
-            mCurrencySelector.setSelection(adapter.getPosition(Currency.getCurrencyForCode("RUB")));
+            mCurrencySelector.setSelection(adapter.getPosition("RUB"));
             mInitialAmount.setText("0.0");
         }
 
@@ -155,29 +157,75 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
         }
     }
 
-    public class CurrencyAdapter extends ArrayAdapter<Currency> implements SpinnerAdapter {
+    public class CurrencyAdapter extends BaseAdapter {
+        private final Context mContext;
+        private final Cursor mCursor;
 
-        public CurrencyAdapter(int resource, List<Currency> objects) {
-            super(getActivity(), resource, objects);
+        public CurrencyAdapter() {
+            mContext = getActivity();
+            mCursor = getWalletActivity().getEntityDAO().getCurrencyCursor();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view;
+            mCursor.moveToPosition(position);
+
+            if (convertView == null)
+                view = View.inflate(mContext, android.R.layout.simple_spinner_item, null);
+            else
+                view = convertView;
+
+            final TextView code = (TextView) view.findViewById(android.R.id.text1);
+            code.setText(mCursor.getString(DatabaseDAO.CurrenciesFields.CODE.ordinal()));
+
+            return view;
         }
 
         @Override
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
             View view;
-            Currency currency = getItem(position);
+            mCursor.moveToPosition(position);
+
             if (convertView == null)
-                view = View.inflate(getContext(), R.layout.currency_list_item, null);
+                view = View.inflate(mContext, R.layout.currency_list_item, null);
             else
                 view = convertView;
 
-            TextView title = (TextView) view.findViewById(R.id.curr_caption_text);
-            title.setText(currency.getCode());
-            TextView author = (TextView) view.findViewById(R.id.curr_description_text);
-            author.setText(currency.getDescription());
-            TextView last_post = (TextView) view.findViewById(R.id.curr_usedin_text);
-            last_post.setText(currency.getUsedIn());
+            final TextView code = (TextView) view.findViewById(R.id.curr_caption_text);
+            code.setText(mCursor.getString(DatabaseDAO.CurrenciesFields.CODE.ordinal()));
+            final TextView desc = (TextView) view.findViewById(R.id.curr_description_text);
+            desc.setText(mCursor.getString(DatabaseDAO.CurrenciesFields.DESCRIPTION.ordinal()));
+            final TextView usedIn = (TextView) view.findViewById(R.id.curr_usedin_text);
+            usedIn.setText(mCursor.getString(DatabaseDAO.CurrenciesFields.USED_IN.ordinal()));
 
             return view;
+        }
+
+        @Override
+        public int getCount() {
+            return mCursor.getCount();
+        }
+
+        @Override
+        public Currency getItem(int position) {
+            mCursor.moveToPosition(position);
+            return getWalletActivity().getEntityDAO().getCurrency(mCursor.getString(DatabaseDAO.CurrenciesFields.CODE.ordinal()));
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        public int getPosition(String code) {
+            if(mCursor.moveToFirst())
+                do {
+                    if(mCursor.getString(DatabaseDAO.CurrenciesFields.CODE.ordinal()).equals(code))
+                        return mCursor.getPosition();
+                } while(mCursor.moveToNext());
+
+            return -1;
         }
     }
 }

@@ -2,7 +2,6 @@ package com.adonai.wallet;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.util.DisplayMetrics;
 
 import java.lang.reflect.Constructor;
@@ -10,7 +9,6 @@ import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.EnumSet;
 import java.util.Iterator;
-import java.util.concurrent.Callable;
 
 /**
  * @author adonai
@@ -78,26 +76,5 @@ public class Utils {
             result[i] = iter.next().toString();
         }
         return result;
-    }
-
-    public abstract static class AsyncDbQuery<T> extends AsyncTask<Callable<T>, Void, T> {
-
-        @Override
-        protected T doInBackground(Callable<T>... params) {
-            try {
-                return params[0].call();
-            } catch (Exception e) {
-                // should not happen!
-                throw new RuntimeException(e);
-            }
-        }
-
-        protected abstract void onFinishLoad(T t);
-
-        @Override
-        protected void onPostExecute(T t) {
-            super.onPostExecute(t);
-            onFinishLoad(t);
-        }
     }
 }

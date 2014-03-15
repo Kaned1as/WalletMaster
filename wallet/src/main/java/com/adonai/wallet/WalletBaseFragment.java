@@ -3,7 +3,7 @@ package com.adonai.wallet;
 import android.support.v4.app.Fragment;
 
 /**
- * Created by adonai on 09.03.14.
+ * @author adonai
  */
 public class WalletBaseFragment extends Fragment {
 
