@@ -54,31 +54,11 @@ public class AccountsFragment extends WalletBaseFragment {
 
         mAccountsAdapter = new AccountsAdapter();
 
+        mAccountList.setAdapter(mAccountsAdapter);
+        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, mAccountsAdapter);
+        mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
+
         return rootView;
-    }
-
-
-    @Override
-    public void onDrawerClosed() {
-        if(mAccountList == null) { // fragment is not added to activity
-            mLoadOnStart = true;
-            return;
-        }
-
-        if(mAccountList.getAdapter() == null) { // only for first launch
-            mAccountList.setAdapter(mAccountsAdapter);
-            getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, mAccountsAdapter);
-            mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
-        }
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        if(mLoadOnStart) {
-            onDrawerClosed();
-            mLoadOnStart = false;
-        }
     }
 
     @Override

@@ -1,11 +1,14 @@
 package com.adonai.wallet;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainFlow extends WalletBaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -14,7 +17,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
      */
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
-    private WalletBaseFragment[] mParts = new WalletBaseFragment[] {new AccountsFragment(), new OperationsFragment(), new AccountsFragment()};
+    private List<WalletBaseFragment> mParts = new ArrayList<>(3);
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -29,6 +32,9 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
         mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
+        mParts.add((WalletBaseFragment) getSupportFragmentManager().findFragmentById(R.id.accounts_fragment));
+        mParts.add((WalletBaseFragment) getSupportFragmentManager().findFragmentById(R.id.operations_fragment));
+
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
     }
@@ -36,25 +42,23 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
-        final FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.container, mParts[position]).commit();
+        final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        for(WalletBaseFragment fragment : mParts)
+            transaction.hide(fragment);
         switch (position) {
             case 0:
                 mTitle = getString(R.string.title_accounts);
+                transaction.show(mParts.get(position));
                 break;
             case 1:
                 mTitle = getString(R.string.title_operations);
+                transaction.show(mParts.get(position));
                 break;
             case 2:
                 mTitle = getString(R.string.title_budget);
                 break;
         }
-    }
-
-    @Override
-    public void onDrawerClosed() {
-        for(WalletBaseFragment part : mParts)
-            part.onDrawerClosed();
+        transaction.commit();
     }
 
     public void restoreActionBar() {

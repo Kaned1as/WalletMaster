@@ -46,8 +46,6 @@ public class OperationsFragment extends WalletBaseFragment {
     private OperationsAdapter mOpAdapter;
     private Map<Operation.OperationType, Drawable> mDrawableMap;
 
-    private boolean mLoadOnStart = false;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
@@ -58,6 +56,11 @@ public class OperationsFragment extends WalletBaseFragment {
         assert rootView != null;
 
         mOperationsList = (ListView) rootView.findViewById(R.id.operations_list);
+
+        mOperationsList.setAdapter(mOpAdapter);
+        mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
+        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.OPERATIONS_TABLE_NAME, mOpAdapter);
+
         return rootView;
     }
 
@@ -78,29 +81,6 @@ public class OperationsFragment extends WalletBaseFragment {
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        if(mLoadOnStart) {
-            onDrawerClosed();
-            mLoadOnStart = false;
-        }
-    }
-
-    @Override
-    public void onDrawerClosed() {
-        if(mOperationsList == null) { // fragment is not added to activity
-            mLoadOnStart = true;
-            return;
-        }
-
-        if(mOperationsList.getAdapter() == null) { // only on first launch
-            mOperationsList.setAdapter(mOpAdapter);
-            mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
-            getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.OPERATIONS_TABLE_NAME, mOpAdapter);
-        }
     }
 
     private class OperationsAdapter extends CursorAdapter implements DatabaseDAO.DatabaseListener {

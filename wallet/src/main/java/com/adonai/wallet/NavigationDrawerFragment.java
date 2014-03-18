@@ -72,10 +72,12 @@ public class NavigationDrawerFragment extends Fragment {
             mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
             mFromSavedInstanceState = true;
         }
+    }
 
-        // Select either the default item (0) or the last selected item.
+    @Override
+    public void onStart() {
+        super.onStart(); // Select either the default item (0) or the last selected item.
         selectItem(mCurrentSelectedPosition);
-        mCallbacks.onDrawerClosed(); // init on start
     }
 
     @Override
@@ -148,7 +150,6 @@ public class NavigationDrawerFragment extends Fragment {
                     return;
 
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-                mCallbacks.onDrawerClosed();
             }
 
             @Override
@@ -266,6 +267,5 @@ public class NavigationDrawerFragment extends Fragment {
          * Called when an item in the navigation drawer is selected.
          */
         void onNavigationDrawerItemSelected(int position);
-        public void onDrawerClosed();
     }
 }

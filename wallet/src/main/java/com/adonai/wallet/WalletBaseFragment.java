@@ -10,6 +10,4 @@ public abstract class WalletBaseFragment extends Fragment {
     final public WalletBaseActivity getWalletActivity() {
         return (WalletBaseActivity) getActivity();
     }
-
-    public abstract void onDrawerClosed();
 }
