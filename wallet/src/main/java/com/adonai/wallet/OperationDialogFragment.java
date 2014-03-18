@@ -58,6 +58,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private final List<TableRow> conversionRows = new ArrayList<>();
     private TableRow mCategoryRow;
     private TableRow mBeneficiarRow;
+    private TableRow mChargerRow;
 
     private Spinner mBeneficiarAccountSelector;
     private EditText mBeneficiarConversionRate;
@@ -108,7 +109,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         mTypeSwitch = (RadioGroup) dialog.findViewById(R.id.operation_type_switch);
         mTypeSwitch.setOnCheckedChangeListener(new TypeSelector());
 
-        mBeneficiarRow = (TableRow) dialog.findViewById(R.id.beneficiar_row);
+        mChargerRow = (TableRow) dialog.findViewById(R.id.operation_charge_row);
+        mBeneficiarRow = (TableRow) dialog.findViewById(R.id.operation_beneficiar_row);
         conversionRows.add((TableRow) dialog.findViewById(R.id.beneficiar_conversion));
         conversionRows.add((TableRow) dialog.findViewById(R.id.beneficiar_amount));
         mCategoryRow = (TableRow) dialog.findViewById(R.id.operation_category_row);
@@ -268,13 +270,16 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             switch (checkedId) {
                 case R.id.transfer_radio: // on transfer we don't need category but have to specify beneficiar account
                     mBeneficiarRow.setVisibility(View.VISIBLE);
+                    mChargerRow.setVisibility(View.VISIBLE);
+
                     mCategoryRow.setVisibility(View.GONE);
                     mAmount.setTextColor(Color.parseColor("#0000AA"));
 
                     updateTransferConversionVisibility();
                     break;
                 case R.id.income_radio: // on income we need category with type=income
-                    mBeneficiarRow.setVisibility(View.GONE);
+                    mBeneficiarRow.setVisibility(View.VISIBLE);
+                    mChargerRow.setVisibility(View.GONE);
 
                     mCategoryRow.setVisibility(View.VISIBLE);
                     mCategorySelector.setAdapter(mInCategoriesAdapter);
@@ -283,6 +288,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     break;
                 case R.id.expense_radio: // on expense we need category with type=expense
                     mBeneficiarRow.setVisibility(View.GONE);
+                    mChargerRow.setVisibility(View.VISIBLE);
 
                     mCategoryRow.setVisibility(View.VISIBLE);
                     mCategorySelector.setAdapter(mOutCategoriesAdapter);
@@ -314,9 +320,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     final Operation operation = new Operation(amount, opCategory);
                     operation.setTime(mNow.getTime());
                     operation.setDescription(mDescription.getText().toString());
-                    switch (mTypeSwitch.getCheckedRadioButtonId()) {
-                        case R.id.transfer_radio: {
-                            // check data
+                    switch (mTypeSwitch.getCheckedRadioButtonId()) { // prepare operation depending on type
+                        case R.id.transfer_radio: { // transfer op, we need 2 accounts
                             final Account chargeAcc = db.getAccount(mChargeAccountSelector.getSelectedItemId());
                             final Account benefAcc = db.getAccount(mBeneficiarAccountSelector.getSelectedItemId());
                             if(chargeAcc == null || benefAcc == null)
@@ -329,14 +334,14 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                                 operation.setConvertingRate(getValue(mBeneficiarConversionRate.getText().toString(), 1d));
                             break;
                         }
-                        case R.id.income_radio: {
+                        case R.id.income_radio: { // income op, we need beneficiar
                             final Account benefAcc = db.getAccount(mBeneficiarAccountSelector.getSelectedItemId());
                             if(benefAcc == null)
                                 throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
                             operation.setBeneficiar(benefAcc);
                             break;
                         }
-                        case R.id.expense_radio: {
+                        case R.id.expense_radio: { // expense op, we need charger
                             final Account chargeAcc = db.getAccount(mChargeAccountSelector.getSelectedItemId());
                             if(chargeAcc == null)
                                 throw new IllegalArgumentException(getString(R.string.operation_needs_acc));

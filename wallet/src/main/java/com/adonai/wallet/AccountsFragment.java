@@ -28,16 +28,19 @@ import com.daniel.lupianez.casares.PopoverView;
 
 import java.util.Arrays;
 
-import static com.adonai.wallet.Utils.*;
+import static com.adonai.wallet.Utils.convertDpToPixel;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class AccountsFragment extends WalletBaseFragment {
 
-    ListView mAccountList;
-    AccountsAdapter mAccountsAdapter;
-    TextView budgetSum;
+    private ListView mAccountList;
+    private AccountsAdapter mAccountsAdapter;
+    private TextView budgetSum;
+
+    private boolean mLoadOnStart = false;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -57,10 +60,24 @@ public class AccountsFragment extends WalletBaseFragment {
 
     @Override
     public void onDrawerClosed() {
+        if(mAccountList == null) { // fragment is not added to activity
+            mLoadOnStart = true;
+            return;
+        }
+
         if(mAccountList.getAdapter() == null) { // only for first launch
             mAccountList.setAdapter(mAccountsAdapter);
             getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, mAccountsAdapter);
             mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
+        }
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if(mLoadOnStart) {
+            onDrawerClosed();
+            mLoadOnStart = false;
         }
     }
 

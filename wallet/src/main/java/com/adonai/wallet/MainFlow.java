@@ -14,7 +14,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
      */
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
-    private WalletBaseFragment[] mParts = new WalletBaseFragment[] {new AccountsFragment(), new OperationsFragment(), null};
+    private WalletBaseFragment[] mParts = new WalletBaseFragment[] {new AccountsFragment(), new OperationsFragment(), new AccountsFragment()};
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -54,8 +54,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     @Override
     public void onDrawerClosed() {
         for(WalletBaseFragment part : mParts)
-            if(part.isAdded())
-                part.onDrawerClosed();
+            part.onDrawerClosed();
     }
 
     public void restoreActionBar() {

@@ -46,6 +46,8 @@ public class OperationsFragment extends WalletBaseFragment {
     private OperationsAdapter mOpAdapter;
     private Map<Operation.OperationType, Drawable> mDrawableMap;
 
+    private boolean mLoadOnStart = false;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
@@ -79,7 +81,21 @@ public class OperationsFragment extends WalletBaseFragment {
     }
 
     @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if(mLoadOnStart) {
+            onDrawerClosed();
+            mLoadOnStart = false;
+        }
+    }
+
+    @Override
     public void onDrawerClosed() {
+        if(mOperationsList == null) { // fragment is not added to activity
+            mLoadOnStart = true;
+            return;
+        }
+
         if(mOperationsList.getAdapter() == null) { // only on first launch
             mOperationsList.setAdapter(mOpAdapter);
             mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
@@ -134,7 +150,7 @@ public class OperationsFragment extends WalletBaseFragment {
                             beneficiarLayout.setVisibility(View.VISIBLE);
 
                             benefAcc.setText(op.getBeneficiar().getName());
-                            benefAcc.setText(op.getAmountDelivered().toPlainString());
+                            benefAmount.setText(op.getAmountDelivered().toPlainString());
                             break;
                         case EXPENSE:
                             chargeLayout.setVisibility(View.VISIBLE);
