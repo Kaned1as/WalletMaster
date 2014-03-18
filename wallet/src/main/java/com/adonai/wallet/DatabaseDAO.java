@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +35,9 @@ public class DatabaseDAO extends SQLiteOpenHelper
      */
     public boolean applyOperation(Operation operation) {
         final Account chargeAcc = operation.getCharger();
-        final BigDecimal chargeAmount = operation.getAmountCharged();
+        final Account benefAcc = operation.getBeneficiar();
+        final BigDecimal amount = operation.getAmount();
+
         long successFlag = 0;
         boolean allSucceeded = false;
         mDatabase.beginTransaction();
@@ -45,27 +46,21 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
         switch (operation.getOperationType()) {
             case TRANSFER:
-                final Account beneficiarAcc = operation.getBeneficiar();
-                final BigDecimal benAmount = operation.getConvertingRate() != null
-                        ? chargeAmount.divide(BigDecimal.valueOf(operation.getConvertingRate()), 2, RoundingMode.HALF_UP)
-                        : chargeAmount;
-
-                beneficiarAcc.setAmount(beneficiarAcc.getAmount().add(benAmount));
-                successFlag += updateAccount(beneficiarAcc); // apply to db
-
-                chargeAcc.setAmount(chargeAcc.getAmount().subtract(chargeAmount));
+                benefAcc.setAmount(benefAcc.getAmount().add(operation.getAmountDelivered()));
+                chargeAcc.setAmount(chargeAcc.getAmount().subtract(amount));
+                successFlag += updateAccount(benefAcc); // apply to db
+                successFlag += updateAccount(chargeAcc);
                 break;
-
             case EXPENSE: // subtract value
-                chargeAcc.setAmount(chargeAcc.getAmount().subtract(chargeAmount));
+                chargeAcc.setAmount(chargeAcc.getAmount().subtract(amount));
+                successFlag += updateAccount(chargeAcc);
                 break;
             case INCOME: // add value
-                chargeAcc.setAmount(chargeAcc.getAmount().add(chargeAmount));
+                benefAcc.setAmount(benefAcc.getAmount().add(amount));
+                successFlag += updateAccount(benefAcc);
                 break;
         }
-        successFlag += updateAccount(chargeAcc);
-
-            // transfer complete                                        // income/expense complete
+                                            // transfer complete                                        // income/expense complete
         if(operation.getOperationType() == Operation.OperationType.TRANSFER && successFlag == 3 || operation.getOperationType() != Operation.OperationType.TRANSFER && successFlag == 2) {
             mDatabase.setTransactionSuccessful();
             allSucceeded = true;
@@ -84,8 +79,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
      */
     public boolean revertOperation(Operation operation) {
         final Account chargeAcc = operation.getCharger();
-        final BigDecimal chargeAmount = operation.getAmountCharged();
-        int successFlag = 0;
+        final Account benefAcc = operation.getBeneficiar();
+        final BigDecimal amount = operation.getAmount();
+
+        long successFlag = 0;
         boolean allSucceeded = false;
         mDatabase.beginTransaction();
 
@@ -93,27 +90,21 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
         switch (operation.getOperationType()) {
             case TRANSFER:
-                final Account beneficiarAcc = operation.getBeneficiar();
-                final BigDecimal benAmount = operation.getConvertingRate() != null
-                        ? chargeAmount.divide(BigDecimal.valueOf(operation.getConvertingRate()), 2, RoundingMode.HALF_UP)
-                        : chargeAmount;
-
-                beneficiarAcc.setAmount(beneficiarAcc.getAmount().subtract(benAmount));
-                successFlag += updateAccount(beneficiarAcc); // apply to db
-
-                chargeAcc.setAmount(chargeAcc.getAmount().add(chargeAmount));
+                benefAcc.setAmount(benefAcc.getAmount().subtract(operation.getAmountDelivered()));
+                chargeAcc.setAmount(chargeAcc.getAmount().add(amount));
+                successFlag += updateAccount(benefAcc); // apply to db
+                successFlag += updateAccount(chargeAcc);
                 break;
-
             case EXPENSE: // add subtracted value
-                chargeAcc.setAmount(chargeAcc.getAmount().add(chargeAmount));
+                chargeAcc.setAmount(chargeAcc.getAmount().add(amount));
+                successFlag += updateAccount(chargeAcc);
                 break;
             case INCOME: // subtract added value
-                chargeAcc.setAmount(chargeAcc.getAmount().subtract(chargeAmount));
+                benefAcc.setAmount(benefAcc.getAmount().subtract(amount));
+                successFlag += updateAccount(benefAcc);
                 break;
         }
-        successFlag += updateAccount(chargeAcc);
-
-        // transfer complete                                        // income/expense complete
+                                            // transfer complete                                        // income/expense complete
         if(operation.getOperationType() == Operation.OperationType.TRANSFER && successFlag == 3 || operation.getOperationType() != Operation.OperationType.TRANSFER && successFlag == 2) {
             mDatabase.setTransactionSuccessful();
             allSucceeded = true;
@@ -222,7 +213,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 OperationsFields.DESCRIPTION + " TEXT DEFAULT NULL, " +
                 OperationsFields.CATEGORY + " INTEGER NOT NULL, " +
                 OperationsFields.TIME + " DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, " +
-                OperationsFields.CHARGER + " INTEGER NOT NULL, " +
+                OperationsFields.CHARGER + " INTEGER DEFAULT NULL, " +
                 OperationsFields.RECEIVER + " INTEGER DEFAULT NULL, " +
                 OperationsFields.AMOUNT + " TEXT DEFAULT '0' NOT NULL, " +
                 OperationsFields.CONVERT_RATE + " REAL DEFAULT NULL, " +
@@ -317,19 +308,21 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public long addOperation(Operation operation) {
-        Log.d("addOperation", operation.getAmountCharged().toPlainString());
+        Log.d("addOperation", operation.getAmount().toPlainString());
 
         final ContentValues values = new ContentValues(7);
         values.put(OperationsFields.DESCRIPTION.toString(), operation.getDescription()); // mandatory
         values.put(OperationsFields.CATEGORY.toString(), operation.getCategory().getId()); // mandatory
-        values.put(OperationsFields.AMOUNT.toString(), operation.getAmountCharged().toPlainString()); // mandatory
+        values.put(OperationsFields.AMOUNT.toString(), operation.getAmount().toPlainString()); // mandatory
 
         if(operation.getTime() != null)
             values.put(OperationsFields.TIME.toString(), operation.getTimeString());
-        values.put(OperationsFields.CHARGER.toString(), operation.getCharger().getId());
+        if(operation.getCharger() != null)
+            values.put(OperationsFields.CHARGER.toString(), operation.getCharger().getId());
         if(operation.getBeneficiar() != null)
             values.put(OperationsFields.RECEIVER.toString(), operation.getBeneficiar().getId());
-        values.put(OperationsFields.CONVERT_RATE.toString(), operation.getConvertingRate());
+        if(operation.getConvertingRate() != null)
+            values.put(OperationsFields.CONVERT_RATE.toString(), operation.getConvertingRate());
 
         long result = mDatabase.insert(OPERATIONS_TABLE_NAME, null, values);
 
@@ -420,12 +413,12 @@ public class DatabaseDAO extends SQLiteOpenHelper
             op.setCharger(getAccount(cursor.getInt(OperationsFields.CHARGER.ordinal())));
             if(!cursor.isNull(OperationsFields.RECEIVER.ordinal()))
                 op.setBeneficiar(getAccount(cursor.getInt(OperationsFields.RECEIVER.ordinal())));
-            op.setAmountCharged(new BigDecimal(cursor.getString(OperationsFields.AMOUNT.ordinal())));
+            op.setAmount(new BigDecimal(cursor.getString(OperationsFields.AMOUNT.ordinal())));
             if(!cursor.isNull(OperationsFields.CONVERT_RATE.ordinal()))
                 op.setConvertingRate(cursor.getDouble(OperationsFields.CONVERT_RATE.ordinal()));
             cursor.close();
 
-            Log.d(String.format("getOperation(%d), took %d ms", id, System.currentTimeMillis() - preciseTime), op.getAmountCharged().toPlainString());
+            Log.d(String.format("getOperation(%d), took %d ms", id, System.currentTimeMillis() - preciseTime), op.getAmount().toPlainString());
             return op;
         } catch (ParseException ex) {
             throw new RuntimeException(ex); // shouldn't happen
@@ -490,7 +483,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         values.put(OperationsFields.CHARGER.toString(), operation.getCharger().getId());
         if(operation.getBeneficiar() != null)
             values.put(OperationsFields.RECEIVER.toString(), operation.getBeneficiar().getId());
-        values.put(OperationsFields.AMOUNT.toString(), operation.getAmountCharged().toPlainString());
+        values.put(OperationsFields.AMOUNT.toString(), operation.getAmount().toPlainString());
         values.put(OperationsFields.CONVERT_RATE.toString(), operation.getConvertingRate());
 
         final int result = mDatabase.update(OPERATIONS_TABLE_NAME,  values, OperationsFields._id + " = ?",  new String[] { String.valueOf(operation.getId()) }); //selection args

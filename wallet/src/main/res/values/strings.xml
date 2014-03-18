@@ -42,7 +42,8 @@
     <string name="optional">Optional</string>
     <string name="accounts_identical">Charger and beneficiar accounts are identical!</string>
     <string name="cannot_apply_op">Cannot apply operation! Please, double-check values.</string>
-    <string name="operation_needs_acc">Operation needs at least one account to succeed!</string>
+    <string name="operation_needs_acc">Operation needs account to succeed!</string>
+    <string name="operation_needs_transfer_accs">Operation needs both transfer accounts to succeed!</string>
     <string name="operation_needs_amount">Cannot perform operation without amount!</string>
     <string name="operation_needs_category">Operation needs category!</string>
     <string name="confirm_action">Confirm action</string>

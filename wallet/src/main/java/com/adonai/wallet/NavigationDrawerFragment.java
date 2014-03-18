@@ -27,7 +27,6 @@ import android.widget.ListView;
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
 public class NavigationDrawerFragment extends Fragment {
-
     /**
      * Remember the position of the selected item.
      */
@@ -100,11 +99,12 @@ public class NavigationDrawerFragment extends Fragment {
                 getActionBar().getThemedContext(),
                 android.R.layout.simple_list_item_1,
                 android.R.id.text1,
-                new String[] {
+                new String[]{
                         getString(R.string.title_accounts),
                         getString(R.string.title_operations),
                         getString(R.string.title_budget),
-                }));
+                }
+        ));
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
     }
@@ -147,6 +147,7 @@ public class NavigationDrawerFragment extends Fragment {
                     return;
 
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+                mCallbacks.onDrawerClosed();
             }
 
             @Override
@@ -269,5 +270,6 @@ public class NavigationDrawerFragment extends Fragment {
          * Called when an item in the navigation drawer is selected.
          */
         void onNavigationDrawerItemSelected(int position);
+        public void onDrawerClosed();
     }
 }

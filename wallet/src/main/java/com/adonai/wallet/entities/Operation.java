@@ -3,6 +3,7 @@ package com.adonai.wallet.entities;
 import com.adonai.wallet.Utils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -22,16 +23,15 @@ public class Operation {
     private Calendar time;
     private Account charger;
     private Account beneficiar;
-    private BigDecimal amountCharged;
+    private BigDecimal amount;
     private Double convertingRate;
     private Category category;
 
     public Operation() {
     }
 
-    public Operation(Account charger, BigDecimal amountCharged, Category category) {
-        this.charger = charger;
-        this.amountCharged = amountCharged;
+    public Operation(BigDecimal amount, Category category) {
+        this.amount = amount;
         this.category = category;
     }
 
@@ -59,12 +59,12 @@ public class Operation {
         this.beneficiar = beneficiar;
     }
 
-    public BigDecimal getAmountCharged() {
-        return amountCharged;
+    public BigDecimal getAmount() {
+        return amount;
     }
 
-    public void setAmountCharged(BigDecimal amountCharged) {
-        this.amountCharged = amountCharged;
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
     }
 
     public Double getConvertingRate() {
@@ -110,12 +110,19 @@ public class Operation {
     }
 
     public OperationType getOperationType() {
-        if(getBeneficiar() != null)
+        if(getBeneficiar() != null && getCharger() != null)
             return OperationType.TRANSFER;
 
         if(getCategory().getType() == Category.EXPENSE)
             return OperationType.EXPENSE;
 
         return OperationType.INCOME;
+    }
+
+    public BigDecimal getAmountDelivered() {
+        if(getConvertingRate() != null)
+           return getAmount().divide(BigDecimal.valueOf(getConvertingRate()), 2, RoundingMode.HALF_UP);
+        else
+            return getAmount();
     }
 }

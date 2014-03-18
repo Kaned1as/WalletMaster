@@ -51,7 +51,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private Spinner mChargeAccountSelector;
     private Spinner mCategorySelector;
     private AccountsAdapter mAccountAdapter;
-    private EditText mAmountCharged;
+    private EditText mAmount;
 
     private RadioGroup mTypeSwitch;
 
@@ -75,8 +75,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     public OperationDialogFragment(Operation toModify) {
         super();
 
-        if(toModify != null)
-            mOperation = toModify;
+        mOperation = toModify;
     }
 
     @Override
@@ -103,8 +102,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         mCategorySelector = (Spinner) dialog.findViewById(R.id.category_spinner);
         mCategorySelector.setOnItemSelectedListener(new CategorySelectListener());
 
-        mAmountCharged = (EditText) dialog.findViewById(R.id.charge_amount_edit);
-        mAmountCharged.addTextChangedListener(textWatcher);
+        mAmount = (EditText) dialog.findViewById(R.id.amount_edit);
+        mAmount.addTextChangedListener(textWatcher);
 
         mTypeSwitch = (RadioGroup) dialog.findViewById(R.id.operation_type_switch);
         mTypeSwitch.setOnCheckedChangeListener(new TypeSelector());
@@ -129,7 +128,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         // if we are modifying existing operation
         if(mOperation != null) {
             mDescription.setText(mOperation.getDescription());
-            mAmountCharged.setText(mOperation.getAmountCharged().toPlainString());
+            mAmount.setText(mOperation.getAmount().toPlainString());
             mNow.setTime(mOperation.getTime().getTime());
             mDatePicker.setText(VIEW_DATE_FORMAT.format(mNow));
 
@@ -173,17 +172,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private class AccountSelectListener implements AdapterView.OnItemSelectedListener {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            Account chargeAcc = getWalletActivity().getEntityDAO().getAccount(mChargeAccountSelector.getSelectedItemId());
-            Account beneficiarAcc = getWalletActivity().getEntityDAO().getAccount(mBeneficiarAccountSelector.getSelectedItemId());
-            if(!chargeAcc.getCurrency().equals(beneficiarAcc.getCurrency())) { // show conversion rows when currencies are different
-                for(TableRow row : conversionRows)
-                    row.setVisibility(View.VISIBLE);
-
-                updateConversionAmount();
-            } else {
-                for(TableRow row : conversionRows)
-                    row.setVisibility(View.GONE);
-            }
+            updateTransferConversionVisibility();
         }
 
         @Override
@@ -192,8 +181,22 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         }
     }
 
+    // show conversion rows on transfer when currencies are different
+    private void updateTransferConversionVisibility() {
+        Account chargeAcc = getWalletActivity().getEntityDAO().getAccount(mChargeAccountSelector.getSelectedItemId());
+        Account beneficiarAcc = getWalletActivity().getEntityDAO().getAccount(mBeneficiarAccountSelector.getSelectedItemId());
+        if(mTypeSwitch.getCheckedRadioButtonId() == R.id.transfer_radio && !chargeAcc.getCurrency().equals(beneficiarAcc.getCurrency())) {
+            for(TableRow row : conversionRows)
+                row.setVisibility(View.VISIBLE);
+
+            updateConversionAmount();
+        } else
+            for(TableRow row : conversionRows)
+                row.setVisibility(View.GONE);
+    }
+
     public void updateConversionAmount() {
-        final BigDecimal amount = getValue(mAmountCharged.getText().toString(), BigDecimal.ZERO);
+        final BigDecimal amount = getValue(mAmount.getText().toString(), BigDecimal.ZERO);
         final Double rate = getValue(mBeneficiarConversionRate.getText().toString(), 1d);
         final BigDecimal beneficiarAmount = amount.divide(BigDecimal.valueOf(rate), 2, RoundingMode.HALF_UP);
         mBeneficiarAmountDelivered.setText(beneficiarAmount.toPlainString());
@@ -266,7 +269,9 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                 case R.id.transfer_radio: // on transfer we don't need category but have to specify beneficiar account
                     mBeneficiarRow.setVisibility(View.VISIBLE);
                     mCategoryRow.setVisibility(View.GONE);
-                    mAmountCharged.setTextColor(Color.parseColor("#0000AA"));
+                    mAmount.setTextColor(Color.parseColor("#0000AA"));
+
+                    updateTransferConversionVisibility();
                     break;
                 case R.id.income_radio: // on income we need category with type=income
                     mBeneficiarRow.setVisibility(View.GONE);
@@ -274,7 +279,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     mCategoryRow.setVisibility(View.VISIBLE);
                     mCategorySelector.setAdapter(mInCategoriesAdapter);
 
-                    mAmountCharged.setTextColor(Color.parseColor("#00AA00"));
+                    mAmount.setTextColor(Color.parseColor("#00AA00"));
                     break;
                 case R.id.expense_radio: // on expense we need category with type=expense
                     mBeneficiarRow.setVisibility(View.GONE);
@@ -282,7 +287,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     mCategoryRow.setVisibility(View.VISIBLE);
                     mCategorySelector.setAdapter(mOutCategoriesAdapter);
 
-                    mAmountCharged.setTextColor(Color.parseColor("#AA0000"));
+                    mAmount.setTextColor(Color.parseColor("#AA0000"));
                     break;
             }
         }
@@ -298,31 +303,48 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                 } else try { // create new operation with data from fields specified
                     final DatabaseDAO db = getWalletActivity().getEntityDAO();
 
-                    // check fields!
-                    final Account chargeAcc = db.getAccount(mChargeAccountSelector.getSelectedItemId());
-                    if(chargeAcc == null)
-                        throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
-
-                    final BigDecimal chargeAmount = getValue(mAmountCharged.getText().toString(), BigDecimal.ZERO);
-                    if(chargeAmount.equals(BigDecimal.ZERO))
+                    final BigDecimal amount = getValue(mAmount.getText().toString(), BigDecimal.ZERO);
+                    if(amount.equals(BigDecimal.ZERO))
                         throw new IllegalArgumentException(getString(R.string.operation_needs_amount));
 
                     final Category opCategory = db.getCategory(mCategorySelector.getSelectedItemId());
                     if(opCategory == null)
                         throw new IllegalArgumentException(getString(R.string.operation_needs_category));
 
-                    final Operation operation = new Operation(chargeAcc, chargeAmount, opCategory);
+                    final Operation operation = new Operation(amount, opCategory);
                     operation.setTime(mNow.getTime());
                     operation.setDescription(mDescription.getText().toString());
-                    if(mTypeSwitch.getCheckedRadioButtonId() == R.id.transfer_radio) { // if this is a transfer op
-                        if(mBeneficiarAccountSelector.getSelectedItemId() == mChargeAccountSelector.getSelectedItemId()) // no transfer to self
-                            throw new IllegalArgumentException(getString(R.string.accounts_identical));
-
-                        operation.setBeneficiar(db.getAccount(mBeneficiarAccountSelector.getSelectedItemId()));
-                        if(!operation.getBeneficiar().getCurrency().equals(operation.getCharger().getCurrency())) // different currencies
-                            operation.setConvertingRate(getValue(mBeneficiarConversionRate.getText().toString(), 1d));
-
+                    switch (mTypeSwitch.getCheckedRadioButtonId()) {
+                        case R.id.transfer_radio: {
+                            // check data
+                            final Account chargeAcc = db.getAccount(mChargeAccountSelector.getSelectedItemId());
+                            final Account benefAcc = db.getAccount(mBeneficiarAccountSelector.getSelectedItemId());
+                            if(chargeAcc == null || benefAcc == null)
+                                throw new IllegalArgumentException(getString(R.string.operation_needs_transfer_accs));
+                            if(chargeAcc.getId().equals(benefAcc.getId())) // no transfer to self
+                                throw new IllegalArgumentException(getString(R.string.accounts_identical));
+                            operation.setCharger(chargeAcc);
+                            operation.setBeneficiar(benefAcc);
+                            if(!operation.getBeneficiar().getCurrency().equals(operation.getCharger().getCurrency())) // different currencies
+                                operation.setConvertingRate(getValue(mBeneficiarConversionRate.getText().toString(), 1d));
+                            break;
+                        }
+                        case R.id.income_radio: {
+                            final Account benefAcc = db.getAccount(mBeneficiarAccountSelector.getSelectedItemId());
+                            if(benefAcc == null)
+                                throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
+                            operation.setBeneficiar(benefAcc);
+                            break;
+                        }
+                        case R.id.expense_radio: {
+                            final Account chargeAcc = db.getAccount(mChargeAccountSelector.getSelectedItemId());
+                            if(chargeAcc == null)
+                                throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
+                            operation.setCharger(chargeAcc);
+                            break;
+                        }
                     }
+
                     if(db.applyOperation(operation)) // all succeeded
                         dismiss();
                     else

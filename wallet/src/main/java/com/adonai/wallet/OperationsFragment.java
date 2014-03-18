@@ -22,14 +22,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.adonai.wallet.entities.Operation;
 import com.daniel.lupianez.casares.PopoverView;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -57,15 +56,7 @@ public class OperationsFragment extends WalletBaseFragment {
         assert rootView != null;
 
         mOperationsList = (ListView) rootView.findViewById(R.id.operations_list);
-        mOperationsList.setAdapter(mOpAdapter);
-        mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
-        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.OPERATIONS_TABLE_NAME, mOpAdapter);
         return rootView;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
     }
 
     @Override
@@ -87,6 +78,15 @@ public class OperationsFragment extends WalletBaseFragment {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onDrawerClosed() {
+        if(mOperationsList.getAdapter() == null) { // only on first launch
+            mOperationsList.setAdapter(mOpAdapter);
+            mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
+            getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.OPERATIONS_TABLE_NAME, mOpAdapter);
+        }
+    }
+
     private class OperationsAdapter extends CursorAdapter implements DatabaseDAO.DatabaseListener {
         public OperationsAdapter() {
             super(getActivity(), getWalletActivity().getEntityDAO().getOperationsCursor(), false);
@@ -106,34 +106,44 @@ public class OperationsFragment extends WalletBaseFragment {
                 @Override
                 public void onFinishLoad(Operation op) {
                     view.setBackgroundDrawable(mDrawableMap.get(op.getOperationType()));
-                    final TextView chargeAcc = (TextView) view.findViewById(R.id.charge_account_label);
-                    chargeAcc.setText(op.getCharger().getName());
+                    final LinearLayout chargeLayout = (LinearLayout) view.findViewById(R.id.charger_layout);
+                    final LinearLayout beneficiarLayout = (LinearLayout) view.findViewById(R.id.beneficiar_layout);
 
+                    final TextView chargeAcc = (TextView) view.findViewById(R.id.charge_account_label);
                     final TextView benefAcc = (TextView) view.findViewById(R.id.beneficiar_account_label);
                     final TextView benefAmount = (TextView) view.findViewById(R.id.beneficiar_amount_label);
-                    if(op.getBeneficiar() != null) {
-                        benefAcc.setVisibility(View.VISIBLE);
-                        benefAcc.setText(op.getBeneficiar().getName());
-
-                        benefAmount.setVisibility(View.VISIBLE);
-                        if(op.getConvertingRate() != null)
-                            benefAmount.setText(op.getAmountCharged().divide(BigDecimal.valueOf(op.getConvertingRate()), 2, RoundingMode.HALF_UP).toPlainString());
-                        else
-                            benefAmount.setText(op.getAmountCharged().toPlainString());
-                    }
-                    else {
-                        benefAcc.setVisibility(View.GONE);
-                        benefAmount.setVisibility(View.GONE);
-                    }
-
-                    final TextView description = (TextView) view.findViewById(R.id.operation_description_label);
-                    description.setText(op.getDescription());
-
                     final TextView chargeAmount = (TextView) view.findViewById(R.id.charge_amount_label);
-                    chargeAmount.setText(op.getAmountCharged().toPlainString());
-
+                    final TextView description = (TextView) view.findViewById(R.id.operation_description_label);
                     final TextView operationTime = (TextView) view.findViewById(R.id.operation_time_label);
+
+                    description.setText(op.getDescription());
                     operationTime.setText(VIEW_DATE_FORMAT.format(op.getTime().getTime()));
+
+                    switch (op.getOperationType()) {
+                        case TRANSFER:
+                            chargeLayout.setVisibility(View.VISIBLE);
+                            beneficiarLayout.setVisibility(View.VISIBLE);
+
+                            chargeAcc.setText(op.getCharger().getName());
+                            benefAcc.setText(op.getBeneficiar().getName());
+                            chargeAmount.setText(op.getAmount().toPlainString());
+                            benefAmount.setText(op.getAmountDelivered().toPlainString());
+                            break;
+                        case INCOME:
+                            chargeLayout.setVisibility(View.GONE);
+                            beneficiarLayout.setVisibility(View.VISIBLE);
+
+                            benefAcc.setText(op.getBeneficiar().getName());
+                            benefAcc.setText(op.getAmountDelivered().toPlainString());
+                            break;
+                        case EXPENSE:
+                            chargeLayout.setVisibility(View.VISIBLE);
+                            beneficiarLayout.setVisibility(View.GONE);
+
+                            chargeAcc.setText(op.getCharger().getName());
+                            chargeAmount.setText(op.getAmount().toPlainString());
+                            break;
+                    }
                 }
             });
         }

@@ -172,7 +172,7 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/charge_amount_edit"
+                android:id="@+id/amount_edit"
                 android:inputType="numberDecimal" />
         </TableRow>
 

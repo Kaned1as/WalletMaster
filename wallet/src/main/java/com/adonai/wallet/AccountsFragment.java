@@ -50,11 +50,18 @@ public class AccountsFragment extends WalletBaseFragment {
         budgetSum = (TextView) rootView.findViewById(R.id.account_sum);
 
         mAccountsAdapter = new AccountsAdapter();
-        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, mAccountsAdapter);
-        mAccountList.setAdapter(mAccountsAdapter);
-        mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
 
         return rootView;
+    }
+
+
+    @Override
+    public void onDrawerClosed() {
+        if(mAccountList.getAdapter() == null) { // only for first launch
+            mAccountList.setAdapter(mAccountsAdapter);
+            getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, mAccountsAdapter);
+            mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
+        }
     }
 
     @Override
