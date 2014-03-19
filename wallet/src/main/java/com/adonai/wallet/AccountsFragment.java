@@ -135,6 +135,7 @@ public class AccountsFragment extends WalletBaseFragment {
                     new AlertDialog.Builder(getActivity())
                             .setTitle(R.string.confirm_action)
                             .setMessage(R.string.really_delete_account)
+                            .setNegativeButton(android.R.string.cancel, null)
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -142,7 +143,7 @@ public class AccountsFragment extends WalletBaseFragment {
                                 }
                             }).create().show();
 
-                    popover.dissmissPopover(true);
+                    popover.dismissPopover(true);
                 }
             });
 
@@ -152,7 +153,7 @@ public class AccountsFragment extends WalletBaseFragment {
                 public void onClick(View v) {
                     Account managed = getWalletActivity().getEntityDAO().getAccount(id);
                     new AccountDialogFragment(managed).show(getFragmentManager(), "accModify");
-                    popover.dissmissPopover(true);
+                    popover.dismissPopover(true);
                 }
             });
 

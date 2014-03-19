@@ -29,93 +29,6 @@ import java.util.concurrent.Callable;
 public class DatabaseDAO extends SQLiteOpenHelper
 {
     private final Context mContext;
-    /**
-     * Calling this method means we have full operation object with all data built and ready for applying
-     * @param operation operation to be applied
-     */
-    public boolean applyOperation(Operation operation) {
-        final Account chargeAcc = operation.getCharger();
-        final Account benefAcc = operation.getBeneficiar();
-        final BigDecimal amount = operation.getAmount();
-
-        long successFlag = 0;
-        boolean allSucceeded = false;
-        mDatabase.beginTransaction();
-
-        successFlag += addOperation(operation) > 0 ? 1 : 0;
-
-        switch (operation.getOperationType()) {
-            case TRANSFER:
-                benefAcc.setAmount(benefAcc.getAmount().add(operation.getAmountDelivered()));
-                chargeAcc.setAmount(chargeAcc.getAmount().subtract(amount));
-                successFlag += updateAccount(benefAcc); // apply to db
-                successFlag += updateAccount(chargeAcc);
-                break;
-            case EXPENSE: // subtract value
-                chargeAcc.setAmount(chargeAcc.getAmount().subtract(amount));
-                successFlag += updateAccount(chargeAcc);
-                break;
-            case INCOME: // add value
-                benefAcc.setAmount(benefAcc.getAmount().add(amount));
-                successFlag += updateAccount(benefAcc);
-                break;
-        }
-                                            // transfer complete                                        // income/expense complete
-        if(operation.getOperationType() == Operation.OperationType.TRANSFER && successFlag == 3 || operation.getOperationType() != Operation.OperationType.TRANSFER && successFlag == 2) {
-            mDatabase.setTransactionSuccessful();
-            allSucceeded = true;
-
-            notifyListeners(OPERATIONS_TABLE_NAME);
-            notifyListeners(ACCOUNTS_TABLE_NAME);
-        }
-
-        mDatabase.endTransaction();
-        return allSucceeded;
-    }
-
-    /**
-     * Calling this method means we have full operation object with all data built and ready for reverting
-     * @param operation operation to be reverted
-     */
-    public boolean revertOperation(Operation operation) {
-        final Account chargeAcc = operation.getCharger();
-        final Account benefAcc = operation.getBeneficiar();
-        final BigDecimal amount = operation.getAmount();
-
-        long successFlag = 0;
-        boolean allSucceeded = false;
-        mDatabase.beginTransaction();
-
-        successFlag += deleteOperation(operation);
-
-        switch (operation.getOperationType()) {
-            case TRANSFER:
-                benefAcc.setAmount(benefAcc.getAmount().subtract(operation.getAmountDelivered()));
-                chargeAcc.setAmount(chargeAcc.getAmount().add(amount));
-                successFlag += updateAccount(benefAcc); // apply to db
-                successFlag += updateAccount(chargeAcc);
-                break;
-            case EXPENSE: // add subtracted value
-                chargeAcc.setAmount(chargeAcc.getAmount().add(amount));
-                successFlag += updateAccount(chargeAcc);
-                break;
-            case INCOME: // subtract added value
-                benefAcc.setAmount(benefAcc.getAmount().subtract(amount));
-                successFlag += updateAccount(benefAcc);
-                break;
-        }
-                                            // transfer complete                                        // income/expense complete
-        if(operation.getOperationType() == Operation.OperationType.TRANSFER && successFlag == 3 || operation.getOperationType() != Operation.OperationType.TRANSFER && successFlag == 2) {
-            mDatabase.setTransactionSuccessful();
-            allSucceeded = true;
-
-            notifyListeners(OPERATIONS_TABLE_NAME);
-            notifyListeners(ACCOUNTS_TABLE_NAME);
-        }
-
-        mDatabase.endTransaction();
-        return allSucceeded;
-    }
 
     public interface DatabaseListener {
         void handleUpdate();
@@ -310,7 +223,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public long addOperation(Operation operation) {
         Log.d("addOperation", operation.getAmount().toPlainString());
 
-        final ContentValues values = new ContentValues(7);
+        final ContentValues values = new ContentValues(8);
+        if(operation.getId() != null) // use with caution
+            values.put(OperationsFields._id.toString(), operation.getId());
+
         values.put(OperationsFields.DESCRIPTION.toString(), operation.getDescription()); // mandatory
         values.put(OperationsFields.CATEGORY.toString(), operation.getCategory().getId()); // mandatory
         values.put(OperationsFields.AMOUNT.toString(), operation.getAmount().toPlainString()); // mandatory
@@ -421,7 +337,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
             Log.d(String.format("getOperation(%d), took %d ms", id, System.currentTimeMillis() - preciseTime), op.getAmount().toPlainString());
             return op;
         } catch (ParseException ex) {
-            throw new RuntimeException(ex); // shouldn't happen
+            throw new RuntimeException(ex); // should never happen
         }
 
         cursor.close();
@@ -614,6 +530,98 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 return getOperation(id);
             }
         });
+    }
+
+    /**
+     * Calling this method means we have full operation object with all data built and ready for applying
+     * @param operation operation to be applied
+     */
+    public boolean applyOperation(Operation operation) {
+        final Account chargeAcc = operation.getCharger();
+        final Account benefAcc = operation.getBeneficiar();
+        final BigDecimal amount = operation.getAmount();
+
+        boolean allSucceeded = false;
+        mDatabase.beginTransaction();
+        transactionFlow:
+        {
+            if(addOperation(operation) == -1)
+                break transactionFlow;
+
+            switch (operation.getOperationType()) {
+                case TRANSFER:
+                    benefAcc.setAmount(benefAcc.getAmount().add(operation.getAmountDelivered()));
+                    chargeAcc.setAmount(chargeAcc.getAmount().subtract(amount));
+                    if(updateAccount(benefAcc) != 1 || updateAccount(chargeAcc) != 1) // apply to db
+                        break transactionFlow;
+                    break;
+                case EXPENSE: // subtract value
+                    chargeAcc.setAmount(chargeAcc.getAmount().subtract(amount));
+                    if(updateAccount(chargeAcc) != 1)
+                        break transactionFlow;
+                    break;
+                case INCOME: // add value
+                    benefAcc.setAmount(benefAcc.getAmount().add(amount));
+                    if(updateAccount(benefAcc) != 1)
+                        break transactionFlow;
+                    break;
+            }
+            mDatabase.setTransactionSuccessful();
+            allSucceeded = true;
+
+            notifyListeners(OPERATIONS_TABLE_NAME);
+            notifyListeners(ACCOUNTS_TABLE_NAME);
+        }
+        mDatabase.endTransaction();
+        return allSucceeded;
+    }
+
+    public boolean revertOperation(Long id) {
+        return revertOperation(getOperation(id));
+    }
+
+    /**
+     * Calling this method means we have full operation object with all data built and ready for reverting
+     * @param operation operation to be reverted
+     */
+    public boolean revertOperation(Operation operation) {
+        final Account chargeAcc = operation.getCharger();
+        final Account benefAcc = operation.getBeneficiar();
+        final BigDecimal amount = operation.getAmount();
+
+        boolean allSucceeded = false;
+        mDatabase.beginTransaction();
+        transactionFlow:
+        {
+            if(deleteOperation(operation) != 1)
+                break transactionFlow;
+
+            switch (operation.getOperationType()) {
+                case TRANSFER:
+                    benefAcc.setAmount(benefAcc.getAmount().subtract(operation.getAmountDelivered()));
+                    chargeAcc.setAmount(chargeAcc.getAmount().add(amount));
+                    if(updateAccount(benefAcc) != 1 || updateAccount(chargeAcc) != 1)
+                        break transactionFlow;
+                    break;
+                case EXPENSE: // add subtracted value
+                    chargeAcc.setAmount(chargeAcc.getAmount().add(amount));
+                    if(updateAccount(chargeAcc) != 1)
+                        break transactionFlow;
+                    break;
+                case INCOME: // subtract added value
+                    benefAcc.setAmount(benefAcc.getAmount().subtract(amount));
+                    if(updateAccount(benefAcc) != 1)
+                        break transactionFlow;
+                    break;
+            }
+            mDatabase.setTransactionSuccessful();
+            allSucceeded = true;
+
+            notifyListeners(OPERATIONS_TABLE_NAME);
+            notifyListeners(ACCOUNTS_TABLE_NAME);
+        }
+        mDatabase.endTransaction();
+        return allSucceeded;
     }
 }
 

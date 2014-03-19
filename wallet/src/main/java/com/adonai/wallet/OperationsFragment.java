@@ -165,18 +165,19 @@ public class OperationsFragment extends WalletBaseFragment {
                     new AlertDialog.Builder(getActivity())
                             .setTitle(R.string.confirm_action)
                             .setMessage(R.string.really_delete_operation)
+                            .setNegativeButton(android.R.string.cancel, null)
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     final DatabaseDAO db = getWalletActivity().getEntityDAO();
                                     final Operation op = db.getOperation(id);
-                                    if(op != null) {
-                                        if(!db.revertOperation(op))
-                                            throw new IllegalStateException("Cannot delete operation!"); // shouldn't happen!!
+                                    if (op != null) {
+                                        if (!db.revertOperation(op))
+                                            throw new IllegalStateException("Cannot delete operation!"); // should never happen!!
                                     }
                                 }
                             }).create().show();
-                    popover.dissmissPopover(true);
+                    popover.dismissPopover(true);
                 }
             });
 
@@ -186,7 +187,7 @@ public class OperationsFragment extends WalletBaseFragment {
                 public void onClick(View v) {
                     final Operation operation = getWalletActivity().getEntityDAO().getOperation(id);
                     new OperationDialogFragment(operation).show(getFragmentManager(), "opModify");
-                    popover.dissmissPopover(true);
+                    popover.dismissPopover(true);
                 }
             });
 

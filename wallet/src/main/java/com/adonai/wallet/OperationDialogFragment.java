@@ -75,7 +75,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
     public OperationDialogFragment(Operation toModify) {
         super();
-
         mOperation = toModify;
     }
 
@@ -132,20 +131,27 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             mDescription.setText(mOperation.getDescription());
             mAmount.setText(mOperation.getAmount().toPlainString());
             mNow.setTime(mOperation.getTime().getTime());
-            mDatePicker.setText(VIEW_DATE_FORMAT.format(mNow));
-
+            mDatePicker.setText(VIEW_DATE_FORMAT.format(mNow.getTime()));
             switch (mOperation.getOperationType()) {
                 case TRANSFER:
                     mTypeSwitch.check(R.id.transfer_radio);
+                    mChargeAccountSelector.setSelection(mAccountAdapter.getPosition(mOperation.getCharger().getId()));
+                    mBeneficiarAccountSelector.setSelection(mAccountAdapter.getPosition(mOperation.getBeneficiar().getId()));
+                    if(mOperation.getConvertingRate() != null)
+                        mBeneficiarConversionRate.setText(mOperation.getConvertingRate().toString());
                     break;
                 case EXPENSE:
                     mTypeSwitch.check(R.id.expense_radio);
+                    mChargeAccountSelector.setSelection(mAccountAdapter.getPosition(mOperation.getCharger().getId()));
+                    mCategorySelector.setSelection(mOutCategoriesAdapter.getPosition(mOperation.getCategory().getId()));
                     break;
                 case INCOME:
                     mTypeSwitch.check(R.id.income_radio);
+                    mBeneficiarAccountSelector.setSelection(mAccountAdapter.getPosition(mOperation.getBeneficiar().getId()));
+                    mCategorySelector.setSelection(mInCategoriesAdapter.getPosition(mOperation.getCategory().getId()));
                     break;
             }
-        } else {
+        } else { // this is new operation
             mTypeSwitch.check(R.id.expense_radio);
             mDatePicker.setText(VIEW_DATE_FORMAT.format(mNow.getTime())); // current time
         }
@@ -225,7 +231,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             if(getItemId((int) id) == id)
                 return (int) id;
 
-            Cursor catCur = getCursor();
+            final Cursor catCur = getCursor();
             assert catCur != null;
 
             catCur.moveToFirst();
@@ -261,6 +267,22 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         @Override
         public void handleUpdate() {
             changeCursor(getWalletActivity().getEntityDAO().getCategoryCursor(mCategoryType));
+        }
+
+        public int getPosition(long id) {
+            if(getItemId((int) id) == id)
+                return (int) id;
+
+            final Cursor catCur = getCursor();
+            assert catCur != null;
+
+            catCur.moveToFirst();
+            do {
+                if(catCur.getLong(0) == id)
+                    return catCur.getPosition();
+            } while(catCur.moveToNext());
+
+            return -1;
         }
     }
 
@@ -303,58 +325,22 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.create_modify_operation_button: {
-
-                if(mOperation != null)  {
-
-                } else try { // create new operation with data from fields specified
-                    final DatabaseDAO db = getWalletActivity().getEntityDAO();
-
-                    final BigDecimal amount = getValue(mAmount.getText().toString(), BigDecimal.ZERO);
-                    if(amount.equals(BigDecimal.ZERO))
-                        throw new IllegalArgumentException(getString(R.string.operation_needs_amount));
-
-                    final Category opCategory = db.getCategory(mCategorySelector.getSelectedItemId());
-                    if(opCategory == null)
-                        throw new IllegalArgumentException(getString(R.string.operation_needs_category));
-
-                    final Operation operation = new Operation(amount, opCategory);
-                    operation.setTime(mNow.getTime());
-                    operation.setDescription(mDescription.getText().toString());
-                    switch (mTypeSwitch.getCheckedRadioButtonId()) { // prepare operation depending on type
-                        case R.id.transfer_radio: { // transfer op, we need 2 accounts
-                            final Account chargeAcc = db.getAccount(mChargeAccountSelector.getSelectedItemId());
-                            final Account benefAcc = db.getAccount(mBeneficiarAccountSelector.getSelectedItemId());
-                            if(chargeAcc == null || benefAcc == null)
-                                throw new IllegalArgumentException(getString(R.string.operation_needs_transfer_accs));
-                            if(chargeAcc.getId().equals(benefAcc.getId())) // no transfer to self
-                                throw new IllegalArgumentException(getString(R.string.accounts_identical));
-                            operation.setCharger(chargeAcc);
-                            operation.setBeneficiar(benefAcc);
-                            if(!operation.getBeneficiar().getCurrency().equals(operation.getCharger().getCurrency())) // different currencies
-                                operation.setConvertingRate(getValue(mBeneficiarConversionRate.getText().toString(), 1d));
-                            break;
-                        }
-                        case R.id.income_radio: { // income op, we need beneficiar
-                            final Account benefAcc = db.getAccount(mBeneficiarAccountSelector.getSelectedItemId());
-                            if(benefAcc == null)
-                                throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
-                            operation.setBeneficiar(benefAcc);
-                            break;
-                        }
-                        case R.id.expense_radio: { // expense op, we need charger
-                            final Account chargeAcc = db.getAccount(mChargeAccountSelector.getSelectedItemId());
-                            if(chargeAcc == null)
-                                throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
-                            operation.setCharger(chargeAcc);
-                            break;
-                        }
+                final DatabaseDAO db = getWalletActivity().getEntityDAO();
+                try {
+                    if (mOperation != null) { // operation is already applied, need to revert it and re-apply again
+                        fillOperationFields(db);
+                        if (db.revertOperation(mOperation.getId()) && db.applyOperation(mOperation)) // revert original one and apply ours
+                            dismiss();
+                         else
+                            throw new IllegalStateException("Cannot reapply operation!"); // should never happen!!
+                    } else { // create new operation with data from fields specified
+                        mOperation = new Operation();
+                        fillOperationFields(db);
+                        if (db.applyOperation(mOperation)) // all succeeded
+                            dismiss();
+                        else
+                            throw new IllegalStateException("Cannot apply operation!"); // should never happen!!
                     }
-
-                    if(db.applyOperation(operation)) // all succeeded
-                        dismiss();
-                    else
-                        throw new IllegalStateException("Cannot apply operation!"); // shouldn't happen!!
-
                 } catch (IllegalArgumentException ex) {
                     Toast.makeText(getWalletActivity(), ex.getMessage(), Toast.LENGTH_SHORT).show();
                 }
@@ -369,6 +355,51 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     }
                 };
                 new DatePickerDialog(getActivity(), listener, mNow.get(Calendar.YEAR), mNow.get(Calendar.MONTH), mNow.get(Calendar.DAY_OF_MONTH)).show();
+            }
+        }
+    }
+
+    private void fillOperationFields(DatabaseDAO db) {
+        // check data input
+        final BigDecimal amount = getValue(mAmount.getText().toString(), BigDecimal.ZERO);
+        if (amount.equals(BigDecimal.ZERO))
+            throw new IllegalArgumentException(getString(R.string.operation_needs_amount));
+
+        final Category opCategory = db.getCategory(mCategorySelector.getSelectedItemId());
+        if (opCategory == null)
+            throw new IllegalArgumentException(getString(R.string.operation_needs_category));
+        // fill operation fields
+        mOperation.setAmount(amount);
+        mOperation.setCategory(opCategory);
+        mOperation.setTime(mNow.getTime());
+        mOperation.setDescription(mDescription.getText().toString());
+        switch (mTypeSwitch.getCheckedRadioButtonId()) { // prepare operation depending on type
+            case R.id.transfer_radio: { // transfer op, we need 2 accounts
+                final Account chargeAcc = db.getAccount(mChargeAccountSelector.getSelectedItemId());
+                final Account benefAcc = db.getAccount(mBeneficiarAccountSelector.getSelectedItemId());
+                if (chargeAcc == null || benefAcc == null)
+                    throw new IllegalArgumentException(getString(R.string.operation_needs_transfer_accs));
+                if (chargeAcc.getId().equals(benefAcc.getId())) // no transfer to self
+                    throw new IllegalArgumentException(getString(R.string.accounts_identical));
+                mOperation.setCharger(chargeAcc);
+                mOperation.setBeneficiar(benefAcc);
+                if (!mOperation.getBeneficiar().getCurrency().equals(mOperation.getCharger().getCurrency())) // different currencies
+                    mOperation.setConvertingRate(getValue(mBeneficiarConversionRate.getText().toString(), 1d));
+                break;
+            }
+            case R.id.income_radio: { // income op, we need beneficiar
+                final Account benefAcc = db.getAccount(mBeneficiarAccountSelector.getSelectedItemId());
+                if (benefAcc == null)
+                    throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
+                mOperation.setBeneficiar(benefAcc);
+                break;
+            }
+            case R.id.expense_radio: { // expense op, we need charger
+                final Account chargeAcc = db.getAccount(mChargeAccountSelector.getSelectedItemId());
+                if (chargeAcc == null)
+                    throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
+                mOperation.setCharger(chargeAcc);
+                break;
             }
         }
     }

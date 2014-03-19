@@ -19,7 +19,6 @@
  **/
 
 package com.daniel.lupianez.casares;
-import com.daniel.lupianez.casares.R;
 import java.util.HashMap;
 import java.util.Map;
 import android.content.Context;
@@ -812,7 +811,7 @@ public class PopoverView extends RelativeLayout implements OnTouchListener{
 	 * Dismiss the current shown popover
 	 * @param animated Whether it should be dismissed animated or not
 	 */
-	public void dissmissPopover(boolean animated){
+	public void dismissPopover(boolean animated){
 		
 		//Tell delegate we will dismiss
 		if (delegate != null)
@@ -879,7 +878,7 @@ public class PopoverView extends RelativeLayout implements OnTouchListener{
 	public boolean onTouch(View v, MotionEvent event) {
 		//If we touched over the background popover view (this)
 		if ((!isAnimating) && (v  == this)){
-			dissmissPopover(true);
+			dismissPopover(true);
 		}
 		return true;
 	}

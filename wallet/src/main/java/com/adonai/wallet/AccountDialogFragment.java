@@ -42,7 +42,6 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
 
     public AccountDialogFragment(Account toModify) {
         super();
-
         mAccount = toModify;
     }
 
@@ -92,27 +91,17 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
                     Toast.makeText(getActivity(), R.string.account_name_invalid, Toast.LENGTH_SHORT).show();
                     break;
                 }
-                if(mAccount != null)  {
-                    mAccount.setName(mAccountName.getText().toString());
-                    mAccount.setDescription(mAccountDescription.getText().toString());
-                    mAccount.setCurrency((Currency) mCurrencySelector.getSelectedItem());
-                    mAccount.setAmount(Utils.getValue(mInitialAmount.getText().toString(), BigDecimal.ZERO));
-                    mAccount.setColor(Color.parseColor((String) mColorSelector.getSelectedItem()));
-
-                    int result = ((WalletBaseActivity) getActivity()).getEntityDAO().updateAccount(mAccount);
+                if(mAccount != null)  { // modifying existing account
+                    fillAccountFields();
+                    final int result = ((WalletBaseActivity) getActivity()).getEntityDAO().updateAccount(mAccount);
                     if(result > 0)
                         dismiss();
                     else
                         Toast.makeText(getActivity(), R.string.account_not_found, Toast.LENGTH_SHORT).show();
-                } else {
+                } else {  // creating new account
                     mAccount = new Account();
-                    mAccount.setName(mAccountName.getText().toString());
-                    mAccount.setDescription(mAccountDescription.getText().toString());
-                    mAccount.setCurrency((Currency) mCurrencySelector.getSelectedItem());
-                    mAccount.setAmount(Utils.getValue(mInitialAmount.getText().toString(), BigDecimal.ZERO));
-                    mAccount.setColor(Color.parseColor((String) mColorSelector.getSelectedItem()));
-
-                    long insertRes = ((WalletBaseActivity) getActivity()).getEntityDAO().addAccount(mAccount);
+                    fillAccountFields();
+                    final long insertRes = ((WalletBaseActivity) getActivity()).getEntityDAO().addAccount(mAccount);
                     if(insertRes != -1)
                         dismiss();
                     else
@@ -121,6 +110,14 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
                 break;
             }
         }
+    }
+
+    private void fillAccountFields() {
+        mAccount.setName(mAccountName.getText().toString());
+        mAccount.setDescription(mAccountDescription.getText().toString());
+        mAccount.setCurrency((Currency) mCurrencySelector.getSelectedItem());
+        mAccount.setAmount(Utils.getValue(mInitialAmount.getText().toString(), BigDecimal.ZERO));
+        mAccount.setColor(Color.parseColor((String) mColorSelector.getSelectedItem()));
     }
 
     public class ColorSpinnerAdapter extends ArrayAdapter<String> implements SpinnerAdapter {
