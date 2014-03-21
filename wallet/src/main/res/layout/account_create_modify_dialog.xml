@@ -25,7 +25,9 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/name_edit" />
+            android:id="@+id/name_edit"
+            android:imeOptions="actionNext"
+            android:inputType="text" />
 
     </TableRow>
 
@@ -45,7 +47,9 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/description_edit" />
+            android:id="@+id/description_edit"
+            android:imeOptions="actionNext|flagNavigateNext"
+            android:inputType="text" />
     </TableRow>
 
     <TableRow
@@ -107,7 +111,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/initial_amount_edit"
-            android:inputType="numberDecimal|numberSigned" />
+            android:inputType="numberDecimal|numberSigned"
+            android:imeOptions="actionDone" />
     </TableRow>
 
     <TableRow

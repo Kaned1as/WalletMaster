@@ -24,6 +24,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.adonai.wallet.entities.Account;
+import com.adonai.wallet.entities.Operation;
 import com.daniel.lupianez.casares.PopoverView;
 
 import java.util.Arrays;
@@ -57,6 +58,7 @@ public class AccountsFragment extends WalletBaseFragment {
         mAccountList.setAdapter(mAccountsAdapter);
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, mAccountsAdapter);
         mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
+        mAccountList.setOnItemClickListener(new AccountClickListener());
 
         return rootView;
     }
@@ -151,7 +153,7 @@ public class AccountsFragment extends WalletBaseFragment {
             edit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Account managed = getWalletActivity().getEntityDAO().getAccount(id);
+                    final Account managed = getWalletActivity().getEntityDAO().getAccount(id);
                     new AccountDialogFragment(managed).show(getFragmentManager(), "accModify");
                     popover.dismissPopover(true);
                 }
@@ -167,5 +169,13 @@ public class AccountsFragment extends WalletBaseFragment {
         super.onDestroyView();
         getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, mAccountsAdapter);
         mAccountsAdapter.changeCursor(null); // close opened cursor
+    }
+
+    private class AccountClickListener implements AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            final Account managed = getWalletActivity().getEntityDAO().getAccount(id);
+            new OperationDialogFragment(managed).show(getFragmentManager(), "opModify");
+        }
     }
 }

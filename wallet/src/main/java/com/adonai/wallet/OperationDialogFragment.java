@@ -68,14 +68,18 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private CategoriesAdapter mOutCategoriesAdapter;
 
     private Operation mOperation;
+    private Account mCharger;
 
     public OperationDialogFragment() {
         //super();
     }
 
     public OperationDialogFragment(Operation toModify) {
-        super();
         mOperation = toModify;
+    }
+
+    public OperationDialogFragment(Account managed) {
+        mCharger = managed;
     }
 
     @Override
@@ -154,6 +158,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         } else { // this is new operation
             mTypeSwitch.check(R.id.expense_radio);
             mDatePicker.setText(VIEW_DATE_FORMAT.format(mNow.getTime())); // current time
+            if(mCharger != null)
+                mChargeAccountSelector.setSelection(mAccountAdapter.getPosition(mCharger.getId()));
         }
 
         return builder.create();
@@ -392,6 +398,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                 if (benefAcc == null)
                     throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
                 mOperation.setBeneficiar(benefAcc);
+                mOperation.setCharger(null);
                 break;
             }
             case R.id.expense_radio: { // expense op, we need charger
@@ -399,6 +406,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                 if (chargeAcc == null)
                     throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
                 mOperation.setCharger(chargeAcc);
+                mOperation.setBeneficiar(null);
                 break;
             }
         }

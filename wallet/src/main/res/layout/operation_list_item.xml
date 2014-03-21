@@ -20,14 +20,12 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:id="@+id/operation_description_label"
             android:maxLines="1"
-            android:text="@string/placeholder_text"
             android:layout_weight="1" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/placeholder_text"
             android:id="@+id/operation_time_label"
             android:layout_weight="1"
             android:gravity="right" />
@@ -53,8 +51,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:id="@+id/charge_account_label"
-                android:maxLines="1"
-                android:text="@string/placeholder_text" />
+                android:maxLines="1" />
     
             <TextView
                 android:layout_width="match_parent"
@@ -62,7 +59,6 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:id="@+id/charge_amount_label"
                 android:maxLines="1"
-                android:text="@string/placeholder_text"
                 android:textColor="@color/red_amount" />
     
         </LinearLayout>
@@ -81,7 +77,6 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:id="@+id/beneficiar_account_label"
                 android:maxLines="1"
-                android:text="@string/placeholder_text"
                 android:visibility="visible" />
     
             <TextView
@@ -91,7 +86,6 @@
                 android:id="@+id/beneficiar_amount_label"
                 android:gravity="center_vertical|right"
                 android:maxLines="1"
-                android:text="@string/placeholder_text"
                 android:visibility="visible"
                 android:textColor="@color/green_amount" />
         </LinearLayout>

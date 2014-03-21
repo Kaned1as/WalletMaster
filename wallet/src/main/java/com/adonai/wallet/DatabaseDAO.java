@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.Callable;
 
 
@@ -196,6 +198,29 @@ public class DatabaseDAO extends SQLiteOpenHelper
         sqLiteDatabase.setTransactionSuccessful(); // batch insert
         sqLiteDatabase.endTransaction();
         // fill
+
+        // test accounts
+        final Random rand = new Random();
+        for(int i = 0; i < 100; ++i) {
+            final ContentValues values = new ContentValues(5);
+            values.put(AccountFields.NAME.toString(), "Account" + i);
+            values.put(AccountFields.DESCRIPTION.toString(), "");
+            values.put(AccountFields.CURRENCY.toString(), "RUB");
+            values.put(AccountFields.AMOUNT.toString(), String.valueOf(rand.nextInt(1000)));
+            values.put(AccountFields.COLOR.toString(), Color.rgb(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)));
+
+            long result = sqLiteDatabase.insert(ACCOUNTS_TABLE_NAME, null, values);
+        }
+
+        for(int i = 0; i < 1000; ++i) {
+            final ContentValues values = new ContentValues(7);
+            values.put(OperationsFields.DESCRIPTION.toString(), ""); // mandatory
+            values.put(OperationsFields.CATEGORY.toString(), 3); // mandatory
+            values.put(OperationsFields.AMOUNT.toString(), String.valueOf(rand.nextInt(500))); // mandatory
+            values.put(OperationsFields.CHARGER.toString(), 1+rand.nextInt(90));
+
+            long result = sqLiteDatabase.insert(OPERATIONS_TABLE_NAME, null, values);
+        }
     }
 
     @Override

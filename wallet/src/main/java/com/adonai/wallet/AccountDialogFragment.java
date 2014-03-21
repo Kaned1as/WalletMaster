@@ -77,7 +77,6 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
         } else {
             builder.setTitle(R.string.create_new_account).setView(dialog);
             mCurrencySelector.setSelection(adapter.getPosition("RUB"));
-            mInitialAmount.setText("0.0");
         }
 
         return builder.create();
