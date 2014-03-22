@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -328,6 +329,27 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return mDatabase.query(OPERATIONS_TABLE_NAME, null, null, null, null, null, null, null);
     }
 
+    public Cursor getOperationsCursor(String filter) {
+        Log.d("Query", "getOperationsCursor with filter");
+        final SQLiteQueryBuilder filterBuilder = new SQLiteQueryBuilder();
+
+        final StringBuilder sb = new StringBuilder(20);
+        sb.append("LOWER(");
+        sb.append("COALESCE(op.").append(OperationsFields.DESCRIPTION).append(", '')");
+        sb.append(" || COALESCE(op.").append(OperationsFields.AMOUNT).append(", '')");
+        sb.append(" || COALESCE(op.").append(OperationsFields.TIME).append(", '')");
+        sb.append(" || COALESCE(charger.").append(AccountFields.NAME).append(", '')");
+        sb.append(" || COALESCE(benefic.").append(AccountFields.NAME).append(", '')");
+
+        sb.append(") LIKE LOWER(?)");
+        filterBuilder.appendWhere(sb.toString());
+        filterBuilder.setTables(OPERATIONS_TABLE_NAME + " AS op" +
+                " LEFT JOIN " + ACCOUNTS_TABLE_NAME + " AS charger " + "ON op." + OperationsFields.CHARGER + " = " + "charger." + AccountFields._id +
+                " LEFT JOIN " + ACCOUNTS_TABLE_NAME + " AS benefic " + "ON op." + OperationsFields.CHARGER + " = " + "benefic." + AccountFields._id);
+        return filterBuilder.query(mDatabase, new String[]{"op.*"}, null, new String[] {"%" + filter + "%"}, null, null, null);
+        //mDatabase.query(OPERATIONS_TABLE_NAME, null, sb.toString(), new String[]{"%" + filter + "%"}, null, null, null, null);
+    }
+
     public Cursor getCategoryCursor() {
         Log.d("Query", "getCategoryCursor");
         return mDatabase.query(CATEGORIES_TABLE_NAME, null, null, null, null, null, null, null);
@@ -451,7 +473,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public int deleteAccount(final Long id) {
         Log.d("deleteAccount", String.valueOf(id));
 
-        int count = mDatabase.delete(ACCOUNTS_TABLE_NAME, AccountFields._id + " = ?", new String[] { String.valueOf(id) });
+        int count = mDatabase.delete(ACCOUNTS_TABLE_NAME, AccountFields._id + " = ?", new String[]{String.valueOf(id)});
 
         if(count > 0)
             notifyListeners(ACCOUNTS_TABLE_NAME);
@@ -506,7 +528,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     public Currency getCurrency(String code) {
         Log.d("getCurrency", code);
-        final Cursor cursor = mDatabase.query(CURRENCIES_TABLE_NAME, null, CurrenciesFields.CODE + " = ?", new String[]{code}, null,  null,  null, null);
+        final Cursor cursor = mDatabase.query(CURRENCIES_TABLE_NAME, null, CurrenciesFields.CODE + " = ?", new String[]{code}, null, null, null, null);
 
         if (cursor.moveToNext()) {
             final Currency result = new Currency(cursor.getString(0), cursor.getString(1), cursor.getString(2));

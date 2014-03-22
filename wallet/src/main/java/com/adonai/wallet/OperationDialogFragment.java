@@ -172,8 +172,10 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             if (cat.getPreferredAccount() != null)  { // selected category has preferred account
                 final long accId = cat.getPreferredAccount().getId();
                 final int accPosition = mAccountAdapter.getPosition(accId); // get position
-                if(position != -1)
+                if(position != -1) {
                     mChargeAccountSelector.setSelection(accPosition);
+                    mBeneficiarAccountSelector.setSelection(accPosition);
+                }
             }
         }
 

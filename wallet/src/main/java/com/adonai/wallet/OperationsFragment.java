@@ -13,6 +13,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
+import android.widget.EditText;
+import android.widget.FilterQueryProvider;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -45,17 +48,22 @@ public class OperationsFragment extends WalletBaseFragment {
     private ListView mOperationsList;
     private OperationsAdapter mOpAdapter;
     private Map<Operation.OperationType, Drawable> mDrawableMap;
+    private EditText mSearchBox;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         mOpAdapter = new OperationsAdapter();
+        mOpAdapter.setFilterQueryProvider(new OperationFilterQueryProvider());
         mDrawableMap = fillDrawableMap();
 
         final View rootView = inflater.inflate(R.layout.operations_flow, container, false);
         assert rootView != null;
 
         mOperationsList = (ListView) rootView.findViewById(R.id.operations_list);
+        mSearchBox = (EditText) rootView.findViewById(R.id.operations_filter_edit);
+
+        mSearchBox.setOnEditorActionListener(new OperationsFilterListener());
 
         mOperationsList.setAdapter(mOpAdapter);
         mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
@@ -77,6 +85,8 @@ public class OperationsFragment extends WalletBaseFragment {
                 final OperationDialogFragment opCreate = new OperationDialogFragment();
                 opCreate.show(getFragmentManager(), "opCreate");
                 break;
+            case R.id.operation_quick_filter:
+                mSearchBox.setVisibility(View.VISIBLE);
             default :
                 break;
         }
@@ -191,7 +201,7 @@ public class OperationsFragment extends WalletBaseFragment {
                 }
             });
 
-            popover.showPopoverFromRectInViewGroup((ViewGroup) parent.getRootView(), PopoverView.getFrameForView(view), PopoverView.PopoverArrowDirectionUp, true);
+            popover.showPopoverFromRectInViewGroup((ViewGroup) parent.getRootView(), PopoverView.getFrameForView(view), PopoverView.PopoverArrowDirectionAny, true);
             return true;
         }
     }
@@ -255,5 +265,21 @@ public class OperationsFragment extends WalletBaseFragment {
         super.onDestroyView();
         getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.OPERATIONS_TABLE_NAME, mOpAdapter);
         mOpAdapter.changeCursor(null); // close opened cursor
+    }
+
+    private class OperationFilterQueryProvider implements FilterQueryProvider {
+        @Override
+        public Cursor runQuery(CharSequence constraint) { // constraint is just text
+            return getWalletActivity().getEntityDAO().getOperationsCursor(constraint.toString());
+        }
+    }
+
+    private class OperationsFilterListener implements TextView.OnEditorActionListener {
+        @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            mOpAdapter.getFilter().filter(v.getText());
+            v.setVisibility(View.GONE);
+            return true;
+        }
     }
 }

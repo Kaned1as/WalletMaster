@@ -41,7 +41,6 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
     }
 
     public AccountDialogFragment(Account toModify) {
-        super();
         mAccount = toModify;
     }
 
