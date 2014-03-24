@@ -87,7 +87,8 @@ public class OperationsFragment extends WalletBaseFragment {
                 break;
             case R.id.operation_quick_filter:
                 mSearchBox.setVisibility(View.VISIBLE);
-            default :
+                mSearchBox.requestFocus();
+            default:
                 break;
         }
         return super.onOptionsItemSelected(item);

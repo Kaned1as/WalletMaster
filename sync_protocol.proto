@@ -1,0 +1,42 @@
+package com.adonai.wallet.sync;
+
+message SyncRequest {
+    required string account = 1;
+    required string password = 2;
+    
+    enum SyncType {
+        MERGE = 0;
+        PUSH_ONLY = 1;
+        PULL_ONLY = 2;
+    }
+    
+    optional SyncType syncType = 3 [default = MERGE];
+}
+
+message SyncResponse {
+    enum SyncAck {
+        OK = 200;
+        AUTH_WRONG = 403;
+        NO_SUCH_USER = 404;
+        UNKNOWN_ERROR = 999;
+    }
+    
+    required SyncAck syncAck = 1;
+}
+
+message AccountRequest {
+    required uint64 lastKnownID = 1;
+}
+
+message AccountResponse {
+    repeated Account accounts = 1;
+}
+
+message Account {
+    required uint64 ID = 1;
+    required string name = 2;
+    optional string description = 3;
+    required string currency = 4;
+    required string amount = 5; // BigDecimal for Java
+    optional uint32 color = 6;
+}
