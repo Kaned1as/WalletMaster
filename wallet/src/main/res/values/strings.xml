@@ -50,5 +50,6 @@
     <string name="really_delete_account">Do you really want to delete this account? All linked operations will be deleted too!</string>
     <string name="really_delete_operation">Really delete this operation? All changes to amounts will be reverted!</string>
     <string name="quick_filter">Quick filter</string>
+    <string name="synchronize">Syncronize</string>
 
 </resources>
