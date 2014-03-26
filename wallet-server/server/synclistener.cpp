@@ -18,11 +18,13 @@
 
 SyncListener::SyncListener(QObject *parent) : QObject(parent)
 {
-    server = new QTcpServer(this);
+    qDebug() << "Listener starting...";
+    server = new SyncTcpServer(this);
 }
 
 SyncListener::~SyncListener()
 {
+    qDebug() << "Listener deleting...";
     if(server->isListening())
         server->close();
     delete server;
@@ -41,26 +43,30 @@ void SyncListener::start()
 
 void SyncListener::stop()
 {
-    for(QTcpSocket* const client : clients)
+    for(QTcpSocket* const client : activeClients)
         client->close();
     server->close();
+        qDebug() << "Server stopped!";
 }
 
 void SyncListener::handleNewConnection()
 {
     qDebug() << tr("Got new connection!");
     QTcpSocket* const clientSocket = server->nextPendingConnection();
-    clients[clientSocket->socketDescriptor()] = clientSocket;
-    connect(clientSocket, &QTcpSocket::readyRead, this, &SyncListener::readClientData);
-    connect(clientSocket, &QTcpSocket::disconnected, [&] () {
-        clients.remove(clientSocket->socketDescriptor());
-        clientSocket->deleteLater();
+    activeClients[clientSocket->socketDescriptor()] = clientSocket;
+    connect(clientSocket, &QTcpSocket::readyRead, this, [=] () {
+        readClientData(clientSocket->socketDescriptor());
+    }); // direct connection because we should handle this in socket's own thread
+    connect(clientSocket, &QTcpSocket::disconnected, [=] () {
+        activeClients.remove(clientSocket->socketDescriptor()); // remove client from active list
     });
 }
 
-void SyncListener::readClientData()
+void SyncListener::readClientData(qintptr descriptor)
 {
-    QTcpSocket* client = qobject_cast<QTcpSocket*>(sender());
+    qDebug() << tr("Handling data!");
+    QTcpSocket* client = activeClients[descriptor];
+    client->putChar('a');
 }
 
 

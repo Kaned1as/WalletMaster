@@ -5,22 +5,6 @@
 #include <QTcpSocket>
 #include <QThread>
 
-
-class SocketThread : public QThread
-{
-    Q_OBJECT
-public:
-    SocketThread(int socketDescriptor, QTcpServer *parent);
-    const QTcpSocket& getSocket() const;
-
-signals:
-
-private:
-    int socketDescriptor;
-    QTcpSocket clientSocket;
-    QTcpSocket::SocketError state;
-};
-
 class SyncTcpServer : public QTcpServer
 {
     Q_OBJECT

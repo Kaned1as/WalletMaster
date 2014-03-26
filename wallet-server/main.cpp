@@ -20,8 +20,10 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     SyncListener syncer(&a);
+    QObject::connect(&a, &QCoreApplication::aboutToQuit, &syncer, &SyncListener::stop);
 
     QTimer::singleShot(0, &syncer, SLOT(start()));
+    //QTimer::singleShot(2000, &a, SLOT(quit()));
 
     return a.exec();
 }

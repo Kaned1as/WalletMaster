@@ -16,6 +16,7 @@
 
 #include <QObject>
 #include <QTcpServer>
+#include "synctcpserver.h"
 
 class SyncListener : public QObject
 {
@@ -32,10 +33,10 @@ public slots:
     void stop();
 private:
     void handleNewConnection();
-    void readClientData();
+    void readClientData(qintptr descriptor);
 
-    QTcpServer* server;
-    QMap<int, QTcpSocket*> clients;
+    SyncTcpServer* server;
+    QMap<int, QTcpSocket*> activeClients;
 };
 
 #endif // SYNCLISTENER_H
