@@ -8,7 +8,7 @@ import com.adonai.wallet.sync.SyncStateMachine;
 /**
  * Created by adonai on 28.02.14.
  */
-public class WalletBaseActivity extends ActionBarActivity {
+public class WalletBaseActivity extends ActionBarActivity implements SyncStateMachine.SyncListener {
 
     protected DatabaseDAO mEntityDAO;
     protected SyncStateMachine mSyncMachine;
@@ -31,5 +31,10 @@ public class WalletBaseActivity extends ActionBarActivity {
 
     public DatabaseDAO getEntityDAO() {
         return mEntityDAO;
+    }
+
+    @Override
+    public void handleSyncMessage(int what, String errorMsg) {
+
     }
 }

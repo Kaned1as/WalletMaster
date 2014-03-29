@@ -168,40 +168,57 @@ public final class SyncProtocol {
     public enum SyncType
         implements com.google.protobuf.ProtocolMessageEnum {
       /**
-       * <code>MERGE = 0;</code>
+       * <code>AUTHORIZE = 0;</code>
+       *
+       * <pre>
+       * server will listen to register request, to auth request otherwise
+       * </pre>
        */
-      MERGE(0, 0),
+      AUTHORIZE(0, 0),
       /**
-       * <code>PUSH_ONLY = 1;</code>
+       * <code>MERGE = 1;</code>
        */
-      PUSH_ONLY(1, 1),
+      MERGE(1, 1),
       /**
-       * <code>PULL_ONLY = 2;</code>
+       * <code>PUSH_ONLY = 2;</code>
        */
-      PULL_ONLY(2, 2),
+      PUSH_ONLY(2, 2),
+      /**
+       * <code>PULL_ONLY = 3;</code>
+       */
+      PULL_ONLY(3, 3),
       ;
 
       /**
-       * <code>MERGE = 0;</code>
+       * <code>AUTHORIZE = 0;</code>
+       *
+       * <pre>
+       * server will listen to register request, to auth request otherwise
+       * </pre>
        */
-      public static final int MERGE_VALUE = 0;
+      public static final int AUTHORIZE_VALUE = 0;
       /**
-       * <code>PUSH_ONLY = 1;</code>
+       * <code>MERGE = 1;</code>
        */
-      public static final int PUSH_ONLY_VALUE = 1;
+      public static final int MERGE_VALUE = 1;
       /**
-       * <code>PULL_ONLY = 2;</code>
+       * <code>PUSH_ONLY = 2;</code>
        */
-      public static final int PULL_ONLY_VALUE = 2;
+      public static final int PUSH_ONLY_VALUE = 2;
+      /**
+       * <code>PULL_ONLY = 3;</code>
+       */
+      public static final int PULL_ONLY_VALUE = 3;
 
 
       public final int getNumber() { return value; }
 
       public static SyncType valueOf(int value) {
         switch (value) {
-          case 0: return MERGE;
-          case 1: return PUSH_ONLY;
-          case 2: return PULL_ONLY;
+          case 0: return AUTHORIZE;
+          case 1: return MERGE;
+          case 2: return PUSH_ONLY;
+          case 3: return PULL_ONLY;
           default: return null;
         }
       }
@@ -956,23 +973,31 @@ public final class SyncProtocol {
        */
       OK(0, 200),
       /**
+       * <code>ACCOUNT_EXISTS = 402;</code>
+       */
+      ACCOUNT_EXISTS(1, 402),
+      /**
        * <code>AUTH_WRONG = 403;</code>
        */
-      AUTH_WRONG(1, 403),
+      AUTH_WRONG(2, 403),
       /**
        * <code>NO_SUCH_USER = 404;</code>
        */
-      NO_SUCH_USER(2, 404),
+      NO_SUCH_USER(3, 404),
       /**
        * <code>UNKNOWN_ERROR = 999;</code>
        */
-      UNKNOWN_ERROR(3, 999),
+      UNKNOWN_ERROR(4, 999),
       ;
 
       /**
        * <code>OK = 200;</code>
        */
       public static final int OK_VALUE = 200;
+      /**
+       * <code>ACCOUNT_EXISTS = 402;</code>
+       */
+      public static final int ACCOUNT_EXISTS_VALUE = 402;
       /**
        * <code>AUTH_WRONG = 403;</code>
        */
@@ -992,6 +1017,7 @@ public final class SyncProtocol {
       public static SyncAck valueOf(int value) {
         switch (value) {
           case 200: return OK;
+          case 402: return ACCOUNT_EXISTS;
           case 403: return AUTH_WRONG;
           case 404: return NO_SUCH_USER;
           case 999: return UNKNOWN_ERROR;
@@ -3651,20 +3677,21 @@ public final class SyncProtocol {
   static {
     java.lang.String[] descriptorData = {
       "\n\023sync_protocol.proto\022\026com.adonai.wallet" +
-      ".sync\"\254\001\n\013SyncRequest\022\017\n\007account\030\001 \002(\t\022\020" +
+      ".sync\"\273\001\n\013SyncRequest\022\017\n\007account\030\001 \002(\t\022\020" +
       "\n\010password\030\002 \002(\t\022E\n\010syncType\030\003 \001(\0162,.com" +
       ".adonai.wallet.sync.SyncRequest.SyncType" +
-      ":\005MERGE\"3\n\010SyncType\022\t\n\005MERGE\020\000\022\r\n\tPUSH_O" +
-      "NLY\020\001\022\r\n\tPULL_ONLY\020\002\"\231\001\n\014SyncResponse\022=\n" +
-      "\007syncAck\030\001 \002(\0162,.com.adonai.wallet.sync." +
-      "SyncResponse.SyncAck\"J\n\007SyncAck\022\007\n\002OK\020\310\001" +
-      "\022\017\n\nAUTH_WRONG\020\223\003\022\021\n\014NO_SUCH_USER\020\224\003\022\022\n\r" +
-      "UNKNOWN_ERROR\020\347\007\"%\n\016AccountRequest\022\023\n\013la",
-      "stKnownID\030\001 \002(\004\"D\n\017AccountResponse\0221\n\010ac" +
-      "counts\030\001 \003(\0132\037.com.adonai.wallet.sync.Ac" +
-      "count\"i\n\007Account\022\n\n\002ID\030\001 \002(\004\022\014\n\004name\030\002 \002" +
-      "(\t\022\023\n\013description\030\003 \001(\t\022\020\n\010currency\030\004 \002(" +
-      "\t\022\016\n\006amount\030\005 \002(\t\022\r\n\005color\030\006 \001(\r"
+      ":\005MERGE\"B\n\010SyncType\022\r\n\tAUTHORIZE\020\000\022\t\n\005ME" +
+      "RGE\020\001\022\r\n\tPUSH_ONLY\020\002\022\r\n\tPULL_ONLY\020\003\"\256\001\n\014" +
+      "SyncResponse\022=\n\007syncAck\030\001 \002(\0162,.com.adon" +
+      "ai.wallet.sync.SyncResponse.SyncAck\"_\n\007S" +
+      "yncAck\022\007\n\002OK\020\310\001\022\023\n\016ACCOUNT_EXISTS\020\222\003\022\017\n\n" +
+      "AUTH_WRONG\020\223\003\022\021\n\014NO_SUCH_USER\020\224\003\022\022\n\rUNKN",
+      "OWN_ERROR\020\347\007\"%\n\016AccountRequest\022\023\n\013lastKn" +
+      "ownID\030\001 \002(\004\"D\n\017AccountResponse\0221\n\010accoun" +
+      "ts\030\001 \003(\0132\037.com.adonai.wallet.sync.Accoun" +
+      "t\"i\n\007Account\022\n\n\002ID\030\001 \002(\004\022\014\n\004name\030\002 \002(\t\022\023" +
+      "\n\013description\030\003 \001(\t\022\020\n\010currency\030\004 \002(\t\022\016\n" +
+      "\006amount\030\005 \002(\t\022\r\n\005color\030\006 \001(\r"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {

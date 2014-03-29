@@ -14,9 +14,12 @@
 #include <QCoreApplication>
 #include <QTimer>
 #include "server/synclistener.h"
+#include "google/protobuf/stubs/common.h"
 
 int main(int argc, char *argv[])
 {
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
+
     QCoreApplication a(argc, argv);
 
     SyncListener syncer(&a);

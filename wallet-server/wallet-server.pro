@@ -13,11 +13,13 @@ TEMPLATE = app
 SOURCES += main.cpp \
     server/synclistener.cpp \
     sync/sync_protocol.pb.cc \
-    server/synctcpserver.cpp
+    server/synctcpserver.cpp \
+    server/syncclientsocket.cpp
 
 HEADERS += \
     server/synclistener.h \
-    server/synctcpserver.h
+    server/synctcpserver.h \
+    server/syncclientsocket.h
     sync/sync_protocol.pb.h
 
 

@@ -52,20 +52,10 @@ void SyncListener::stop()
 void SyncListener::handleNewConnection()
 {
     qDebug() << tr("Got new connection!");
-    QTcpSocket* const clientSocket = server->nextPendingConnection();
+    SyncClientSocket* const clientSocket = server->nextPendingConnection();
     activeClients[clientSocket->socketDescriptor()] = clientSocket;
-    connect(clientSocket, &QTcpSocket::readyRead, [=] () {
-        readClientData(clientSocket->socketDescriptor());
-    }); // direct connection, we should handle this in socket's own thread
-    connect(clientSocket, &QTcpSocket::disconnected, [=] () {
-        activeClients.remove(clientSocket->socketDescriptor()); // remove client from active list
+    connect(clientSocket, &QTcpSocket::disconnected, this, [=] () {
+        activeClients.remove(clientSocket->socketDescriptor()); // remove client from active list (`this` to handle in our thread)
     });
 }
-
-void SyncListener::readClientData(qintptr descriptor)
-{
-    QTcpSocket* client = activeClients[descriptor];
-    client->putChar('a');
-}
-
 

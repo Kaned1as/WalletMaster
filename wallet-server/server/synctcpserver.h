@@ -5,6 +5,8 @@
 #include <QTcpSocket>
 #include <QThread>
 
+#include "syncclientsocket.h"
+
 class SyncTcpServer : public QTcpServer
 {
     Q_OBJECT
@@ -14,6 +16,10 @@ public:
     // QTcpServer interface
 protected:
     void incomingConnection(qintptr handle);
+
+    // QTcpServer interface
+public:
+    SyncClientSocket *nextPendingConnection();
 };
 
 #endif // SYNCTCPSERVER_H

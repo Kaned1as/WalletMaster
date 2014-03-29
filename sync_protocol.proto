@@ -5,9 +5,10 @@ message SyncRequest {
     required string password = 2;
     
     enum SyncType {
-        MERGE = 0;
-        PUSH_ONLY = 1;
-        PULL_ONLY = 2;
+	AUTHORIZE = 0; // server will listen to register request, to auth request otherwise
+        MERGE = 1;
+        PUSH_ONLY = 2;
+        PULL_ONLY = 3;
     }
     
     optional SyncType syncType = 3 [default = MERGE];
@@ -16,6 +17,7 @@ message SyncRequest {
 message SyncResponse {
     enum SyncAck {
         OK = 200;
+        ACCOUNT_EXISTS = 402;
         AUTH_WRONG = 403;
         NO_SUCH_USER = 404;
         UNKNOWN_ERROR = 999;
