@@ -15,6 +15,7 @@
     <string name="currency">Currency</string>
     <string name="initial_amount">Initial amount</string>
     <string name="create">Create</string>
+    <string name="create_new">Create new</string>
     <string name="create_new_account">Create new account</string>
     <string name="account_already_exist">Account with that name already exists!</string>
     <string name="account_name_invalid">You should provide valid account name!</string>
@@ -51,5 +52,12 @@
     <string name="really_delete_operation">Really delete this operation? All changes to amounts will be reverted!</string>
     <string name="quick_filter">Quick filter</string>
     <string name="synchronize">Synchronize</string>
-
+    <string name="already_have">Already have</string>
+    <string name="do_you_have_account">Do you have existing account?</string>
+    <string name="account_name">Account name</string>
+    <string name="password">Password</string>
+    <string name="auth_invalid">Invalid account name or password!</string>
+    <string name="sync_starting">Sync starting…</string>
+    <string name="authenticating">Authenticating…</string>
+    <string name="getting_accounts">Getting accounts from server…</string>
 </resources>

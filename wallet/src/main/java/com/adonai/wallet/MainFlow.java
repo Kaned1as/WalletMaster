@@ -10,6 +10,8 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.adonai.wallet.WalletConstants.*;
+
 public class MainFlow extends WalletBaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     /**
@@ -92,7 +94,10 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
                 return true;
             }
             case R.id.action_sync: {
-                mSyncMachine.startSync();
+                if(mPreferences.contains(ACCOUNT_SYNC_KEY)) // have already synced previously...
+                    startSync();
+                else
+                    new SyncDialogFragment().show(getSupportFragmentManager(), "syncAcc");
             }
         }
         return super.onOptionsItemSelected(item);

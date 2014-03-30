@@ -18,14 +18,27 @@ void SyncClientSocket::setState(const SyncState &value)
 
 void SyncClientSocket::readClientData()
 {
-    QByteArray bytes = readAll();
+    QByteArray bytesReceived = readAll();
     switch (state)
     {
         case NOT_IDENTIFIED:
         {
             SyncRequest request;
-            if(!request.ParseFromArray(bytes.data(), bytes.size()))
+            if(!request.ParseFromArray(bytesReceived.constData(), bytesReceived.size()))
                 qDebug() << "error parsing message from client!";
+
+            SyncResponse response;
+            response.set_syncack(SyncResponse::OK);
+
+            // sending response
+            const int messageSize = response.ByteSize();
+            char* const bytes = new char[messageSize];
+            response.SerializeToArray(bytes, messageSize);
+            if(writeData(bytes, messageSize) == -1)
+                qDebug() << "Error sending sync response to client! error string" << errorString();
+            flush();
+            delete[] bytes;
+            setState(AUTHORIZED);
             break;
         }
         default:

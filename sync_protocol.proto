@@ -19,7 +19,6 @@ message SyncResponse {
         OK = 200;
         ACCOUNT_EXISTS = 402;
         AUTH_WRONG = 403;
-        NO_SUCH_USER = 404;
         UNKNOWN_ERROR = 999;
     }
     

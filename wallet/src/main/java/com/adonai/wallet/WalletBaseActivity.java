@@ -1,17 +1,26 @@
 package com.adonai.wallet;
 
+import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+import android.widget.Toast;
 
 import com.adonai.wallet.sync.SyncStateMachine;
 
 /**
- * Created by adonai on 28.02.14.
+ * @author adonai
  */
 public class WalletBaseActivity extends ActionBarActivity implements SyncStateMachine.SyncListener {
 
     protected DatabaseDAO mEntityDAO;
     protected SyncStateMachine mSyncMachine;
+    protected ProgressDialog mProgressDialog;
+    protected SharedPreferences mPreferences;
+    protected Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +29,11 @@ public class WalletBaseActivity extends ActionBarActivity implements SyncStateMa
         // add all the currencies that are stored within mEntityDAO
         mEntityDAO = new DatabaseDAO(this);
         mSyncMachine = new SyncStateMachine(this);
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setIndeterminate(true);
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        mHandler = new Handler(new SyncCallback());
     }
 
     @Override
@@ -33,8 +47,40 @@ public class WalletBaseActivity extends ActionBarActivity implements SyncStateMa
         return mEntityDAO;
     }
 
+    public SyncStateMachine getSyncMachine() {
+        return mSyncMachine;
+    }
+
+    public void startSync() {
+        mProgressDialog.setTitle(R.string.sync_starting);
+        mProgressDialog.setMessage(getString(R.string.authenticating));
+        mProgressDialog.show();
+        mSyncMachine.setState(SyncStateMachine.State.AUTH);
+    }
+
     @Override
     public void handleSyncMessage(int what, String errorMsg) {
+        mHandler.sendMessage(mHandler.obtainMessage(what, errorMsg));
+    }
 
+    private class SyncCallback implements Handler.Callback {
+        @Override
+        public boolean handleMessage(Message msg) {
+            final SyncStateMachine.State state = SyncStateMachine.State.values()[msg.what];
+            switch (state) {
+                case INIT:
+                    mProgressDialog.hide();
+                    Toast.makeText(WalletBaseActivity.this, (String) msg.obj, Toast.LENGTH_SHORT).show();
+                    return true;
+                case AUTH_ACK:
+                    mProgressDialog.setMessage(getString(R.string.getting_accounts));
+                    mSyncMachine.setState(SyncStateMachine.State.ACC_REQ);
+                    return true;
+                case AUTH_DENIED:
+                    mProgressDialog.hide();
+                    return true;
+            }
+            return false;
+        }
     }
 }

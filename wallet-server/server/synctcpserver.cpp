@@ -28,5 +28,6 @@ void SyncTcpServer::incomingConnection(qintptr handle) // newConnection is emitt
 SyncClientSocket *SyncTcpServer::nextPendingConnection()
 {
     QTcpSocket* notCasted = QTcpServer::nextPendingConnection();
+    notCasted->setSocketOption(QAbstractSocket::LowDelayOption, 1);
     return dynamic_cast<SyncClientSocket*>(notCasted);
 }
