@@ -10,7 +10,7 @@
 #include "sync/sync_protocol.pb.h"
 
 namespace sync = com::adonai::wallet::sync;
-namespace protocol = google::protobuf;
+namespace pbuf = google::protobuf;
 
 class SyncClientSocket : public QTcpSocket
 {
@@ -36,6 +36,8 @@ public slots:
 
 private:
     void readClientData();
+    bool readMessageSize(quint32* out);
+    void handleMessage(const QByteArray& incomingData);
 
     SyncState state;
 

@@ -129,7 +129,7 @@ public class SyncStateMachine {
                         mSocket.connect(new InetSocketAddress("192.168.1.165", 17001));
                         final SyncRequest request = SyncRequest.newBuilder().setAccount("aahahahh").setPassword("pass").setSyncType(SyncRequest.SyncType.AUTHORIZE).build();
                         final OutputStream os = mSocket.getOutputStream(); // send request
-                        request.writeTo(os); // actual sending of request
+                        request.writeDelimitedTo(os); // actual sending of request
                         os.flush();
 
                         final InputStream is = mSocket.getInputStream(); // try receive response
