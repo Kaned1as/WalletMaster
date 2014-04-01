@@ -19,16 +19,20 @@ void SyncClientSocket::setState(const SyncState &value)
 void SyncClientSocket::readClientData()
 {
     QByteArray bytesReceived = readAll();
+    protocol::io::CodedInputStream byteStream(reinterpret_cast<const protocol::uint8*>(bytesReceived.constData()), bytesReceived.size());
+    static quint32 messagesize = 0;
+    byteStream.ReadVarint32(&messagesize);
+
     switch (state)
     {
         case NOT_IDENTIFIED:
         {
-            SyncRequest request;
+            sync::SyncRequest request;
             if(!request.ParseFromArray(bytesReceived.constData(), bytesReceived.size()))
                 qDebug() << "error parsing message from client!";
 
-            SyncResponse response;
-            response.set_syncack(SyncResponse::OK);
+            sync::SyncResponse response;
+            response.set_syncack(sync::SyncResponse::OK);
 
             // sending response
             const int messageSize = response.ByteSize();

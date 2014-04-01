@@ -3,9 +3,14 @@
 
 #include <QTcpSocket>
 #include "google/protobuf/stubs/common.h"
+
+#include "google/protobuf/io/coded_stream.h"
+#include "google/protobuf/io/zero_copy_stream_impl_lite.h"
+
 #include "sync/sync_protocol.pb.h"
 
-using namespace com::adonai::wallet::sync;
+namespace sync = com::adonai::wallet::sync;
+namespace protocol = google::protobuf;
 
 class SyncClientSocket : public QTcpSocket
 {
