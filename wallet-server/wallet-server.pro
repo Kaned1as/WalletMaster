@@ -19,11 +19,16 @@ SOURCES += main.cpp \
 HEADERS += \
     server/synclistener.h \
     server/synctcpserver.h \
-    server/syncclientsocket.h
+    server/syncclientsocket.h \
     sync/sync_protocol.pb.h
 
 
 unix {
     CONFIG += link_pkgconfig
     PKGCONFIG += protobuf
+}
+
+win32 {
+    LIBS += $$PWD/lib/libprotobuf.lib
+    INCLUDEPATH += $$PWD/../../protobuf-2.5.0/src .
 }
