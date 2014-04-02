@@ -46,12 +46,28 @@ bool SyncClientSocket::readMessageSize(quint32 *out)
     for(quint8 i = 0; i < sizeof(quint32) && bytesAvailable(); ++i)
     {
         sizeContainer.append(read(1)); // read by one byte. At the most cases only one iteration is needed...
-        pbuf::io::CodedInputStream byteStream(reinterpret_cast<const pbuf::uint8*>(sizeContainer.constData()), sizeContainer.size()); // we know it's byte stream
+        pbuf::io::CodedInputStream byteStream(&pbuf::io::ArrayInputStream(sizeContainer.constData(), sizeContainer.size())); // we know it's byte stream
         if(byteStream.ReadVarint32(out))
             return true;
     }
 
     return false;
+}
+
+// for sending response
+bool SyncClientSocket::writeDelimited(google::protobuf::Message &message)
+{
+    const int messageSize = message.ByteSize();
+    const int packetSize = pbuf::io::CodedOutputStream::VarintSize32(messageSize) + messageSize; // assure we have size+message bytes
+    char* const bytes = new char[packetSize];
+
+    pbuf::io::CodedOutputStream outStream(&pbuf::io::ArrayOutputStream(bytes, packetSize));
+    outStream.WriteVarint32(messageSize);                       // Implementation of
+    message.SerializeToCodedStream(&outStream);                // writeDelimitedTo
+    bool success = writeData(bytes, packetSize) == packetSize;  // assure we have all bytes written
+    delete[] bytes;
+
+    return success;
 }
 
 void SyncClientSocket::handleMessage(const QByteArray &incomingData)
@@ -67,14 +83,9 @@ void SyncClientSocket::handleMessage(const QByteArray &incomingData)
             sync::SyncResponse response;
             response.set_syncack(sync::SyncResponse::OK);
 
-            // sending response
-            const int messageSize = response.ByteSize();
-            char* const bytes = new char[messageSize];
-            response.SerializeToArray(bytes, messageSize);
-            if(writeData(bytes, messageSize) == -1)
+            if(!writeDelimited(response))
                 qDebug() << "Error sending sync response to client! error string" << errorString();
             flush();
-            delete[] bytes;
             setState(AUTHORIZED);
             break;
         }

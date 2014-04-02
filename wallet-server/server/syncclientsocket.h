@@ -2,8 +2,8 @@
 #define SYNCCLIENTSOCKET_H
 
 #include <QTcpSocket>
-#include "google/protobuf/stubs/common.h"
 
+#include "google/protobuf/stubs/common.h"
 #include "google/protobuf/io/coded_stream.h"
 #include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 
@@ -37,6 +37,7 @@ public slots:
 private:
     void readClientData();
     bool readMessageSize(quint32* out);
+    bool writeDelimited(pbuf::Message& message);
     void handleMessage(const QByteArray& incomingData);
 
     SyncState state;
