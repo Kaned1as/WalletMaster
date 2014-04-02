@@ -5,7 +5,7 @@ message SyncRequest {
     required string password = 2;
     
     enum SyncType {
-	AUTHORIZE = 0; // server will listen to register request, to auth request otherwise
+        REGISTER = 0; // server will listen to register request, to auth request otherwise
         MERGE = 1;
         PUSH_ONLY = 2;
         PULL_ONLY = 3;

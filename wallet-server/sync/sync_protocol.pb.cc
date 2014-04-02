@@ -181,20 +181,21 @@ void protobuf_AddDesc_sync_5fprotocol_2eproto() {
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\023sync_protocol.proto\022\026com.adonai.wallet"
-    ".sync\"\254\001\n\013SyncRequest\022\017\n\007account\030\001 \002(\t\022\020"
+    ".sync\"\272\001\n\013SyncRequest\022\017\n\007account\030\001 \002(\t\022\020"
     "\n\010password\030\002 \002(\t\022E\n\010syncType\030\003 \001(\0162,.com"
     ".adonai.wallet.sync.SyncRequest.SyncType"
-    ":\005MERGE\"3\n\010SyncType\022\t\n\005MERGE\020\000\022\r\n\tPUSH_O"
-    "NLY\020\001\022\r\n\tPULL_ONLY\020\002\"\231\001\n\014SyncResponse\022=\n"
-    "\007syncAck\030\001 \002(\0162,.com.adonai.wallet.sync."
-    "SyncResponse.SyncAck\"J\n\007SyncAck\022\007\n\002OK\020\310\001"
-    "\022\017\n\nAUTH_WRONG\020\223\003\022\021\n\014NO_SUCH_USER\020\224\003\022\022\n\r"
-    "UNKNOWN_ERROR\020\347\007\"%\n\016AccountRequest\022\023\n\013la"
-    "stKnownID\030\001 \002(\004\"D\n\017AccountResponse\0221\n\010ac"
-    "counts\030\001 \003(\0132\037.com.adonai.wallet.sync.Ac"
-    "count\"i\n\007Account\022\n\n\002ID\030\001 \002(\004\022\014\n\004name\030\002 \002"
-    "(\t\022\023\n\013description\030\003 \001(\t\022\020\n\010currency\030\004 \002("
-    "\t\022\016\n\006amount\030\005 \002(\t\022\r\n\005color\030\006 \001(\r", 592);
+    ":\005MERGE\"A\n\010SyncType\022\014\n\010REGISTER\020\000\022\t\n\005MER"
+    "GE\020\001\022\r\n\tPUSH_ONLY\020\002\022\r\n\tPULL_ONLY\020\003\"\256\001\n\014S"
+    "yncResponse\022=\n\007syncAck\030\001 \002(\0162,.com.adona"
+    "i.wallet.sync.SyncResponse.SyncAck\"_\n\007Sy"
+    "ncAck\022\007\n\002OK\020\310\001\022\023\n\016ACCOUNT_EXISTS\020\222\003\022\017\n\nA"
+    "UTH_WRONG\020\223\003\022\021\n\014NO_SUCH_USER\020\224\003\022\022\n\rUNKNO"
+    "WN_ERROR\020\347\007\"%\n\016AccountRequest\022\023\n\013lastKno"
+    "wnID\030\001 \002(\004\"D\n\017AccountResponse\0221\n\010account"
+    "s\030\001 \003(\0132\037.com.adonai.wallet.sync.Account"
+    "\"i\n\007Account\022\n\n\002ID\030\001 \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n"
+    "\013description\030\003 \001(\t\022\020\n\010currency\030\004 \002(\t\022\016\n\006"
+    "amount\030\005 \002(\t\022\r\n\005color\030\006 \001(\r", 627);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "sync_protocol.proto", &protobuf_RegisterTypes);
   SyncRequest::default_instance_ = new SyncRequest();
@@ -228,6 +229,7 @@ bool SyncRequest_SyncType_IsValid(int value) {
     case 0:
     case 1:
     case 2:
+    case 3:
       return true;
     default:
       return false;
@@ -235,6 +237,7 @@ bool SyncRequest_SyncType_IsValid(int value) {
 }
 
 #ifndef _MSC_VER
+const SyncRequest_SyncType SyncRequest::REGISTER;
 const SyncRequest_SyncType SyncRequest::MERGE;
 const SyncRequest_SyncType SyncRequest::PUSH_ONLY;
 const SyncRequest_SyncType SyncRequest::PULL_ONLY;
@@ -266,7 +269,7 @@ void SyncRequest::SharedCtor() {
   _cached_size_ = 0;
   account_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   password_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  synctype_ = 0;
+  synctype_ = 1;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -318,7 +321,7 @@ void SyncRequest::Clear() {
         password_->clear();
       }
     }
-    synctype_ = 0;
+    synctype_ = 1;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -578,6 +581,7 @@ const ::google::protobuf::EnumDescriptor* SyncResponse_SyncAck_descriptor() {
 bool SyncResponse_SyncAck_IsValid(int value) {
   switch(value) {
     case 200:
+    case 402:
     case 403:
     case 404:
     case 999:
@@ -589,6 +593,7 @@ bool SyncResponse_SyncAck_IsValid(int value) {
 
 #ifndef _MSC_VER
 const SyncResponse_SyncAck SyncResponse::OK;
+const SyncResponse_SyncAck SyncResponse::ACCOUNT_EXISTS;
 const SyncResponse_SyncAck SyncResponse::AUTH_WRONG;
 const SyncResponse_SyncAck SyncResponse::NO_SUCH_USER;
 const SyncResponse_SyncAck SyncResponse::UNKNOWN_ERROR;

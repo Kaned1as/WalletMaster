@@ -44,12 +44,13 @@ class AccountResponse;
 class Account;
 
 enum SyncRequest_SyncType {
-  SyncRequest_SyncType_MERGE = 0,
-  SyncRequest_SyncType_PUSH_ONLY = 1,
-  SyncRequest_SyncType_PULL_ONLY = 2
+  SyncRequest_SyncType_REGISTER = 0,
+  SyncRequest_SyncType_MERGE = 1,
+  SyncRequest_SyncType_PUSH_ONLY = 2,
+  SyncRequest_SyncType_PULL_ONLY = 3
 };
 bool SyncRequest_SyncType_IsValid(int value);
-const SyncRequest_SyncType SyncRequest_SyncType_SyncType_MIN = SyncRequest_SyncType_MERGE;
+const SyncRequest_SyncType SyncRequest_SyncType_SyncType_MIN = SyncRequest_SyncType_REGISTER;
 const SyncRequest_SyncType SyncRequest_SyncType_SyncType_MAX = SyncRequest_SyncType_PULL_ONLY;
 const int SyncRequest_SyncType_SyncType_ARRAYSIZE = SyncRequest_SyncType_SyncType_MAX + 1;
 
@@ -65,6 +66,7 @@ inline bool SyncRequest_SyncType_Parse(
 }
 enum SyncResponse_SyncAck {
   SyncResponse_SyncAck_OK = 200,
+  SyncResponse_SyncAck_ACCOUNT_EXISTS = 402,
   SyncResponse_SyncAck_AUTH_WRONG = 403,
   SyncResponse_SyncAck_NO_SUCH_USER = 404,
   SyncResponse_SyncAck_UNKNOWN_ERROR = 999
@@ -139,6 +141,7 @@ class SyncRequest : public ::google::protobuf::Message {
   // nested types ----------------------------------------------------
 
   typedef SyncRequest_SyncType SyncType;
+  static const SyncType REGISTER = SyncRequest_SyncType_REGISTER;
   static const SyncType MERGE = SyncRequest_SyncType_MERGE;
   static const SyncType PUSH_ONLY = SyncRequest_SyncType_PUSH_ONLY;
   static const SyncType PULL_ONLY = SyncRequest_SyncType_PULL_ONLY;
@@ -277,6 +280,7 @@ class SyncResponse : public ::google::protobuf::Message {
 
   typedef SyncResponse_SyncAck SyncAck;
   static const SyncAck OK = SyncResponse_SyncAck_OK;
+  static const SyncAck ACCOUNT_EXISTS = SyncResponse_SyncAck_ACCOUNT_EXISTS;
   static const SyncAck AUTH_WRONG = SyncResponse_SyncAck_AUTH_WRONG;
   static const SyncAck NO_SUCH_USER = SyncResponse_SyncAck_NO_SUCH_USER;
   static const SyncAck UNKNOWN_ERROR = SyncResponse_SyncAck_UNKNOWN_ERROR;
@@ -806,7 +810,7 @@ inline void SyncRequest::clear_has_synctype() {
   _has_bits_[0] &= ~0x00000004u;
 }
 inline void SyncRequest::clear_synctype() {
-  synctype_ = 0;
+  synctype_ = 1;
   clear_has_synctype();
 }
 inline ::com::adonai::wallet::sync::SyncRequest_SyncType SyncRequest::synctype() const {
