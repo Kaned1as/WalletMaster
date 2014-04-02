@@ -2,7 +2,15 @@
 
 SyncClientSocket::SyncClientSocket(QObject *parent) : QTcpSocket(parent), state(NOT_IDENTIFIED)
 {
+    qDebug() << tr("Got new connection!");
     connect(this, &QTcpSocket::readyRead, this, &SyncClientSocket::readClientData); //we should handle this in socket's own thread
+    initDbConnection();
+}
+
+SyncClientSocket::~SyncClientSocket()
+{
+    conn.close();
+    qDebug() << tr("Closing connection.");
 }
 
 SyncClientSocket::SyncState SyncClientSocket::getState() const
@@ -13,6 +21,17 @@ SyncClientSocket::SyncState SyncClientSocket::getState() const
 void SyncClientSocket::setState(const SyncState &value)
 {
     state = value;
+}
+
+void SyncClientSocket::initDbConnection()
+{
+    conn = QSqlDatabase::addDatabase("QMYSQL", QString::number(socketDescriptor()));
+    conn.setHostName("localhost");
+    conn.setDatabaseName("test");
+    conn.setUserName("root");
+    conn.setPassword("root");
+    if(!conn.open())
+        qDebug() << tr("Cannot connect to database! Error: %1").arg(conn.lastError().text());
 }
 
 // each sync message has prepended size as implemented in protobuf delimited read/write

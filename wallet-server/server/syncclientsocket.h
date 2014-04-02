@@ -2,6 +2,7 @@
 #define SYNCCLIENTSOCKET_H
 
 #include <QTcpSocket>
+#include <QtSql>
 
 #include "google/protobuf/stubs/common.h"
 #include "google/protobuf/io/coded_stream.h"
@@ -17,6 +18,7 @@ class SyncClientSocket : public QTcpSocket
     Q_OBJECT
 public:
     explicit SyncClientSocket(QObject *parent = 0);
+    ~SyncClientSocket();
 
     enum SyncState
     {
@@ -35,12 +37,15 @@ signals:
 public slots:
 
 private:
+    void initDbConnection();
+
     void readClientData();
     bool readMessageSize(quint32* out);
     bool writeDelimited(pbuf::Message& message);
     void handleMessage(const QByteArray& incomingData);
 
     SyncState state;
+    QSqlDatabase conn;
 
 };
 

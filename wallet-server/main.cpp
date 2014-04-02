@@ -13,6 +13,8 @@
 
 #include <QCoreApplication>
 #include <QTimer>
+#include <QDir>
+
 #include "server/synclistener.h"
 #include "google/protobuf/stubs/common.h"
 

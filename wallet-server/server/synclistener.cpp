@@ -51,7 +51,6 @@ void SyncListener::stop()
 
 void SyncListener::handleNewConnection()
 {
-    qDebug() << tr("Got new connection!");
     SyncClientSocket* const clientSocket = server->nextPendingConnection();
     activeClients[clientSocket->socketDescriptor()] = clientSocket;
     connect(clientSocket, &QTcpSocket::disconnected, this, [=] () {
