@@ -29,6 +29,7 @@ public:
         SENT_CATEGORIES
     };
 
+    bool setSocketDescriptor(qintptr socketDescriptor, SocketState state = ConnectedState, OpenMode openMode = ReadWrite);
     SyncState getState() const;
     void setState(const SyncState &value);
 
@@ -44,9 +45,10 @@ private:
     bool writeDelimited(pbuf::Message& message);
     void handleMessage(const QByteArray& incomingData);
 
+    sync::SyncResponse handleSyncRequest(sync::SyncRequest& request);
+
     SyncState state;
     QSqlDatabase conn;
-
 };
 
 #endif // SYNCCLIENTSOCKET_H

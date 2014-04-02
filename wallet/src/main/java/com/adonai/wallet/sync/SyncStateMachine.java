@@ -127,13 +127,13 @@ public class SyncStateMachine {
                     case AUTH:
                         mSocket = new Socket(); // creating socket here!
                         mSocket.connect(new InetSocketAddress("192.168.1.165", 17001));
-                        final SyncRequest request = SyncRequest.newBuilder().setAccount("aahahahh").setPassword("pass").setSyncType(SyncRequest.SyncType.AUTHORIZE).build();
+                        final SyncRequest request = SyncRequest.newBuilder().setAccount("aahahahh").setPassword("pass").setSyncType(SyncRequest.SyncType.REGISTER).build();
                         final OutputStream os = mSocket.getOutputStream(); // send request
                         request.writeDelimitedTo(os); // actual sending of request
                         os.flush();
 
                         final InputStream is = mSocket.getInputStream(); // try receive response
-                        final SyncResponse response = SyncResponse.parseFrom(is);
+                        final SyncResponse response = SyncResponse.parseDelimitedFrom(is);
                         is.close();
                         os.close();
                         switch (response.getSyncAck()) {

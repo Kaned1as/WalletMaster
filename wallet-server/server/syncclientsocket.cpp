@@ -4,13 +4,21 @@ SyncClientSocket::SyncClientSocket(QObject *parent) : QTcpSocket(parent), state(
 {
     qDebug() << tr("Got new connection!");
     connect(this, &QTcpSocket::readyRead, this, &SyncClientSocket::readClientData); //we should handle this in socket's own thread
-    initDbConnection();
 }
 
 SyncClientSocket::~SyncClientSocket()
 {
     conn.close();
     qDebug() << tr("Closing connection.");
+}
+
+bool SyncClientSocket::setSocketDescriptor(qintptr socketDescriptor, QAbstractSocket::SocketState state, QIODevice::OpenMode openMode)
+{
+    bool result = QTcpSocket::setSocketDescriptor(socketDescriptor, state, openMode);
+    if(result)
+        initDbConnection();
+
+    return result;
 }
 
 SyncClientSocket::SyncState SyncClientSocket::getState() const
@@ -27,7 +35,7 @@ void SyncClientSocket::initDbConnection()
 {
     conn = QSqlDatabase::addDatabase("QMYSQL", QString::number(socketDescriptor()));
     conn.setHostName("localhost");
-    conn.setDatabaseName("test");
+    conn.setDatabaseName("wallet");
     conn.setUserName("root");
     conn.setPassword("root");
     if(!conn.open())
@@ -38,7 +46,7 @@ void SyncClientSocket::initDbConnection()
 // wee need to scan size first, then to read full message as it is available
 void SyncClientSocket::readClientData()
 {
-    static quint32 messageSize = 0;
+    thread_local quint32 messageSize = 0;
     if(!messageSize) // new data
         if(!readMessageSize(&messageSize)) // cannot read incoming size - wrong packet?
         {
@@ -65,7 +73,8 @@ bool SyncClientSocket::readMessageSize(quint32 *out)
     for(quint8 i = 0; i < sizeof(quint32) && bytesAvailable(); ++i)
     {
         sizeContainer.append(read(1)); // read by one byte. At the most cases only one iteration is needed...
-        pbuf::io::CodedInputStream byteStream(&pbuf::io::ArrayInputStream(sizeContainer.constData(), sizeContainer.size())); // we know it's byte stream
+        pbuf::io::ArrayInputStream outputData(sizeContainer.constData(), sizeContainer.size());
+        pbuf::io::CodedInputStream byteStream(&outputData); // we know it's byte stream
         if(byteStream.ReadVarint32(out))
             return true;
     }
@@ -80,11 +89,14 @@ bool SyncClientSocket::writeDelimited(google::protobuf::Message &message)
     const int packetSize = pbuf::io::CodedOutputStream::VarintSize32(messageSize) + messageSize; // assure we have size+message bytes
     char* const bytes = new char[packetSize];
 
-    pbuf::io::CodedOutputStream outStream(&pbuf::io::ArrayOutputStream(bytes, packetSize));
+    pbuf::io::ArrayOutputStream outputData(bytes, packetSize);
+    pbuf::io::CodedOutputStream outStream(&outputData);
     outStream.WriteVarint32(messageSize);                       // Implementation of
-    message.SerializeToCodedStream(&outStream);                // writeDelimitedTo
+    message.SerializeToCodedStream(&outStream);                 // writeDelimitedTo
     bool success = writeData(bytes, packetSize) == packetSize;  // assure we have all bytes written
+
     delete[] bytes;
+    flush();
 
     return success;
 }
@@ -95,21 +107,64 @@ void SyncClientSocket::handleMessage(const QByteArray &incomingData)
     {
         case NOT_IDENTIFIED:
         {
+            // accept request
             sync::SyncRequest request;
             if(!request.ParseFromArray(incomingData.constData(), incomingData.size()))
-                qDebug() << "error parsing message from client!";
+                qDebug() << tr("error parsing sync request from client!");
 
-            sync::SyncResponse response;
-            response.set_syncack(sync::SyncResponse::OK);
+            // handle
+            sync::SyncResponse response = handleSyncRequest(request);
+            if(response.syncack() == sync::SyncResponse::OK)
+                setState(AUTHORIZED);
 
+            // send response
             if(!writeDelimited(response))
-                qDebug() << "Error sending sync response to client! error string" << errorString();
-            flush();
-            setState(AUTHORIZED);
+                qDebug() << tr("Error sending sync response to client! error string %1").arg(errorString());
             break;
         }
         default:
             break;
     }
+}
+
+sync::SyncResponse SyncClientSocket::handleSyncRequest(sync::SyncRequest &request)
+{
+    sync::SyncResponse response;
+    if(!conn.isOpen())
+    {
+        qDebug() << tr("cannot process message from client, db connection is broken!");
+        response.set_syncack(sync::SyncResponse::UNKNOWN_ERROR);
+        return response;
+    }
+
+    switch (request.synctype())
+    {
+        case sync::SyncRequest::REGISTER:
+        {
+            QSqlQuery checkExists(conn);
+            checkExists.prepare("SELECT login FROM sync_accounts WHERE login = :check");
+            checkExists.bindValue(":check", request.account().c_str());
+            if(!checkExists.exec())
+            {
+                qDebug() << tr("cannot check login, db error %1").arg(checkExists.lastError().text());
+                response.set_syncack(sync::SyncResponse::UNKNOWN_ERROR);
+                return response;
+            }
+
+            if(checkExists.next()) // login exists, deny
+            {
+                checkExists.finish();
+                response.set_syncack(sync::SyncResponse::ACCOUNT_EXISTS);
+                return response;
+            }
+            else // we can register this account
+            {
+                response.set_syncack(sync::SyncResponse::OK);
+                return response;
+            }
+            break;
+        }
+    }
+
 }
 
