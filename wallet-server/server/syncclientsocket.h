@@ -41,16 +41,16 @@ private:
     void initDbConnection();
 
     void readClientData();
-    bool readMessageSize(quint32* out);
-    bool writeDelimited(pbuf::Message& message);
+    bool readMessageSize(quint32 * const out);
+    bool writeDelimited(const google::protobuf::Message &message);
     void handleMessage(const QByteArray& incomingData);
 
-    sync::SyncResponse handleSyncRequest(sync::SyncRequest& request);
+    sync::SyncResponse handleSyncRequest(const sync::SyncRequest& request);
 
     SyncState state;
     quint32 pendingMessageSize;
 
-    QSqlDatabase conn;
+    QSqlDatabase* conn;
     quint64 userId;
 };
 

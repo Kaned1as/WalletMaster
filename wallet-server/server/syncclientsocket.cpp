@@ -1,6 +1,6 @@
 #include "syncclientsocket.h"
 
-SyncClientSocket::SyncClientSocket(QObject *parent) : QTcpSocket(parent), state(NOT_IDENTIFIED), pendingMessageSize(0)
+SyncClientSocket::SyncClientSocket(QObject *parent) : QTcpSocket(parent), state(NOT_IDENTIFIED), pendingMessageSize(0), conn(NULL)
 {
     qDebug() << tr("Got new connection!");
     connect(this, &QTcpSocket::readyRead, this, &SyncClientSocket::readClientData); //we should handle this in socket's own thread
@@ -8,7 +8,11 @@ SyncClientSocket::SyncClientSocket(QObject *parent) : QTcpSocket(parent), state(
 
 SyncClientSocket::~SyncClientSocket()
 {
-    conn.close();
+    // free the database
+    conn->close();
+    QString name = conn->connectionName();
+    delete conn;
+    QSqlDatabase::removeDatabase(name);
     qDebug() << tr("Closing connection.");
 }
 
@@ -33,13 +37,13 @@ void SyncClientSocket::setState(const SyncState &value)
 
 void SyncClientSocket::initDbConnection()
 {
-    conn = QSqlDatabase::addDatabase("QMYSQL", QString::number(socketDescriptor()));
-    conn.setHostName("localhost");
-    conn.setDatabaseName("wallet");
-    conn.setUserName("root");
-    conn.setPassword("root");
-    if(!conn.open())
-        qDebug() << tr("Cannot connect to database! Error: %1").arg(conn.lastError().text());
+    conn = new QSqlDatabase(QSqlDatabase::addDatabase("QMYSQL", QString::number(socketDescriptor())));
+    conn->setHostName("localhost");
+    conn->setDatabaseName("wallet");
+    conn->setUserName("root");
+    conn->setPassword("root");
+    if(!conn->open())
+        qDebug() << tr("Cannot connect to database! Error: %1").arg(conn->lastError().text());
 }
 
 // each sync message has prepended size as implemented in protobuf delimited read/write
@@ -66,7 +70,7 @@ void SyncClientSocket::readClientData()
 }
 
 // workaround for QTcpSocket && CodedOutputStream for parse delimited
-bool SyncClientSocket::readMessageSize(quint32 *out)
+bool SyncClientSocket::readMessageSize(quint32 * const out)
 {
     QByteArray sizeContainer;
     for(quint8 i = 0; i < sizeof(quint32) && bytesAvailable(); ++i)
@@ -82,7 +86,7 @@ bool SyncClientSocket::readMessageSize(quint32 *out)
 }
 
 // for sending response
-bool SyncClientSocket::writeDelimited(google::protobuf::Message &message)
+bool SyncClientSocket::writeDelimited(const google::protobuf::Message& message)
 {
     const int messageSize = message.ByteSize();
     const int packetSize = pbuf::io::CodedOutputStream::VarintSize32(messageSize) + messageSize; // assure we have size+message bytes
@@ -100,7 +104,7 @@ bool SyncClientSocket::writeDelimited(google::protobuf::Message &message)
     return success;
 }
 
-void SyncClientSocket::handleMessage(const QByteArray &incomingData)
+void SyncClientSocket::handleMessage(const QByteArray& incomingData)
 {
     switch (state)
     {
@@ -112,7 +116,7 @@ void SyncClientSocket::handleMessage(const QByteArray &incomingData)
                 qDebug() << tr("error parsing sync request from client!");
 
             // handle
-            sync::SyncResponse response = handleSyncRequest(request);
+            const sync::SyncResponse&& response = handleSyncRequest(request); // avoid copying data...
             if(response.syncack() == sync::SyncResponse::OK)
                 setState(AUTHORIZED);
 
@@ -126,10 +130,10 @@ void SyncClientSocket::handleMessage(const QByteArray &incomingData)
     }
 }
 
-sync::SyncResponse SyncClientSocket::handleSyncRequest(sync::SyncRequest &request)
+sync::SyncResponse SyncClientSocket::handleSyncRequest(const sync::SyncRequest& request)
 {
     sync::SyncResponse response;
-    if(!conn.isOpen())
+    if(!conn->isOpen())
     {
         qDebug() << tr("cannot process message from client, db connection is broken!");
         response.set_syncack(sync::SyncResponse::UNKNOWN_ERROR);
@@ -140,7 +144,7 @@ sync::SyncResponse SyncClientSocket::handleSyncRequest(sync::SyncRequest &reques
     {
         case sync::SyncRequest::REGISTER:
         {
-            QSqlQuery checkExists(conn);
+            QSqlQuery checkExists(*conn);
             checkExists.prepare("SELECT login FROM sync_accounts WHERE login = :check");
             checkExists.bindValue(":check", request.account().c_str());
             if(!checkExists.exec())
@@ -160,7 +164,7 @@ sync::SyncResponse SyncClientSocket::handleSyncRequest(sync::SyncRequest &reques
             {
                 checkExists.finish();
 
-                QSqlQuery createSyncAcc(conn);
+                QSqlQuery createSyncAcc(*conn);
                 createSyncAcc.prepare("INSERT INTO sync_accounts(login, password) VALUES(:login, md5(:password))");
                 createSyncAcc.bindValue(":login", request.account().c_str());
                 createSyncAcc.bindValue(":password", request.password().c_str());
@@ -181,7 +185,7 @@ sync::SyncResponse SyncClientSocket::handleSyncRequest(sync::SyncRequest &reques
         }
         case sync::SyncRequest::MERGE:
         {
-             QSqlQuery checkExists(conn);
+             QSqlQuery checkExists(*conn);
              checkExists.prepare("SELECT id FROM sync_accounts WHERE login = :login AND password = md5(:password)");
              checkExists.bindValue(":login", request.account().c_str());
              checkExists.bindValue(":password", request.password().c_str());
@@ -203,6 +207,5 @@ sync::SyncResponse SyncClientSocket::handleSyncRequest(sync::SyncRequest &reques
              }
         }
     }
-
 }
 

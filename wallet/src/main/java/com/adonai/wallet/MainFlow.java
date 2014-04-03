@@ -94,9 +94,9 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
                 return true;
             }
             case R.id.action_sync: {
-                if(mPreferences.contains(ACCOUNT_SYNC_KEY)) // have already synced previously...
+                if(mPreferences.contains(ACCOUNT_SYNC_KEY)) // have already configured sync account previously...
                     startSync();
-                else
+                else // need to configure now!
                     new SyncDialogFragment().show(getSupportFragmentManager(), "syncAcc");
             }
         }

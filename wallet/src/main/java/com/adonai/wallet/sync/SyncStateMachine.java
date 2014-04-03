@@ -1,13 +1,16 @@
 package com.adonai.wallet.sync;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.preference.PreferenceManager;
 
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
+import com.adonai.wallet.WalletConstants;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,6 +68,7 @@ public class SyncStateMachine {
     private Socket mSocket;
     private final List<SyncListener> mListeners = new ArrayList<>(2);
     private final Context mContext;
+    private final SharedPreferences mPreferences;
 
     public SyncStateMachine(WalletBaseActivity context) {
         HandlerThread thr = new HandlerThread("ServiceThread");
@@ -74,6 +78,7 @@ public class SyncStateMachine {
 
         mListeners.add(context);
         mContext = context;
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     public void registerSyncListener(SyncListener listener) {
@@ -124,31 +129,15 @@ public class SyncStateMachine {
             final State state = State.values()[msg.what];
             try {
                 switch (state) {
-                    case AUTH:
-                        mSocket = new Socket(); // creating socket here!
-                        mSocket.connect(new InetSocketAddress("192.168.1.165", 17001));
-                        final SyncRequest request = SyncRequest.newBuilder().setAccount("aahahahh").setPassword("pass").setSyncType(SyncRequest.SyncType.REGISTER).build();
-                        final OutputStream os = mSocket.getOutputStream(); // send request
-                        request.writeDelimitedTo(os); // actual sending of request
-                        os.flush();
+                    case AUTH: // at this state, account should be already configured and accessible from preferences!
+                        if(!mPreferences.contains(WalletConstants.ACCOUNT_NAME_KEY))
+                            throw new RuntimeException("No account configured! Can't sync!");
 
-                        final InputStream is = mSocket.getInputStream(); // try receive response
-                        final SyncResponse response = SyncResponse.parseDelimitedFrom(is);
-                        is.close();
-                        os.close();
-                        switch (response.getSyncAck()) {
-                            case OK:
-                                setState(State.AUTH_ACK);
-                                break;
-                            case AUTH_WRONG:
-                                setState(State.INIT, mContext.getString(R.string.auth_invalid));
-                                mSocket.close();
-                                break;
-                            case ACCOUNT_EXISTS:
-                                setState(State.INIT, mContext.getString(R.string.account_already_exist));
-                                mSocket.close();
-                                break;
-                        }
+                        mSocket = new Socket(); // creating socket here!
+                        mSocket.connect(new InetSocketAddress("10.0.2.2", 17001));
+
+                        sendAuthRequest();
+                        handleAuthResponse();
                         break;
                 }
             } catch (IOException io) {
@@ -159,6 +148,50 @@ public class SyncStateMachine {
                     } catch (IOException e) { throw new RuntimeException(e); } // should not happen
             }
             return true;
+        }
+
+        private void handleAuthResponse() throws IOException {
+            final InputStream is = mSocket.getInputStream(); // try receive response
+            final SyncResponse response = SyncResponse.parseDelimitedFrom(is);
+            switch (response.getSyncAck()) {
+                case OK:
+                    setState(State.AUTH_ACK);
+                    mPreferences.edit().putBoolean(WalletConstants.ACCOUNT_SYNC_KEY, true).commit(); // save auth
+                    break;
+                case AUTH_WRONG:
+                    setState(State.INIT, mContext.getString(R.string.auth_invalid));
+                    clearAccountInfo();
+                    mSocket.close();
+                    break;
+                case ACCOUNT_EXISTS:
+                    setState(State.INIT, mContext.getString(R.string.account_already_exist));
+                    clearAccountInfo();
+                    mSocket.close();
+                    break;
+            }
+        }
+
+        private void sendAuthRequest() throws IOException {
+            // fill request
+            final SyncRequest.Builder request = SyncRequest.newBuilder()
+                    .setAccount(mPreferences.getString(WalletConstants.ACCOUNT_NAME_KEY, ""))
+                    .setPassword(mPreferences.getString(WalletConstants.ACCOUNT_PASSWORD_KEY, ""));
+            if(mPreferences.getBoolean(WalletConstants.ACCOUNT_SYNC_KEY, false)) // already synchronized
+                request.setSyncType(SyncRequest.SyncType.MERGE);
+            else
+                request.setSyncType(SyncRequest.SyncType.REGISTER);
+
+            final OutputStream os = mSocket.getOutputStream(); // send request
+            request.build().writeDelimitedTo(os); // actual sending of request
+            os.flush();
+        }
+
+        private void clearAccountInfo() {
+            mPreferences.edit()
+                    .remove(WalletConstants.ACCOUNT_SYNC_KEY)
+                    .remove(WalletConstants.ACCOUNT_NAME_KEY)
+                    .remove(WalletConstants.ACCOUNT_PASSWORD_KEY)
+                    .commit();
         }
     }
 }
