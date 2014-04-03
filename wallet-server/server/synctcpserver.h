@@ -15,11 +15,11 @@ public:
 
     // QTcpServer interface
 protected:
-    void incomingConnection(qintptr handle);
+    void incomingConnection(qintptr handle) override;
 
     // QTcpServer interface
 public:
-    SyncClientSocket *nextPendingConnection();
+    SyncClientSocket *nextPendingConnection() override;
 };
 
 #endif // SYNCTCPSERVER_H

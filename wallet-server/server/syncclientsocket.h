@@ -29,7 +29,7 @@ public:
         SENT_CATEGORIES
     };
 
-    bool setSocketDescriptor(qintptr socketDescriptor, SocketState state = ConnectedState, OpenMode openMode = ReadWrite);
+    bool setSocketDescriptor(qintptr socketDescriptor, SocketState state = ConnectedState, OpenMode openMode = ReadWrite) override;
     SyncState getState() const;
     void setState(const SyncState &value);
 
@@ -48,7 +48,10 @@ private:
     sync::SyncResponse handleSyncRequest(sync::SyncRequest& request);
 
     SyncState state;
+    quint32 pendingMessageSize;
+
     QSqlDatabase conn;
+    quint64 userId;
 };
 
 #endif // SYNCCLIENTSOCKET_H

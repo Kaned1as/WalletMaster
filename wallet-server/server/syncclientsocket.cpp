@@ -1,6 +1,6 @@
 #include "syncclientsocket.h"
 
-SyncClientSocket::SyncClientSocket(QObject *parent) : QTcpSocket(parent), state(NOT_IDENTIFIED)
+SyncClientSocket::SyncClientSocket(QObject *parent) : QTcpSocket(parent), state(NOT_IDENTIFIED), pendingMessageSize(0)
 {
     qDebug() << tr("Got new connection!");
     connect(this, &QTcpSocket::readyRead, this, &SyncClientSocket::readClientData); //we should handle this in socket's own thread
@@ -46,20 +46,19 @@ void SyncClientSocket::initDbConnection()
 // wee need to scan size first, then to read full message as it is available
 void SyncClientSocket::readClientData()
 {
-    thread_local quint32 messageSize = 0;
-    if(!messageSize) // new data
-        if(!readMessageSize(&messageSize)) // cannot read incoming size - wrong packet?
+    if(!pendingMessageSize) // new data
+        if(!readMessageSize(&pendingMessageSize)) // cannot read incoming size - wrong packet?
         {
             qDebug() << tr("Wrong packet! Can't read size.");
             readAll();
             return;
         }
 
-    if(bytesAvailable() < messageSize) // read only full data
+    if(bytesAvailable() < pendingMessageSize) // read only full data
         return;
 
-    QByteArray message = read(messageSize);
-    messageSize = 0;
+    QByteArray message = read(pendingMessageSize);
+    pendingMessageSize = 0;
     handleMessage(message);
 
     if(bytesAvailable() > 0) // pending data after message parse - have more messages pending?
@@ -159,10 +158,49 @@ sync::SyncResponse SyncClientSocket::handleSyncRequest(sync::SyncRequest &reques
             }
             else // we can register this account
             {
+                checkExists.finish();
+
+                QSqlQuery createSyncAcc(conn);
+                createSyncAcc.prepare("INSERT INTO sync_accounts(login, password) VALUES(:login, md5(:password))");
+                createSyncAcc.bindValue(":login", request.account().c_str());
+                createSyncAcc.bindValue(":password", request.password().c_str());
+                if(!createSyncAcc.exec())
+                {
+                    qDebug() << tr("cannot insert new account, error %1").arg(createSyncAcc.lastError().text());
+                    response.set_syncack(sync::SyncResponse::UNKNOWN_ERROR);
+                    return response;
+                }
+
+                // successfully inserted log:pass pair
+                userId = createSyncAcc.lastInsertId().toULongLong();
+                createSyncAcc.finish();
                 response.set_syncack(sync::SyncResponse::OK);
                 return response;
             }
             break;
+        }
+        case sync::SyncRequest::MERGE:
+        {
+             QSqlQuery checkExists(conn);
+             checkExists.prepare("SELECT id FROM sync_accounts WHERE login = :login AND password = md5(:password)");
+             checkExists.bindValue(":login", request.account().c_str());
+             checkExists.bindValue(":password", request.password().c_str());
+
+             if(!checkExists.exec())
+             {
+                 qDebug() << tr("cannot check login, db error %1").arg(checkExists.lastError().text());
+                 response.set_syncack(sync::SyncResponse::UNKNOWN_ERROR);
+                 return response;
+             }
+
+             if(checkExists.next()) // login exists, pass
+             {
+                 userId = checkExists.value(0).toULongLong();
+                 checkExists.finish();
+
+                 response.set_syncack(sync::SyncResponse::OK);
+                 return response;
+             }
         }
     }
 
