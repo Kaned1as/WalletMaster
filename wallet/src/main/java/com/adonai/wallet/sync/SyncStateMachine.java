@@ -143,13 +143,13 @@ public class SyncStateMachine {
                         handleAuthResponse();
                         break;
                     case ACC_REQ: // at this state we must be authorized on server
-
                         // send account request
                         final AccountRequest.Builder request = AccountRequest.newBuilder()
                                 .setLastKnownID(mContext.getEntityDAO().getLastGUID(DatabaseDAO.ACCOUNTS_TABLE_NAME));
                         final OutputStream os = mSocket.getOutputStream(); // send request
                         request.build().writeDelimitedTo(os); // actual sending of request
                         os.flush();
+                        setState(State.ACC_REQ_SENT);
 
                         // accept account response
                         final InputStream is = mSocket.getInputStream(); // try receive response
@@ -159,6 +159,10 @@ public class SyncStateMachine {
                             final Account toDatabase = Account.fromReceivedAccount(acc);
                             mContext.getEntityDAO().addAccount(toDatabase);
                         }
+                        setState(State.ACC_REQ_ACK);
+
+                        // send non-synced accounts to server
+
                         break;
                 }
             } catch (IOException io) {

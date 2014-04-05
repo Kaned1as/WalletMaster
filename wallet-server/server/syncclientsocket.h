@@ -29,7 +29,6 @@ public:
         SENT_CATEGORIES
     };
 
-    bool setSocketDescriptor(qintptr socketDescriptor, SocketState state = ConnectedState, OpenMode openMode = ReadWrite) override;
     SyncState getState() const;
     void setState(const SyncState &value);
 

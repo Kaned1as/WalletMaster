@@ -17,8 +17,8 @@ void SyncTcpServer::incomingConnection(qintptr handle) // newConnection is emitt
 
     QThread *thread = new QThread(this);
     socket->moveToThread(thread);
-    connect(socket, &QTcpSocket::disconnected, thread, &QThread::quit);
-    connect(thread, &QThread::finished, socket, &QTcpSocket::deleteLater);
+    connect(socket, &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
+    connect(socket, &QTcpSocket::destroyed, thread, &QThread::quit);
     connect(thread, &QThread::finished, thread, &QThread::deleteLater);
     thread->start();
     addPendingConnection(socket);

@@ -9,20 +9,10 @@ SyncClientSocket::SyncClientSocket(QObject *parent) : QTcpSocket(parent), state(
 SyncClientSocket::~SyncClientSocket()
 {
     // free the database
-    conn->close();
     QString name = conn->connectionName();
     delete conn;
     QSqlDatabase::removeDatabase(name);
     qDebug() << tr("Closing connection.");
-}
-
-bool SyncClientSocket::setSocketDescriptor(qintptr socketDescriptor, QAbstractSocket::SocketState state, QIODevice::OpenMode openMode)
-{
-    bool result = QTcpSocket::setSocketDescriptor(socketDescriptor, state, openMode);
-    if(result)
-        initDbConnection();
-
-    return result;
 }
 
 SyncClientSocket::SyncState SyncClientSocket::getState() const
@@ -50,6 +40,9 @@ void SyncClientSocket::initDbConnection()
 // wee need to scan size first, then to read full message as it is available
 void SyncClientSocket::readClientData()
 {
+    if(!conn)
+        initDbConnection();
+
     if(!pendingMessageSize) // new data
         if(!readMessageSize(&pendingMessageSize)) // cannot read incoming size - wrong packet?
         {
@@ -137,6 +130,7 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
             // send response
             if(!writeDelimited(response))
                 qDebug() << tr("Error sending account response to client! error string %1").arg(errorString());
+            break;
         }
         default:
             break;
@@ -169,14 +163,11 @@ sync::SyncResponse SyncClientSocket::handleSyncRequest(const sync::SyncRequest& 
 
             if(checkExists.next()) // login exists, deny
             {
-                checkExists.finish();
                 response.set_syncack(sync::SyncResponse::ACCOUNT_EXISTS);
                 return response;
             }
             else // we can register this account
             {
-                checkExists.finish();
-
                 QSqlQuery createSyncAcc(*conn);
                 createSyncAcc.prepare("INSERT INTO sync_accounts(login, password) VALUES(:login, md5(:password))");
                 createSyncAcc.bindValue(":login", request.account().c_str());
@@ -190,7 +181,6 @@ sync::SyncResponse SyncClientSocket::handleSyncRequest(const sync::SyncRequest& 
 
                 // successfully inserted log:pass pair
                 userId = createSyncAcc.lastInsertId().toULongLong();
-                createSyncAcc.finish();
                 response.set_syncack(sync::SyncResponse::OK);
                 return response;
             }
@@ -213,14 +203,12 @@ sync::SyncResponse SyncClientSocket::handleSyncRequest(const sync::SyncRequest& 
              if(checkExists.next()) // login exists, pass
              {
                  userId = checkExists.value(0).toULongLong();
-                 checkExists.finish();
 
                  response.set_syncack(sync::SyncResponse::OK);
                  return response;
              }
              else // no such login!
              {
-                 checkExists.finish();
                  response.set_syncack(sync::SyncResponse::AUTH_WRONG);
                  return response;
              }
@@ -254,7 +242,5 @@ sync::AccountResponse SyncClientSocket::handleAccountRequest(const sync::Account
         account->set_amount(selectNonSyncedAccs.value("amount").toString().toStdString());
         account->set_color(selectNonSyncedAccs.value("color").toInt());
     }
-
     return response;
 }
-
