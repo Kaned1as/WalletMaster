@@ -157,7 +157,12 @@ public class OperationsFragment extends WalletBaseFragment {
 
         @Override
         public void handleUpdate() {
-            changeCursor(getWalletActivity().getEntityDAO().getOperationsCursor());
+            getWalletActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    changeCursor(getWalletActivity().getEntityDAO().getOperationsCursor());
+                }
+            });
         }
     }
 

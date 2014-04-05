@@ -46,6 +46,7 @@ private:
     void handleMessage(const QByteArray& incomingData);
 
     sync::SyncResponse handleSyncRequest(const sync::SyncRequest& request);
+    sync::AccountResponse handleAccountRequest(const sync::AccountRequest& request);
 
     SyncState state;
     quint32 pendingMessageSize;

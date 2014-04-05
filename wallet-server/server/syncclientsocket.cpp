@@ -116,7 +116,7 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
                 qDebug() << tr("error parsing sync request from client!");
 
             // handle
-            const sync::SyncResponse&& response = handleSyncRequest(request); // avoid copying data...
+            const sync::SyncResponse& response = handleSyncRequest(request); // avoid copying data...
             if(response.syncack() == sync::SyncResponse::OK)
                 setState(AUTHORIZED);
 
@@ -124,6 +124,19 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
             if(!writeDelimited(response))
                 qDebug() << tr("Error sending sync response to client! error string %1").arg(errorString());
             break;
+        }
+        case AUTHORIZED:
+        {
+            sync::AccountRequest request;
+            if(!request.ParseFromArray(incomingData.constData(), incomingData.size()))
+                qDebug() << tr("error parsing account request from client!");
+
+            // handle
+            sync::AccountResponse response = handleAccountRequest(request);
+
+            // send response
+            if(!writeDelimited(response))
+                qDebug() << tr("Error sending account response to client! error string %1").arg(errorString());
         }
         default:
             break;
@@ -205,7 +218,43 @@ sync::SyncResponse SyncClientSocket::handleSyncRequest(const sync::SyncRequest& 
                  response.set_syncack(sync::SyncResponse::OK);
                  return response;
              }
+             else // no such login!
+             {
+                 checkExists.finish();
+                 response.set_syncack(sync::SyncResponse::AUTH_WRONG);
+                 return response;
+             }
         }
     }
+}
+
+sync::AccountResponse SyncClientSocket::handleAccountRequest(const sync::AccountRequest &request)
+{
+    sync::AccountResponse response;
+
+    // we should select non-synced accounts from our database and send them
+    QSqlQuery selectNonSyncedAccs(*conn);
+                                     /* 0   1     2            3         4       5 */
+    selectNonSyncedAccs.prepare("SELECT id, name, description, currency, amount, color FROM accounts WHERE sync_account = :userId AND id > :lastClientKnownId");
+    selectNonSyncedAccs.bindValue(":userId", userId);
+    selectNonSyncedAccs.bindValue(":lastClientKnownId", (qint64) request.lastknownid());
+
+    if(!selectNonSyncedAccs.exec())
+    {
+        qDebug() << tr("cannot retrieve nonsynced accounts, db error %1").arg(selectNonSyncedAccs.lastError().text());
+        return response; // empty response
+    }
+
+    while(selectNonSyncedAccs.next()) {
+        sync::Account* account = response.add_accounts();
+        account->set_id(selectNonSyncedAccs.value("id").toLongLong());
+        account->set_name(selectNonSyncedAccs.value("name").toString().toStdString());
+        account->set_description(selectNonSyncedAccs.value("description").toString().toStdString());
+        account->set_currency(selectNonSyncedAccs.value("currency").toString().toStdString());
+        account->set_amount(selectNonSyncedAccs.value("amount").toString().toStdString());
+        account->set_color(selectNonSyncedAccs.value("color").toInt());
+    }
+
+    return response;
 }
 

@@ -179,14 +179,6 @@ public final class SyncProtocol {
        * <code>MERGE = 1;</code>
        */
       MERGE(1, 1),
-      /**
-       * <code>PUSH_ONLY = 2;</code>
-       */
-      PUSH_ONLY(2, 2),
-      /**
-       * <code>PULL_ONLY = 3;</code>
-       */
-      PULL_ONLY(3, 3),
       ;
 
       /**
@@ -201,14 +193,6 @@ public final class SyncProtocol {
        * <code>MERGE = 1;</code>
        */
       public static final int MERGE_VALUE = 1;
-      /**
-       * <code>PUSH_ONLY = 2;</code>
-       */
-      public static final int PUSH_ONLY_VALUE = 2;
-      /**
-       * <code>PULL_ONLY = 3;</code>
-       */
-      public static final int PULL_ONLY_VALUE = 3;
 
 
       public final int getNumber() { return value; }
@@ -217,8 +201,6 @@ public final class SyncProtocol {
         switch (value) {
           case 0: return REGISTER;
           case 1: return MERGE;
-          case 2: return PUSH_ONLY;
-          case 3: return PULL_ONLY;
           default: return null;
         }
       }
@@ -981,13 +963,9 @@ public final class SyncProtocol {
        */
       AUTH_WRONG(2, 403),
       /**
-       * <code>NO_SUCH_USER = 404;</code>
-       */
-      NO_SUCH_USER(3, 404),
-      /**
        * <code>UNKNOWN_ERROR = 999;</code>
        */
-      UNKNOWN_ERROR(4, 999),
+      UNKNOWN_ERROR(3, 999),
       ;
 
       /**
@@ -1003,10 +981,6 @@ public final class SyncProtocol {
        */
       public static final int AUTH_WRONG_VALUE = 403;
       /**
-       * <code>NO_SUCH_USER = 404;</code>
-       */
-      public static final int NO_SUCH_USER_VALUE = 404;
-      /**
        * <code>UNKNOWN_ERROR = 999;</code>
        */
       public static final int UNKNOWN_ERROR_VALUE = 999;
@@ -1019,7 +993,6 @@ public final class SyncProtocol {
           case 200: return OK;
           case 402: return ACCOUNT_EXISTS;
           case 403: return AUTH_WRONG;
-          case 404: return NO_SUCH_USER;
           case 999: return UNKNOWN_ERROR;
           default: return null;
         }
@@ -1374,13 +1347,13 @@ public final class SyncProtocol {
   public interface AccountRequestOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // required uint64 lastKnownID = 1;
+    // required int64 lastKnownID = 1;
     /**
-     * <code>required uint64 lastKnownID = 1;</code>
+     * <code>required int64 lastKnownID = 1;</code>
      */
     boolean hasLastKnownID();
     /**
-     * <code>required uint64 lastKnownID = 1;</code>
+     * <code>required int64 lastKnownID = 1;</code>
      */
     long getLastKnownID();
   }
@@ -1437,7 +1410,7 @@ public final class SyncProtocol {
             }
             case 8: {
               bitField0_ |= 0x00000001;
-              lastKnownID_ = input.readUInt64();
+              lastKnownID_ = input.readInt64();
               break;
             }
           }
@@ -1480,17 +1453,17 @@ public final class SyncProtocol {
     }
 
     private int bitField0_;
-    // required uint64 lastKnownID = 1;
+    // required int64 lastKnownID = 1;
     public static final int LASTKNOWNID_FIELD_NUMBER = 1;
     private long lastKnownID_;
     /**
-     * <code>required uint64 lastKnownID = 1;</code>
+     * <code>required int64 lastKnownID = 1;</code>
      */
     public boolean hasLastKnownID() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>required uint64 lastKnownID = 1;</code>
+     * <code>required int64 lastKnownID = 1;</code>
      */
     public long getLastKnownID() {
       return lastKnownID_;
@@ -1516,7 +1489,7 @@ public final class SyncProtocol {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeUInt64(1, lastKnownID_);
+        output.writeInt64(1, lastKnownID_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1529,7 +1502,7 @@ public final class SyncProtocol {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(1, lastKnownID_);
+          .computeInt64Size(1, lastKnownID_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1731,22 +1704,22 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required uint64 lastKnownID = 1;
+      // required int64 lastKnownID = 1;
       private long lastKnownID_ ;
       /**
-       * <code>required uint64 lastKnownID = 1;</code>
+       * <code>required int64 lastKnownID = 1;</code>
        */
       public boolean hasLastKnownID() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required uint64 lastKnownID = 1;</code>
+       * <code>required int64 lastKnownID = 1;</code>
        */
       public long getLastKnownID() {
         return lastKnownID_;
       }
       /**
-       * <code>required uint64 lastKnownID = 1;</code>
+       * <code>required int64 lastKnownID = 1;</code>
        */
       public Builder setLastKnownID(long value) {
         bitField0_ |= 0x00000001;
@@ -1755,7 +1728,7 @@ public final class SyncProtocol {
         return this;
       }
       /**
-       * <code>required uint64 lastKnownID = 1;</code>
+       * <code>required int64 lastKnownID = 1;</code>
        */
       public Builder clearLastKnownID() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -3677,21 +3650,20 @@ public final class SyncProtocol {
   static {
     java.lang.String[] descriptorData = {
       "\n\023sync_protocol.proto\022\026com.adonai.wallet" +
-      ".sync\"\272\001\n\013SyncRequest\022\017\n\007account\030\001 \002(\t\022\020" +
+      ".sync\"\234\001\n\013SyncRequest\022\017\n\007account\030\001 \002(\t\022\020" +
       "\n\010password\030\002 \002(\t\022E\n\010syncType\030\003 \001(\0162,.com" +
       ".adonai.wallet.sync.SyncRequest.SyncType" +
-      ":\005MERGE\"A\n\010SyncType\022\014\n\010REGISTER\020\000\022\t\n\005MER" +
-      "GE\020\001\022\r\n\tPUSH_ONLY\020\002\022\r\n\tPULL_ONLY\020\003\"\256\001\n\014S" +
-      "yncResponse\022=\n\007syncAck\030\001 \002(\0162,.com.adona" +
-      "i.wallet.sync.SyncResponse.SyncAck\"_\n\007Sy" +
-      "ncAck\022\007\n\002OK\020\310\001\022\023\n\016ACCOUNT_EXISTS\020\222\003\022\017\n\nA" +
-      "UTH_WRONG\020\223\003\022\021\n\014NO_SUCH_USER\020\224\003\022\022\n\rUNKNO",
-      "WN_ERROR\020\347\007\"%\n\016AccountRequest\022\023\n\013lastKno" +
-      "wnID\030\001 \002(\004\"D\n\017AccountResponse\0221\n\010account" +
-      "s\030\001 \003(\0132\037.com.adonai.wallet.sync.Account" +
-      "\"i\n\007Account\022\n\n\002ID\030\001 \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n" +
-      "\013description\030\003 \001(\t\022\020\n\010currency\030\004 \002(\t\022\016\n\006" +
-      "amount\030\005 \002(\t\022\r\n\005color\030\006 \001(\r"
+      ":\005MERGE\"#\n\010SyncType\022\014\n\010REGISTER\020\000\022\t\n\005MER" +
+      "GE\020\001\"\233\001\n\014SyncResponse\022=\n\007syncAck\030\001 \002(\0162," +
+      ".com.adonai.wallet.sync.SyncResponse.Syn" +
+      "cAck\"L\n\007SyncAck\022\007\n\002OK\020\310\001\022\023\n\016ACCOUNT_EXIS" +
+      "TS\020\222\003\022\017\n\nAUTH_WRONG\020\223\003\022\022\n\rUNKNOWN_ERROR\020" +
+      "\347\007\"%\n\016AccountRequest\022\023\n\013lastKnownID\030\001 \002(",
+      "\003\"D\n\017AccountResponse\0221\n\010accounts\030\001 \003(\0132\037" +
+      ".com.adonai.wallet.sync.Account\"i\n\007Accou" +
+      "nt\022\n\n\002ID\030\001 \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n\013descript" +
+      "ion\030\003 \001(\t\022\020\n\010currency\030\004 \002(\t\022\016\n\006amount\030\005 " +
+      "\002(\t\022\r\n\005color\030\006 \001(\r"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {

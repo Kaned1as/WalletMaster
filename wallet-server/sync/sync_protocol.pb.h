@@ -45,13 +45,11 @@ class Account;
 
 enum SyncRequest_SyncType {
   SyncRequest_SyncType_REGISTER = 0,
-  SyncRequest_SyncType_MERGE = 1,
-  SyncRequest_SyncType_PUSH_ONLY = 2,
-  SyncRequest_SyncType_PULL_ONLY = 3
+  SyncRequest_SyncType_MERGE = 1
 };
 bool SyncRequest_SyncType_IsValid(int value);
 const SyncRequest_SyncType SyncRequest_SyncType_SyncType_MIN = SyncRequest_SyncType_REGISTER;
-const SyncRequest_SyncType SyncRequest_SyncType_SyncType_MAX = SyncRequest_SyncType_PULL_ONLY;
+const SyncRequest_SyncType SyncRequest_SyncType_SyncType_MAX = SyncRequest_SyncType_MERGE;
 const int SyncRequest_SyncType_SyncType_ARRAYSIZE = SyncRequest_SyncType_SyncType_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* SyncRequest_SyncType_descriptor();
@@ -68,7 +66,6 @@ enum SyncResponse_SyncAck {
   SyncResponse_SyncAck_OK = 200,
   SyncResponse_SyncAck_ACCOUNT_EXISTS = 402,
   SyncResponse_SyncAck_AUTH_WRONG = 403,
-  SyncResponse_SyncAck_NO_SUCH_USER = 404,
   SyncResponse_SyncAck_UNKNOWN_ERROR = 999
 };
 bool SyncResponse_SyncAck_IsValid(int value);
@@ -143,8 +140,6 @@ class SyncRequest : public ::google::protobuf::Message {
   typedef SyncRequest_SyncType SyncType;
   static const SyncType REGISTER = SyncRequest_SyncType_REGISTER;
   static const SyncType MERGE = SyncRequest_SyncType_MERGE;
-  static const SyncType PUSH_ONLY = SyncRequest_SyncType_PUSH_ONLY;
-  static const SyncType PULL_ONLY = SyncRequest_SyncType_PULL_ONLY;
   static inline bool SyncType_IsValid(int value) {
     return SyncRequest_SyncType_IsValid(value);
   }
@@ -282,7 +277,6 @@ class SyncResponse : public ::google::protobuf::Message {
   static const SyncAck OK = SyncResponse_SyncAck_OK;
   static const SyncAck ACCOUNT_EXISTS = SyncResponse_SyncAck_ACCOUNT_EXISTS;
   static const SyncAck AUTH_WRONG = SyncResponse_SyncAck_AUTH_WRONG;
-  static const SyncAck NO_SUCH_USER = SyncResponse_SyncAck_NO_SUCH_USER;
   static const SyncAck UNKNOWN_ERROR = SyncResponse_SyncAck_UNKNOWN_ERROR;
   static inline bool SyncAck_IsValid(int value) {
     return SyncResponse_SyncAck_IsValid(value);
@@ -389,12 +383,12 @@ class AccountRequest : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required uint64 lastKnownID = 1;
+  // required int64 lastKnownID = 1;
   inline bool has_lastknownid() const;
   inline void clear_lastknownid();
   static const int kLastKnownIDFieldNumber = 1;
-  inline ::google::protobuf::uint64 lastknownid() const;
-  inline void set_lastknownid(::google::protobuf::uint64 value);
+  inline ::google::protobuf::int64 lastknownid() const;
+  inline void set_lastknownid(::google::protobuf::int64 value);
 
   // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.AccountRequest)
  private:
@@ -403,7 +397,7 @@ class AccountRequest : public ::google::protobuf::Message {
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::google::protobuf::uint64 lastknownid_;
+  ::google::protobuf::int64 lastknownid_;
 
   mutable int _cached_size_;
   ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
@@ -853,7 +847,7 @@ inline void SyncResponse::set_syncack(::com::adonai::wallet::sync::SyncResponse_
 
 // AccountRequest
 
-// required uint64 lastKnownID = 1;
+// required int64 lastKnownID = 1;
 inline bool AccountRequest::has_lastknownid() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -864,13 +858,13 @@ inline void AccountRequest::clear_has_lastknownid() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline void AccountRequest::clear_lastknownid() {
-  lastknownid_ = GOOGLE_ULONGLONG(0);
+  lastknownid_ = GOOGLE_LONGLONG(0);
   clear_has_lastknownid();
 }
-inline ::google::protobuf::uint64 AccountRequest::lastknownid() const {
+inline ::google::protobuf::int64 AccountRequest::lastknownid() const {
   return lastknownid_;
 }
-inline void AccountRequest::set_lastknownid(::google::protobuf::uint64 value) {
+inline void AccountRequest::set_lastknownid(::google::protobuf::int64 value) {
   set_has_lastknownid();
   lastknownid_ = value;
 }

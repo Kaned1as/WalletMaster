@@ -1,5 +1,7 @@
 package com.adonai.wallet.entities;
 
+import com.adonai.wallet.sync.SyncProtocol;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -13,6 +15,7 @@ public class Account {
     private Currency currency;
     private BigDecimal amount;
     private Integer color;
+    private Long guid;
     private List<Operation> operations; // foreign key from operations to budget (OneToMany)
 
     public Long getId() {
@@ -69,5 +72,24 @@ public class Account {
 
     public void setColor(Integer color) {
         this.color = color;
+    }
+
+    public Long getGuid() {
+        return guid;
+    }
+
+    public void setGuid(Long guid) {
+        this.guid = guid;
+    }
+
+    public static Account fromReceivedAccount(SyncProtocol.Account account) {
+        Account temp = new Account();
+        temp.setName(account.getName());
+        temp.setAmount(new BigDecimal(account.getAmount()));
+        temp.setColor(account.getColor());
+        temp.setDescription(account.getDescription());
+        temp.setCurrency(new Currency(account.getCurrency()));
+        temp.setGuid(account.getID()); // ID of synced account is real ID in server database
+        return temp;
     }
 }

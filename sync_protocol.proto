@@ -7,8 +7,6 @@ message SyncRequest {
     enum SyncType {
         REGISTER = 0; // server will listen to register request, to auth request otherwise
         MERGE = 1;
-        PUSH_ONLY = 2;
-        PULL_ONLY = 3;
     }
     
     optional SyncType syncType = 3 [default = MERGE];
@@ -26,7 +24,7 @@ message SyncResponse {
 }
 
 message AccountRequest {
-    required uint64 lastKnownID = 1;
+    required int64 lastKnownID = 1;
 }
 
 message AccountResponse {

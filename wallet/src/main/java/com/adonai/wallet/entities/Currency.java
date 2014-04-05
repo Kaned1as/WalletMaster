@@ -12,6 +12,12 @@ public class Currency {
         this.usedIn = usedIn;
     }
 
+    public Currency(String code) {
+        assert code != null;
+
+        this.code = code;
+    }
+
     private String code;
     private String description;
     private String usedIn;

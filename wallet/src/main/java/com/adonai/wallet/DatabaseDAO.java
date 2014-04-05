@@ -237,6 +237,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         values.put(AccountFields.CURRENCY.toString(), account.getCurrency().toString());
         values.put(AccountFields.AMOUNT.toString(), account.getAmount().toPlainString());
         values.put(AccountFields.COLOR.toString(), account.getColor());
+        values.put(AccountFields.GUID.toString(), account.getGuid());
 
         long result = mDatabase.insert(ACCOUNTS_TABLE_NAME, null, values);
 
@@ -304,6 +305,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
             acc.setCurrency(getCurrency(cursor.getString(AccountFields.CURRENCY.ordinal())));
             acc.setAmount(new BigDecimal(cursor.getString(AccountFields.AMOUNT.ordinal())));
             acc.setColor(cursor.getInt(AccountFields.COLOR.ordinal()));
+            acc.setGuid(cursor.getLong(AccountFields.GUID.ordinal()));
 
             Log.d("getAccount(" + id + ")", acc.getName());
             cursor.close();
@@ -312,6 +314,17 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
         cursor.close();
         return null;
+    }
+
+    public long getLastGUID(String tableName) {
+        long result = -1;
+        Log.d("Query", String.format("maxGUID of table %s", tableName));
+        final Cursor retriever = mDatabase.rawQuery(String.format("SELECT COALESCE(MAX(GUID), -1) FROM %s", tableName), null);
+        if(retriever.moveToNext()) // have data
+            result = retriever.getLong(0);
+
+        retriever.close();
+        return result;
     }
 
     public Cursor getAccountCursor() {

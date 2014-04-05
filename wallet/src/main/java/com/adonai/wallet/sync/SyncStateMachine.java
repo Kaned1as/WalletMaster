@@ -1,6 +1,5 @@
 package com.adonai.wallet.sync;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -8,9 +7,11 @@ import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 
+import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.WalletConstants;
+import com.adonai.wallet.entities.Account;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.adonai.wallet.sync.SyncProtocol.AccountRequest;
+import static com.adonai.wallet.sync.SyncProtocol.AccountResponse;
 import static com.adonai.wallet.sync.SyncProtocol.SyncRequest;
 import static com.adonai.wallet.sync.SyncProtocol.SyncResponse;
 
@@ -67,7 +70,7 @@ public class SyncStateMachine {
     private final Handler mHandler;
     private Socket mSocket;
     private final List<SyncListener> mListeners = new ArrayList<>(2);
-    private final Context mContext;
+    private final WalletBaseActivity mContext;
     private final SharedPreferences mPreferences;
 
     public SyncStateMachine(WalletBaseActivity context) {
@@ -139,6 +142,24 @@ public class SyncStateMachine {
                         sendAuthRequest();
                         handleAuthResponse();
                         break;
+                    case ACC_REQ: // at this state we must be authorized on server
+
+                        // send account request
+                        final AccountRequest.Builder request = AccountRequest.newBuilder()
+                                .setLastKnownID(mContext.getEntityDAO().getLastGUID(DatabaseDAO.ACCOUNTS_TABLE_NAME));
+                        final OutputStream os = mSocket.getOutputStream(); // send request
+                        request.build().writeDelimitedTo(os); // actual sending of request
+                        os.flush();
+
+                        // accept account response
+                        final InputStream is = mSocket.getInputStream(); // try receive response
+                        final AccountResponse response = AccountResponse.parseDelimitedFrom(is);
+                        final List<SyncProtocol.Account> accounts = response.getAccountsList(); // get list of accounts after last guid
+                        for(SyncProtocol.Account acc : accounts) { // every received account does not exist in our database
+                            final Account toDatabase = Account.fromReceivedAccount(acc);
+                            mContext.getEntityDAO().addAccount(toDatabase);
+                        }
+                        break;
                 }
             } catch (IOException io) {
                 setState(State.INIT, io.getMessage());
@@ -156,6 +177,7 @@ public class SyncStateMachine {
             switch (response.getSyncAck()) {
                 case OK:
                     setState(State.AUTH_ACK);
+                    setState(State.ACC_REQ);
                     mPreferences.edit().putBoolean(WalletConstants.ACCOUNT_SYNC_KEY, true).commit(); // save auth
                     break;
                 case AUTH_WRONG:

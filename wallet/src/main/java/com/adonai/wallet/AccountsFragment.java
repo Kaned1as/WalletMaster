@@ -24,7 +24,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.adonai.wallet.entities.Account;
-import com.adonai.wallet.entities.Operation;
 import com.daniel.lupianez.casares.PopoverView;
 
 import java.util.Arrays;
@@ -118,7 +117,13 @@ public class AccountsFragment extends WalletBaseFragment {
 
         @Override
         public void handleUpdate() {
-            changeCursor(getWalletActivity().getEntityDAO().getAccountCursor());
+            getWalletActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    changeCursor(getWalletActivity().getEntityDAO().getAccountCursor());
+                }
+            });
+
         }
     }
 
@@ -159,7 +164,7 @@ public class AccountsFragment extends WalletBaseFragment {
                 }
             });
 
-            popover.showPopoverFromRectInViewGroup((ViewGroup) parent.getRootView(), PopoverView.getFrameForView(view), PopoverView.PopoverArrowDirectionUp, true);
+            popover.showPopoverFromRectInViewGroup((ViewGroup) parent.getRootView(), PopoverView.getFrameForView(view), PopoverView.PopoverArrowDirectionAny, true);
             return true;
         }
     }
