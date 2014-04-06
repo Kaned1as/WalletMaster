@@ -32,6 +32,7 @@ import java.util.concurrent.Callable;
 public class DatabaseDAO extends SQLiteOpenHelper
 {
     private final Context mContext;
+    private SyncHelper syncHelper = new SyncHelper();
 
     public interface DatabaseListener {
         void handleUpdate();
@@ -93,6 +94,15 @@ public class DatabaseDAO extends SQLiteOpenHelper
         GUID
     }
 
+    public static final String DELETED_TABLE_NAME = "deleted";
+    public static enum DeletedFields {
+        _id,
+        TYPE
+    }
+    public static int TYPE_ACCOUNT = 0;
+    public static int TYPE_OPERATION = 1;
+    public static int TYPE_CATEGORY = 2;
+
     private final Map<String, List<DatabaseListener>> listenerMap = new HashMap<>();
     private final SQLiteDatabase mDatabase;
 
@@ -120,7 +130,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 AccountFields.CURRENCY + " TEXT DEFAULT 'RUB' NOT NULL, " +
                 AccountFields.AMOUNT + " TEXT DEFAULT '0' NOT NULL, " +
                 AccountFields.COLOR + " TEXT DEFAULT NULL, " +
-                AccountFields.GUID + " TEXT DEFAULT NULL " +
+                AccountFields.GUID + " INTEGER DEFAULT NULL " +
                 ")");
         sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "ACCOUNT_NAME_IDX ON " + ACCOUNTS_TABLE_NAME + " (" + AccountFields.NAME + ")");
 
@@ -133,7 +143,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 OperationsFields.RECEIVER + " INTEGER DEFAULT NULL, " +
                 OperationsFields.AMOUNT + " TEXT DEFAULT '0' NOT NULL, " +
                 OperationsFields.CONVERT_RATE + " REAL DEFAULT NULL, " +
-                OperationsFields.GUID + " TEXT DEFAULT NULL, " +
+                OperationsFields.GUID + " INTEGER DEFAULT NULL, " +
                 " FOREIGN KEY (" + OperationsFields.CATEGORY + ") REFERENCES " + CATEGORIES_TABLE_NAME + " (" + CategoriesFields._id + ") ON DELETE SET NULL," +
                 " FOREIGN KEY (" + OperationsFields.CHARGER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE," + // delete associated transactions
                 " FOREIGN KEY (" + OperationsFields.RECEIVER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE" + // delete associated transactions
@@ -151,10 +161,16 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 CategoriesFields.NAME + " TEXT DEFAULT '' NOT NULL, " +
                 CategoriesFields.TYPE + " INTEGER DEFAULT 0 NOT NULL, " +
                 CategoriesFields.PREFERRED_ACCOUNT + " INTEGER DEFAULT NULL, " +
-                CategoriesFields.GUID + " TEXT DEFAULT NULL, " +
+                CategoriesFields.GUID + " INTEGER DEFAULT NULL, " +
                 " FOREIGN KEY (" + CategoriesFields.PREFERRED_ACCOUNT + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE SET NULL" +
                 ")");
         sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CATEGORY_UNIQUE_NAME_IDX ON " + CATEGORIES_TABLE_NAME + " (" +  CategoriesFields.NAME + "," + CategoriesFields.TYPE + ")");
+
+        sqLiteDatabase.execSQL("CREATE TABLE " + DELETED_TABLE_NAME + " (" +
+                DeletedFields._id + " INTEGER NOT NULL, " +
+                DeletedFields.TYPE + " INTEGER NOT NULL, " +
+                "PRIMARY KEY (" + DeletedFields._id + ", " + DeletedFields.TYPE + ")" +
+                ")");
 
         sqLiteDatabase.beginTransaction(); // initial fill
         // fill Categories
@@ -266,6 +282,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
             values.put(OperationsFields.RECEIVER.toString(), operation.getBeneficiar().getId());
         if(operation.getConvertingRate() != null)
             values.put(OperationsFields.CONVERT_RATE.toString(), operation.getConvertingRate());
+        values.put(OperationsFields.GUID.toString(), operation.getGuid());
 
         long result = mDatabase.insert(OPERATIONS_TABLE_NAME, null, values);
 
@@ -282,6 +299,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         values.put(CategoriesFields.TYPE.toString(), category.getType());
         if(category.getPreferredAccount() != null)
             values.put(CategoriesFields.PREFERRED_ACCOUNT.toString(), category.getPreferredAccount().getId());
+        values.put(CategoriesFields.GUID.toString(), category.getGuid());
 
         long result = mDatabase.insert(CATEGORIES_TABLE_NAME, null, values);
 
@@ -292,11 +310,11 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public Account getAccount(long id) {
-        final Cursor cursor = mDatabase.query(ACCOUNTS_TABLE_NAME, null, " _id = ?", new String[] { String.valueOf(id) }, // d. selections args
-                                 null, // e. group by
-                                 null, // f. having
-                                 null, // g. order by
-                                 null); // h. limit
+        final Cursor cursor = mDatabase.query(ACCOUNTS_TABLE_NAME, null, " _id = ?", new String[]{String.valueOf(id)}, // d. selections args
+                null, // e. group by
+                null, // f. having
+                null, // g. order by
+                null); // h. limit
         if (cursor.moveToFirst()) {
             final Account acc = new Account();
             acc.setId(cursor.getLong(AccountFields._id.ordinal()));
@@ -314,17 +332,6 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
         cursor.close();
         return null;
-    }
-
-    public long getLastGUID(String tableName) {
-        long result = -1;
-        Log.d("Query", String.format("maxGUID of table %s", tableName));
-        final Cursor retriever = mDatabase.rawQuery(String.format("SELECT COALESCE(MAX(GUID), -1) FROM %s", tableName), null);
-        if(retriever.moveToNext()) // have data
-            result = retriever.getLong(0);
-
-        retriever.close();
-        return result;
     }
 
     public Cursor getAccountCursor() {
@@ -383,6 +390,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         if (cursor.moveToFirst()) try {
             final Operation op = new Operation();
             op.setId(cursor.getLong(OperationsFields._id.ordinal()));
+            op.setGuid(cursor.getLong(OperationsFields.GUID.ordinal()));
             op.setDescription(cursor.getString(OperationsFields.DESCRIPTION.ordinal()));
             op.setCategory(getCategory(cursor.getLong(OperationsFields.CATEGORY.ordinal())));
             op.setTime(Utils.SQLITE_DATE_FORMAT.parse(cursor.getString(OperationsFields.TIME.ordinal())));
@@ -414,6 +422,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
             // 4. build operation object
             final Category cat = new Category();
             cat.setId(cursor.getLong(CategoriesFields._id.ordinal()));
+            cat.setGuid(cursor.getLong(CategoriesFields.GUID.ordinal()));
             cat.setName(cursor.getString(CategoriesFields.NAME.ordinal()));
             cat.setType(cursor.getInt(CategoriesFields.TYPE.ordinal()));
             if(!cursor.isNull(CategoriesFields.PREFERRED_ACCOUNT.ordinal()))
@@ -441,6 +450,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         values.put(AccountFields.CURRENCY.toString(), account.getCurrency().toString());
         values.put(AccountFields.AMOUNT.toString(), account.getAmount().toPlainString());
         values.put(AccountFields.COLOR.toString(), account.getColor());
+        values.put(AccountFields.GUID.toString(), account.getGuid());
 
         final int result = mDatabase.update(ACCOUNTS_TABLE_NAME,  values,  AccountFields._id + " = ?",  new String[] { String.valueOf(account.getId()) });
 
@@ -461,8 +471,9 @@ public class DatabaseDAO extends SQLiteOpenHelper
             values.put(OperationsFields.RECEIVER.toString(), operation.getBeneficiar().getId());
         values.put(OperationsFields.AMOUNT.toString(), operation.getAmount().toPlainString());
         values.put(OperationsFields.CONVERT_RATE.toString(), operation.getConvertingRate());
+        values.put(OperationsFields.GUID.toString(), operation.getGuid());
 
-        final int result = mDatabase.update(OPERATIONS_TABLE_NAME,  values, OperationsFields._id + " = ?",  new String[] { String.valueOf(operation.getId()) }); //selection args
+        final int result = mDatabase.update(OPERATIONS_TABLE_NAME, values, OperationsFields._id + " = ?", new String[]{String.valueOf(operation.getId())}); //selection args
 
         if(result > 0)
             notifyListeners(OPERATIONS_TABLE_NAME);
@@ -470,22 +481,24 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return result;
     }
 
-    public int deleteAccount(Account account) {
-        Log.d("deleteAccount", account.getName());
-
-        int count = mDatabase.delete(ACCOUNTS_TABLE_NAME, //table name
-                AccountFields._id + " = ?",  // selections
-                new String[]{String.valueOf(account.getId())});
-
-        if(count > 0)
-            notifyListeners(ACCOUNTS_TABLE_NAME);
-
-        return count;
+    public int deleteAccount(final Long id) {
+        return deleteAccount(id, false);
     }
 
-    public int deleteAccount(final Long id) {
+    public int deleteAccount(final Long id, boolean fromServer) {
         Log.d("deleteAccount", String.valueOf(id));
-
+        if(!fromServer) {
+            final Account toDelete = getAccount(id);
+            assert toDelete != null;
+            if (toDelete.getGuid() != null) { // if this acc was synced
+                final ContentValues values = new ContentValues(2);
+                values.put(DeletedFields._id.toString(), toDelete.getGuid());
+                values.put(DeletedFields.TYPE.toString(), TYPE_ACCOUNT);
+                long result = mDatabase.insert(DELETED_TABLE_NAME, null, values);
+                if (result == -1l)
+                    throw new RuntimeException("Cannot add deleted record to table!");
+            }
+        }
         int count = mDatabase.delete(ACCOUNTS_TABLE_NAME, AccountFields._id + " = ?", new String[]{String.valueOf(id)});
 
         if(count > 0)
@@ -495,8 +508,23 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public int deleteCategory(final Long id) {
-        Log.d("deleteCategory", String.valueOf(id));
+        return deleteCategory(id, false);
+    }
 
+    public int deleteCategory(final Long id, boolean fromServer) {
+        Log.d("deleteCategory", String.valueOf(id));
+        if(!fromServer) {
+            final Category toDelete = getCategory(id);
+            assert toDelete != null;
+            if (toDelete.getGuid() != null) { // if this acc was synced
+                final ContentValues values = new ContentValues(2);
+                values.put(DeletedFields._id.toString(), toDelete.getGuid());
+                values.put(DeletedFields.TYPE.toString(), TYPE_CATEGORY);
+                long result = mDatabase.insert(DELETED_TABLE_NAME, null, values);
+                if (result == -1l)
+                    throw new RuntimeException("Cannot add deleted record to table!");
+            }
+        }
         int count = mDatabase.delete(CATEGORIES_TABLE_NAME, CategoriesFields._id + " = ?", new String[] { String.valueOf(id) });
 
         if(count > 0)
@@ -505,20 +533,24 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return count;
     }
 
-    public int deleteOperation(Operation operation) {
-        Log.d("deleteOperation", operation.getId().toString());
-        int count = mDatabase.delete(OPERATIONS_TABLE_NAME, //table name
-                OperationsFields._id + " = ?",  // selections
-                new String[] { String.valueOf(operation.getId()) });
-
-        if(count > 0)
-            notifyListeners(OPERATIONS_TABLE_NAME);
-
-        return count;
+    public int deleteOperation(Long id) {
+        return deleteOperation(id, false);
     }
 
-    public int deleteOperation(Long id) {
+    public int deleteOperation(Long id, boolean fromServer) {
         Log.d("deleteOperation", id.toString());
+        if(!fromServer) {
+            final Operation toDelete = getOperation(id);
+            assert toDelete != null;
+            if (toDelete.getGuid() != null) { // if this acc was synced
+                final ContentValues values = new ContentValues(2);
+                values.put(DeletedFields._id.toString(), toDelete.getGuid());
+                values.put(DeletedFields.TYPE.toString(), TYPE_OPERATION);
+                long result = mDatabase.insert(DELETED_TABLE_NAME, null, values);
+                if (result == -1l)
+                    throw new RuntimeException("Cannot add deleted record to table!");
+            }
+        }
         int count = mDatabase.delete(OPERATIONS_TABLE_NAME,  OperationsFields._id + " = ?", new String[] { String.valueOf(id) });
 
         if(count > 0)
@@ -653,7 +685,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         mDatabase.beginTransaction();
         transactionFlow:
         {
-            if(deleteOperation(operation) != 1)
+            if(deleteOperation(operation.getId()) != 1)
                 break transactionFlow;
 
             switch (operation.getOperationType()) {
@@ -682,6 +714,66 @@ public class DatabaseDAO extends SQLiteOpenHelper
         }
         mDatabase.endTransaction();
         return allSucceeded;
+    }
+
+    public class SyncHelper {
+
+        public List<Operation> getNonSyncedOperations() {
+            final Cursor nullCursor = mDatabase.query(OPERATIONS_TABLE_NAME, null, OperationsFields.GUID + " IS NULL", null, null, null, null, null);
+            final List<Operation> result = new ArrayList<>();
+            while(nullCursor.moveToNext()) {
+                final long id = nullCursor.getLong(OperationsFields._id.ordinal());
+                result.add(getOperation(id));
+            }
+            return result;
+        }
+
+        public List<Category> getNonSyncedCategories() {
+            final Cursor nullCursor = mDatabase.query(CATEGORIES_TABLE_NAME, null, CategoriesFields.GUID + " IS NULL", null, null, null, null, null);
+            final List<Category> result = new ArrayList<>();
+            while(nullCursor.moveToNext()) {
+                final long id = nullCursor.getLong(CategoriesFields._id.ordinal());
+                result.add(getCategory(id));
+            }
+            return result;
+        }
+
+        public List<Account> getNonSyncedAccounts() {
+            final Cursor nullCursor = mDatabase.query(ACCOUNTS_TABLE_NAME, null, AccountFields.GUID + " IS NULL", null, null, null, null, null);
+            final List<Account> result = new ArrayList<>();
+            while(nullCursor.moveToNext()) {
+                final long id = nullCursor.getLong(AccountFields._id.ordinal());
+                result.add(getAccount(id));
+            }
+            return result;
+        }
+
+        public List<Long> getDeletedGUIDs(int type) {
+            final Cursor delCursor = mDatabase.query(DELETED_TABLE_NAME, null, DeletedFields.TYPE + " = ?", new String[]{String.valueOf(type)}, null, null, null, null);
+            final List<Long> result = new ArrayList<>();
+            while (delCursor.moveToNext())
+                result.add(delCursor.getLong(DeletedFields._id.ordinal()));
+            return result;
+        }
+
+        public List<Long> getKnownGUIDs(String tableName) {
+            List<Long> result = new ArrayList<>();
+            Log.d("Query", String.format("Synced GUIDs of table %s", tableName));
+            final Cursor retriever = mDatabase.rawQuery(String.format("SELECT GUID FROM %s WHERE GUID IS NOT NULL", tableName), null);
+            while(retriever.moveToNext()) // have data
+                result.add(retriever.getLong(0));
+
+            retriever.close();
+            return result;
+        }
+
+        public int purgeDeletedGUIDs(int type) {
+            return mDatabase.delete(DELETED_TABLE_NAME, DeletedFields.TYPE + " = ?", new String[]{String.valueOf(type)});
+        }
+    }
+
+    public SyncHelper getSyncHelper() {
+        return syncHelper;
     }
 }
 

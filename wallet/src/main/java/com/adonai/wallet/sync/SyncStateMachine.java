@@ -143,26 +143,51 @@ public class SyncStateMachine {
                         handleAuthResponse();
                         break;
                     case ACC_REQ: // at this state we must be authorized on server
-                        // send account request
+                        final InputStream is = mSocket.getInputStream(); // try receive response
+                        final OutputStream os = mSocket.getOutputStream();
+
+                        // send account request with all already synced accounts
                         final AccountRequest.Builder request = AccountRequest.newBuilder()
-                                .setLastKnownID(mContext.getEntityDAO().getLastGUID(DatabaseDAO.ACCOUNTS_TABLE_NAME));
-                        final OutputStream os = mSocket.getOutputStream(); // send request
+                                .addAllKnownID(mContext.getEntityDAO().getSyncHelper().getKnownGUIDs(DatabaseDAO.ACCOUNTS_TABLE_NAME));
                         request.build().writeDelimitedTo(os); // actual sending of request
                         os.flush();
                         setState(State.ACC_REQ_SENT);
 
                         // accept account response
-                        final InputStream is = mSocket.getInputStream(); // try receive response
                         final AccountResponse response = AccountResponse.parseDelimitedFrom(is);
-                        final List<SyncProtocol.Account> accounts = response.getAccountsList(); // get list of accounts after last guid
-                        for(SyncProtocol.Account acc : accounts) { // every received account does not exist in our database
-                            final Account toDatabase = Account.fromReceivedAccount(acc);
+                        // delete accounts (that were deleted on server) locally
+                        final List<Long> deletedAccounts = response.getDeletedIDList();
+                        for(final Long deleted : deletedAccounts)
+                            mContext.getEntityDAO().deleteAccount(deleted, true);
+                        // add accounts (that were added on server) locally
+                        final List<SyncProtocol.Account> accounts = response.getAccountList();
+                        for(SyncProtocol.Account acc : accounts) {
+                            final Account toDatabase = Account.fromProtoAccount(acc);
                             mContext.getEntityDAO().addAccount(toDatabase);
                         }
                         setState(State.ACC_REQ_ACK);
 
                         // send non-synced accounts to server
+                        final List<Account> nsAccs = mContext.getEntityDAO().getSyncHelper().getNonSyncedAccounts();
+                        final AccountResponse.Builder toSend = AccountResponse.newBuilder();
+                        for(final Account acc : nsAccs)
+                            toSend.addAccount(Account.toProtoAccount(acc));
+                        // send deleted accounts to server
+                        final List<Long> delAccs = mContext.getEntityDAO().getSyncHelper().getDeletedGUIDs(DatabaseDAO.TYPE_ACCOUNT);
+                        toSend.addAllDeletedID(delAccs);
+                        toSend.build().writeDelimitedTo(os);
+                        os.flush();
 
+                        // get confirmation of sync
+                        final SyncProtocol.AccountAck ack = SyncProtocol.AccountAck.parseDelimitedFrom(is);
+                        final List<Long> ackAccounts = ack.getWrittenGuidList();
+                        assert nsAccs.size() == ackAccounts.size();
+                        for(int i = 0; i < nsAccs.size(); ++i) { // add GUIDs to previously non-synced accs
+                            final Account curr = nsAccs.get(i);
+                            curr.setGuid(ackAccounts.get(i));
+                            mContext.getEntityDAO().updateAccount(curr);
+                        }
+                        assert ack.getDeletedGuidCount() == mContext.getEntityDAO().getSyncHelper().purgeDeletedGUIDs(DatabaseDAO.TYPE_ACCOUNT);
                         break;
                 }
             } catch (IOException io) {

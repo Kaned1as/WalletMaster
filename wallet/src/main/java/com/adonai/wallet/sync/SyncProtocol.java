@@ -1347,15 +1347,31 @@ public final class SyncProtocol {
   public interface AccountRequestOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // required int64 lastKnownID = 1;
+    // repeated int64 knownID = 1;
     /**
-     * <code>required int64 lastKnownID = 1;</code>
+     * <code>repeated int64 knownID = 1;</code>
+     *
+     * <pre>
+     * known to client server IDs to detect deletions
+     * </pre>
      */
-    boolean hasLastKnownID();
+    java.util.List<java.lang.Long> getKnownIDList();
     /**
-     * <code>required int64 lastKnownID = 1;</code>
+     * <code>repeated int64 knownID = 1;</code>
+     *
+     * <pre>
+     * known to client server IDs to detect deletions
+     * </pre>
      */
-    long getLastKnownID();
+    int getKnownIDCount();
+    /**
+     * <code>repeated int64 knownID = 1;</code>
+     *
+     * <pre>
+     * known to client server IDs to detect deletions
+     * </pre>
+     */
+    long getKnownID(int index);
   }
   /**
    * Protobuf type {@code com.adonai.wallet.sync.AccountRequest}
@@ -1409,8 +1425,24 @@ public final class SyncProtocol {
               break;
             }
             case 8: {
-              bitField0_ |= 0x00000001;
-              lastKnownID_ = input.readInt64();
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                knownID_ = new java.util.ArrayList<java.lang.Long>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              knownID_.add(input.readInt64());
+              break;
+            }
+            case 10: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001) && input.getBytesUntilLimit() > 0) {
+                knownID_ = new java.util.ArrayList<java.lang.Long>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                knownID_.add(input.readInt64());
+              }
+              input.popLimit(limit);
               break;
             }
           }
@@ -1421,6 +1453,9 @@ public final class SyncProtocol {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          knownID_ = java.util.Collections.unmodifiableList(knownID_);
+        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
@@ -1452,35 +1487,49 @@ public final class SyncProtocol {
       return PARSER;
     }
 
-    private int bitField0_;
-    // required int64 lastKnownID = 1;
-    public static final int LASTKNOWNID_FIELD_NUMBER = 1;
-    private long lastKnownID_;
+    // repeated int64 knownID = 1;
+    public static final int KNOWNID_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.Long> knownID_;
     /**
-     * <code>required int64 lastKnownID = 1;</code>
+     * <code>repeated int64 knownID = 1;</code>
+     *
+     * <pre>
+     * known to client server IDs to detect deletions
+     * </pre>
      */
-    public boolean hasLastKnownID() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+    public java.util.List<java.lang.Long>
+        getKnownIDList() {
+      return knownID_;
     }
     /**
-     * <code>required int64 lastKnownID = 1;</code>
+     * <code>repeated int64 knownID = 1;</code>
+     *
+     * <pre>
+     * known to client server IDs to detect deletions
+     * </pre>
      */
-    public long getLastKnownID() {
-      return lastKnownID_;
+    public int getKnownIDCount() {
+      return knownID_.size();
+    }
+    /**
+     * <code>repeated int64 knownID = 1;</code>
+     *
+     * <pre>
+     * known to client server IDs to detect deletions
+     * </pre>
+     */
+    public long getKnownID(int index) {
+      return knownID_.get(index);
     }
 
     private void initFields() {
-      lastKnownID_ = 0L;
+      knownID_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
 
-      if (!hasLastKnownID()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -1488,8 +1537,8 @@ public final class SyncProtocol {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeInt64(1, lastKnownID_);
+      for (int i = 0; i < knownID_.size(); i++) {
+        output.writeInt64(1, knownID_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -1500,9 +1549,14 @@ public final class SyncProtocol {
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(1, lastKnownID_);
+      {
+        int dataSize = 0;
+        for (int i = 0; i < knownID_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt64SizeNoTag(knownID_.get(i));
+        }
+        size += dataSize;
+        size += 1 * getKnownIDList().size();
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1620,7 +1674,7 @@ public final class SyncProtocol {
 
       public Builder clear() {
         super.clear();
-        lastKnownID_ = 0L;
+        knownID_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000001);
         return this;
       }
@@ -1649,12 +1703,11 @@ public final class SyncProtocol {
       public com.adonai.wallet.sync.SyncProtocol.AccountRequest buildPartial() {
         com.adonai.wallet.sync.SyncProtocol.AccountRequest result = new com.adonai.wallet.sync.SyncProtocol.AccountRequest(this);
         int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          knownID_ = java.util.Collections.unmodifiableList(knownID_);
+          bitField0_ = (bitField0_ & ~0x00000001);
         }
-        result.lastKnownID_ = lastKnownID_;
-        result.bitField0_ = to_bitField0_;
+        result.knownID_ = knownID_;
         onBuilt();
         return result;
       }
@@ -1670,18 +1723,21 @@ public final class SyncProtocol {
 
       public Builder mergeFrom(com.adonai.wallet.sync.SyncProtocol.AccountRequest other) {
         if (other == com.adonai.wallet.sync.SyncProtocol.AccountRequest.getDefaultInstance()) return this;
-        if (other.hasLastKnownID()) {
-          setLastKnownID(other.getLastKnownID());
+        if (!other.knownID_.isEmpty()) {
+          if (knownID_.isEmpty()) {
+            knownID_ = other.knownID_;
+            bitField0_ = (bitField0_ & ~0x00000001);
+          } else {
+            ensureKnownIDIsMutable();
+            knownID_.addAll(other.knownID_);
+          }
+          onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
 
       public final boolean isInitialized() {
-        if (!hasLastKnownID()) {
-          
-          return false;
-        }
         return true;
       }
 
@@ -1704,35 +1760,96 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required int64 lastKnownID = 1;
-      private long lastKnownID_ ;
-      /**
-       * <code>required int64 lastKnownID = 1;</code>
-       */
-      public boolean hasLastKnownID() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+      // repeated int64 knownID = 1;
+      private java.util.List<java.lang.Long> knownID_ = java.util.Collections.emptyList();
+      private void ensureKnownIDIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          knownID_ = new java.util.ArrayList<java.lang.Long>(knownID_);
+          bitField0_ |= 0x00000001;
+         }
       }
       /**
-       * <code>required int64 lastKnownID = 1;</code>
+       * <code>repeated int64 knownID = 1;</code>
+       *
+       * <pre>
+       * known to client server IDs to detect deletions
+       * </pre>
        */
-      public long getLastKnownID() {
-        return lastKnownID_;
+      public java.util.List<java.lang.Long>
+          getKnownIDList() {
+        return java.util.Collections.unmodifiableList(knownID_);
       }
       /**
-       * <code>required int64 lastKnownID = 1;</code>
+       * <code>repeated int64 knownID = 1;</code>
+       *
+       * <pre>
+       * known to client server IDs to detect deletions
+       * </pre>
        */
-      public Builder setLastKnownID(long value) {
-        bitField0_ |= 0x00000001;
-        lastKnownID_ = value;
+      public int getKnownIDCount() {
+        return knownID_.size();
+      }
+      /**
+       * <code>repeated int64 knownID = 1;</code>
+       *
+       * <pre>
+       * known to client server IDs to detect deletions
+       * </pre>
+       */
+      public long getKnownID(int index) {
+        return knownID_.get(index);
+      }
+      /**
+       * <code>repeated int64 knownID = 1;</code>
+       *
+       * <pre>
+       * known to client server IDs to detect deletions
+       * </pre>
+       */
+      public Builder setKnownID(
+          int index, long value) {
+        ensureKnownIDIsMutable();
+        knownID_.set(index, value);
         onChanged();
         return this;
       }
       /**
-       * <code>required int64 lastKnownID = 1;</code>
+       * <code>repeated int64 knownID = 1;</code>
+       *
+       * <pre>
+       * known to client server IDs to detect deletions
+       * </pre>
        */
-      public Builder clearLastKnownID() {
+      public Builder addKnownID(long value) {
+        ensureKnownIDIsMutable();
+        knownID_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int64 knownID = 1;</code>
+       *
+       * <pre>
+       * known to client server IDs to detect deletions
+       * </pre>
+       */
+      public Builder addAllKnownID(
+          java.lang.Iterable<? extends java.lang.Long> values) {
+        ensureKnownIDIsMutable();
+        super.addAll(values, knownID_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int64 knownID = 1;</code>
+       *
+       * <pre>
+       * known to client server IDs to detect deletions
+       * </pre>
+       */
+      public Builder clearKnownID() {
+        knownID_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000001);
-        lastKnownID_ = 0L;
         onChanged();
         return this;
       }
@@ -1751,29 +1868,75 @@ public final class SyncProtocol {
   public interface AccountResponseOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // repeated .com.adonai.wallet.sync.Account accounts = 1;
+    // repeated int64 deletedID = 1;
     /**
-     * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+     * <code>repeated int64 deletedID = 1;</code>
+     *
+     * <pre>
+     * accounts deleted on server/client
+     * </pre>
+     */
+    java.util.List<java.lang.Long> getDeletedIDList();
+    /**
+     * <code>repeated int64 deletedID = 1;</code>
+     *
+     * <pre>
+     * accounts deleted on server/client
+     * </pre>
+     */
+    int getDeletedIDCount();
+    /**
+     * <code>repeated int64 deletedID = 1;</code>
+     *
+     * <pre>
+     * accounts deleted on server/client
+     * </pre>
+     */
+    long getDeletedID(int index);
+
+    // repeated .com.adonai.wallet.sync.Account account = 2;
+    /**
+     * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+     *
+     * <pre>
+     * accounts added on server/client
+     * </pre>
      */
     java.util.List<com.adonai.wallet.sync.SyncProtocol.Account> 
-        getAccountsList();
+        getAccountList();
     /**
-     * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+     * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+     *
+     * <pre>
+     * accounts added on server/client
+     * </pre>
      */
-    com.adonai.wallet.sync.SyncProtocol.Account getAccounts(int index);
+    com.adonai.wallet.sync.SyncProtocol.Account getAccount(int index);
     /**
-     * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+     * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+     *
+     * <pre>
+     * accounts added on server/client
+     * </pre>
      */
-    int getAccountsCount();
+    int getAccountCount();
     /**
-     * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+     * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+     *
+     * <pre>
+     * accounts added on server/client
+     * </pre>
      */
     java.util.List<? extends com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder> 
-        getAccountsOrBuilderList();
+        getAccountOrBuilderList();
     /**
-     * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+     * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+     *
+     * <pre>
+     * accounts added on server/client
+     * </pre>
      */
-    com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder getAccountsOrBuilder(
+    com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder getAccountOrBuilder(
         int index);
   }
   /**
@@ -1827,12 +1990,33 @@ public final class SyncProtocol {
               }
               break;
             }
-            case 10: {
+            case 8: {
               if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                accounts_ = new java.util.ArrayList<com.adonai.wallet.sync.SyncProtocol.Account>();
+                deletedID_ = new java.util.ArrayList<java.lang.Long>();
                 mutable_bitField0_ |= 0x00000001;
               }
-              accounts_.add(input.readMessage(com.adonai.wallet.sync.SyncProtocol.Account.PARSER, extensionRegistry));
+              deletedID_.add(input.readInt64());
+              break;
+            }
+            case 10: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001) && input.getBytesUntilLimit() > 0) {
+                deletedID_ = new java.util.ArrayList<java.lang.Long>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                deletedID_.add(input.readInt64());
+              }
+              input.popLimit(limit);
+              break;
+            }
+            case 18: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                account_ = new java.util.ArrayList<com.adonai.wallet.sync.SyncProtocol.Account>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              account_.add(input.readMessage(com.adonai.wallet.sync.SyncProtocol.Account.PARSER, extensionRegistry));
               break;
             }
           }
@@ -1844,7 +2028,10 @@ public final class SyncProtocol {
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-          accounts_ = java.util.Collections.unmodifiableList(accounts_);
+          deletedID_ = java.util.Collections.unmodifiableList(deletedID_);
+        }
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+          account_ = java.util.Collections.unmodifiableList(account_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -1877,52 +2064,108 @@ public final class SyncProtocol {
       return PARSER;
     }
 
-    // repeated .com.adonai.wallet.sync.Account accounts = 1;
-    public static final int ACCOUNTS_FIELD_NUMBER = 1;
-    private java.util.List<com.adonai.wallet.sync.SyncProtocol.Account> accounts_;
+    // repeated int64 deletedID = 1;
+    public static final int DELETEDID_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.Long> deletedID_;
     /**
-     * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+     * <code>repeated int64 deletedID = 1;</code>
+     *
+     * <pre>
+     * accounts deleted on server/client
+     * </pre>
      */
-    public java.util.List<com.adonai.wallet.sync.SyncProtocol.Account> getAccountsList() {
-      return accounts_;
+    public java.util.List<java.lang.Long>
+        getDeletedIDList() {
+      return deletedID_;
     }
     /**
-     * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+     * <code>repeated int64 deletedID = 1;</code>
+     *
+     * <pre>
+     * accounts deleted on server/client
+     * </pre>
+     */
+    public int getDeletedIDCount() {
+      return deletedID_.size();
+    }
+    /**
+     * <code>repeated int64 deletedID = 1;</code>
+     *
+     * <pre>
+     * accounts deleted on server/client
+     * </pre>
+     */
+    public long getDeletedID(int index) {
+      return deletedID_.get(index);
+    }
+
+    // repeated .com.adonai.wallet.sync.Account account = 2;
+    public static final int ACCOUNT_FIELD_NUMBER = 2;
+    private java.util.List<com.adonai.wallet.sync.SyncProtocol.Account> account_;
+    /**
+     * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+     *
+     * <pre>
+     * accounts added on server/client
+     * </pre>
+     */
+    public java.util.List<com.adonai.wallet.sync.SyncProtocol.Account> getAccountList() {
+      return account_;
+    }
+    /**
+     * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+     *
+     * <pre>
+     * accounts added on server/client
+     * </pre>
      */
     public java.util.List<? extends com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder> 
-        getAccountsOrBuilderList() {
-      return accounts_;
+        getAccountOrBuilderList() {
+      return account_;
     }
     /**
-     * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+     * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+     *
+     * <pre>
+     * accounts added on server/client
+     * </pre>
      */
-    public int getAccountsCount() {
-      return accounts_.size();
+    public int getAccountCount() {
+      return account_.size();
     }
     /**
-     * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+     * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+     *
+     * <pre>
+     * accounts added on server/client
+     * </pre>
      */
-    public com.adonai.wallet.sync.SyncProtocol.Account getAccounts(int index) {
-      return accounts_.get(index);
+    public com.adonai.wallet.sync.SyncProtocol.Account getAccount(int index) {
+      return account_.get(index);
     }
     /**
-     * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+     * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+     *
+     * <pre>
+     * accounts added on server/client
+     * </pre>
      */
-    public com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder getAccountsOrBuilder(
+    public com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder getAccountOrBuilder(
         int index) {
-      return accounts_.get(index);
+      return account_.get(index);
     }
 
     private void initFields() {
-      accounts_ = java.util.Collections.emptyList();
+      deletedID_ = java.util.Collections.emptyList();
+      account_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
 
-      for (int i = 0; i < getAccountsCount(); i++) {
-        if (!getAccounts(i).isInitialized()) {
+      for (int i = 0; i < getAccountCount(); i++) {
+        if (!getAccount(i).isInitialized()) {
           memoizedIsInitialized = 0;
           return false;
         }
@@ -1934,8 +2177,11 @@ public final class SyncProtocol {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      for (int i = 0; i < accounts_.size(); i++) {
-        output.writeMessage(1, accounts_.get(i));
+      for (int i = 0; i < deletedID_.size(); i++) {
+        output.writeInt64(1, deletedID_.get(i));
+      }
+      for (int i = 0; i < account_.size(); i++) {
+        output.writeMessage(2, account_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -1946,9 +2192,18 @@ public final class SyncProtocol {
       if (size != -1) return size;
 
       size = 0;
-      for (int i = 0; i < accounts_.size(); i++) {
+      {
+        int dataSize = 0;
+        for (int i = 0; i < deletedID_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt64SizeNoTag(deletedID_.get(i));
+        }
+        size += dataSize;
+        size += 1 * getDeletedIDList().size();
+      }
+      for (int i = 0; i < account_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, accounts_.get(i));
+          .computeMessageSize(2, account_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2058,7 +2313,7 @@ public final class SyncProtocol {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          getAccountsFieldBuilder();
+          getAccountFieldBuilder();
         }
       }
       private static Builder create() {
@@ -2067,11 +2322,13 @@ public final class SyncProtocol {
 
       public Builder clear() {
         super.clear();
-        if (accountsBuilder_ == null) {
-          accounts_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+        deletedID_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        if (accountBuilder_ == null) {
+          account_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
         } else {
-          accountsBuilder_.clear();
+          accountBuilder_.clear();
         }
         return this;
       }
@@ -2100,14 +2357,19 @@ public final class SyncProtocol {
       public com.adonai.wallet.sync.SyncProtocol.AccountResponse buildPartial() {
         com.adonai.wallet.sync.SyncProtocol.AccountResponse result = new com.adonai.wallet.sync.SyncProtocol.AccountResponse(this);
         int from_bitField0_ = bitField0_;
-        if (accountsBuilder_ == null) {
-          if (((bitField0_ & 0x00000001) == 0x00000001)) {
-            accounts_ = java.util.Collections.unmodifiableList(accounts_);
-            bitField0_ = (bitField0_ & ~0x00000001);
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          deletedID_ = java.util.Collections.unmodifiableList(deletedID_);
+          bitField0_ = (bitField0_ & ~0x00000001);
+        }
+        result.deletedID_ = deletedID_;
+        if (accountBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002)) {
+            account_ = java.util.Collections.unmodifiableList(account_);
+            bitField0_ = (bitField0_ & ~0x00000002);
           }
-          result.accounts_ = accounts_;
+          result.account_ = account_;
         } else {
-          result.accounts_ = accountsBuilder_.build();
+          result.account_ = accountBuilder_.build();
         }
         onBuilt();
         return result;
@@ -2124,29 +2386,39 @@ public final class SyncProtocol {
 
       public Builder mergeFrom(com.adonai.wallet.sync.SyncProtocol.AccountResponse other) {
         if (other == com.adonai.wallet.sync.SyncProtocol.AccountResponse.getDefaultInstance()) return this;
-        if (accountsBuilder_ == null) {
-          if (!other.accounts_.isEmpty()) {
-            if (accounts_.isEmpty()) {
-              accounts_ = other.accounts_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+        if (!other.deletedID_.isEmpty()) {
+          if (deletedID_.isEmpty()) {
+            deletedID_ = other.deletedID_;
+            bitField0_ = (bitField0_ & ~0x00000001);
+          } else {
+            ensureDeletedIDIsMutable();
+            deletedID_.addAll(other.deletedID_);
+          }
+          onChanged();
+        }
+        if (accountBuilder_ == null) {
+          if (!other.account_.isEmpty()) {
+            if (account_.isEmpty()) {
+              account_ = other.account_;
+              bitField0_ = (bitField0_ & ~0x00000002);
             } else {
-              ensureAccountsIsMutable();
-              accounts_.addAll(other.accounts_);
+              ensureAccountIsMutable();
+              account_.addAll(other.account_);
             }
             onChanged();
           }
         } else {
-          if (!other.accounts_.isEmpty()) {
-            if (accountsBuilder_.isEmpty()) {
-              accountsBuilder_.dispose();
-              accountsBuilder_ = null;
-              accounts_ = other.accounts_;
-              bitField0_ = (bitField0_ & ~0x00000001);
-              accountsBuilder_ = 
+          if (!other.account_.isEmpty()) {
+            if (accountBuilder_.isEmpty()) {
+              accountBuilder_.dispose();
+              accountBuilder_ = null;
+              account_ = other.account_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+              accountBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getAccountsFieldBuilder() : null;
+                   getAccountFieldBuilder() : null;
             } else {
-              accountsBuilder_.addAllMessages(other.accounts_);
+              accountBuilder_.addAllMessages(other.account_);
             }
           }
         }
@@ -2155,8 +2427,8 @@ public final class SyncProtocol {
       }
 
       public final boolean isInitialized() {
-        for (int i = 0; i < getAccountsCount(); i++) {
-          if (!getAccounts(i).isInitialized()) {
+        for (int i = 0; i < getAccountCount(); i++) {
+          if (!getAccount(i).isInitialized()) {
             
             return false;
           }
@@ -2183,244 +2455,410 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // repeated .com.adonai.wallet.sync.Account accounts = 1;
-      private java.util.List<com.adonai.wallet.sync.SyncProtocol.Account> accounts_ =
-        java.util.Collections.emptyList();
-      private void ensureAccountsIsMutable() {
+      // repeated int64 deletedID = 1;
+      private java.util.List<java.lang.Long> deletedID_ = java.util.Collections.emptyList();
+      private void ensureDeletedIDIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          accounts_ = new java.util.ArrayList<com.adonai.wallet.sync.SyncProtocol.Account>(accounts_);
+          deletedID_ = new java.util.ArrayList<java.lang.Long>(deletedID_);
           bitField0_ |= 0x00000001;
+         }
+      }
+      /**
+       * <code>repeated int64 deletedID = 1;</code>
+       *
+       * <pre>
+       * accounts deleted on server/client
+       * </pre>
+       */
+      public java.util.List<java.lang.Long>
+          getDeletedIDList() {
+        return java.util.Collections.unmodifiableList(deletedID_);
+      }
+      /**
+       * <code>repeated int64 deletedID = 1;</code>
+       *
+       * <pre>
+       * accounts deleted on server/client
+       * </pre>
+       */
+      public int getDeletedIDCount() {
+        return deletedID_.size();
+      }
+      /**
+       * <code>repeated int64 deletedID = 1;</code>
+       *
+       * <pre>
+       * accounts deleted on server/client
+       * </pre>
+       */
+      public long getDeletedID(int index) {
+        return deletedID_.get(index);
+      }
+      /**
+       * <code>repeated int64 deletedID = 1;</code>
+       *
+       * <pre>
+       * accounts deleted on server/client
+       * </pre>
+       */
+      public Builder setDeletedID(
+          int index, long value) {
+        ensureDeletedIDIsMutable();
+        deletedID_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int64 deletedID = 1;</code>
+       *
+       * <pre>
+       * accounts deleted on server/client
+       * </pre>
+       */
+      public Builder addDeletedID(long value) {
+        ensureDeletedIDIsMutable();
+        deletedID_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int64 deletedID = 1;</code>
+       *
+       * <pre>
+       * accounts deleted on server/client
+       * </pre>
+       */
+      public Builder addAllDeletedID(
+          java.lang.Iterable<? extends java.lang.Long> values) {
+        ensureDeletedIDIsMutable();
+        super.addAll(values, deletedID_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int64 deletedID = 1;</code>
+       *
+       * <pre>
+       * accounts deleted on server/client
+       * </pre>
+       */
+      public Builder clearDeletedID() {
+        deletedID_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        onChanged();
+        return this;
+      }
+
+      // repeated .com.adonai.wallet.sync.Account account = 2;
+      private java.util.List<com.adonai.wallet.sync.SyncProtocol.Account> account_ =
+        java.util.Collections.emptyList();
+      private void ensureAccountIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          account_ = new java.util.ArrayList<com.adonai.wallet.sync.SyncProtocol.Account>(account_);
+          bitField0_ |= 0x00000002;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          com.adonai.wallet.sync.SyncProtocol.Account, com.adonai.wallet.sync.SyncProtocol.Account.Builder, com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder> accountsBuilder_;
+          com.adonai.wallet.sync.SyncProtocol.Account, com.adonai.wallet.sync.SyncProtocol.Account.Builder, com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder> accountBuilder_;
 
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public java.util.List<com.adonai.wallet.sync.SyncProtocol.Account> getAccountsList() {
-        if (accountsBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(accounts_);
+      public java.util.List<com.adonai.wallet.sync.SyncProtocol.Account> getAccountList() {
+        if (accountBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(account_);
         } else {
-          return accountsBuilder_.getMessageList();
+          return accountBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public int getAccountsCount() {
-        if (accountsBuilder_ == null) {
-          return accounts_.size();
+      public int getAccountCount() {
+        if (accountBuilder_ == null) {
+          return account_.size();
         } else {
-          return accountsBuilder_.getCount();
+          return accountBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public com.adonai.wallet.sync.SyncProtocol.Account getAccounts(int index) {
-        if (accountsBuilder_ == null) {
-          return accounts_.get(index);
+      public com.adonai.wallet.sync.SyncProtocol.Account getAccount(int index) {
+        if (accountBuilder_ == null) {
+          return account_.get(index);
         } else {
-          return accountsBuilder_.getMessage(index);
+          return accountBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public Builder setAccounts(
+      public Builder setAccount(
           int index, com.adonai.wallet.sync.SyncProtocol.Account value) {
-        if (accountsBuilder_ == null) {
+        if (accountBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureAccountsIsMutable();
-          accounts_.set(index, value);
+          ensureAccountIsMutable();
+          account_.set(index, value);
           onChanged();
         } else {
-          accountsBuilder_.setMessage(index, value);
+          accountBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public Builder setAccounts(
+      public Builder setAccount(
           int index, com.adonai.wallet.sync.SyncProtocol.Account.Builder builderForValue) {
-        if (accountsBuilder_ == null) {
-          ensureAccountsIsMutable();
-          accounts_.set(index, builderForValue.build());
+        if (accountBuilder_ == null) {
+          ensureAccountIsMutable();
+          account_.set(index, builderForValue.build());
           onChanged();
         } else {
-          accountsBuilder_.setMessage(index, builderForValue.build());
+          accountBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public Builder addAccounts(com.adonai.wallet.sync.SyncProtocol.Account value) {
-        if (accountsBuilder_ == null) {
+      public Builder addAccount(com.adonai.wallet.sync.SyncProtocol.Account value) {
+        if (accountBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureAccountsIsMutable();
-          accounts_.add(value);
+          ensureAccountIsMutable();
+          account_.add(value);
           onChanged();
         } else {
-          accountsBuilder_.addMessage(value);
+          accountBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public Builder addAccounts(
+      public Builder addAccount(
           int index, com.adonai.wallet.sync.SyncProtocol.Account value) {
-        if (accountsBuilder_ == null) {
+        if (accountBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureAccountsIsMutable();
-          accounts_.add(index, value);
+          ensureAccountIsMutable();
+          account_.add(index, value);
           onChanged();
         } else {
-          accountsBuilder_.addMessage(index, value);
+          accountBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public Builder addAccounts(
+      public Builder addAccount(
           com.adonai.wallet.sync.SyncProtocol.Account.Builder builderForValue) {
-        if (accountsBuilder_ == null) {
-          ensureAccountsIsMutable();
-          accounts_.add(builderForValue.build());
+        if (accountBuilder_ == null) {
+          ensureAccountIsMutable();
+          account_.add(builderForValue.build());
           onChanged();
         } else {
-          accountsBuilder_.addMessage(builderForValue.build());
+          accountBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public Builder addAccounts(
+      public Builder addAccount(
           int index, com.adonai.wallet.sync.SyncProtocol.Account.Builder builderForValue) {
-        if (accountsBuilder_ == null) {
-          ensureAccountsIsMutable();
-          accounts_.add(index, builderForValue.build());
+        if (accountBuilder_ == null) {
+          ensureAccountIsMutable();
+          account_.add(index, builderForValue.build());
           onChanged();
         } else {
-          accountsBuilder_.addMessage(index, builderForValue.build());
+          accountBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public Builder addAllAccounts(
+      public Builder addAllAccount(
           java.lang.Iterable<? extends com.adonai.wallet.sync.SyncProtocol.Account> values) {
-        if (accountsBuilder_ == null) {
-          ensureAccountsIsMutable();
-          super.addAll(values, accounts_);
+        if (accountBuilder_ == null) {
+          ensureAccountIsMutable();
+          super.addAll(values, account_);
           onChanged();
         } else {
-          accountsBuilder_.addAllMessages(values);
+          accountBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public Builder clearAccounts() {
-        if (accountsBuilder_ == null) {
-          accounts_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+      public Builder clearAccount() {
+        if (accountBuilder_ == null) {
+          account_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
           onChanged();
         } else {
-          accountsBuilder_.clear();
+          accountBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public Builder removeAccounts(int index) {
-        if (accountsBuilder_ == null) {
-          ensureAccountsIsMutable();
-          accounts_.remove(index);
+      public Builder removeAccount(int index) {
+        if (accountBuilder_ == null) {
+          ensureAccountIsMutable();
+          account_.remove(index);
           onChanged();
         } else {
-          accountsBuilder_.remove(index);
+          accountBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public com.adonai.wallet.sync.SyncProtocol.Account.Builder getAccountsBuilder(
+      public com.adonai.wallet.sync.SyncProtocol.Account.Builder getAccountBuilder(
           int index) {
-        return getAccountsFieldBuilder().getBuilder(index);
+        return getAccountFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder getAccountsOrBuilder(
+      public com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder getAccountOrBuilder(
           int index) {
-        if (accountsBuilder_ == null) {
-          return accounts_.get(index);  } else {
-          return accountsBuilder_.getMessageOrBuilder(index);
+        if (accountBuilder_ == null) {
+          return account_.get(index);  } else {
+          return accountBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
       public java.util.List<? extends com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder> 
-           getAccountsOrBuilderList() {
-        if (accountsBuilder_ != null) {
-          return accountsBuilder_.getMessageOrBuilderList();
+           getAccountOrBuilderList() {
+        if (accountBuilder_ != null) {
+          return accountBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(accounts_);
+          return java.util.Collections.unmodifiableList(account_);
         }
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public com.adonai.wallet.sync.SyncProtocol.Account.Builder addAccountsBuilder() {
-        return getAccountsFieldBuilder().addBuilder(
+      public com.adonai.wallet.sync.SyncProtocol.Account.Builder addAccountBuilder() {
+        return getAccountFieldBuilder().addBuilder(
             com.adonai.wallet.sync.SyncProtocol.Account.getDefaultInstance());
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
-      public com.adonai.wallet.sync.SyncProtocol.Account.Builder addAccountsBuilder(
+      public com.adonai.wallet.sync.SyncProtocol.Account.Builder addAccountBuilder(
           int index) {
-        return getAccountsFieldBuilder().addBuilder(
+        return getAccountFieldBuilder().addBuilder(
             index, com.adonai.wallet.sync.SyncProtocol.Account.getDefaultInstance());
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Account accounts = 1;</code>
+       * <code>repeated .com.adonai.wallet.sync.Account account = 2;</code>
+       *
+       * <pre>
+       * accounts added on server/client
+       * </pre>
        */
       public java.util.List<com.adonai.wallet.sync.SyncProtocol.Account.Builder> 
-           getAccountsBuilderList() {
-        return getAccountsFieldBuilder().getBuilderList();
+           getAccountBuilderList() {
+        return getAccountFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
           com.adonai.wallet.sync.SyncProtocol.Account, com.adonai.wallet.sync.SyncProtocol.Account.Builder, com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder> 
-          getAccountsFieldBuilder() {
-        if (accountsBuilder_ == null) {
-          accountsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+          getAccountFieldBuilder() {
+        if (accountBuilder_ == null) {
+          accountBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               com.adonai.wallet.sync.SyncProtocol.Account, com.adonai.wallet.sync.SyncProtocol.Account.Builder, com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder>(
-                  accounts_,
-                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  account_,
+                  ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
                   isClean());
-          accounts_ = null;
+          account_ = null;
         }
-        return accountsBuilder_;
+        return accountBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:com.adonai.wallet.sync.AccountResponse)
@@ -2432,6 +2870,736 @@ public final class SyncProtocol {
     }
 
     // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.AccountResponse)
+  }
+
+  public interface AccountAckOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // repeated int64 deletedGuid = 1;
+    /**
+     * <code>repeated int64 deletedGuid = 1;</code>
+     *
+     * <pre>
+     * accounts deleted on server as confirmation
+     * </pre>
+     */
+    java.util.List<java.lang.Long> getDeletedGuidList();
+    /**
+     * <code>repeated int64 deletedGuid = 1;</code>
+     *
+     * <pre>
+     * accounts deleted on server as confirmation
+     * </pre>
+     */
+    int getDeletedGuidCount();
+    /**
+     * <code>repeated int64 deletedGuid = 1;</code>
+     *
+     * <pre>
+     * accounts deleted on server as confirmation
+     * </pre>
+     */
+    long getDeletedGuid(int index);
+
+    // repeated int64 writtenGuid = 2;
+    /**
+     * <code>repeated int64 writtenGuid = 2;</code>
+     *
+     * <pre>
+     * accounts written on server as confirmation
+     * </pre>
+     */
+    java.util.List<java.lang.Long> getWrittenGuidList();
+    /**
+     * <code>repeated int64 writtenGuid = 2;</code>
+     *
+     * <pre>
+     * accounts written on server as confirmation
+     * </pre>
+     */
+    int getWrittenGuidCount();
+    /**
+     * <code>repeated int64 writtenGuid = 2;</code>
+     *
+     * <pre>
+     * accounts written on server as confirmation
+     * </pre>
+     */
+    long getWrittenGuid(int index);
+  }
+  /**
+   * Protobuf type {@code com.adonai.wallet.sync.AccountAck}
+   */
+  public static final class AccountAck extends
+      com.google.protobuf.GeneratedMessage
+      implements AccountAckOrBuilder {
+    // Use AccountAck.newBuilder() to construct.
+    private AccountAck(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private AccountAck(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final AccountAck defaultInstance;
+    public static AccountAck getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public AccountAck getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private AccountAck(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                deletedGuid_ = new java.util.ArrayList<java.lang.Long>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              deletedGuid_.add(input.readInt64());
+              break;
+            }
+            case 10: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001) && input.getBytesUntilLimit() > 0) {
+                deletedGuid_ = new java.util.ArrayList<java.lang.Long>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                deletedGuid_.add(input.readInt64());
+              }
+              input.popLimit(limit);
+              break;
+            }
+            case 16: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                writtenGuid_ = new java.util.ArrayList<java.lang.Long>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              writtenGuid_.add(input.readInt64());
+              break;
+            }
+            case 18: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
+                writtenGuid_ = new java.util.ArrayList<java.lang.Long>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                writtenGuid_.add(input.readInt64());
+              }
+              input.popLimit(limit);
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          deletedGuid_ = java.util.Collections.unmodifiableList(deletedGuid_);
+        }
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+          writtenGuid_ = java.util.Collections.unmodifiableList(writtenGuid_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_AccountAck_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_AccountAck_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.adonai.wallet.sync.SyncProtocol.AccountAck.class, com.adonai.wallet.sync.SyncProtocol.AccountAck.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<AccountAck> PARSER =
+        new com.google.protobuf.AbstractParser<AccountAck>() {
+      public AccountAck parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new AccountAck(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<AccountAck> getParserForType() {
+      return PARSER;
+    }
+
+    // repeated int64 deletedGuid = 1;
+    public static final int DELETEDGUID_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.Long> deletedGuid_;
+    /**
+     * <code>repeated int64 deletedGuid = 1;</code>
+     *
+     * <pre>
+     * accounts deleted on server as confirmation
+     * </pre>
+     */
+    public java.util.List<java.lang.Long>
+        getDeletedGuidList() {
+      return deletedGuid_;
+    }
+    /**
+     * <code>repeated int64 deletedGuid = 1;</code>
+     *
+     * <pre>
+     * accounts deleted on server as confirmation
+     * </pre>
+     */
+    public int getDeletedGuidCount() {
+      return deletedGuid_.size();
+    }
+    /**
+     * <code>repeated int64 deletedGuid = 1;</code>
+     *
+     * <pre>
+     * accounts deleted on server as confirmation
+     * </pre>
+     */
+    public long getDeletedGuid(int index) {
+      return deletedGuid_.get(index);
+    }
+
+    // repeated int64 writtenGuid = 2;
+    public static final int WRITTENGUID_FIELD_NUMBER = 2;
+    private java.util.List<java.lang.Long> writtenGuid_;
+    /**
+     * <code>repeated int64 writtenGuid = 2;</code>
+     *
+     * <pre>
+     * accounts written on server as confirmation
+     * </pre>
+     */
+    public java.util.List<java.lang.Long>
+        getWrittenGuidList() {
+      return writtenGuid_;
+    }
+    /**
+     * <code>repeated int64 writtenGuid = 2;</code>
+     *
+     * <pre>
+     * accounts written on server as confirmation
+     * </pre>
+     */
+    public int getWrittenGuidCount() {
+      return writtenGuid_.size();
+    }
+    /**
+     * <code>repeated int64 writtenGuid = 2;</code>
+     *
+     * <pre>
+     * accounts written on server as confirmation
+     * </pre>
+     */
+    public long getWrittenGuid(int index) {
+      return writtenGuid_.get(index);
+    }
+
+    private void initFields() {
+      deletedGuid_ = java.util.Collections.emptyList();
+      writtenGuid_ = java.util.Collections.emptyList();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      for (int i = 0; i < deletedGuid_.size(); i++) {
+        output.writeInt64(1, deletedGuid_.get(i));
+      }
+      for (int i = 0; i < writtenGuid_.size(); i++) {
+        output.writeInt64(2, writtenGuid_.get(i));
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      {
+        int dataSize = 0;
+        for (int i = 0; i < deletedGuid_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt64SizeNoTag(deletedGuid_.get(i));
+        }
+        size += dataSize;
+        size += 1 * getDeletedGuidList().size();
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < writtenGuid_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt64SizeNoTag(writtenGuid_.get(i));
+        }
+        size += dataSize;
+        size += 1 * getWrittenGuidList().size();
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static com.adonai.wallet.sync.SyncProtocol.AccountAck parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.adonai.wallet.sync.SyncProtocol.AccountAck parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.adonai.wallet.sync.SyncProtocol.AccountAck parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.adonai.wallet.sync.SyncProtocol.AccountAck parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.adonai.wallet.sync.SyncProtocol.AccountAck parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static com.adonai.wallet.sync.SyncProtocol.AccountAck parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static com.adonai.wallet.sync.SyncProtocol.AccountAck parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static com.adonai.wallet.sync.SyncProtocol.AccountAck parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static com.adonai.wallet.sync.SyncProtocol.AccountAck parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static com.adonai.wallet.sync.SyncProtocol.AccountAck parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.adonai.wallet.sync.SyncProtocol.AccountAck prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code com.adonai.wallet.sync.AccountAck}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements com.adonai.wallet.sync.SyncProtocol.AccountAckOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_AccountAck_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_AccountAck_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.adonai.wallet.sync.SyncProtocol.AccountAck.class, com.adonai.wallet.sync.SyncProtocol.AccountAck.Builder.class);
+      }
+
+      // Construct using com.adonai.wallet.sync.SyncProtocol.AccountAck.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        deletedGuid_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        writtenGuid_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_AccountAck_descriptor;
+      }
+
+      public com.adonai.wallet.sync.SyncProtocol.AccountAck getDefaultInstanceForType() {
+        return com.adonai.wallet.sync.SyncProtocol.AccountAck.getDefaultInstance();
+      }
+
+      public com.adonai.wallet.sync.SyncProtocol.AccountAck build() {
+        com.adonai.wallet.sync.SyncProtocol.AccountAck result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.adonai.wallet.sync.SyncProtocol.AccountAck buildPartial() {
+        com.adonai.wallet.sync.SyncProtocol.AccountAck result = new com.adonai.wallet.sync.SyncProtocol.AccountAck(this);
+        int from_bitField0_ = bitField0_;
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          deletedGuid_ = java.util.Collections.unmodifiableList(deletedGuid_);
+          bitField0_ = (bitField0_ & ~0x00000001);
+        }
+        result.deletedGuid_ = deletedGuid_;
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          writtenGuid_ = java.util.Collections.unmodifiableList(writtenGuid_);
+          bitField0_ = (bitField0_ & ~0x00000002);
+        }
+        result.writtenGuid_ = writtenGuid_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.adonai.wallet.sync.SyncProtocol.AccountAck) {
+          return mergeFrom((com.adonai.wallet.sync.SyncProtocol.AccountAck)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.adonai.wallet.sync.SyncProtocol.AccountAck other) {
+        if (other == com.adonai.wallet.sync.SyncProtocol.AccountAck.getDefaultInstance()) return this;
+        if (!other.deletedGuid_.isEmpty()) {
+          if (deletedGuid_.isEmpty()) {
+            deletedGuid_ = other.deletedGuid_;
+            bitField0_ = (bitField0_ & ~0x00000001);
+          } else {
+            ensureDeletedGuidIsMutable();
+            deletedGuid_.addAll(other.deletedGuid_);
+          }
+          onChanged();
+        }
+        if (!other.writtenGuid_.isEmpty()) {
+          if (writtenGuid_.isEmpty()) {
+            writtenGuid_ = other.writtenGuid_;
+            bitField0_ = (bitField0_ & ~0x00000002);
+          } else {
+            ensureWrittenGuidIsMutable();
+            writtenGuid_.addAll(other.writtenGuid_);
+          }
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.adonai.wallet.sync.SyncProtocol.AccountAck parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.adonai.wallet.sync.SyncProtocol.AccountAck) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // repeated int64 deletedGuid = 1;
+      private java.util.List<java.lang.Long> deletedGuid_ = java.util.Collections.emptyList();
+      private void ensureDeletedGuidIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          deletedGuid_ = new java.util.ArrayList<java.lang.Long>(deletedGuid_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+      /**
+       * <code>repeated int64 deletedGuid = 1;</code>
+       *
+       * <pre>
+       * accounts deleted on server as confirmation
+       * </pre>
+       */
+      public java.util.List<java.lang.Long>
+          getDeletedGuidList() {
+        return java.util.Collections.unmodifiableList(deletedGuid_);
+      }
+      /**
+       * <code>repeated int64 deletedGuid = 1;</code>
+       *
+       * <pre>
+       * accounts deleted on server as confirmation
+       * </pre>
+       */
+      public int getDeletedGuidCount() {
+        return deletedGuid_.size();
+      }
+      /**
+       * <code>repeated int64 deletedGuid = 1;</code>
+       *
+       * <pre>
+       * accounts deleted on server as confirmation
+       * </pre>
+       */
+      public long getDeletedGuid(int index) {
+        return deletedGuid_.get(index);
+      }
+      /**
+       * <code>repeated int64 deletedGuid = 1;</code>
+       *
+       * <pre>
+       * accounts deleted on server as confirmation
+       * </pre>
+       */
+      public Builder setDeletedGuid(
+          int index, long value) {
+        ensureDeletedGuidIsMutable();
+        deletedGuid_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int64 deletedGuid = 1;</code>
+       *
+       * <pre>
+       * accounts deleted on server as confirmation
+       * </pre>
+       */
+      public Builder addDeletedGuid(long value) {
+        ensureDeletedGuidIsMutable();
+        deletedGuid_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int64 deletedGuid = 1;</code>
+       *
+       * <pre>
+       * accounts deleted on server as confirmation
+       * </pre>
+       */
+      public Builder addAllDeletedGuid(
+          java.lang.Iterable<? extends java.lang.Long> values) {
+        ensureDeletedGuidIsMutable();
+        super.addAll(values, deletedGuid_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int64 deletedGuid = 1;</code>
+       *
+       * <pre>
+       * accounts deleted on server as confirmation
+       * </pre>
+       */
+      public Builder clearDeletedGuid() {
+        deletedGuid_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        onChanged();
+        return this;
+      }
+
+      // repeated int64 writtenGuid = 2;
+      private java.util.List<java.lang.Long> writtenGuid_ = java.util.Collections.emptyList();
+      private void ensureWrittenGuidIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          writtenGuid_ = new java.util.ArrayList<java.lang.Long>(writtenGuid_);
+          bitField0_ |= 0x00000002;
+         }
+      }
+      /**
+       * <code>repeated int64 writtenGuid = 2;</code>
+       *
+       * <pre>
+       * accounts written on server as confirmation
+       * </pre>
+       */
+      public java.util.List<java.lang.Long>
+          getWrittenGuidList() {
+        return java.util.Collections.unmodifiableList(writtenGuid_);
+      }
+      /**
+       * <code>repeated int64 writtenGuid = 2;</code>
+       *
+       * <pre>
+       * accounts written on server as confirmation
+       * </pre>
+       */
+      public int getWrittenGuidCount() {
+        return writtenGuid_.size();
+      }
+      /**
+       * <code>repeated int64 writtenGuid = 2;</code>
+       *
+       * <pre>
+       * accounts written on server as confirmation
+       * </pre>
+       */
+      public long getWrittenGuid(int index) {
+        return writtenGuid_.get(index);
+      }
+      /**
+       * <code>repeated int64 writtenGuid = 2;</code>
+       *
+       * <pre>
+       * accounts written on server as confirmation
+       * </pre>
+       */
+      public Builder setWrittenGuid(
+          int index, long value) {
+        ensureWrittenGuidIsMutable();
+        writtenGuid_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int64 writtenGuid = 2;</code>
+       *
+       * <pre>
+       * accounts written on server as confirmation
+       * </pre>
+       */
+      public Builder addWrittenGuid(long value) {
+        ensureWrittenGuidIsMutable();
+        writtenGuid_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int64 writtenGuid = 2;</code>
+       *
+       * <pre>
+       * accounts written on server as confirmation
+       * </pre>
+       */
+      public Builder addAllWrittenGuid(
+          java.lang.Iterable<? extends java.lang.Long> values) {
+        ensureWrittenGuidIsMutable();
+        super.addAll(values, writtenGuid_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int64 writtenGuid = 2;</code>
+       *
+       * <pre>
+       * accounts written on server as confirmation
+       * </pre>
+       */
+      public Builder clearWrittenGuid() {
+        writtenGuid_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:com.adonai.wallet.sync.AccountAck)
+    }
+
+    static {
+      defaultInstance = new AccountAck(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.AccountAck)
   }
 
   public interface AccountOrBuilder
@@ -3636,6 +4804,11 @@ public final class SyncProtocol {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_com_adonai_wallet_sync_AccountResponse_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_com_adonai_wallet_sync_AccountAck_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_com_adonai_wallet_sync_AccountAck_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_com_adonai_wallet_sync_Account_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -3658,12 +4831,14 @@ public final class SyncProtocol {
       ".com.adonai.wallet.sync.SyncResponse.Syn" +
       "cAck\"L\n\007SyncAck\022\007\n\002OK\020\310\001\022\023\n\016ACCOUNT_EXIS" +
       "TS\020\222\003\022\017\n\nAUTH_WRONG\020\223\003\022\022\n\rUNKNOWN_ERROR\020" +
-      "\347\007\"%\n\016AccountRequest\022\023\n\013lastKnownID\030\001 \002(",
-      "\003\"D\n\017AccountResponse\0221\n\010accounts\030\001 \003(\0132\037" +
-      ".com.adonai.wallet.sync.Account\"i\n\007Accou" +
-      "nt\022\n\n\002ID\030\001 \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n\013descript" +
-      "ion\030\003 \001(\t\022\020\n\010currency\030\004 \002(\t\022\016\n\006amount\030\005 " +
-      "\002(\t\022\r\n\005color\030\006 \001(\r"
+      "\347\007\"!\n\016AccountRequest\022\017\n\007knownID\030\001 \003(\003\"V\n",
+      "\017AccountResponse\022\021\n\tdeletedID\030\001 \003(\003\0220\n\007a" +
+      "ccount\030\002 \003(\0132\037.com.adonai.wallet.sync.Ac" +
+      "count\"6\n\nAccountAck\022\023\n\013deletedGuid\030\001 \003(\003" +
+      "\022\023\n\013writtenGuid\030\002 \003(\003\"i\n\007Account\022\n\n\002ID\030\001" +
+      " \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n\013description\030\003 \001(\t\022" +
+      "\020\n\010currency\030\004 \002(\t\022\016\n\006amount\030\005 \002(\t\022\r\n\005col" +
+      "or\030\006 \001(\r"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -3687,15 +4862,21 @@ public final class SyncProtocol {
           internal_static_com_adonai_wallet_sync_AccountRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_com_adonai_wallet_sync_AccountRequest_descriptor,
-              new java.lang.String[] { "LastKnownID", });
+              new java.lang.String[] { "KnownID", });
           internal_static_com_adonai_wallet_sync_AccountResponse_descriptor =
             getDescriptor().getMessageTypes().get(3);
           internal_static_com_adonai_wallet_sync_AccountResponse_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_com_adonai_wallet_sync_AccountResponse_descriptor,
-              new java.lang.String[] { "Accounts", });
-          internal_static_com_adonai_wallet_sync_Account_descriptor =
+              new java.lang.String[] { "DeletedID", "Account", });
+          internal_static_com_adonai_wallet_sync_AccountAck_descriptor =
             getDescriptor().getMessageTypes().get(4);
+          internal_static_com_adonai_wallet_sync_AccountAck_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_com_adonai_wallet_sync_AccountAck_descriptor,
+              new java.lang.String[] { "DeletedGuid", "WrittenGuid", });
+          internal_static_com_adonai_wallet_sync_Account_descriptor =
+            getDescriptor().getMessageTypes().get(5);
           internal_static_com_adonai_wallet_sync_Account_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_com_adonai_wallet_sync_Account_descriptor,

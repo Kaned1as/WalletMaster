@@ -82,8 +82,8 @@ public class Account {
         this.guid = guid;
     }
 
-    public static Account fromReceivedAccount(SyncProtocol.Account account) {
-        Account temp = new Account();
+    public static Account fromProtoAccount(SyncProtocol.Account account) {
+        final Account temp = new Account();
         temp.setName(account.getName());
         temp.setAmount(new BigDecimal(account.getAmount()));
         temp.setColor(account.getColor());
@@ -91,5 +91,16 @@ public class Account {
         temp.setCurrency(new Currency(account.getCurrency()));
         temp.setGuid(account.getID()); // ID of synced account is real ID in server database
         return temp;
+    }
+
+    public static SyncProtocol.Account toProtoAccount(Account account) {
+        return SyncProtocol.Account.newBuilder()
+                .setID(account.getId())
+                .setName(account.getName())
+                .setAmount(account.getAmount().toPlainString())
+                .setColor(account.getColor())
+                .setDescription(account.getDescription())
+                .setCurrency(account.getCurrency().getCode())
+                .build();
     }
 }

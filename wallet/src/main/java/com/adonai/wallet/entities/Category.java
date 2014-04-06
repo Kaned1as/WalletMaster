@@ -12,6 +12,7 @@ public class Category {
     private String name;
     private int type;
     private Account preferredAccount;
+    private Long guid;
 
     public Category() {
     }
@@ -51,5 +52,13 @@ public class Category {
 
     public void setPreferredAccount(Account preferredAccount) {
         this.preferredAccount = preferredAccount;
+    }
+
+    public Long getGuid() {
+        return guid;
+    }
+
+    public void setGuid(Long guid) {
+        this.guid = guid;
     }
 }

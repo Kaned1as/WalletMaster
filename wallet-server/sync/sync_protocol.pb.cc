@@ -37,6 +37,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* AccountResponse_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   AccountResponse_reflection_ = NULL;
+const ::google::protobuf::Descriptor* AccountAck_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  AccountAck_reflection_ = NULL;
 const ::google::protobuf::Descriptor* Account_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Account_reflection_ = NULL;
@@ -86,7 +89,7 @@ void protobuf_AssignDesc_sync_5fprotocol_2eproto() {
   SyncResponse_SyncAck_descriptor_ = SyncResponse_descriptor_->enum_type(0);
   AccountRequest_descriptor_ = file->message_type(2);
   static const int AccountRequest_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountRequest, lastknownid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountRequest, knownid_),
   };
   AccountRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -100,8 +103,9 @@ void protobuf_AssignDesc_sync_5fprotocol_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AccountRequest));
   AccountResponse_descriptor_ = file->message_type(3);
-  static const int AccountResponse_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountResponse, accounts_),
+  static const int AccountResponse_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountResponse, deletedid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountResponse, account_),
   };
   AccountResponse_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -114,7 +118,23 @@ void protobuf_AssignDesc_sync_5fprotocol_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AccountResponse));
-  Account_descriptor_ = file->message_type(4);
+  AccountAck_descriptor_ = file->message_type(4);
+  static const int AccountAck_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountAck, deletedguid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountAck, writtenguid_),
+  };
+  AccountAck_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      AccountAck_descriptor_,
+      AccountAck::default_instance_,
+      AccountAck_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountAck, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountAck, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(AccountAck));
+  Account_descriptor_ = file->message_type(5);
   static const int Account_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Account, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Account, name_),
@@ -155,6 +175,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     AccountResponse_descriptor_, &AccountResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    AccountAck_descriptor_, &AccountAck::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Account_descriptor_, &Account::default_instance());
 }
 
@@ -169,6 +191,8 @@ void protobuf_ShutdownFile_sync_5fprotocol_2eproto() {
   delete AccountRequest_reflection_;
   delete AccountResponse::default_instance_;
   delete AccountResponse_reflection_;
+  delete AccountAck::default_instance_;
+  delete AccountAck_reflection_;
   delete Account::default_instance_;
   delete Account_reflection_;
 }
@@ -189,23 +213,27 @@ void protobuf_AddDesc_sync_5fprotocol_2eproto() {
     ".com.adonai.wallet.sync.SyncResponse.Syn"
     "cAck\"L\n\007SyncAck\022\007\n\002OK\020\310\001\022\023\n\016ACCOUNT_EXIS"
     "TS\020\222\003\022\017\n\nAUTH_WRONG\020\223\003\022\022\n\rUNKNOWN_ERROR\020"
-    "\347\007\"%\n\016AccountRequest\022\023\n\013lastKnownID\030\001 \002("
-    "\003\"D\n\017AccountResponse\0221\n\010accounts\030\001 \003(\0132\037"
-    ".com.adonai.wallet.sync.Account\"i\n\007Accou"
-    "nt\022\n\n\002ID\030\001 \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n\013descript"
-    "ion\030\003 \001(\t\022\020\n\010currency\030\004 \002(\t\022\016\n\006amount\030\005 "
-    "\002(\t\022\r\n\005color\030\006 \001(\r", 578);
+    "\347\007\"!\n\016AccountRequest\022\017\n\007knownID\030\001 \003(\003\"V\n"
+    "\017AccountResponse\022\021\n\tdeletedID\030\001 \003(\003\0220\n\007a"
+    "ccount\030\002 \003(\0132\037.com.adonai.wallet.sync.Ac"
+    "count\"6\n\nAccountAck\022\023\n\013deletedGuid\030\001 \003(\003"
+    "\022\023\n\013writtenGuid\030\002 \003(\003\"i\n\007Account\022\n\n\002ID\030\001"
+    " \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n\013description\030\003 \001(\t\022"
+    "\020\n\010currency\030\004 \002(\t\022\016\n\006amount\030\005 \002(\t\022\r\n\005col"
+    "or\030\006 \001(\r", 648);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "sync_protocol.proto", &protobuf_RegisterTypes);
   SyncRequest::default_instance_ = new SyncRequest();
   SyncResponse::default_instance_ = new SyncResponse();
   AccountRequest::default_instance_ = new AccountRequest();
   AccountResponse::default_instance_ = new AccountResponse();
+  AccountAck::default_instance_ = new AccountAck();
   Account::default_instance_ = new Account();
   SyncRequest::default_instance_->InitAsDefaultInstance();
   SyncResponse::default_instance_->InitAsDefaultInstance();
   AccountRequest::default_instance_->InitAsDefaultInstance();
   AccountResponse::default_instance_->InitAsDefaultInstance();
+  AccountAck::default_instance_->InitAsDefaultInstance();
   Account::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_sync_5fprotocol_2eproto);
 }
@@ -810,7 +838,7 @@ void SyncResponse::Swap(SyncResponse* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int AccountRequest::kLastKnownIDFieldNumber;
+const int AccountRequest::kKnownIDFieldNumber;
 #endif  // !_MSC_VER
 
 AccountRequest::AccountRequest()
@@ -829,7 +857,6 @@ AccountRequest::AccountRequest(const AccountRequest& from)
 
 void AccountRequest::SharedCtor() {
   _cached_size_ = 0;
-  lastknownid_ = GOOGLE_LONGLONG(0);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -864,9 +891,7 @@ AccountRequest* AccountRequest::New() const {
 }
 
 void AccountRequest::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    lastknownid_ = GOOGLE_LONGLONG(0);
-  }
+  knownid_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -877,17 +902,24 @@ bool AccountRequest::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required int64 lastKnownID = 1;
+      // repeated int64 knownID = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+         parse_knownID:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
                    ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
-                 input, &lastknownid_)));
-          set_has_lastknownid();
+                 1, 8, input, this->mutable_knownid())));
+        } else if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag)
+                   == ::google::protobuf::internal::WireFormatLite::
+                      WIRETYPE_LENGTH_DELIMITED) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitiveNoInline<
+                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
+                 input, this->mutable_knownid())));
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(8)) goto parse_knownID;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -910,9 +942,10 @@ bool AccountRequest::MergePartialFromCodedStream(
 
 void AccountRequest::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // required int64 lastKnownID = 1;
-  if (has_lastknownid()) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt64(1, this->lastknownid(), output);
+  // repeated int64 knownID = 1;
+  for (int i = 0; i < this->knownid_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt64(
+      1, this->knownid(i), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -923,9 +956,10 @@ void AccountRequest::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* AccountRequest::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // required int64 lastKnownID = 1;
-  if (has_lastknownid()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(1, this->lastknownid(), target);
+  // repeated int64 knownID = 1;
+  for (int i = 0; i < this->knownid_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteInt64ToArray(1, this->knownid(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -938,15 +972,16 @@ void AccountRequest::SerializeWithCachedSizes(
 int AccountRequest::ByteSize() const {
   int total_size = 0;
 
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required int64 lastKnownID = 1;
-    if (has_lastknownid()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::Int64Size(
-          this->lastknownid());
+  // repeated int64 knownID = 1;
+  {
+    int data_size = 0;
+    for (int i = 0; i < this->knownid_size(); i++) {
+      data_size += ::google::protobuf::internal::WireFormatLite::
+        Int64Size(this->knownid(i));
     }
-
+    total_size += 1 * this->knownid_size() + data_size;
   }
+
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -972,11 +1007,7 @@ void AccountRequest::MergeFrom(const ::google::protobuf::Message& from) {
 
 void AccountRequest::MergeFrom(const AccountRequest& from) {
   GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_lastknownid()) {
-      set_lastknownid(from.lastknownid());
-    }
-  }
+  knownid_.MergeFrom(from.knownid_);
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -993,14 +1024,13 @@ void AccountRequest::CopyFrom(const AccountRequest& from) {
 }
 
 bool AccountRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
 
   return true;
 }
 
 void AccountRequest::Swap(AccountRequest* other) {
   if (other != this) {
-    std::swap(lastknownid_, other->lastknownid_);
+    knownid_.Swap(&other->knownid_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -1019,7 +1049,8 @@ void AccountRequest::Swap(AccountRequest* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int AccountResponse::kAccountsFieldNumber;
+const int AccountResponse::kDeletedIDFieldNumber;
+const int AccountResponse::kAccountFieldNumber;
 #endif  // !_MSC_VER
 
 AccountResponse::AccountResponse()
@@ -1072,7 +1103,8 @@ AccountResponse* AccountResponse::New() const {
 }
 
 void AccountResponse::Clear() {
-  accounts_.Clear();
+  deletedid_.Clear();
+  account_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -1083,17 +1115,39 @@ bool AccountResponse::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .com.adonai.wallet.sync.Account accounts = 1;
+      // repeated int64 deletedID = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_accounts:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_accounts()));
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_deletedID:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
+                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
+                 1, 8, input, this->mutable_deletedid())));
+        } else if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag)
+                   == ::google::protobuf::internal::WireFormatLite::
+                      WIRETYPE_LENGTH_DELIMITED) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitiveNoInline<
+                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
+                 input, this->mutable_deletedid())));
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(10)) goto parse_accounts;
+        if (input->ExpectTag(8)) goto parse_deletedID;
+        if (input->ExpectTag(18)) goto parse_account;
+        break;
+      }
+
+      // repeated .com.adonai.wallet.sync.Account account = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_account:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_account()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_account;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1116,10 +1170,16 @@ bool AccountResponse::MergePartialFromCodedStream(
 
 void AccountResponse::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // repeated .com.adonai.wallet.sync.Account accounts = 1;
-  for (int i = 0; i < this->accounts_size(); i++) {
+  // repeated int64 deletedID = 1;
+  for (int i = 0; i < this->deletedid_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt64(
+      1, this->deletedid(i), output);
+  }
+
+  // repeated .com.adonai.wallet.sync.Account account = 2;
+  for (int i = 0; i < this->account_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->accounts(i), output);
+      2, this->account(i), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -1130,11 +1190,17 @@ void AccountResponse::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* AccountResponse::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // repeated .com.adonai.wallet.sync.Account accounts = 1;
-  for (int i = 0; i < this->accounts_size(); i++) {
+  // repeated int64 deletedID = 1;
+  for (int i = 0; i < this->deletedid_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteInt64ToArray(1, this->deletedid(i), target);
+  }
+
+  // repeated .com.adonai.wallet.sync.Account account = 2;
+  for (int i = 0; i < this->account_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        1, this->accounts(i), target);
+        2, this->account(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1147,12 +1213,22 @@ void AccountResponse::SerializeWithCachedSizes(
 int AccountResponse::ByteSize() const {
   int total_size = 0;
 
-  // repeated .com.adonai.wallet.sync.Account accounts = 1;
-  total_size += 1 * this->accounts_size();
-  for (int i = 0; i < this->accounts_size(); i++) {
+  // repeated int64 deletedID = 1;
+  {
+    int data_size = 0;
+    for (int i = 0; i < this->deletedid_size(); i++) {
+      data_size += ::google::protobuf::internal::WireFormatLite::
+        Int64Size(this->deletedid(i));
+    }
+    total_size += 1 * this->deletedid_size() + data_size;
+  }
+
+  // repeated .com.adonai.wallet.sync.Account account = 2;
+  total_size += 1 * this->account_size();
+  for (int i = 0; i < this->account_size(); i++) {
     total_size +=
       ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->accounts(i));
+        this->account(i));
   }
 
   if (!unknown_fields().empty()) {
@@ -1180,7 +1256,8 @@ void AccountResponse::MergeFrom(const ::google::protobuf::Message& from) {
 
 void AccountResponse::MergeFrom(const AccountResponse& from) {
   GOOGLE_CHECK_NE(&from, this);
-  accounts_.MergeFrom(from.accounts_);
+  deletedid_.MergeFrom(from.deletedid_);
+  account_.MergeFrom(from.account_);
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -1198,15 +1275,16 @@ void AccountResponse::CopyFrom(const AccountResponse& from) {
 
 bool AccountResponse::IsInitialized() const {
 
-  for (int i = 0; i < accounts_size(); i++) {
-    if (!this->accounts(i).IsInitialized()) return false;
+  for (int i = 0; i < account_size(); i++) {
+    if (!this->account(i).IsInitialized()) return false;
   }
   return true;
 }
 
 void AccountResponse::Swap(AccountResponse* other) {
   if (other != this) {
-    accounts_.Swap(&other->accounts_);
+    deletedid_.Swap(&other->deletedid_);
+    account_.Swap(&other->account_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -1218,6 +1296,265 @@ void AccountResponse::Swap(AccountResponse* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = AccountResponse_descriptor_;
   metadata.reflection = AccountResponse_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int AccountAck::kDeletedGuidFieldNumber;
+const int AccountAck::kWrittenGuidFieldNumber;
+#endif  // !_MSC_VER
+
+AccountAck::AccountAck()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void AccountAck::InitAsDefaultInstance() {
+}
+
+AccountAck::AccountAck(const AccountAck& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void AccountAck::SharedCtor() {
+  _cached_size_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+AccountAck::~AccountAck() {
+  SharedDtor();
+}
+
+void AccountAck::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void AccountAck::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* AccountAck::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return AccountAck_descriptor_;
+}
+
+const AccountAck& AccountAck::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_sync_5fprotocol_2eproto();
+  return *default_instance_;
+}
+
+AccountAck* AccountAck::default_instance_ = NULL;
+
+AccountAck* AccountAck::New() const {
+  return new AccountAck;
+}
+
+void AccountAck::Clear() {
+  deletedguid_.Clear();
+  writtenguid_.Clear();
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool AccountAck::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated int64 deletedGuid = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_deletedGuid:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
+                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
+                 1, 8, input, this->mutable_deletedguid())));
+        } else if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag)
+                   == ::google::protobuf::internal::WireFormatLite::
+                      WIRETYPE_LENGTH_DELIMITED) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitiveNoInline<
+                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
+                 input, this->mutable_deletedguid())));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(8)) goto parse_deletedGuid;
+        if (input->ExpectTag(16)) goto parse_writtenGuid;
+        break;
+      }
+
+      // repeated int64 writtenGuid = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_writtenGuid:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
+                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
+                 1, 16, input, this->mutable_writtenguid())));
+        } else if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag)
+                   == ::google::protobuf::internal::WireFormatLite::
+                      WIRETYPE_LENGTH_DELIMITED) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitiveNoInline<
+                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
+                 input, this->mutable_writtenguid())));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_writtenGuid;
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void AccountAck::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // repeated int64 deletedGuid = 1;
+  for (int i = 0; i < this->deletedguid_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt64(
+      1, this->deletedguid(i), output);
+  }
+
+  // repeated int64 writtenGuid = 2;
+  for (int i = 0; i < this->writtenguid_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt64(
+      2, this->writtenguid(i), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* AccountAck::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // repeated int64 deletedGuid = 1;
+  for (int i = 0; i < this->deletedguid_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteInt64ToArray(1, this->deletedguid(i), target);
+  }
+
+  // repeated int64 writtenGuid = 2;
+  for (int i = 0; i < this->writtenguid_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteInt64ToArray(2, this->writtenguid(i), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int AccountAck::ByteSize() const {
+  int total_size = 0;
+
+  // repeated int64 deletedGuid = 1;
+  {
+    int data_size = 0;
+    for (int i = 0; i < this->deletedguid_size(); i++) {
+      data_size += ::google::protobuf::internal::WireFormatLite::
+        Int64Size(this->deletedguid(i));
+    }
+    total_size += 1 * this->deletedguid_size() + data_size;
+  }
+
+  // repeated int64 writtenGuid = 2;
+  {
+    int data_size = 0;
+    for (int i = 0; i < this->writtenguid_size(); i++) {
+      data_size += ::google::protobuf::internal::WireFormatLite::
+        Int64Size(this->writtenguid(i));
+    }
+    total_size += 1 * this->writtenguid_size() + data_size;
+  }
+
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void AccountAck::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const AccountAck* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const AccountAck*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void AccountAck::MergeFrom(const AccountAck& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  deletedguid_.MergeFrom(from.deletedguid_);
+  writtenguid_.MergeFrom(from.writtenguid_);
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void AccountAck::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void AccountAck::CopyFrom(const AccountAck& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool AccountAck::IsInitialized() const {
+
+  return true;
+}
+
+void AccountAck::Swap(AccountAck* other) {
+  if (other != this) {
+    deletedguid_.Swap(&other->deletedguid_);
+    writtenguid_.Swap(&other->writtenguid_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata AccountAck::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = AccountAck_descriptor_;
+  metadata.reflection = AccountAck_reflection_;
   return metadata;
 }
 

@@ -26,6 +26,7 @@ public class Operation {
     private BigDecimal amount;
     private Double convertingRate;
     private Category category;
+    private Long guid;
 
     public Operation() {
     }
@@ -97,6 +98,14 @@ public class Operation {
 
     public void setTime(Calendar time) {
         this.time = time;
+    }
+
+    public Long getGuid() {
+        return guid;
+    }
+
+    public void setGuid(Long guid) {
+        this.guid = guid;
     }
 
     public void setTime(Date time) {

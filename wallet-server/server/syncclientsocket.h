@@ -44,8 +44,11 @@ private:
     bool writeDelimited(const google::protobuf::Message &message);
     void handleMessage(const QByteArray& incomingData);
 
-    sync::SyncResponse handleSyncRequest(const sync::SyncRequest& request);
-    sync::AccountResponse handleAccountRequest(const sync::AccountRequest& request);
+    sync::SyncResponse handle(const sync::SyncRequest& request);
+    sync::AccountResponse handle(const sync::AccountRequest& request);
+    sync::AccountAck handle(const sync::AccountResponse& response);
+
+    template<typename REQ, typename RESP> void handleGeneric(const QByteArray& incomingData);
 
     SyncState state;
     quint32 pendingMessageSize;

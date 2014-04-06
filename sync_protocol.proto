@@ -24,11 +24,17 @@ message SyncResponse {
 }
 
 message AccountRequest {
-    required int64 lastKnownID = 1;
+    repeated int64 knownID = 1; // known to client server IDs to detect deletions
 }
 
 message AccountResponse {
-    repeated Account accounts = 1;
+    repeated int64 deletedID = 1; // accounts deleted on server/client
+    repeated Account account = 2; // accounts added on server/client
+}
+
+message AccountAck {
+    repeated int64 deletedGuid = 1; // accounts deleted on server as confirmation
+    repeated int64 writtenGuid = 2; // accounts written on server as confirmation
 }
 
 message Account {

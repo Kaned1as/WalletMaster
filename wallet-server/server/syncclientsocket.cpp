@@ -9,9 +9,12 @@ SyncClientSocket::SyncClientSocket(QObject *parent) : QTcpSocket(parent), state(
 SyncClientSocket::~SyncClientSocket()
 {
     // free the database
-    QString name = conn->connectionName();
-    delete conn;
-    QSqlDatabase::removeDatabase(name);
+    if(conn)
+    {
+        QString name = conn->connectionName();
+        delete conn;
+        QSqlDatabase::removeDatabase(name);
+    }
     qDebug() << tr("Closing connection.");
 }
 
@@ -103,33 +106,18 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
     {
         case NOT_IDENTIFIED:
         {
-            // accept request
-            sync::SyncRequest request;
-            if(!request.ParseFromArray(incomingData.constData(), incomingData.size()))
-                qDebug() << tr("error parsing sync request from client!");
-
-            // handle
-            const sync::SyncResponse& response = handleSyncRequest(request); // avoid copying data...
-            if(response.syncack() == sync::SyncResponse::OK)
-                setState(AUTHORIZED);
-
-            // send response
-            if(!writeDelimited(response))
-                qDebug() << tr("Error sending sync response to client! error string %1").arg(errorString());
+            handleGeneric<sync::SyncRequest, sync::SyncResponse>(incomingData);
             break;
         }
         case AUTHORIZED:
         {
-            sync::AccountRequest request;
-            if(!request.ParseFromArray(incomingData.constData(), incomingData.size()))
-                qDebug() << tr("error parsing account request from client!");
-
-            // handle
-            sync::AccountResponse response = handleAccountRequest(request);
-
-            // send response
-            if(!writeDelimited(response))
-                qDebug() << tr("Error sending account response to client! error string %1").arg(errorString());
+            handleGeneric<sync::AccountRequest, sync::AccountResponse>(incomingData);
+            setState(SENT_ACCOUNTS);
+            break;
+        }
+        case SENT_ACCOUNTS:
+        {
+            handleGeneric<sync::AccountResponse, sync::AccountAck>(incomingData);
             break;
         }
         default:
@@ -137,7 +125,7 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
     }
 }
 
-sync::SyncResponse SyncClientSocket::handleSyncRequest(const sync::SyncRequest& request)
+sync::SyncResponse SyncClientSocket::handle(const sync::SyncRequest& request)
 {
     sync::SyncResponse response;
     if(!conn->isOpen())
@@ -182,6 +170,7 @@ sync::SyncResponse SyncClientSocket::handleSyncRequest(const sync::SyncRequest& 
                 // successfully inserted log:pass pair
                 userId = createSyncAcc.lastInsertId().toULongLong();
                 response.set_syncack(sync::SyncResponse::OK);
+                setState(AUTHORIZED);
                 return response;
             }
             break;
@@ -205,6 +194,7 @@ sync::SyncResponse SyncClientSocket::handleSyncRequest(const sync::SyncRequest& 
                  userId = checkExists.value(0).toULongLong();
 
                  response.set_syncack(sync::SyncResponse::OK);
+                 setState(AUTHORIZED);
                  return response;
              }
              else // no such login!
@@ -216,31 +206,107 @@ sync::SyncResponse SyncClientSocket::handleSyncRequest(const sync::SyncRequest& 
     }
 }
 
-sync::AccountResponse SyncClientSocket::handleAccountRequest(const sync::AccountRequest &request)
+sync::AccountResponse SyncClientSocket::handle(const sync::AccountRequest &request)
 {
     sync::AccountResponse response;
 
-    // we should select non-synced accounts from our database and send them
-    QSqlQuery selectNonSyncedAccs(*conn);
+    // we should select all accounts associated with
+    QSqlQuery selectUserAccs(*conn);
                                      /* 0   1     2            3         4       5 */
-    selectNonSyncedAccs.prepare("SELECT id, name, description, currency, amount, color FROM accounts WHERE sync_account = :userId AND id > :lastClientKnownId");
-    selectNonSyncedAccs.bindValue(":userId", userId);
-    selectNonSyncedAccs.bindValue(":lastClientKnownId", (qint64) request.lastknownid());
+    selectUserAccs.prepare("SELECT id, name, description, currency, amount, color FROM accounts WHERE sync_account = :userId");
+    selectUserAccs.bindValue(":userId", userId);
 
-    if(!selectNonSyncedAccs.exec())
+    if(!selectUserAccs.exec())
     {
-        qDebug() << tr("cannot retrieve nonsynced accounts, db error %1").arg(selectNonSyncedAccs.lastError().text());
+        qDebug() << tr("cannot retrieve nonsynced accounts, db error %1").arg(selectUserAccs.lastError().text());
         return response; // empty response
     }
 
-    while(selectNonSyncedAccs.next()) {
-        sync::Account* account = response.add_accounts();
-        account->set_id(selectNonSyncedAccs.value("id").toLongLong());
-        account->set_name(selectNonSyncedAccs.value("name").toString().toStdString());
-        account->set_description(selectNonSyncedAccs.value("description").toString().toStdString());
-        account->set_currency(selectNonSyncedAccs.value("currency").toString().toStdString());
-        account->set_amount(selectNonSyncedAccs.value("amount").toString().toStdString());
-        account->set_color(selectNonSyncedAccs.value("color").toInt());
+    QList<qint64> knownIds;
+    knownIds.reserve(request.knownid_size());
+    for(qint64 known : request.knownid())
+        knownIds.append(known);
+
+    while(selectUserAccs.next())
+    {
+        const qint64 currentId = selectUserAccs.value("id").toLongLong();
+        if(knownIds.contains(currentId)) // we have this account on device already
+            knownIds.removeOne(currentId);
+        else // we don't have this account on device
+        {
+            sync::Account* const account = response.add_account();
+            account->set_id(selectUserAccs.value("id").toLongLong());
+            account->set_name(selectUserAccs.value("name").toString().toStdString());
+            account->set_description(selectUserAccs.value("description").toString().toStdString());
+            account->set_currency(selectUserAccs.value("currency").toString().toStdString());
+            account->set_amount(selectUserAccs.value("amount").toString().toStdString());
+            account->set_color(selectUserAccs.value("color").toInt());
+        }
     }
+
+    // remaining accounts are deleted on server
+    for(qint64 delId : knownIds)
+        response.add_deletedid(delId);
+
     return response;
+}
+
+sync::AccountAck SyncClientSocket::handle(const sync::AccountResponse &response)
+{
+    sync::AccountAck ack;
+
+    QSqlQuery deleter(*conn);
+    deleter.prepare("DELETE FROM accounts WHERE sync_account = :userId AND id = :guid");
+    QVariantList userList, idList;
+    userList.reserve(response.deletedid_size());
+    idList.reserve(response.deletedid_size());
+    for(qint64 id : response.deletedid())
+    {
+        userList.append(userId);
+        idList.append(id);
+    }
+    deleter.addBindValue(userList);
+    deleter.addBindValue(idList);
+    if(!deleter.execBatch())
+        qDebug() << tr("Cannot delete accounts from server!");
+
+    QSqlQuery adder(*conn);
+    adder.prepare("INSERT INTO accounts(name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?)");
+    // should execute each query async-ly because lastInsertId works only for last :(
+    for(sync::Account acc : response.account())
+    {
+        adder.addBindValue(acc.name().data());
+        if(acc.has_description())
+            adder.addBindValue(acc.description().data());
+        else
+            adder.addBindValue(QVariant(QVariant::String)); // no desc
+        adder.addBindValue(acc.currency().data());
+        adder.addBindValue(acc.amount().data());
+        if(acc.has_color())
+            adder.addBindValue(acc.color());
+        else
+            adder.addBindValue(QVariant(QVariant::Int));
+
+        if(!adder.exec())
+            qDebug() << tr("Cannot add accounts from device!");
+        adder.clear();
+    }
+
+    return ack;
+}
+
+
+template<typename REQ, typename RESP> void SyncClientSocket::handleGeneric(const QByteArray& incomingData)
+{
+    // accept request
+    REQ request;
+    if(!request.ParseFromArray(incomingData.constData(), incomingData.size()))
+        qDebug() << tr("error parsing %1 request from client!").arg(request.GetMetadata().descriptor->name().data());
+
+    // handle
+    RESP response = handle(request);
+
+    // send response
+    if(!writeDelimited(response))
+        qDebug() << tr("Error sending %2 to client! error string %1").arg(this->errorString()).arg(response.GetMetadata().descriptor->name().data());
 }

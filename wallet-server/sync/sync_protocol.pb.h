@@ -41,6 +41,7 @@ class SyncRequest;
 class SyncResponse;
 class AccountRequest;
 class AccountResponse;
+class AccountAck;
 class Account;
 
 enum SyncRequest_SyncType {
@@ -383,21 +384,24 @@ class AccountRequest : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required int64 lastKnownID = 1;
-  inline bool has_lastknownid() const;
-  inline void clear_lastknownid();
-  static const int kLastKnownIDFieldNumber = 1;
-  inline ::google::protobuf::int64 lastknownid() const;
-  inline void set_lastknownid(::google::protobuf::int64 value);
+  // repeated int64 knownID = 1;
+  inline int knownid_size() const;
+  inline void clear_knownid();
+  static const int kKnownIDFieldNumber = 1;
+  inline ::google::protobuf::int64 knownid(int index) const;
+  inline void set_knownid(int index, ::google::protobuf::int64 value);
+  inline void add_knownid(::google::protobuf::int64 value);
+  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+      knownid() const;
+  inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+      mutable_knownid();
 
   // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.AccountRequest)
  private:
-  inline void set_has_lastknownid();
-  inline void clear_has_lastknownid();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::google::protobuf::int64 lastknownid_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int64 > knownid_;
 
   mutable int _cached_size_;
   ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
@@ -465,27 +469,40 @@ class AccountResponse : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // repeated .com.adonai.wallet.sync.Account accounts = 1;
-  inline int accounts_size() const;
-  inline void clear_accounts();
-  static const int kAccountsFieldNumber = 1;
-  inline const ::com::adonai::wallet::sync::Account& accounts(int index) const;
-  inline ::com::adonai::wallet::sync::Account* mutable_accounts(int index);
-  inline ::com::adonai::wallet::sync::Account* add_accounts();
+  // repeated int64 deletedID = 1;
+  inline int deletedid_size() const;
+  inline void clear_deletedid();
+  static const int kDeletedIDFieldNumber = 1;
+  inline ::google::protobuf::int64 deletedid(int index) const;
+  inline void set_deletedid(int index, ::google::protobuf::int64 value);
+  inline void add_deletedid(::google::protobuf::int64 value);
+  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+      deletedid() const;
+  inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+      mutable_deletedid();
+
+  // repeated .com.adonai.wallet.sync.Account account = 2;
+  inline int account_size() const;
+  inline void clear_account();
+  static const int kAccountFieldNumber = 2;
+  inline const ::com::adonai::wallet::sync::Account& account(int index) const;
+  inline ::com::adonai::wallet::sync::Account* mutable_account(int index);
+  inline ::com::adonai::wallet::sync::Account* add_account();
   inline const ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Account >&
-      accounts() const;
+      account() const;
   inline ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Account >*
-      mutable_accounts();
+      mutable_account();
 
   // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.AccountResponse)
  private:
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Account > accounts_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int64 > deletedid_;
+  ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Account > account_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
 
   friend void  protobuf_AddDesc_sync_5fprotocol_2eproto();
   friend void protobuf_AssignDesc_sync_5fprotocol_2eproto();
@@ -493,6 +510,104 @@ class AccountResponse : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static AccountResponse* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class AccountAck : public ::google::protobuf::Message {
+ public:
+  AccountAck();
+  virtual ~AccountAck();
+
+  AccountAck(const AccountAck& from);
+
+  inline AccountAck& operator=(const AccountAck& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const AccountAck& default_instance();
+
+  void Swap(AccountAck* other);
+
+  // implements Message ----------------------------------------------
+
+  AccountAck* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const AccountAck& from);
+  void MergeFrom(const AccountAck& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated int64 deletedGuid = 1;
+  inline int deletedguid_size() const;
+  inline void clear_deletedguid();
+  static const int kDeletedGuidFieldNumber = 1;
+  inline ::google::protobuf::int64 deletedguid(int index) const;
+  inline void set_deletedguid(int index, ::google::protobuf::int64 value);
+  inline void add_deletedguid(::google::protobuf::int64 value);
+  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+      deletedguid() const;
+  inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+      mutable_deletedguid();
+
+  // repeated int64 writtenGuid = 2;
+  inline int writtenguid_size() const;
+  inline void clear_writtenguid();
+  static const int kWrittenGuidFieldNumber = 2;
+  inline ::google::protobuf::int64 writtenguid(int index) const;
+  inline void set_writtenguid(int index, ::google::protobuf::int64 value);
+  inline void add_writtenguid(::google::protobuf::int64 value);
+  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+      writtenguid() const;
+  inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+      mutable_writtenguid();
+
+  // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.AccountAck)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::RepeatedField< ::google::protobuf::int64 > deletedguid_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int64 > writtenguid_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+
+  friend void  protobuf_AddDesc_sync_5fprotocol_2eproto();
+  friend void protobuf_AssignDesc_sync_5fprotocol_2eproto();
+  friend void protobuf_ShutdownFile_sync_5fprotocol_2eproto();
+
+  void InitAsDefaultInstance();
+  static AccountAck* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -847,55 +962,137 @@ inline void SyncResponse::set_syncack(::com::adonai::wallet::sync::SyncResponse_
 
 // AccountRequest
 
-// required int64 lastKnownID = 1;
-inline bool AccountRequest::has_lastknownid() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
+// repeated int64 knownID = 1;
+inline int AccountRequest::knownid_size() const {
+  return knownid_.size();
 }
-inline void AccountRequest::set_has_lastknownid() {
-  _has_bits_[0] |= 0x00000001u;
+inline void AccountRequest::clear_knownid() {
+  knownid_.Clear();
 }
-inline void AccountRequest::clear_has_lastknownid() {
-  _has_bits_[0] &= ~0x00000001u;
+inline ::google::protobuf::int64 AccountRequest::knownid(int index) const {
+  return knownid_.Get(index);
 }
-inline void AccountRequest::clear_lastknownid() {
-  lastknownid_ = GOOGLE_LONGLONG(0);
-  clear_has_lastknownid();
+inline void AccountRequest::set_knownid(int index, ::google::protobuf::int64 value) {
+  knownid_.Set(index, value);
 }
-inline ::google::protobuf::int64 AccountRequest::lastknownid() const {
-  return lastknownid_;
+inline void AccountRequest::add_knownid(::google::protobuf::int64 value) {
+  knownid_.Add(value);
 }
-inline void AccountRequest::set_lastknownid(::google::protobuf::int64 value) {
-  set_has_lastknownid();
-  lastknownid_ = value;
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+AccountRequest::knownid() const {
+  return knownid_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+AccountRequest::mutable_knownid() {
+  return &knownid_;
 }
 
 // -------------------------------------------------------------------
 
 // AccountResponse
 
-// repeated .com.adonai.wallet.sync.Account accounts = 1;
-inline int AccountResponse::accounts_size() const {
-  return accounts_.size();
+// repeated int64 deletedID = 1;
+inline int AccountResponse::deletedid_size() const {
+  return deletedid_.size();
 }
-inline void AccountResponse::clear_accounts() {
-  accounts_.Clear();
+inline void AccountResponse::clear_deletedid() {
+  deletedid_.Clear();
 }
-inline const ::com::adonai::wallet::sync::Account& AccountResponse::accounts(int index) const {
-  return accounts_.Get(index);
+inline ::google::protobuf::int64 AccountResponse::deletedid(int index) const {
+  return deletedid_.Get(index);
 }
-inline ::com::adonai::wallet::sync::Account* AccountResponse::mutable_accounts(int index) {
-  return accounts_.Mutable(index);
+inline void AccountResponse::set_deletedid(int index, ::google::protobuf::int64 value) {
+  deletedid_.Set(index, value);
 }
-inline ::com::adonai::wallet::sync::Account* AccountResponse::add_accounts() {
-  return accounts_.Add();
+inline void AccountResponse::add_deletedid(::google::protobuf::int64 value) {
+  deletedid_.Add(value);
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+AccountResponse::deletedid() const {
+  return deletedid_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+AccountResponse::mutable_deletedid() {
+  return &deletedid_;
+}
+
+// repeated .com.adonai.wallet.sync.Account account = 2;
+inline int AccountResponse::account_size() const {
+  return account_.size();
+}
+inline void AccountResponse::clear_account() {
+  account_.Clear();
+}
+inline const ::com::adonai::wallet::sync::Account& AccountResponse::account(int index) const {
+  return account_.Get(index);
+}
+inline ::com::adonai::wallet::sync::Account* AccountResponse::mutable_account(int index) {
+  return account_.Mutable(index);
+}
+inline ::com::adonai::wallet::sync::Account* AccountResponse::add_account() {
+  return account_.Add();
 }
 inline const ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Account >&
-AccountResponse::accounts() const {
-  return accounts_;
+AccountResponse::account() const {
+  return account_;
 }
 inline ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Account >*
-AccountResponse::mutable_accounts() {
-  return &accounts_;
+AccountResponse::mutable_account() {
+  return &account_;
+}
+
+// -------------------------------------------------------------------
+
+// AccountAck
+
+// repeated int64 deletedGuid = 1;
+inline int AccountAck::deletedguid_size() const {
+  return deletedguid_.size();
+}
+inline void AccountAck::clear_deletedguid() {
+  deletedguid_.Clear();
+}
+inline ::google::protobuf::int64 AccountAck::deletedguid(int index) const {
+  return deletedguid_.Get(index);
+}
+inline void AccountAck::set_deletedguid(int index, ::google::protobuf::int64 value) {
+  deletedguid_.Set(index, value);
+}
+inline void AccountAck::add_deletedguid(::google::protobuf::int64 value) {
+  deletedguid_.Add(value);
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+AccountAck::deletedguid() const {
+  return deletedguid_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+AccountAck::mutable_deletedguid() {
+  return &deletedguid_;
+}
+
+// repeated int64 writtenGuid = 2;
+inline int AccountAck::writtenguid_size() const {
+  return writtenguid_.size();
+}
+inline void AccountAck::clear_writtenguid() {
+  writtenguid_.Clear();
+}
+inline ::google::protobuf::int64 AccountAck::writtenguid(int index) const {
+  return writtenguid_.Get(index);
+}
+inline void AccountAck::set_writtenguid(int index, ::google::protobuf::int64 value) {
+  writtenguid_.Set(index, value);
+}
+inline void AccountAck::add_writtenguid(::google::protobuf::int64 value) {
+  writtenguid_.Add(value);
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+AccountAck::writtenguid() const {
+  return writtenguid_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+AccountAck::mutable_writtenguid() {
+  return &writtenguid_;
 }
 
 // -------------------------------------------------------------------
