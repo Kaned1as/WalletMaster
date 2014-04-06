@@ -43,5 +43,5 @@ message Account {
     optional string description = 3;
     required string currency = 4;
     required string amount = 5; // BigDecimal for Java
-    optional uint32 color = 6;
+    optional int32 color = 6;
 }

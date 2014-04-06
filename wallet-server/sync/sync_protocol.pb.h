@@ -720,12 +720,12 @@ class Account : public ::google::protobuf::Message {
   inline ::std::string* release_amount();
   inline void set_allocated_amount(::std::string* amount);
 
-  // optional uint32 color = 6;
+  // optional int32 color = 6;
   inline bool has_color() const;
   inline void clear_color();
   static const int kColorFieldNumber = 6;
-  inline ::google::protobuf::uint32 color() const;
-  inline void set_color(::google::protobuf::uint32 value);
+  inline ::google::protobuf::int32 color() const;
+  inline void set_color(::google::protobuf::int32 value);
 
   // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.Account)
  private:
@@ -749,7 +749,7 @@ class Account : public ::google::protobuf::Message {
   ::std::string* description_;
   ::std::string* currency_;
   ::std::string* amount_;
-  ::google::protobuf::uint32 color_;
+  ::google::protobuf::int32 color_;
 
   mutable int _cached_size_;
   ::google::protobuf::uint32 _has_bits_[(6 + 31) / 32];
@@ -1401,7 +1401,7 @@ inline void Account::set_allocated_amount(::std::string* amount) {
   }
 }
 
-// optional uint32 color = 6;
+// optional int32 color = 6;
 inline bool Account::has_color() const {
   return (_has_bits_[0] & 0x00000020u) != 0;
 }
@@ -1412,13 +1412,13 @@ inline void Account::clear_has_color() {
   _has_bits_[0] &= ~0x00000020u;
 }
 inline void Account::clear_color() {
-  color_ = 0u;
+  color_ = 0;
   clear_has_color();
 }
-inline ::google::protobuf::uint32 Account::color() const {
+inline ::google::protobuf::int32 Account::color() const {
   return color_;
 }
-inline void Account::set_color(::google::protobuf::uint32 value) {
+inline void Account::set_color(::google::protobuf::int32 value) {
   set_has_color();
   color_ = value;
 }

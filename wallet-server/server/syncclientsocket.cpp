@@ -271,10 +271,11 @@ sync::AccountAck SyncClientSocket::handle(const sync::AccountResponse &response)
         qDebug() << tr("Cannot delete accounts from server!");
 
     QSqlQuery adder(*conn);
-    adder.prepare("INSERT INTO accounts(name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?)");
+    adder.prepare("INSERT INTO accounts(sync_account, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?)");
     // should execute each query async-ly because lastInsertId works only for last :(
     for(sync::Account acc : response.account())
     {
+        adder.addBindValue(userId);
         adder.addBindValue(acc.name().data());
         if(acc.has_description())
             adder.addBindValue(acc.description().data());
@@ -289,7 +290,7 @@ sync::AccountAck SyncClientSocket::handle(const sync::AccountResponse &response)
 
         if(!adder.exec())
             qDebug() << tr("Cannot add accounts from device!");
-        adder.clear();
+        adder.finish();
     }
 
     return ack;

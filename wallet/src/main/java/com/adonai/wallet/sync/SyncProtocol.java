@@ -3687,13 +3687,13 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getAmountBytes();
 
-    // optional uint32 color = 6;
+    // optional int32 color = 6;
     /**
-     * <code>optional uint32 color = 6;</code>
+     * <code>optional int32 color = 6;</code>
      */
     boolean hasColor();
     /**
-     * <code>optional uint32 color = 6;</code>
+     * <code>optional int32 color = 6;</code>
      */
     int getColor();
   }
@@ -3775,7 +3775,7 @@ public final class SyncProtocol {
             }
             case 48: {
               bitField0_ |= 0x00000020;
-              color_ = input.readUInt32();
+              color_ = input.readInt32();
               break;
             }
           }
@@ -4018,17 +4018,17 @@ public final class SyncProtocol {
       }
     }
 
-    // optional uint32 color = 6;
+    // optional int32 color = 6;
     public static final int COLOR_FIELD_NUMBER = 6;
     private int color_;
     /**
-     * <code>optional uint32 color = 6;</code>
+     * <code>optional int32 color = 6;</code>
      */
     public boolean hasColor() {
       return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
-     * <code>optional uint32 color = 6;</code>
+     * <code>optional int32 color = 6;</code>
      */
     public int getColor() {
       return color_;
@@ -4086,7 +4086,7 @@ public final class SyncProtocol {
         output.writeBytes(5, getAmountBytes());
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeUInt32(6, color_);
+        output.writeInt32(6, color_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -4119,7 +4119,7 @@ public final class SyncProtocol {
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(6, color_);
+          .computeInt32Size(6, color_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -4739,22 +4739,22 @@ public final class SyncProtocol {
         return this;
       }
 
-      // optional uint32 color = 6;
+      // optional int32 color = 6;
       private int color_ ;
       /**
-       * <code>optional uint32 color = 6;</code>
+       * <code>optional int32 color = 6;</code>
        */
       public boolean hasColor() {
         return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
-       * <code>optional uint32 color = 6;</code>
+       * <code>optional int32 color = 6;</code>
        */
       public int getColor() {
         return color_;
       }
       /**
-       * <code>optional uint32 color = 6;</code>
+       * <code>optional int32 color = 6;</code>
        */
       public Builder setColor(int value) {
         bitField0_ |= 0x00000020;
@@ -4763,7 +4763,7 @@ public final class SyncProtocol {
         return this;
       }
       /**
-       * <code>optional uint32 color = 6;</code>
+       * <code>optional int32 color = 6;</code>
        */
       public Builder clearColor() {
         bitField0_ = (bitField0_ & ~0x00000020);
@@ -4838,7 +4838,7 @@ public final class SyncProtocol {
       "\022\023\n\013writtenGuid\030\002 \003(\003\"i\n\007Account\022\n\n\002ID\030\001" +
       " \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n\013description\030\003 \001(\t\022" +
       "\020\n\010currency\030\004 \002(\t\022\016\n\006amount\030\005 \002(\t\022\r\n\005col" +
-      "or\030\006 \001(\r"
+      "or\030\006 \001(\005"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {

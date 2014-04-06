@@ -220,7 +220,7 @@ void protobuf_AddDesc_sync_5fprotocol_2eproto() {
     "\022\023\n\013writtenGuid\030\002 \003(\003\"i\n\007Account\022\n\n\002ID\030\001"
     " \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n\013description\030\003 \001(\t\022"
     "\020\n\010currency\030\004 \002(\t\022\016\n\006amount\030\005 \002(\t\022\r\n\005col"
-    "or\030\006 \001(\r", 648);
+    "or\030\006 \001(\005", 648);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "sync_protocol.proto", &protobuf_RegisterTypes);
   SyncRequest::default_instance_ = new SyncRequest();
@@ -1591,7 +1591,7 @@ void Account::SharedCtor() {
   description_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   currency_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   amount_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  color_ = 0u;
+  color_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1660,7 +1660,7 @@ void Account::Clear() {
         amount_->clear();
       }
     }
-    color_ = 0u;
+    color_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -1755,13 +1755,13 @@ bool Account::MergePartialFromCodedStream(
         break;
       }
 
-      // optional uint32 color = 6;
+      // optional int32 color = 6;
       case 6: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
          parse_color:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
                  input, &color_)));
           set_has_color();
         } else {
@@ -1830,9 +1830,9 @@ void Account::SerializeWithCachedSizes(
       5, this->amount(), output);
   }
 
-  // optional uint32 color = 6;
+  // optional int32 color = 6;
   if (has_color()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(6, this->color(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(6, this->color(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -1888,9 +1888,9 @@ void Account::SerializeWithCachedSizes(
         5, this->amount(), target);
   }
 
-  // optional uint32 color = 6;
+  // optional int32 color = 6;
   if (has_color()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(6, this->color(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(6, this->color(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1939,10 +1939,10 @@ int Account::ByteSize() const {
           this->amount());
     }
 
-    // optional uint32 color = 6;
+    // optional int32 color = 6;
     if (has_color()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
           this->color());
     }
 
