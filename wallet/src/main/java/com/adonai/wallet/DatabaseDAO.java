@@ -482,22 +482,16 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public int deleteAccount(final Long id) {
-        return deleteAccount(id, false);
-    }
-
-    public int deleteAccount(final Long id, boolean fromServer) {
         Log.d("deleteAccount", String.valueOf(id));
-        if(!fromServer) {
-            final Account toDelete = getAccount(id);
-            assert toDelete != null;
-            if (toDelete.getGuid() != null) { // if this acc was synced
-                final ContentValues values = new ContentValues(2);
-                values.put(DeletedFields._id.toString(), toDelete.getGuid());
-                values.put(DeletedFields.TYPE.toString(), TYPE_ACCOUNT);
-                long result = mDatabase.insert(DELETED_TABLE_NAME, null, values);
-                if (result == -1l)
-                    throw new RuntimeException("Cannot add deleted record to table!");
-            }
+        final Account toDelete = getAccount(id);
+        assert toDelete != null;
+        if (toDelete.getGuid() != null) { // if this acc was synced
+            final ContentValues values = new ContentValues(2);
+            values.put(DeletedFields._id.toString(), toDelete.getGuid());
+            values.put(DeletedFields.TYPE.toString(), TYPE_ACCOUNT);
+            long result = mDatabase.insert(DELETED_TABLE_NAME, null, values);
+            if (result == -1l)
+                throw new RuntimeException("Cannot add deleted record to table!");
         }
         int count = mDatabase.delete(ACCOUNTS_TABLE_NAME, AccountFields._id + " = ?", new String[]{String.valueOf(id)});
 
@@ -508,22 +502,16 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public int deleteCategory(final Long id) {
-        return deleteCategory(id, false);
-    }
-
-    public int deleteCategory(final Long id, boolean fromServer) {
         Log.d("deleteCategory", String.valueOf(id));
-        if(!fromServer) {
-            final Category toDelete = getCategory(id);
-            assert toDelete != null;
-            if (toDelete.getGuid() != null) { // if this acc was synced
-                final ContentValues values = new ContentValues(2);
-                values.put(DeletedFields._id.toString(), toDelete.getGuid());
-                values.put(DeletedFields.TYPE.toString(), TYPE_CATEGORY);
-                long result = mDatabase.insert(DELETED_TABLE_NAME, null, values);
-                if (result == -1l)
-                    throw new RuntimeException("Cannot add deleted record to table!");
-            }
+        final Category toDelete = getCategory(id);
+        assert toDelete != null;
+        if (toDelete.getGuid() != null) { // if this acc was synced
+            final ContentValues values = new ContentValues(2);
+            values.put(DeletedFields._id.toString(), toDelete.getGuid());
+            values.put(DeletedFields.TYPE.toString(), TYPE_CATEGORY);
+            long result = mDatabase.insert(DELETED_TABLE_NAME, null, values);
+            if (result == -1l)
+                throw new RuntimeException("Cannot add deleted record to table!");
         }
         int count = mDatabase.delete(CATEGORIES_TABLE_NAME, CategoriesFields._id + " = ?", new String[] { String.valueOf(id) });
 
@@ -534,22 +522,16 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public int deleteOperation(Long id) {
-        return deleteOperation(id, false);
-    }
-
-    public int deleteOperation(Long id, boolean fromServer) {
         Log.d("deleteOperation", id.toString());
-        if(!fromServer) {
-            final Operation toDelete = getOperation(id);
-            assert toDelete != null;
-            if (toDelete.getGuid() != null) { // if this acc was synced
-                final ContentValues values = new ContentValues(2);
-                values.put(DeletedFields._id.toString(), toDelete.getGuid());
-                values.put(DeletedFields.TYPE.toString(), TYPE_OPERATION);
-                long result = mDatabase.insert(DELETED_TABLE_NAME, null, values);
-                if (result == -1l)
-                    throw new RuntimeException("Cannot add deleted record to table!");
-            }
+        final Operation toDelete = getOperation(id);
+        assert toDelete != null;
+        if (toDelete.getGuid() != null) { // if this acc was synced
+            final ContentValues values = new ContentValues(2);
+            values.put(DeletedFields._id.toString(), toDelete.getGuid());
+            values.put(DeletedFields.TYPE.toString(), TYPE_OPERATION);
+            long result = mDatabase.insert(DELETED_TABLE_NAME, null, values);
+            if (result == -1l)
+                throw new RuntimeException("Cannot add deleted record to table!");
         }
         int count = mDatabase.delete(OPERATIONS_TABLE_NAME,  OperationsFields._id + " = ?", new String[] { String.valueOf(id) });
 
@@ -757,9 +739,12 @@ public class DatabaseDAO extends SQLiteOpenHelper
         }
 
         public List<Long> getKnownGUIDs(String tableName) {
-            List<Long> result = new ArrayList<>();
+            final List<Long> result = new ArrayList<>();
             Log.d("Query", String.format("Synced GUIDs of table %s", tableName));
-            final Cursor retriever = mDatabase.rawQuery(String.format("SELECT GUID FROM %s WHERE GUID IS NOT NULL", tableName), null);
+            final Cursor retriever = mDatabase.rawQuery(String.format(
+                    "SELECT GUID FROM %s WHERE GUID IS NOT NULL" + // select all known IDs in specified table
+                    " UNION ALL " +
+                    "SELECT " + DeletedFields._id + " FROM " + DELETED_TABLE_NAME + " WHERE TYPE = %s", tableName, getTypeByTableName(tableName)), null); // deleted IDs are also considered known!
             while(retriever.moveToNext()) // have data
                 result.add(retriever.getLong(0));
 
@@ -769,6 +754,28 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
         public int purgeDeletedGUIDs(int type) {
             return mDatabase.delete(DELETED_TABLE_NAME, DeletedFields.TYPE + " = ?", new String[]{String.valueOf(type)});
+        }
+
+        public int deleteByGuid(String table, Long guid) {
+            Log.d("purgeAccount", String.valueOf(guid));
+            int count = mDatabase.delete(table, AccountFields.GUID + " = ?", new String[]{String.valueOf(guid)});
+            if(count > 0)
+                notifyListeners(table);
+
+            return count;
+        }
+
+        public int getTypeByTableName(String tableName) {
+            switch (tableName) {
+                case ACCOUNTS_TABLE_NAME:
+                    return TYPE_ACCOUNT;
+                case OPERATIONS_TABLE_NAME:
+                    return  TYPE_OPERATION;
+                case CATEGORIES_TABLE_NAME:
+                    return TYPE_CATEGORY;
+                default:
+                    throw new RuntimeException("No such table!");
+            }
         }
     }
 

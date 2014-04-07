@@ -158,7 +158,7 @@ public class SyncStateMachine {
                         // delete accounts (that were deleted on server) locally
                         final List<Long> deletedAccounts = response.getDeletedIDList();
                         for(final Long deleted : deletedAccounts)
-                            mContext.getEntityDAO().deleteAccount(deleted, true);
+                            mContext.getEntityDAO().getSyncHelper().deleteByGuid(DatabaseDAO.ACCOUNTS_TABLE_NAME, deleted);
                         // add accounts (that were added on server) locally
                         final List<SyncProtocol.Account> accounts = response.getAccountList();
                         for(SyncProtocol.Account acc : accounts) {
@@ -187,7 +187,7 @@ public class SyncStateMachine {
                             curr.setGuid(ackAccounts.get(i));
                             mContext.getEntityDAO().updateAccount(curr);
                         }
-                        assert ack.getDeletedGuidCount() == mContext.getEntityDAO().getSyncHelper().purgeDeletedGUIDs(DatabaseDAO.TYPE_ACCOUNT);
+                        mContext.getEntityDAO().getSyncHelper().purgeDeletedGUIDs(DatabaseDAO.TYPE_ACCOUNT);
                         break;
                 }
             } catch (IOException io) {
