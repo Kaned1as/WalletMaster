@@ -255,6 +255,7 @@ sync::AccountAck SyncClientSocket::handle(const sync::AccountResponse &response)
 {
     sync::AccountAck ack;
 
+    // delete accounts that deleted on device
     QSqlQuery deleter(*conn);
     deleter.prepare("DELETE FROM accounts WHERE sync_account = :userId AND id = :guid");
     QVariantList userList, idList;
@@ -264,12 +265,17 @@ sync::AccountAck SyncClientSocket::handle(const sync::AccountResponse &response)
     {
         userList.append(userId);
         idList.append(id);
+        ack.add_deletedguid(id);
     }
     deleter.addBindValue(userList);
     deleter.addBindValue(idList);
     if(!deleter.execBatch())
+    {
         qDebug() << tr("Cannot delete accounts from server!");
+        ack.clear_deletedguid();
+    }
 
+    // add accounts that were created on device
     QSqlQuery adder(*conn);
     adder.prepare("INSERT INTO accounts(sync_account, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?)");
     // should execute each query async-ly because lastInsertId works only for last :(
@@ -288,8 +294,11 @@ sync::AccountAck SyncClientSocket::handle(const sync::AccountResponse &response)
         else
             adder.addBindValue(QVariant(QVariant::Int));
 
-        if(!adder.exec())
+        if(adder.exec())
+            ack.add_writtenguid(adder.lastInsertId().toLongLong());
+        else
             qDebug() << tr("Cannot add accounts from device!");
+
         adder.finish();
     }
 
