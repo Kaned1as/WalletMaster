@@ -305,7 +305,6 @@ sync::AccountAck SyncClientSocket::handle(const sync::AccountResponse &response)
     return ack;
 }
 
-
 template<typename REQ, typename RESP> void SyncClientSocket::handleGeneric(const QByteArray& incomingData)
 {
     // accept request

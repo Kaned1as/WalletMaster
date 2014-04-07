@@ -74,7 +74,6 @@ public class WalletBaseActivity extends ActionBarActivity implements SyncStateMa
                     return true;
                 case AUTH_ACK:
                     mProgressDialog.setMessage(getString(R.string.getting_accounts));
-                    mSyncMachine.setState(SyncStateMachine.State.ACC_REQ);
                     return true;
                 case AUTH_DENIED:
                     mProgressDialog.hide();
