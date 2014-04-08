@@ -1,5 +1,15 @@
 #include "syncclientsocket.h"
 
+void fillFromQuery(sync::Account* account, const QSqlQuery& query)
+{
+    account->set_id(query.value("id").toLongLong());
+    account->set_name(query.value("name").toString().toStdString());
+    account->set_description(query.value("description").toString().toStdString());
+    account->set_currency(query.value("currency").toString().toStdString());
+    account->set_amount(query.value("amount").toString().toStdString());
+    account->set_color(query.value("color").toInt());
+}
+
 SyncClientSocket::SyncClientSocket(QObject *parent) : QTcpSocket(parent), state(NOT_IDENTIFIED), pendingMessageSize(0), conn(NULL)
 {
     qDebug() << tr("Got new connection!");
@@ -146,13 +156,13 @@ sync::SyncResponse SyncClientSocket::handle(const sync::SyncRequest& request)
             {
                 qDebug() << tr("cannot check login, db error %1").arg(checkExists.lastError().text());
                 response.set_syncack(sync::SyncResponse::UNKNOWN_ERROR);
-                return response;
+                break;
             }
 
             if(checkExists.next()) // login exists, deny
             {
                 response.set_syncack(sync::SyncResponse::ACCOUNT_EXISTS);
-                return response;
+                break;
             }
             else // we can register this account
             {
@@ -164,46 +174,44 @@ sync::SyncResponse SyncClientSocket::handle(const sync::SyncRequest& request)
                 {
                     qDebug() << tr("cannot insert new account, error %1").arg(createSyncAcc.lastError().text());
                     response.set_syncack(sync::SyncResponse::UNKNOWN_ERROR);
-                    return response;
+                    break;
                 }
 
                 // successfully inserted log:pass pair
                 userId = createSyncAcc.lastInsertId().toULongLong();
                 response.set_syncack(sync::SyncResponse::OK);
                 setState(AUTHORIZED);
-                return response;
             }
             break;
         }
         case sync::SyncRequest::MERGE:
         {
-             QSqlQuery checkExists(*conn);
-             checkExists.prepare("SELECT id FROM sync_accounts WHERE login = :login AND password = md5(:password)");
-             checkExists.bindValue(":login", request.account().c_str());
-             checkExists.bindValue(":password", request.password().c_str());
+            QSqlQuery checkExists(*conn);
+            checkExists.prepare("SELECT id FROM sync_accounts WHERE login = :login AND password = md5(:password)");
+            checkExists.bindValue(":login", request.account().c_str());
+            checkExists.bindValue(":password", request.password().c_str());
 
-             if(!checkExists.exec())
-             {
-                 qDebug() << tr("cannot check login, db error %1").arg(checkExists.lastError().text());
-                 response.set_syncack(sync::SyncResponse::UNKNOWN_ERROR);
-                 return response;
-             }
+            if(!checkExists.exec())
+            {
+                qDebug() << tr("cannot check login, db error %1").arg(checkExists.lastError().text());
+                response.set_syncack(sync::SyncResponse::UNKNOWN_ERROR);
+                break;
+            }
 
-             if(checkExists.next()) // login exists, pass
-             {
-                 userId = checkExists.value(0).toULongLong();
+            if(checkExists.next()) // login exists, pass
+            {
+                userId = checkExists.value(0).toULongLong();
 
-                 response.set_syncack(sync::SyncResponse::OK);
-                 setState(AUTHORIZED);
-                 return response;
-             }
-             else // no such login!
-             {
-                 response.set_syncack(sync::SyncResponse::AUTH_WRONG);
-                 return response;
-             }
+                response.set_syncack(sync::SyncResponse::OK);
+                setState(AUTHORIZED);
+                break;
+            }
+            else // no such login!
+                response.set_syncack(sync::SyncResponse::AUTH_WRONG);
+            break;
         }
     }
+    return response;
 }
 
 sync::AccountResponse SyncClientSocket::handle(const sync::AccountRequest &request)
@@ -255,25 +263,7 @@ sync::AccountAck SyncClientSocket::handle(const sync::AccountResponse &response)
 {
     sync::AccountAck ack;
 
-    // delete accounts that deleted on device
-    QSqlQuery deleter(*conn);
-    deleter.prepare("DELETE FROM accounts WHERE sync_account = :userId AND id = :guid");
-    QVariantList userList, idList;
-    userList.reserve(response.deletedid_size());
-    idList.reserve(response.deletedid_size());
-    for(qint64 id : response.deletedid())
-    {
-        userList.append(userId);
-        idList.append(id);
-        ack.add_deletedguid(id);
-    }
-    deleter.addBindValue(userList);
-    deleter.addBindValue(idList);
-    if(!deleter.execBatch())
-    {
-        qDebug() << tr("Cannot delete accounts from server!");
-        ack.clear_deletedguid();
-    }
+    syncDeleted(response, ack, "accounts");
 
     // add accounts that were created on device
     QSqlQuery adder(*conn);
@@ -318,4 +308,27 @@ template<typename REQ, typename RESP> void SyncClientSocket::handleGeneric(const
     // send response
     if(!writeDelimited(response))
         qDebug() << tr("Error sending %2 to client! error string %1").arg(this->errorString()).arg(response.GetMetadata().descriptor->name().data());
+}
+
+template<typename REQ, typename RESP> void SyncClientSocket::syncDeleted(const REQ& request, RESP& ack, const QString& tableName)
+{
+    // delete entities that deleted on device
+    QSqlQuery deleter(*conn);
+    deleter.prepare("DELETE FROM " + tableName + " WHERE sync_account = :userId AND id = :guid");
+    QVariantList userList, idList;
+    userList.reserve(request.deletedid_size());
+    idList.reserve(request.deletedid_size());
+    for(qint64 id : request.deletedid())
+    {
+        userList.append(userId);
+        idList.append(id);
+        ack.add_deletedguid(id);
+    }
+    deleter.addBindValue(userList);
+    deleter.addBindValue(idList);
+    if(!deleter.execBatch())
+    {
+        qDebug() << tr("Cannot delete %1 from server!").arg(tableName);
+        ack.clear_deletedguid();
+    }
 }

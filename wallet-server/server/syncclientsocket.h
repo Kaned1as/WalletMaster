@@ -49,6 +49,7 @@ private:
     sync::AccountAck handle(const sync::AccountResponse& response);
 
     template<typename REQ, typename RESP> void handleGeneric(const QByteArray& incomingData);
+    template<typename REQ, typename RESP> void syncDeleted(const REQ& request, RESP& ack, const QString& tableName);
 
     SyncState state;
     quint32 pendingMessageSize;
