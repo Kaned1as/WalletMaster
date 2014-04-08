@@ -23,18 +23,24 @@ message SyncResponse {
     required SyncAck syncAck = 1;
 }
 
-message AccountRequest {
+message EntityRequest {
     repeated int64 knownID = 1; // known to client server IDs to detect deletions
 }
 
-message AccountResponse {
+message EntityResponse {
     repeated int64 deletedID = 1; // accounts deleted on server/client
-    repeated Account account = 2; // accounts added on server/client
+    repeated Entity entity = 2; // accounts added on server/client
 }
 
-message AccountAck {
+message EntityAck {
     repeated int64 deletedGuid = 1; // accounts deleted on server as confirmation
     repeated int64 writtenGuid = 2; // accounts written on server as confirmation
+}
+
+message Entity {
+    optional Account account = 1;
+    optional Operation operation = 2;
+    optional Category category = 3;
 }
 
 message Account {
@@ -44,4 +50,22 @@ message Account {
     required string currency = 4;
     required string amount = 5; // BigDecimal for Java
     optional int32 color = 6;
+}
+
+message Operation {
+    required uint64 ID = 1;
+    optional string description = 2;
+    required uint64 time = 3;
+    optional uint64 chargerId = 4;
+    optional uint64 beneficiarId = 5;
+    required string amount = 6;
+    optional float convertingRate = 7;
+    required uint64 categoryId = 8;
+}
+
+message Category {
+    required uint64 ID = 1;
+    required string name = 2;
+    required uint32 type = 3;
+    optional uint64 preferredAccount = 4;
 }

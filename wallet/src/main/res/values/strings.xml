@@ -60,4 +60,6 @@
     <string name="sync_starting">Sync starting…</string>
     <string name="authenticating">Authenticating…</string>
     <string name="getting_accounts">Getting accounts from server…</string>
+    <string name="account_request_sent">Sent account request…</string>
+    <string name="account_response_received">Got account acknowledge…</string>
 </resources>

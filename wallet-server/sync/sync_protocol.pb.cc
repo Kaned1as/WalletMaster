@@ -31,18 +31,27 @@ const ::google::protobuf::Descriptor* SyncResponse_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   SyncResponse_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* SyncResponse_SyncAck_descriptor_ = NULL;
-const ::google::protobuf::Descriptor* AccountRequest_descriptor_ = NULL;
+const ::google::protobuf::Descriptor* EntityRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
-  AccountRequest_reflection_ = NULL;
-const ::google::protobuf::Descriptor* AccountResponse_descriptor_ = NULL;
+  EntityRequest_reflection_ = NULL;
+const ::google::protobuf::Descriptor* EntityResponse_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
-  AccountResponse_reflection_ = NULL;
-const ::google::protobuf::Descriptor* AccountAck_descriptor_ = NULL;
+  EntityResponse_reflection_ = NULL;
+const ::google::protobuf::Descriptor* EntityAck_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
-  AccountAck_reflection_ = NULL;
+  EntityAck_reflection_ = NULL;
+const ::google::protobuf::Descriptor* Entity_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Entity_reflection_ = NULL;
 const ::google::protobuf::Descriptor* Account_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Account_reflection_ = NULL;
+const ::google::protobuf::Descriptor* Operation_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Operation_reflection_ = NULL;
+const ::google::protobuf::Descriptor* Category_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Category_reflection_ = NULL;
 
 }  // namespace
 
@@ -87,54 +96,71 @@ void protobuf_AssignDesc_sync_5fprotocol_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SyncResponse));
   SyncResponse_SyncAck_descriptor_ = SyncResponse_descriptor_->enum_type(0);
-  AccountRequest_descriptor_ = file->message_type(2);
-  static const int AccountRequest_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountRequest, knownid_),
+  EntityRequest_descriptor_ = file->message_type(2);
+  static const int EntityRequest_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityRequest, knownid_),
   };
-  AccountRequest_reflection_ =
+  EntityRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
-      AccountRequest_descriptor_,
-      AccountRequest::default_instance_,
-      AccountRequest_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountRequest, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountRequest, _unknown_fields_),
+      EntityRequest_descriptor_,
+      EntityRequest::default_instance_,
+      EntityRequest_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityRequest, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityRequest, _unknown_fields_),
       -1,
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(AccountRequest));
-  AccountResponse_descriptor_ = file->message_type(3);
-  static const int AccountResponse_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountResponse, deletedid_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountResponse, account_),
+      sizeof(EntityRequest));
+  EntityResponse_descriptor_ = file->message_type(3);
+  static const int EntityResponse_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityResponse, deletedid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityResponse, entity_),
   };
-  AccountResponse_reflection_ =
+  EntityResponse_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
-      AccountResponse_descriptor_,
-      AccountResponse::default_instance_,
-      AccountResponse_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountResponse, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountResponse, _unknown_fields_),
+      EntityResponse_descriptor_,
+      EntityResponse::default_instance_,
+      EntityResponse_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityResponse, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityResponse, _unknown_fields_),
       -1,
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(AccountResponse));
-  AccountAck_descriptor_ = file->message_type(4);
-  static const int AccountAck_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountAck, deletedguid_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountAck, writtenguid_),
+      sizeof(EntityResponse));
+  EntityAck_descriptor_ = file->message_type(4);
+  static const int EntityAck_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityAck, deletedguid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityAck, writtenguid_),
   };
-  AccountAck_reflection_ =
+  EntityAck_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
-      AccountAck_descriptor_,
-      AccountAck::default_instance_,
-      AccountAck_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountAck, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountAck, _unknown_fields_),
+      EntityAck_descriptor_,
+      EntityAck::default_instance_,
+      EntityAck_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityAck, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityAck, _unknown_fields_),
       -1,
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(AccountAck));
-  Account_descriptor_ = file->message_type(5);
+      sizeof(EntityAck));
+  Entity_descriptor_ = file->message_type(5);
+  static const int Entity_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, account_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, operation_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, category_),
+  };
+  Entity_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      Entity_descriptor_,
+      Entity::default_instance_,
+      Entity_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Entity));
+  Account_descriptor_ = file->message_type(6);
   static const int Account_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Account, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Account, name_),
@@ -154,6 +180,46 @@ void protobuf_AssignDesc_sync_5fprotocol_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Account));
+  Operation_descriptor_ = file->message_type(7);
+  static const int Operation_offsets_[8] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Operation, id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Operation, description_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Operation, time_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Operation, chargerid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Operation, beneficiarid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Operation, amount_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Operation, convertingrate_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Operation, categoryid_),
+  };
+  Operation_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      Operation_descriptor_,
+      Operation::default_instance_,
+      Operation_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Operation, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Operation, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Operation));
+  Category_descriptor_ = file->message_type(8);
+  static const int Category_offsets_[4] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Category, id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Category, name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Category, type_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Category, preferredaccount_),
+  };
+  Category_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      Category_descriptor_,
+      Category::default_instance_,
+      Category_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Category, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Category, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Category));
 }
 
 namespace {
@@ -171,13 +237,19 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     SyncResponse_descriptor_, &SyncResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    AccountRequest_descriptor_, &AccountRequest::default_instance());
+    EntityRequest_descriptor_, &EntityRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    AccountResponse_descriptor_, &AccountResponse::default_instance());
+    EntityResponse_descriptor_, &EntityResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    AccountAck_descriptor_, &AccountAck::default_instance());
+    EntityAck_descriptor_, &EntityAck::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    Entity_descriptor_, &Entity::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Account_descriptor_, &Account::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    Operation_descriptor_, &Operation::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    Category_descriptor_, &Category::default_instance());
 }
 
 }  // namespace
@@ -187,14 +259,20 @@ void protobuf_ShutdownFile_sync_5fprotocol_2eproto() {
   delete SyncRequest_reflection_;
   delete SyncResponse::default_instance_;
   delete SyncResponse_reflection_;
-  delete AccountRequest::default_instance_;
-  delete AccountRequest_reflection_;
-  delete AccountResponse::default_instance_;
-  delete AccountResponse_reflection_;
-  delete AccountAck::default_instance_;
-  delete AccountAck_reflection_;
+  delete EntityRequest::default_instance_;
+  delete EntityRequest_reflection_;
+  delete EntityResponse::default_instance_;
+  delete EntityResponse_reflection_;
+  delete EntityAck::default_instance_;
+  delete EntityAck_reflection_;
+  delete Entity::default_instance_;
+  delete Entity_reflection_;
   delete Account::default_instance_;
   delete Account_reflection_;
+  delete Operation::default_instance_;
+  delete Operation_reflection_;
+  delete Category::default_instance_;
+  delete Category_reflection_;
 }
 
 void protobuf_AddDesc_sync_5fprotocol_2eproto() {
@@ -213,28 +291,44 @@ void protobuf_AddDesc_sync_5fprotocol_2eproto() {
     ".com.adonai.wallet.sync.SyncResponse.Syn"
     "cAck\"L\n\007SyncAck\022\007\n\002OK\020\310\001\022\023\n\016ACCOUNT_EXIS"
     "TS\020\222\003\022\017\n\nAUTH_WRONG\020\223\003\022\022\n\rUNKNOWN_ERROR\020"
-    "\347\007\"!\n\016AccountRequest\022\017\n\007knownID\030\001 \003(\003\"V\n"
-    "\017AccountResponse\022\021\n\tdeletedID\030\001 \003(\003\0220\n\007a"
-    "ccount\030\002 \003(\0132\037.com.adonai.wallet.sync.Ac"
-    "count\"6\n\nAccountAck\022\023\n\013deletedGuid\030\001 \003(\003"
-    "\022\023\n\013writtenGuid\030\002 \003(\003\"i\n\007Account\022\n\n\002ID\030\001"
-    " \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n\013description\030\003 \001(\t\022"
-    "\020\n\010currency\030\004 \002(\t\022\016\n\006amount\030\005 \002(\t\022\r\n\005col"
-    "or\030\006 \001(\005", 648);
+    "\347\007\" \n\rEntityRequest\022\017\n\007knownID\030\001 \003(\003\"S\n\016"
+    "EntityResponse\022\021\n\tdeletedID\030\001 \003(\003\022.\n\006ent"
+    "ity\030\002 \003(\0132\036.com.adonai.wallet.sync.Entit"
+    "y\"5\n\tEntityAck\022\023\n\013deletedGuid\030\001 \003(\003\022\023\n\013w"
+    "rittenGuid\030\002 \003(\003\"\244\001\n\006Entity\0220\n\007account\030\001"
+    " \001(\0132\037.com.adonai.wallet.sync.Account\0224\n"
+    "\toperation\030\002 \001(\0132!.com.adonai.wallet.syn"
+    "c.Operation\0222\n\010category\030\003 \001(\0132 .com.adon"
+    "ai.wallet.sync.Category\"i\n\007Account\022\n\n\002ID"
+    "\030\001 \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n\013description\030\003 \001("
+    "\t\022\020\n\010currency\030\004 \002(\t\022\016\n\006amount\030\005 \002(\t\022\r\n\005c"
+    "olor\030\006 \001(\005\"\237\001\n\tOperation\022\n\n\002ID\030\001 \002(\004\022\023\n\013"
+    "description\030\002 \001(\t\022\014\n\004time\030\003 \002(\004\022\021\n\tcharg"
+    "erId\030\004 \001(\004\022\024\n\014beneficiarId\030\005 \001(\004\022\016\n\006amou"
+    "nt\030\006 \002(\t\022\026\n\016convertingRate\030\007 \001(\002\022\022\n\ncate"
+    "goryId\030\010 \002(\004\"L\n\010Category\022\n\n\002ID\030\001 \002(\004\022\014\n\004"
+    "name\030\002 \002(\t\022\014\n\004type\030\003 \002(\r\022\030\n\020preferredAcc"
+    "ount\030\004 \001(\004", 1050);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "sync_protocol.proto", &protobuf_RegisterTypes);
   SyncRequest::default_instance_ = new SyncRequest();
   SyncResponse::default_instance_ = new SyncResponse();
-  AccountRequest::default_instance_ = new AccountRequest();
-  AccountResponse::default_instance_ = new AccountResponse();
-  AccountAck::default_instance_ = new AccountAck();
+  EntityRequest::default_instance_ = new EntityRequest();
+  EntityResponse::default_instance_ = new EntityResponse();
+  EntityAck::default_instance_ = new EntityAck();
+  Entity::default_instance_ = new Entity();
   Account::default_instance_ = new Account();
+  Operation::default_instance_ = new Operation();
+  Category::default_instance_ = new Category();
   SyncRequest::default_instance_->InitAsDefaultInstance();
   SyncResponse::default_instance_->InitAsDefaultInstance();
-  AccountRequest::default_instance_->InitAsDefaultInstance();
-  AccountResponse::default_instance_->InitAsDefaultInstance();
-  AccountAck::default_instance_->InitAsDefaultInstance();
+  EntityRequest::default_instance_->InitAsDefaultInstance();
+  EntityResponse::default_instance_->InitAsDefaultInstance();
+  EntityAck::default_instance_->InitAsDefaultInstance();
+  Entity::default_instance_->InitAsDefaultInstance();
   Account::default_instance_->InitAsDefaultInstance();
+  Operation::default_instance_->InitAsDefaultInstance();
+  Category::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_sync_5fprotocol_2eproto);
 }
 
@@ -838,65 +932,65 @@ void SyncResponse::Swap(SyncResponse* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int AccountRequest::kKnownIDFieldNumber;
+const int EntityRequest::kKnownIDFieldNumber;
 #endif  // !_MSC_VER
 
-AccountRequest::AccountRequest()
+EntityRequest::EntityRequest()
   : ::google::protobuf::Message() {
   SharedCtor();
 }
 
-void AccountRequest::InitAsDefaultInstance() {
+void EntityRequest::InitAsDefaultInstance() {
 }
 
-AccountRequest::AccountRequest(const AccountRequest& from)
+EntityRequest::EntityRequest(const EntityRequest& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
 }
 
-void AccountRequest::SharedCtor() {
+void EntityRequest::SharedCtor() {
   _cached_size_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
-AccountRequest::~AccountRequest() {
+EntityRequest::~EntityRequest() {
   SharedDtor();
 }
 
-void AccountRequest::SharedDtor() {
+void EntityRequest::SharedDtor() {
   if (this != default_instance_) {
   }
 }
 
-void AccountRequest::SetCachedSize(int size) const {
+void EntityRequest::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* AccountRequest::descriptor() {
+const ::google::protobuf::Descriptor* EntityRequest::descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return AccountRequest_descriptor_;
+  return EntityRequest_descriptor_;
 }
 
-const AccountRequest& AccountRequest::default_instance() {
+const EntityRequest& EntityRequest::default_instance() {
   if (default_instance_ == NULL) protobuf_AddDesc_sync_5fprotocol_2eproto();
   return *default_instance_;
 }
 
-AccountRequest* AccountRequest::default_instance_ = NULL;
+EntityRequest* EntityRequest::default_instance_ = NULL;
 
-AccountRequest* AccountRequest::New() const {
-  return new AccountRequest;
+EntityRequest* EntityRequest::New() const {
+  return new EntityRequest;
 }
 
-void AccountRequest::Clear() {
+void EntityRequest::Clear() {
   knownid_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
-bool AccountRequest::MergePartialFromCodedStream(
+bool EntityRequest::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!(EXPRESSION)) return false
   ::google::protobuf::uint32 tag;
@@ -940,7 +1034,7 @@ bool AccountRequest::MergePartialFromCodedStream(
 #undef DO_
 }
 
-void AccountRequest::SerializeWithCachedSizes(
+void EntityRequest::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // repeated int64 knownID = 1;
   for (int i = 0; i < this->knownid_size(); i++) {
@@ -954,7 +1048,7 @@ void AccountRequest::SerializeWithCachedSizes(
   }
 }
 
-::google::protobuf::uint8* AccountRequest::SerializeWithCachedSizesToArray(
+::google::protobuf::uint8* EntityRequest::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // repeated int64 knownID = 1;
   for (int i = 0; i < this->knownid_size(); i++) {
@@ -969,7 +1063,7 @@ void AccountRequest::SerializeWithCachedSizes(
   return target;
 }
 
-int AccountRequest::ByteSize() const {
+int EntityRequest::ByteSize() const {
   int total_size = 0;
 
   // repeated int64 knownID = 1;
@@ -993,10 +1087,10 @@ int AccountRequest::ByteSize() const {
   return total_size;
 }
 
-void AccountRequest::MergeFrom(const ::google::protobuf::Message& from) {
+void EntityRequest::MergeFrom(const ::google::protobuf::Message& from) {
   GOOGLE_CHECK_NE(&from, this);
-  const AccountRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const AccountRequest*>(
+  const EntityRequest* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const EntityRequest*>(
       &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
@@ -1005,30 +1099,30 @@ void AccountRequest::MergeFrom(const ::google::protobuf::Message& from) {
   }
 }
 
-void AccountRequest::MergeFrom(const AccountRequest& from) {
+void EntityRequest::MergeFrom(const EntityRequest& from) {
   GOOGLE_CHECK_NE(&from, this);
   knownid_.MergeFrom(from.knownid_);
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
-void AccountRequest::CopyFrom(const ::google::protobuf::Message& from) {
+void EntityRequest::CopyFrom(const ::google::protobuf::Message& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void AccountRequest::CopyFrom(const AccountRequest& from) {
+void EntityRequest::CopyFrom(const EntityRequest& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool AccountRequest::IsInitialized() const {
+bool EntityRequest::IsInitialized() const {
 
   return true;
 }
 
-void AccountRequest::Swap(AccountRequest* other) {
+void EntityRequest::Swap(EntityRequest* other) {
   if (other != this) {
     knownid_.Swap(&other->knownid_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
@@ -1037,11 +1131,11 @@ void AccountRequest::Swap(AccountRequest* other) {
   }
 }
 
-::google::protobuf::Metadata AccountRequest::GetMetadata() const {
+::google::protobuf::Metadata EntityRequest::GetMetadata() const {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::Metadata metadata;
-  metadata.descriptor = AccountRequest_descriptor_;
-  metadata.reflection = AccountRequest_reflection_;
+  metadata.descriptor = EntityRequest_descriptor_;
+  metadata.reflection = EntityRequest_reflection_;
   return metadata;
 }
 
@@ -1049,67 +1143,67 @@ void AccountRequest::Swap(AccountRequest* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int AccountResponse::kDeletedIDFieldNumber;
-const int AccountResponse::kAccountFieldNumber;
+const int EntityResponse::kDeletedIDFieldNumber;
+const int EntityResponse::kEntityFieldNumber;
 #endif  // !_MSC_VER
 
-AccountResponse::AccountResponse()
+EntityResponse::EntityResponse()
   : ::google::protobuf::Message() {
   SharedCtor();
 }
 
-void AccountResponse::InitAsDefaultInstance() {
+void EntityResponse::InitAsDefaultInstance() {
 }
 
-AccountResponse::AccountResponse(const AccountResponse& from)
+EntityResponse::EntityResponse(const EntityResponse& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
 }
 
-void AccountResponse::SharedCtor() {
+void EntityResponse::SharedCtor() {
   _cached_size_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
-AccountResponse::~AccountResponse() {
+EntityResponse::~EntityResponse() {
   SharedDtor();
 }
 
-void AccountResponse::SharedDtor() {
+void EntityResponse::SharedDtor() {
   if (this != default_instance_) {
   }
 }
 
-void AccountResponse::SetCachedSize(int size) const {
+void EntityResponse::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* AccountResponse::descriptor() {
+const ::google::protobuf::Descriptor* EntityResponse::descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return AccountResponse_descriptor_;
+  return EntityResponse_descriptor_;
 }
 
-const AccountResponse& AccountResponse::default_instance() {
+const EntityResponse& EntityResponse::default_instance() {
   if (default_instance_ == NULL) protobuf_AddDesc_sync_5fprotocol_2eproto();
   return *default_instance_;
 }
 
-AccountResponse* AccountResponse::default_instance_ = NULL;
+EntityResponse* EntityResponse::default_instance_ = NULL;
 
-AccountResponse* AccountResponse::New() const {
-  return new AccountResponse;
+EntityResponse* EntityResponse::New() const {
+  return new EntityResponse;
 }
 
-void AccountResponse::Clear() {
+void EntityResponse::Clear() {
   deletedid_.Clear();
-  account_.Clear();
+  entity_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
-bool AccountResponse::MergePartialFromCodedStream(
+bool EntityResponse::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!(EXPRESSION)) return false
   ::google::protobuf::uint32 tag;
@@ -1133,21 +1227,21 @@ bool AccountResponse::MergePartialFromCodedStream(
           goto handle_uninterpreted;
         }
         if (input->ExpectTag(8)) goto parse_deletedID;
-        if (input->ExpectTag(18)) goto parse_account;
+        if (input->ExpectTag(18)) goto parse_entity;
         break;
       }
 
-      // repeated .com.adonai.wallet.sync.Account account = 2;
+      // repeated .com.adonai.wallet.sync.Entity entity = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_account:
+         parse_entity:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_account()));
+                input, add_entity()));
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(18)) goto parse_account;
+        if (input->ExpectTag(18)) goto parse_entity;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1168,7 +1262,7 @@ bool AccountResponse::MergePartialFromCodedStream(
 #undef DO_
 }
 
-void AccountResponse::SerializeWithCachedSizes(
+void EntityResponse::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // repeated int64 deletedID = 1;
   for (int i = 0; i < this->deletedid_size(); i++) {
@@ -1176,10 +1270,10 @@ void AccountResponse::SerializeWithCachedSizes(
       1, this->deletedid(i), output);
   }
 
-  // repeated .com.adonai.wallet.sync.Account account = 2;
-  for (int i = 0; i < this->account_size(); i++) {
+  // repeated .com.adonai.wallet.sync.Entity entity = 2;
+  for (int i = 0; i < this->entity_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->account(i), output);
+      2, this->entity(i), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -1188,7 +1282,7 @@ void AccountResponse::SerializeWithCachedSizes(
   }
 }
 
-::google::protobuf::uint8* AccountResponse::SerializeWithCachedSizesToArray(
+::google::protobuf::uint8* EntityResponse::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // repeated int64 deletedID = 1;
   for (int i = 0; i < this->deletedid_size(); i++) {
@@ -1196,11 +1290,11 @@ void AccountResponse::SerializeWithCachedSizes(
       WriteInt64ToArray(1, this->deletedid(i), target);
   }
 
-  // repeated .com.adonai.wallet.sync.Account account = 2;
-  for (int i = 0; i < this->account_size(); i++) {
+  // repeated .com.adonai.wallet.sync.Entity entity = 2;
+  for (int i = 0; i < this->entity_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        2, this->account(i), target);
+        2, this->entity(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1210,7 +1304,7 @@ void AccountResponse::SerializeWithCachedSizes(
   return target;
 }
 
-int AccountResponse::ByteSize() const {
+int EntityResponse::ByteSize() const {
   int total_size = 0;
 
   // repeated int64 deletedID = 1;
@@ -1223,12 +1317,12 @@ int AccountResponse::ByteSize() const {
     total_size += 1 * this->deletedid_size() + data_size;
   }
 
-  // repeated .com.adonai.wallet.sync.Account account = 2;
-  total_size += 1 * this->account_size();
-  for (int i = 0; i < this->account_size(); i++) {
+  // repeated .com.adonai.wallet.sync.Entity entity = 2;
+  total_size += 1 * this->entity_size();
+  for (int i = 0; i < this->entity_size(); i++) {
     total_size +=
       ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->account(i));
+        this->entity(i));
   }
 
   if (!unknown_fields().empty()) {
@@ -1242,10 +1336,10 @@ int AccountResponse::ByteSize() const {
   return total_size;
 }
 
-void AccountResponse::MergeFrom(const ::google::protobuf::Message& from) {
+void EntityResponse::MergeFrom(const ::google::protobuf::Message& from) {
   GOOGLE_CHECK_NE(&from, this);
-  const AccountResponse* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const AccountResponse*>(
+  const EntityResponse* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const EntityResponse*>(
       &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
@@ -1254,48 +1348,48 @@ void AccountResponse::MergeFrom(const ::google::protobuf::Message& from) {
   }
 }
 
-void AccountResponse::MergeFrom(const AccountResponse& from) {
+void EntityResponse::MergeFrom(const EntityResponse& from) {
   GOOGLE_CHECK_NE(&from, this);
   deletedid_.MergeFrom(from.deletedid_);
-  account_.MergeFrom(from.account_);
+  entity_.MergeFrom(from.entity_);
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
-void AccountResponse::CopyFrom(const ::google::protobuf::Message& from) {
+void EntityResponse::CopyFrom(const ::google::protobuf::Message& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void AccountResponse::CopyFrom(const AccountResponse& from) {
+void EntityResponse::CopyFrom(const EntityResponse& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool AccountResponse::IsInitialized() const {
+bool EntityResponse::IsInitialized() const {
 
-  for (int i = 0; i < account_size(); i++) {
-    if (!this->account(i).IsInitialized()) return false;
+  for (int i = 0; i < entity_size(); i++) {
+    if (!this->entity(i).IsInitialized()) return false;
   }
   return true;
 }
 
-void AccountResponse::Swap(AccountResponse* other) {
+void EntityResponse::Swap(EntityResponse* other) {
   if (other != this) {
     deletedid_.Swap(&other->deletedid_);
-    account_.Swap(&other->account_);
+    entity_.Swap(&other->entity_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
   }
 }
 
-::google::protobuf::Metadata AccountResponse::GetMetadata() const {
+::google::protobuf::Metadata EntityResponse::GetMetadata() const {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::Metadata metadata;
-  metadata.descriptor = AccountResponse_descriptor_;
-  metadata.reflection = AccountResponse_reflection_;
+  metadata.descriptor = EntityResponse_descriptor_;
+  metadata.reflection = EntityResponse_reflection_;
   return metadata;
 }
 
@@ -1303,67 +1397,67 @@ void AccountResponse::Swap(AccountResponse* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int AccountAck::kDeletedGuidFieldNumber;
-const int AccountAck::kWrittenGuidFieldNumber;
+const int EntityAck::kDeletedGuidFieldNumber;
+const int EntityAck::kWrittenGuidFieldNumber;
 #endif  // !_MSC_VER
 
-AccountAck::AccountAck()
+EntityAck::EntityAck()
   : ::google::protobuf::Message() {
   SharedCtor();
 }
 
-void AccountAck::InitAsDefaultInstance() {
+void EntityAck::InitAsDefaultInstance() {
 }
 
-AccountAck::AccountAck(const AccountAck& from)
+EntityAck::EntityAck(const EntityAck& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
 }
 
-void AccountAck::SharedCtor() {
+void EntityAck::SharedCtor() {
   _cached_size_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
-AccountAck::~AccountAck() {
+EntityAck::~EntityAck() {
   SharedDtor();
 }
 
-void AccountAck::SharedDtor() {
+void EntityAck::SharedDtor() {
   if (this != default_instance_) {
   }
 }
 
-void AccountAck::SetCachedSize(int size) const {
+void EntityAck::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* AccountAck::descriptor() {
+const ::google::protobuf::Descriptor* EntityAck::descriptor() {
   protobuf_AssignDescriptorsOnce();
-  return AccountAck_descriptor_;
+  return EntityAck_descriptor_;
 }
 
-const AccountAck& AccountAck::default_instance() {
+const EntityAck& EntityAck::default_instance() {
   if (default_instance_ == NULL) protobuf_AddDesc_sync_5fprotocol_2eproto();
   return *default_instance_;
 }
 
-AccountAck* AccountAck::default_instance_ = NULL;
+EntityAck* EntityAck::default_instance_ = NULL;
 
-AccountAck* AccountAck::New() const {
-  return new AccountAck;
+EntityAck* EntityAck::New() const {
+  return new EntityAck;
 }
 
-void AccountAck::Clear() {
+void EntityAck::Clear() {
   deletedguid_.Clear();
   writtenguid_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
-bool AccountAck::MergePartialFromCodedStream(
+bool EntityAck::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!(EXPRESSION)) return false
   ::google::protobuf::uint32 tag;
@@ -1429,7 +1523,7 @@ bool AccountAck::MergePartialFromCodedStream(
 #undef DO_
 }
 
-void AccountAck::SerializeWithCachedSizes(
+void EntityAck::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // repeated int64 deletedGuid = 1;
   for (int i = 0; i < this->deletedguid_size(); i++) {
@@ -1449,7 +1543,7 @@ void AccountAck::SerializeWithCachedSizes(
   }
 }
 
-::google::protobuf::uint8* AccountAck::SerializeWithCachedSizesToArray(
+::google::protobuf::uint8* EntityAck::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // repeated int64 deletedGuid = 1;
   for (int i = 0; i < this->deletedguid_size(); i++) {
@@ -1470,7 +1564,7 @@ void AccountAck::SerializeWithCachedSizes(
   return target;
 }
 
-int AccountAck::ByteSize() const {
+int EntityAck::ByteSize() const {
   int total_size = 0;
 
   // repeated int64 deletedGuid = 1;
@@ -1504,10 +1598,10 @@ int AccountAck::ByteSize() const {
   return total_size;
 }
 
-void AccountAck::MergeFrom(const ::google::protobuf::Message& from) {
+void EntityAck::MergeFrom(const ::google::protobuf::Message& from) {
   GOOGLE_CHECK_NE(&from, this);
-  const AccountAck* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const AccountAck*>(
+  const EntityAck* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const EntityAck*>(
       &from);
   if (source == NULL) {
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
@@ -1516,31 +1610,31 @@ void AccountAck::MergeFrom(const ::google::protobuf::Message& from) {
   }
 }
 
-void AccountAck::MergeFrom(const AccountAck& from) {
+void EntityAck::MergeFrom(const EntityAck& from) {
   GOOGLE_CHECK_NE(&from, this);
   deletedguid_.MergeFrom(from.deletedguid_);
   writtenguid_.MergeFrom(from.writtenguid_);
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
-void AccountAck::CopyFrom(const ::google::protobuf::Message& from) {
+void EntityAck::CopyFrom(const ::google::protobuf::Message& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void AccountAck::CopyFrom(const AccountAck& from) {
+void EntityAck::CopyFrom(const EntityAck& from) {
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool AccountAck::IsInitialized() const {
+bool EntityAck::IsInitialized() const {
 
   return true;
 }
 
-void AccountAck::Swap(AccountAck* other) {
+void EntityAck::Swap(EntityAck* other) {
   if (other != this) {
     deletedguid_.Swap(&other->deletedguid_);
     writtenguid_.Swap(&other->writtenguid_);
@@ -1550,11 +1644,323 @@ void AccountAck::Swap(AccountAck* other) {
   }
 }
 
-::google::protobuf::Metadata AccountAck::GetMetadata() const {
+::google::protobuf::Metadata EntityAck::GetMetadata() const {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::Metadata metadata;
-  metadata.descriptor = AccountAck_descriptor_;
-  metadata.reflection = AccountAck_reflection_;
+  metadata.descriptor = EntityAck_descriptor_;
+  metadata.reflection = EntityAck_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int Entity::kAccountFieldNumber;
+const int Entity::kOperationFieldNumber;
+const int Entity::kCategoryFieldNumber;
+#endif  // !_MSC_VER
+
+Entity::Entity()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void Entity::InitAsDefaultInstance() {
+  account_ = const_cast< ::com::adonai::wallet::sync::Account*>(&::com::adonai::wallet::sync::Account::default_instance());
+  operation_ = const_cast< ::com::adonai::wallet::sync::Operation*>(&::com::adonai::wallet::sync::Operation::default_instance());
+  category_ = const_cast< ::com::adonai::wallet::sync::Category*>(&::com::adonai::wallet::sync::Category::default_instance());
+}
+
+Entity::Entity(const Entity& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void Entity::SharedCtor() {
+  _cached_size_ = 0;
+  account_ = NULL;
+  operation_ = NULL;
+  category_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+Entity::~Entity() {
+  SharedDtor();
+}
+
+void Entity::SharedDtor() {
+  if (this != default_instance_) {
+    delete account_;
+    delete operation_;
+    delete category_;
+  }
+}
+
+void Entity::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Entity::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Entity_descriptor_;
+}
+
+const Entity& Entity::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_sync_5fprotocol_2eproto();
+  return *default_instance_;
+}
+
+Entity* Entity::default_instance_ = NULL;
+
+Entity* Entity::New() const {
+  return new Entity;
+}
+
+void Entity::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (has_account()) {
+      if (account_ != NULL) account_->::com::adonai::wallet::sync::Account::Clear();
+    }
+    if (has_operation()) {
+      if (operation_ != NULL) operation_->::com::adonai::wallet::sync::Operation::Clear();
+    }
+    if (has_category()) {
+      if (category_ != NULL) category_->::com::adonai::wallet::sync::Category::Clear();
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool Entity::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional .com.adonai.wallet.sync.Account account = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_account()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_operation;
+        break;
+      }
+
+      // optional .com.adonai.wallet.sync.Operation operation = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_operation:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_operation()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(26)) goto parse_category;
+        break;
+      }
+
+      // optional .com.adonai.wallet.sync.Category category = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_category:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_category()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void Entity::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // optional .com.adonai.wallet.sync.Account account = 1;
+  if (has_account()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->account(), output);
+  }
+
+  // optional .com.adonai.wallet.sync.Operation operation = 2;
+  if (has_operation()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->operation(), output);
+  }
+
+  // optional .com.adonai.wallet.sync.Category category = 3;
+  if (has_category()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, this->category(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* Entity::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // optional .com.adonai.wallet.sync.Account account = 1;
+  if (has_account()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->account(), target);
+  }
+
+  // optional .com.adonai.wallet.sync.Operation operation = 2;
+  if (has_operation()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->operation(), target);
+  }
+
+  // optional .com.adonai.wallet.sync.Category category = 3;
+  if (has_category()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        3, this->category(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int Entity::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional .com.adonai.wallet.sync.Account account = 1;
+    if (has_account()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->account());
+    }
+
+    // optional .com.adonai.wallet.sync.Operation operation = 2;
+    if (has_operation()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->operation());
+    }
+
+    // optional .com.adonai.wallet.sync.Category category = 3;
+    if (has_category()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->category());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Entity::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const Entity* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const Entity*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void Entity::MergeFrom(const Entity& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_account()) {
+      mutable_account()->::com::adonai::wallet::sync::Account::MergeFrom(from.account());
+    }
+    if (from.has_operation()) {
+      mutable_operation()->::com::adonai::wallet::sync::Operation::MergeFrom(from.operation());
+    }
+    if (from.has_category()) {
+      mutable_category()->::com::adonai::wallet::sync::Category::MergeFrom(from.category());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void Entity::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Entity::CopyFrom(const Entity& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Entity::IsInitialized() const {
+
+  if (has_account()) {
+    if (!this->account().IsInitialized()) return false;
+  }
+  if (has_operation()) {
+    if (!this->operation().IsInitialized()) return false;
+  }
+  if (has_category()) {
+    if (!this->category().IsInitialized()) return false;
+  }
+  return true;
+}
+
+void Entity::Swap(Entity* other) {
+  if (other != this) {
+    std::swap(account_, other->account_);
+    std::swap(operation_, other->operation_);
+    std::swap(category_, other->category_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata Entity::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Entity_descriptor_;
+  metadata.reflection = Entity_reflection_;
   return metadata;
 }
 
@@ -2032,6 +2438,873 @@ void Account::Swap(Account* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = Account_descriptor_;
   metadata.reflection = Account_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int Operation::kIDFieldNumber;
+const int Operation::kDescriptionFieldNumber;
+const int Operation::kTimeFieldNumber;
+const int Operation::kChargerIdFieldNumber;
+const int Operation::kBeneficiarIdFieldNumber;
+const int Operation::kAmountFieldNumber;
+const int Operation::kConvertingRateFieldNumber;
+const int Operation::kCategoryIdFieldNumber;
+#endif  // !_MSC_VER
+
+Operation::Operation()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void Operation::InitAsDefaultInstance() {
+}
+
+Operation::Operation(const Operation& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void Operation::SharedCtor() {
+  _cached_size_ = 0;
+  id_ = GOOGLE_ULONGLONG(0);
+  description_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  time_ = GOOGLE_ULONGLONG(0);
+  chargerid_ = GOOGLE_ULONGLONG(0);
+  beneficiarid_ = GOOGLE_ULONGLONG(0);
+  amount_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  convertingrate_ = 0;
+  categoryid_ = GOOGLE_ULONGLONG(0);
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+Operation::~Operation() {
+  SharedDtor();
+}
+
+void Operation::SharedDtor() {
+  if (description_ != &::google::protobuf::internal::kEmptyString) {
+    delete description_;
+  }
+  if (amount_ != &::google::protobuf::internal::kEmptyString) {
+    delete amount_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void Operation::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Operation::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Operation_descriptor_;
+}
+
+const Operation& Operation::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_sync_5fprotocol_2eproto();
+  return *default_instance_;
+}
+
+Operation* Operation::default_instance_ = NULL;
+
+Operation* Operation::New() const {
+  return new Operation;
+}
+
+void Operation::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    id_ = GOOGLE_ULONGLONG(0);
+    if (has_description()) {
+      if (description_ != &::google::protobuf::internal::kEmptyString) {
+        description_->clear();
+      }
+    }
+    time_ = GOOGLE_ULONGLONG(0);
+    chargerid_ = GOOGLE_ULONGLONG(0);
+    beneficiarid_ = GOOGLE_ULONGLONG(0);
+    if (has_amount()) {
+      if (amount_ != &::google::protobuf::internal::kEmptyString) {
+        amount_->clear();
+      }
+    }
+    convertingrate_ = 0;
+    categoryid_ = GOOGLE_ULONGLONG(0);
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool Operation::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required uint64 ID = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &id_)));
+          set_has_id();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_description;
+        break;
+      }
+
+      // optional string description = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_description:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_description()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->description().data(), this->description().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(24)) goto parse_time;
+        break;
+      }
+
+      // required uint64 time = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_time:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &time_)));
+          set_has_time();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(32)) goto parse_chargerId;
+        break;
+      }
+
+      // optional uint64 chargerId = 4;
+      case 4: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_chargerId:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &chargerid_)));
+          set_has_chargerid();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(40)) goto parse_beneficiarId;
+        break;
+      }
+
+      // optional uint64 beneficiarId = 5;
+      case 5: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_beneficiarId:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &beneficiarid_)));
+          set_has_beneficiarid();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(50)) goto parse_amount;
+        break;
+      }
+
+      // required string amount = 6;
+      case 6: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_amount:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_amount()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->amount().data(), this->amount().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(61)) goto parse_convertingRate;
+        break;
+      }
+
+      // optional float convertingRate = 7;
+      case 7: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED32) {
+         parse_convertingRate:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &convertingrate_)));
+          set_has_convertingrate();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(64)) goto parse_categoryId;
+        break;
+      }
+
+      // required uint64 categoryId = 8;
+      case 8: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_categoryId:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &categoryid_)));
+          set_has_categoryid();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void Operation::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required uint64 ID = 1;
+  if (has_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->id(), output);
+  }
+
+  // optional string description = 2;
+  if (has_description()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->description().data(), this->description().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      2, this->description(), output);
+  }
+
+  // required uint64 time = 3;
+  if (has_time()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->time(), output);
+  }
+
+  // optional uint64 chargerId = 4;
+  if (has_chargerid()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->chargerid(), output);
+  }
+
+  // optional uint64 beneficiarId = 5;
+  if (has_beneficiarid()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(5, this->beneficiarid(), output);
+  }
+
+  // required string amount = 6;
+  if (has_amount()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->amount().data(), this->amount().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      6, this->amount(), output);
+  }
+
+  // optional float convertingRate = 7;
+  if (has_convertingrate()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(7, this->convertingrate(), output);
+  }
+
+  // required uint64 categoryId = 8;
+  if (has_categoryid()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(8, this->categoryid(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* Operation::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required uint64 ID = 1;
+  if (has_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->id(), target);
+  }
+
+  // optional string description = 2;
+  if (has_description()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->description().data(), this->description().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->description(), target);
+  }
+
+  // required uint64 time = 3;
+  if (has_time()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->time(), target);
+  }
+
+  // optional uint64 chargerId = 4;
+  if (has_chargerid()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->chargerid(), target);
+  }
+
+  // optional uint64 beneficiarId = 5;
+  if (has_beneficiarid()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(5, this->beneficiarid(), target);
+  }
+
+  // required string amount = 6;
+  if (has_amount()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->amount().data(), this->amount().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        6, this->amount(), target);
+  }
+
+  // optional float convertingRate = 7;
+  if (has_convertingrate()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(7, this->convertingrate(), target);
+  }
+
+  // required uint64 categoryId = 8;
+  if (has_categoryid()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(8, this->categoryid(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int Operation::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required uint64 ID = 1;
+    if (has_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->id());
+    }
+
+    // optional string description = 2;
+    if (has_description()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->description());
+    }
+
+    // required uint64 time = 3;
+    if (has_time()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->time());
+    }
+
+    // optional uint64 chargerId = 4;
+    if (has_chargerid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->chargerid());
+    }
+
+    // optional uint64 beneficiarId = 5;
+    if (has_beneficiarid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->beneficiarid());
+    }
+
+    // required string amount = 6;
+    if (has_amount()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->amount());
+    }
+
+    // optional float convertingRate = 7;
+    if (has_convertingrate()) {
+      total_size += 1 + 4;
+    }
+
+    // required uint64 categoryId = 8;
+    if (has_categoryid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->categoryid());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Operation::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const Operation* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const Operation*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void Operation::MergeFrom(const Operation& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_id()) {
+      set_id(from.id());
+    }
+    if (from.has_description()) {
+      set_description(from.description());
+    }
+    if (from.has_time()) {
+      set_time(from.time());
+    }
+    if (from.has_chargerid()) {
+      set_chargerid(from.chargerid());
+    }
+    if (from.has_beneficiarid()) {
+      set_beneficiarid(from.beneficiarid());
+    }
+    if (from.has_amount()) {
+      set_amount(from.amount());
+    }
+    if (from.has_convertingrate()) {
+      set_convertingrate(from.convertingrate());
+    }
+    if (from.has_categoryid()) {
+      set_categoryid(from.categoryid());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void Operation::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Operation::CopyFrom(const Operation& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Operation::IsInitialized() const {
+  if ((_has_bits_[0] & 0x000000a5) != 0x000000a5) return false;
+
+  return true;
+}
+
+void Operation::Swap(Operation* other) {
+  if (other != this) {
+    std::swap(id_, other->id_);
+    std::swap(description_, other->description_);
+    std::swap(time_, other->time_);
+    std::swap(chargerid_, other->chargerid_);
+    std::swap(beneficiarid_, other->beneficiarid_);
+    std::swap(amount_, other->amount_);
+    std::swap(convertingrate_, other->convertingrate_);
+    std::swap(categoryid_, other->categoryid_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata Operation::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Operation_descriptor_;
+  metadata.reflection = Operation_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int Category::kIDFieldNumber;
+const int Category::kNameFieldNumber;
+const int Category::kTypeFieldNumber;
+const int Category::kPreferredAccountFieldNumber;
+#endif  // !_MSC_VER
+
+Category::Category()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void Category::InitAsDefaultInstance() {
+}
+
+Category::Category(const Category& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void Category::SharedCtor() {
+  _cached_size_ = 0;
+  id_ = GOOGLE_ULONGLONG(0);
+  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  type_ = 0u;
+  preferredaccount_ = GOOGLE_ULONGLONG(0);
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+Category::~Category() {
+  SharedDtor();
+}
+
+void Category::SharedDtor() {
+  if (name_ != &::google::protobuf::internal::kEmptyString) {
+    delete name_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void Category::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Category::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Category_descriptor_;
+}
+
+const Category& Category::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_sync_5fprotocol_2eproto();
+  return *default_instance_;
+}
+
+Category* Category::default_instance_ = NULL;
+
+Category* Category::New() const {
+  return new Category;
+}
+
+void Category::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    id_ = GOOGLE_ULONGLONG(0);
+    if (has_name()) {
+      if (name_ != &::google::protobuf::internal::kEmptyString) {
+        name_->clear();
+      }
+    }
+    type_ = 0u;
+    preferredaccount_ = GOOGLE_ULONGLONG(0);
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool Category::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required uint64 ID = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &id_)));
+          set_has_id();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_name;
+        break;
+      }
+
+      // required string name = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_name:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_name()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->name().data(), this->name().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(24)) goto parse_type;
+        break;
+      }
+
+      // required uint32 type = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_type:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &type_)));
+          set_has_type();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(32)) goto parse_preferredAccount;
+        break;
+      }
+
+      // optional uint64 preferredAccount = 4;
+      case 4: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_preferredAccount:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &preferredaccount_)));
+          set_has_preferredaccount();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void Category::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // required uint64 ID = 1;
+  if (has_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->id(), output);
+  }
+
+  // required string name = 2;
+  if (has_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->name().data(), this->name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      2, this->name(), output);
+  }
+
+  // required uint32 type = 3;
+  if (has_type()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->type(), output);
+  }
+
+  // optional uint64 preferredAccount = 4;
+  if (has_preferredaccount()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->preferredaccount(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* Category::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // required uint64 ID = 1;
+  if (has_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->id(), target);
+  }
+
+  // required string name = 2;
+  if (has_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->name().data(), this->name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->name(), target);
+  }
+
+  // required uint32 type = 3;
+  if (has_type()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->type(), target);
+  }
+
+  // optional uint64 preferredAccount = 4;
+  if (has_preferredaccount()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->preferredaccount(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int Category::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required uint64 ID = 1;
+    if (has_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->id());
+    }
+
+    // required string name = 2;
+    if (has_name()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->name());
+    }
+
+    // required uint32 type = 3;
+    if (has_type()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->type());
+    }
+
+    // optional uint64 preferredAccount = 4;
+    if (has_preferredaccount()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->preferredaccount());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Category::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const Category* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const Category*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void Category::MergeFrom(const Category& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_id()) {
+      set_id(from.id());
+    }
+    if (from.has_name()) {
+      set_name(from.name());
+    }
+    if (from.has_type()) {
+      set_type(from.type());
+    }
+    if (from.has_preferredaccount()) {
+      set_preferredaccount(from.preferredaccount());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void Category::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Category::CopyFrom(const Category& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Category::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+
+  return true;
+}
+
+void Category::Swap(Category* other) {
+  if (other != this) {
+    std::swap(id_, other->id_);
+    std::swap(name_, other->name_);
+    std::swap(type_, other->type_);
+    std::swap(preferredaccount_, other->preferredaccount_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata Category::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Category_descriptor_;
+  metadata.reflection = Category_reflection_;
   return metadata;
 }
 

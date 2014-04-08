@@ -21,8 +21,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.adonai.wallet.sync.SyncProtocol.AccountRequest;
-import static com.adonai.wallet.sync.SyncProtocol.AccountResponse;
+import static com.adonai.wallet.sync.SyncProtocol.EntityRequest;
+import static com.adonai.wallet.sync.SyncProtocol.EntityResponse;
 import static com.adonai.wallet.sync.SyncProtocol.SyncRequest;
 import static com.adonai.wallet.sync.SyncProtocol.SyncResponse;
 
@@ -200,6 +200,9 @@ public class SyncStateMachine {
                         break;
                     }
                     case CAT_REQ: {
+                        final InputStream is = mSocket.getInputStream();
+                        final OutputStream os = mSocket.getOutputStream();
+
                         break;
                     }
                 }
@@ -217,9 +220,9 @@ public class SyncStateMachine {
             // send non-synced accounts to server
             final DatabaseDAO.SyncHelper<Account> sHelper = mContext.getEntityDAO().getSyncHelper(Account.class);
             final List<Account> nsAccs = sHelper.getNonSynced();
-            final AccountResponse.Builder toSend = AccountResponse.newBuilder();
+            final EntityResponse.Builder toSend = EntityResponse.newBuilder();
             for(final Account acc : nsAccs)
-                toSend.addAccount(Account.toProtoAccount(acc));
+                toSend.addEntity(SyncProtocol.Entity.newBuilder().setAccount(Account.toProtoAccount(acc)));
             // send deleted accounts to server
             final List<Long> delAccs = sHelper.getDeletedGUIDs();
             toSend.addAllDeletedID(delAccs);
@@ -227,7 +230,7 @@ public class SyncStateMachine {
             os.flush();
 
             // get confirmation of sync
-            final SyncProtocol.AccountAck ack = SyncProtocol.AccountAck.parseDelimitedFrom(is);
+            final SyncProtocol.EntityAck ack = SyncProtocol.EntityAck.parseDelimitedFrom(is);
             final List<Long> ackAccounts = ack.getWrittenGuidList();
             for(int i = 0; i < nsAccs.size(); ++i) { // add GUIDs to previously non-synced accs
                 final Account curr = nsAccs.get(i);
@@ -239,22 +242,22 @@ public class SyncStateMachine {
 
         private void handleAccountResponse(InputStream is) throws IOException {
             // accept account response
-            final AccountResponse response = AccountResponse.parseDelimitedFrom(is);
+            final EntityResponse response = EntityResponse.parseDelimitedFrom(is);
             // delete accounts (that were deleted on server) locally
             final List<Long> deletedAccounts = response.getDeletedIDList();
             for(final Long deleted : deletedAccounts)
                 mContext.getEntityDAO().getSyncHelper(Account.class).deleteByGuid(deleted);
             // add accounts (that were added on server) locally
-            final List<SyncProtocol.Account> accounts = response.getAccountList();
-            for(final SyncProtocol.Account acc : accounts) {
-                final Account toDatabase = Account.fromProtoAccount(acc);
+            final List<SyncProtocol.Entity> accounts = response.getEntityList();
+            for(final SyncProtocol.Entity acc : accounts) {
+                final Account toDatabase = Account.fromProtoAccount(acc.getAccount());
                 mContext.getEntityDAO().addAccount(toDatabase);
             }
         }
 
         private void sendAccountRequest(OutputStream os) throws IOException {
             // send account request with all already synced accounts
-            final AccountRequest.Builder request = AccountRequest.newBuilder()
+            final EntityRequest.Builder request = EntityRequest.newBuilder()
                     .addAllKnownID(mContext.getEntityDAO().getSyncHelper(Account.class).getKnownGUIDs());
             request.build().writeDelimitedTo(os); // actual sending of request
             os.flush();

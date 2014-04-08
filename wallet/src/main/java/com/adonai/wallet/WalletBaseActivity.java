@@ -70,6 +70,7 @@ public class WalletBaseActivity extends ActionBarActivity implements SyncStateMa
             switch (state) {
                 case INIT:
                     mProgressDialog.hide();
+                    // show message (error or success)
                     Toast.makeText(WalletBaseActivity.this, (String) msg.obj, Toast.LENGTH_SHORT).show();
                     return true;
                 case AUTH_ACK:
@@ -77,6 +78,12 @@ public class WalletBaseActivity extends ActionBarActivity implements SyncStateMa
                     return true;
                 case AUTH_DENIED:
                     mProgressDialog.hide();
+                    return true;
+                case ACC_REQ_SENT:
+                    mProgressDialog.setMessage(getString(R.string.account_request_sent));
+                    return true;
+                case ACC_REQ_ACK:
+                    mProgressDialog.setMessage(getString(R.string.account_response_received));
                     return true;
             }
             return false;
