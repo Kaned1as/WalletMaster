@@ -27,7 +27,38 @@ import static com.adonai.wallet.sync.SyncProtocol.SyncRequest;
 import static com.adonai.wallet.sync.SyncProtocol.SyncResponse;
 
 /**
- * @author adonai on 25.03.14.
+ * In short, synchronization scheme is as follows:
+ *
+ *| Client sends register/authentication packet ---------------------------------------------------------------->|
+ *|                                                                                                              |
+ *| <----------------------- Server replies with ok/error. If we have error here, communication ends immediately |
+ *|                                                                                                              |
+ *| Client sends account request containing all known to him synced account ID --------------------------------->|
+ *|                                                                                                              |
+ *| *** Server parses account request and makes a list of added/removed IDs on server based on its data          |
+ *| *** Added accounts are transferred fully and contain GUIDs if present, removed accounts contain only GUIDs   |
+ *|                                                                                                              |
+ *| <--------------------------------- Server replies with account response containing added/removed accounts    |
+ *|                                                                                                              |
+ *| *** Client adds and removes mentioned accounts locally. Thus on client we are up-to-date with server         |
+ *| *** Client makes his own account response of data that was added/removed locally                             |
+ *|                                                                                                              |
+ *| Client sends account response containing locally deleted/added accounts ------------------------------------>|
+ *|                                                                                                              |
+ *| *** Server adds or removes the client data to/from server database. Thus we are now almost synced            |
+ *| *** At te end we must send to the client data about GUIDs of newly added accounts                            |
+ *| *** Server expects no more data about current entities                                                       |
+ *|                                                                                                              |
+ *| <-------------------------------- Server replies with account acknowledge containing GUIDs of added accounts.|
+ *|                                                                                                              |
+ *| *** Client updates its accounts with the data from last packet.                                              |
+ *| *** Client also purges contents of table that tracks deletions of synced entities                            |
+ *|                                                                                                              |
+ * *** Now we are synced
+ *
+ * *** This procedure is repeated for each entity type (accounts, operations, categories)
+ *
+ *
  */
 public class SyncStateMachine {
     public enum State {
@@ -44,7 +75,16 @@ public class SyncStateMachine {
 
         ACC_REQ(true),
         ACC_REQ_SENT,
-        ACC_REQ_ACK;
+        ACC_REQ_ACK,
+
+        OP_REQ(true),
+        OP_REQ_SENT,
+        OP_REQ_ACK,
+
+        CAT_REQ(true),
+        CAT_REQ_SENT,
+        CAT_REQ_ACK;
+
 
         private boolean needsAction;
 
@@ -132,63 +172,36 @@ public class SyncStateMachine {
             final State state = State.values()[msg.what];
             try {
                 switch (state) {
-                    case AUTH: // at this state, account should be already configured and accessible from preferences!
-                        if(!mPreferences.contains(WalletConstants.ACCOUNT_NAME_KEY))
+                    case AUTH: { // at this state, account should be already configured and accessible from preferences!
+                        if (!mPreferences.contains(WalletConstants.ACCOUNT_NAME_KEY))
                             throw new RuntimeException("No account configured! Can't sync!");
 
                         mSocket = new Socket(); // creating socket here!
                         mSocket.connect(new InetSocketAddress("10.0.2.2", 17001));
 
-                        sendAuthRequest();
-                        handleAuthResponse();
-                        break;
-                    case ACC_REQ: // at this state we must be authorized on server
-                        final InputStream is = mSocket.getInputStream(); // try receive response
+                        final InputStream is = mSocket.getInputStream();
                         final OutputStream os = mSocket.getOutputStream();
 
-                        // send account request with all already synced accounts
-                        final AccountRequest.Builder request = AccountRequest.newBuilder()
-                                .addAllKnownID(mContext.getEntityDAO().getSyncHelper().getKnownGUIDs(DatabaseDAO.ACCOUNTS_TABLE_NAME));
-                        request.build().writeDelimitedTo(os); // actual sending of request
-                        os.flush();
+                        sendAuthRequest(os);
+                        handleAuthResponse(is);
+                        break;
+                    }
+                    case ACC_REQ: { // at this state we must be authorized on server
+                        final InputStream is = mSocket.getInputStream();
+                        final OutputStream os = mSocket.getOutputStream();
+                        sendAccountRequest(os);
                         setState(State.ACC_REQ_SENT);
 
-                        // accept account response
-                        final AccountResponse response = AccountResponse.parseDelimitedFrom(is);
-                        // delete accounts (that were deleted on server) locally
-                        final List<Long> deletedAccounts = response.getDeletedIDList();
-                        for(final Long deleted : deletedAccounts)
-                            mContext.getEntityDAO().getSyncHelper().deleteByGuid(DatabaseDAO.ACCOUNTS_TABLE_NAME, deleted);
-                        // add accounts (that were added on server) locally
-                        final List<SyncProtocol.Account> accounts = response.getAccountList();
-                        for(SyncProtocol.Account acc : accounts) {
-                            final Account toDatabase = Account.fromProtoAccount(acc);
-                            mContext.getEntityDAO().addAccount(toDatabase);
-                        }
+                        handleAccountResponse(is);
                         setState(State.ACC_REQ_ACK);
 
-                        // send non-synced accounts to server
-                        final List<Account> nsAccs = mContext.getEntityDAO().getSyncHelper().getNonSyncedAccounts();
-                        final AccountResponse.Builder toSend = AccountResponse.newBuilder();
-                        for(final Account acc : nsAccs)
-                            toSend.addAccount(Account.toProtoAccount(acc));
-                        // send deleted accounts to server
-                        final List<Long> delAccs = mContext.getEntityDAO().getSyncHelper().getDeletedGUIDs(DatabaseDAO.TYPE_ACCOUNT);
-                        toSend.addAllDeletedID(delAccs);
-                        toSend.build().writeDelimitedTo(os);
-                        os.flush();
-
-                        // get confirmation of sync
-                        final SyncProtocol.AccountAck ack = SyncProtocol.AccountAck.parseDelimitedFrom(is);
-                        final List<Long> ackAccounts = ack.getWrittenGuidList();
-                        assert nsAccs.size() == ackAccounts.size();
-                        for(int i = 0; i < nsAccs.size(); ++i) { // add GUIDs to previously non-synced accs
-                            final Account curr = nsAccs.get(i);
-                            curr.setGuid(ackAccounts.get(i));
-                            mContext.getEntityDAO().updateAccount(curr);
-                        }
-                        mContext.getEntityDAO().getSyncHelper().purgeDeletedGUIDs(DatabaseDAO.TYPE_ACCOUNT);
+                        mergeAccountAck(is, os);
+                        setState(State.CAT_REQ);
                         break;
+                    }
+                    case CAT_REQ: {
+                        break;
+                    }
                 }
             } catch (IOException io) {
                 setState(State.INIT, io.getMessage());
@@ -200,8 +213,54 @@ public class SyncStateMachine {
             return true;
         }
 
-        private void handleAuthResponse() throws IOException {
-            final InputStream is = mSocket.getInputStream(); // try receive response
+        private void mergeAccountAck(InputStream is, OutputStream os) throws IOException {
+            // send non-synced accounts to server
+            final DatabaseDAO.SyncHelper<Account> sHelper = mContext.getEntityDAO().getSyncHelper(Account.class);
+            final List<Account> nsAccs = sHelper.getNonSynced();
+            final AccountResponse.Builder toSend = AccountResponse.newBuilder();
+            for(final Account acc : nsAccs)
+                toSend.addAccount(Account.toProtoAccount(acc));
+            // send deleted accounts to server
+            final List<Long> delAccs = sHelper.getDeletedGUIDs();
+            toSend.addAllDeletedID(delAccs);
+            toSend.build().writeDelimitedTo(os);
+            os.flush();
+
+            // get confirmation of sync
+            final SyncProtocol.AccountAck ack = SyncProtocol.AccountAck.parseDelimitedFrom(is);
+            final List<Long> ackAccounts = ack.getWrittenGuidList();
+            for(int i = 0; i < nsAccs.size(); ++i) { // add GUIDs to previously non-synced accs
+                final Account curr = nsAccs.get(i);
+                curr.setGuid(ackAccounts.get(i));
+                mContext.getEntityDAO().updateAccount(curr);
+            }
+            sHelper.purgeDeletedGUIDs();
+        }
+
+        private void handleAccountResponse(InputStream is) throws IOException {
+            // accept account response
+            final AccountResponse response = AccountResponse.parseDelimitedFrom(is);
+            // delete accounts (that were deleted on server) locally
+            final List<Long> deletedAccounts = response.getDeletedIDList();
+            for(final Long deleted : deletedAccounts)
+                mContext.getEntityDAO().getSyncHelper(Account.class).deleteByGuid(deleted);
+            // add accounts (that were added on server) locally
+            final List<SyncProtocol.Account> accounts = response.getAccountList();
+            for(final SyncProtocol.Account acc : accounts) {
+                final Account toDatabase = Account.fromProtoAccount(acc);
+                mContext.getEntityDAO().addAccount(toDatabase);
+            }
+        }
+
+        private void sendAccountRequest(OutputStream os) throws IOException {
+            // send account request with all already synced accounts
+            final AccountRequest.Builder request = AccountRequest.newBuilder()
+                    .addAllKnownID(mContext.getEntityDAO().getSyncHelper(Account.class).getKnownGUIDs());
+            request.build().writeDelimitedTo(os); // actual sending of request
+            os.flush();
+        }
+
+        private void handleAuthResponse(InputStream is) throws IOException {
             final SyncResponse response = SyncResponse.parseDelimitedFrom(is);
             switch (response.getSyncAck()) {
                 case OK:
@@ -222,7 +281,7 @@ public class SyncStateMachine {
             }
         }
 
-        private void sendAuthRequest() throws IOException {
+        private void sendAuthRequest(OutputStream os) throws IOException {
             // fill request
             final SyncRequest.Builder request = SyncRequest.newBuilder()
                     .setAccount(mPreferences.getString(WalletConstants.ACCOUNT_NAME_KEY, ""))
@@ -232,7 +291,6 @@ public class SyncStateMachine {
             else
                 request.setSyncType(SyncRequest.SyncType.REGISTER);
 
-            final OutputStream os = mSocket.getOutputStream(); // send request
             request.build().writeDelimitedTo(os); // actual sending of request
             os.flush();
         }

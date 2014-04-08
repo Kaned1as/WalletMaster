@@ -32,7 +32,7 @@ import java.util.concurrent.Callable;
 public class DatabaseDAO extends SQLiteOpenHelper
 {
     private final Context mContext;
-    private SyncHelper syncHelper = new SyncHelper();
+    private Map<Class, SyncHelper> syncHelpers = new HashMap<>(3);
 
     public interface DatabaseListener {
         void handleUpdate();
@@ -698,47 +698,60 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return allSucceeded;
     }
 
-    public class SyncHelper {
+    public class SyncHelper<T> {
+        private final String tableName;
+        private final int type;
+        private final Class<T> clazz;
 
-        public List<Operation> getNonSyncedOperations() {
-            final Cursor nullCursor = mDatabase.query(OPERATIONS_TABLE_NAME, null, OperationsFields.GUID + " IS NULL", null, null, null, null, null);
-            final List<Operation> result = new ArrayList<>();
+        public SyncHelper(Class<T> clazz) {
+            this.clazz = clazz;
+
+            if(clazz == Account.class) {
+                tableName = ACCOUNTS_TABLE_NAME;
+                type = TYPE_ACCOUNT;
+            }
+            else if(clazz == Operation.class) {
+                tableName = OPERATIONS_TABLE_NAME;
+                type = TYPE_OPERATION;
+            }
+            else if(clazz == Category.class) {
+                tableName = CATEGORIES_TABLE_NAME;
+                type = TYPE_CATEGORY;
+            }
+            else
+                throw new IllegalArgumentException("Wrong class!");
+        }
+
+        public T get(Long id) {
+            if(clazz == Account.class)
+                return clazz.cast(getAccount(id));
+            else if(clazz == Operation.class)
+                return clazz.cast(getOperation(id));
+            else if(clazz == Category.class)
+                return clazz.cast(getCategory(id));
+            else
+                throw new IllegalArgumentException("Wrong class!");
+        }
+
+        public List<T> getNonSynced() {
+            final Cursor nullCursor = mDatabase.query(tableName, null, "GUID IS NULL", null, null, null, null, null);
+            final List<T> result = new ArrayList<>();
             while(nullCursor.moveToNext()) {
-                final long id = nullCursor.getLong(OperationsFields._id.ordinal());
-                result.add(getOperation(id));
+                final long id = nullCursor.getLong(0);
+                result.add(get(id));
             }
             return result;
         }
 
-        public List<Category> getNonSyncedCategories() {
-            final Cursor nullCursor = mDatabase.query(CATEGORIES_TABLE_NAME, null, CategoriesFields.GUID + " IS NULL", null, null, null, null, null);
-            final List<Category> result = new ArrayList<>();
-            while(nullCursor.moveToNext()) {
-                final long id = nullCursor.getLong(CategoriesFields._id.ordinal());
-                result.add(getCategory(id));
-            }
-            return result;
-        }
-
-        public List<Account> getNonSyncedAccounts() {
-            final Cursor nullCursor = mDatabase.query(ACCOUNTS_TABLE_NAME, null, AccountFields.GUID + " IS NULL", null, null, null, null, null);
-            final List<Account> result = new ArrayList<>();
-            while(nullCursor.moveToNext()) {
-                final long id = nullCursor.getLong(AccountFields._id.ordinal());
-                result.add(getAccount(id));
-            }
-            return result;
-        }
-
-        public List<Long> getDeletedGUIDs(int type) {
+        public List<Long> getDeletedGUIDs() {
             final Cursor delCursor = mDatabase.query(DELETED_TABLE_NAME, null, DeletedFields.TYPE + " = ?", new String[]{String.valueOf(type)}, null, null, null, null);
             final List<Long> result = new ArrayList<>();
             while (delCursor.moveToNext())
-                result.add(delCursor.getLong(DeletedFields._id.ordinal()));
+                result.add(delCursor.getLong(0));
             return result;
         }
 
-        public List<Long> getKnownGUIDs(String tableName) {
+        public List<Long> getKnownGUIDs() {
             final List<Long> result = new ArrayList<>();
             Log.d("Query", String.format("Synced GUIDs of table %s", tableName));
             final Cursor retriever = mDatabase.rawQuery(String.format(
@@ -752,15 +765,15 @@ public class DatabaseDAO extends SQLiteOpenHelper
             return result;
         }
 
-        public int purgeDeletedGUIDs(int type) {
+        public int purgeDeletedGUIDs() {
             return mDatabase.delete(DELETED_TABLE_NAME, DeletedFields.TYPE + " = ?", new String[]{String.valueOf(type)});
         }
 
-        public int deleteByGuid(String table, Long guid) {
+        public int deleteByGuid(Long guid) {
             Log.d("purgeAccount", String.valueOf(guid));
-            int count = mDatabase.delete(table, AccountFields.GUID + " = ?", new String[]{String.valueOf(guid)});
+            int count = mDatabase.delete(tableName, AccountFields.GUID + " = ?", new String[]{String.valueOf(guid)});
             if(count > 0)
-                notifyListeners(table);
+                notifyListeners(tableName);
 
             return count;
         }
@@ -779,8 +792,14 @@ public class DatabaseDAO extends SQLiteOpenHelper
         }
     }
 
-    public SyncHelper getSyncHelper() {
-        return syncHelper;
+    public <T> SyncHelper<T> getSyncHelper(Class<T> clazz) {
+        if(syncHelpers.containsKey(clazz))
+            return syncHelpers.get(clazz);
+        else {
+            final SyncHelper sHelper = new SyncHelper<>(clazz);
+            syncHelpers.put(clazz, sHelper);
+            return sHelper;
+        }
     }
 }
 
