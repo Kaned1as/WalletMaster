@@ -23,10 +23,13 @@ public:
     enum SyncState
     {
         NOT_IDENTIFIED = 0,
-        AUTHORIZED,
+        WAITING_ACCOUNTS,
         SENT_ACCOUNTS,
+        WAITING_CATEGORIES,
+        SENT_CATEGORIES,
+        WAITING_OPERATIONS,
         SENT_OPERATIONS,
-        SENT_CATEGORIES
+        FINISHED
     };
 
     SyncState getState() const;
@@ -49,7 +52,6 @@ private:
     sync::EntityAck handle(const sync::EntityResponse& response);
 
     template<typename REQ, typename RESP> void handleGeneric(const QByteArray& incomingData);
-    template<typename REQ, typename RESP> void syncDeleted(const REQ& request, RESP& ack, const QString& tableName);
 
     SyncState state;
     quint32 pendingMessageSize;

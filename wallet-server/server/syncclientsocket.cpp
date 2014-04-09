@@ -1,15 +1,5 @@
 #include "syncclientsocket.h"
 
-void fillFromQuery(sync::Account* account, const QSqlQuery& query)
-{
-    account->set_id(query.value("id").toLongLong());
-    account->set_name(query.value("name").toString().toStdString());
-    account->set_description(query.value("description").toString().toStdString());
-    account->set_currency(query.value("currency").toString().toStdString());
-    account->set_amount(query.value("amount").toString().toStdString());
-    account->set_color(query.value("color").toInt());
-}
-
 SyncClientSocket::SyncClientSocket(QObject *parent) : QTcpSocket(parent), state(NOT_IDENTIFIED), pendingMessageSize(0), conn(NULL)
 {
     qDebug() << tr("Got new connection!");
@@ -114,20 +104,32 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
 {
     switch (state)
     {
-        case NOT_IDENTIFIED:
+        case NOT_IDENTIFIED: // wait register/auth
         {
             handleGeneric<sync::SyncRequest, sync::SyncResponse>(incomingData);
             break;
         }
-        case AUTHORIZED:
+        case WAITING_ACCOUNTS:     // wait accounts
         {
             handleGeneric<sync::EntityRequest, sync::EntityResponse>(incomingData);
             setState(SENT_ACCOUNTS);
             break;
         }
-        case SENT_ACCOUNTS:
+        case SENT_ACCOUNTS: // wait response
         {
             handleGeneric<sync::EntityResponse, sync::EntityAck>(incomingData);
+            setState(WAITING_CATEGORIES);
+            break;
+        }
+        case WAITING_CATEGORIES: // wait categories
+        {
+            handleGeneric<sync::EntityRequest, sync::EntityResponse>(incomingData);
+            setState(SENT_CATEGORIES);
+            break;
+        }
+        case FINISHED:
+        {
+            disconnect();
             break;
         }
         default:
@@ -180,7 +182,7 @@ sync::SyncResponse SyncClientSocket::handle(const sync::SyncRequest& request)
                 // successfully inserted log:pass pair
                 userId = createSyncAcc.lastInsertId().toULongLong();
                 response.set_syncack(sync::SyncResponse::OK);
-                setState(AUTHORIZED);
+                setState(WAITING_ACCOUNTS);
             }
             break;
         }
@@ -203,7 +205,7 @@ sync::SyncResponse SyncClientSocket::handle(const sync::SyncRequest& request)
                 userId = checkExists.value(0).toULongLong();
 
                 response.set_syncack(sync::SyncResponse::OK);
-                setState(AUTHORIZED);
+                setState(WAITING_ACCOUNTS);
                 break;
             }
             else // no such login!
@@ -218,15 +220,28 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
 {
     sync::EntityResponse response;
 
-    // we should select all accounts associated with
-    QSqlQuery selectUserAccs(*conn);
-                                     /* 0   1     2            3         4       5 */
-    selectUserAccs.prepare("SELECT id, name, description, currency, amount, color FROM accounts WHERE sync_account = :userId");
-    selectUserAccs.bindValue(":userId", userId);
+    // entity type that should be processed is FULLY DETERMINED ONLY BY CURRENT STATE (!)
 
-    if(!selectUserAccs.exec())
+    // we should select all entities present on server
+    QSqlQuery selectSyncedEntities(*conn);
+    switch(state)
     {
-        qDebug() << tr("cannot retrieve nonsynced accounts, db error %1").arg(selectUserAccs.lastError().text());
+        case WAITING_ACCOUNTS:
+            selectSyncedEntities.prepare("SELECT id, name, description, currency, amount, color FROM accounts WHERE sync_account = :userId");
+            break;
+        case WAITING_CATEGORIES:
+            break;
+        case WAITING_OPERATIONS:
+            break;
+        default:
+            qDebug() << tr("Unknown entity type processing!");
+            break;
+    }
+    selectSyncedEntities.bindValue(":userId", userId);
+
+    if(!selectSyncedEntities.exec())
+    {
+        qDebug() << tr("cannot retrieve nonsynced entities, db error %1").arg(selectSyncedEntities.lastError().text());
         return response; // empty response
     }
 
@@ -235,24 +250,42 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
     for(qint64 known : request.knownid())
         knownIds.append(known);
 
-    while(selectUserAccs.next())
+    while(selectSyncedEntities.next())
     {
-        const qint64 currentId = selectUserAccs.value("id").toLongLong();
-        if(knownIds.contains(currentId)) // we have this account on device already
+        const qint64 currentId = selectSyncedEntities.value("id").toLongLong();
+        if(knownIds.contains(currentId)) // we have this entity on device already
             knownIds.removeOne(currentId);
-        else // we don't have this account on device
-        {
-            sync::Account* const account = response.add_entity()->mutable_account();
-            account->set_id(selectUserAccs.value("id").toLongLong());
-            account->set_name(selectUserAccs.value("name").toString().toStdString());
-            account->set_description(selectUserAccs.value("description").toString().toStdString());
-            account->set_currency(selectUserAccs.value("currency").toString().toStdString());
-            account->set_amount(selectUserAccs.value("amount").toString().toStdString());
-            account->set_color(selectUserAccs.value("color").toInt());
-        }
+        else // we don't have this entity on device
+            switch(state)
+            {
+                case WAITING_ACCOUNTS:
+                {
+                    sync::Account* const account = response.add_entity()->mutable_account();
+                    account->set_id(selectSyncedEntities.value("id").toLongLong());
+                    account->set_name(selectSyncedEntities.value("name").toString().toStdString());
+                    account->set_description(selectSyncedEntities.value("description").toString().toStdString());
+                    account->set_currency(selectSyncedEntities.value("currency").toString().toStdString());
+                    account->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
+                    account->set_color(selectSyncedEntities.value("color").toInt());
+                    break;
+                }
+                case WAITING_CATEGORIES:
+                {
+                    sync::Category* const category = response.add_entity()->mutable_category();
+                    break;
+                }
+                case WAITING_OPERATIONS:
+                {
+                    sync::Operation* const operation = response.add_entity()->mutable_operation();
+                    break;
+                }
+                default:
+                    qDebug() << tr("Unknown entity type processing!");
+                    break;
+            }
     }
 
-    // remaining accounts are deleted on server
+    // remaining entities are deleted on server, and so, should be returned to device being marked for deletion
     for(qint64 delId : knownIds)
         response.add_deletedid(delId);
 
@@ -263,27 +296,82 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
 {
     sync::EntityAck ack;
 
-    syncDeleted(response, ack, "accounts");
-
+    // delete entities that deleted on device
+    QSqlQuery deleter(*conn);
     // add accounts that were created on device
     QSqlQuery adder(*conn);
-    adder.prepare("INSERT INTO accounts(sync_account, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?)");
+    switch(state)
+    {
+        case SENT_ACCOUNTS:
+            deleter.prepare("DELETE FROM accounts WHERE sync_account = :userId AND id = :guid");
+            adder.prepare("INSERT INTO accounts(sync_account, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?)");
+            break;
+        case SENT_CATEGORIES:
+            deleter.prepare("DELETE FROM categories WHERE sync_account = :userId AND id = :guid");
+            //adder.prepare("INSERT INTO accounts(sync_account, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?)");
+            break;
+        case SENT_OPERATIONS:
+            deleter.prepare("DELETE FROM operations WHERE sync_account = :userId AND id = :guid");
+            //adder.prepare("INSERT INTO accounts(sync_account, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?)");
+            break;
+        default:
+            qDebug() << tr("Unknown entity type processing!");
+            break;
+    }
+
+    QVariantList userList, idList;
+    userList.reserve(response.deletedid_size());
+    idList.reserve(response.deletedid_size());
+    for(qint64 id : response.deletedid())
+    {
+        userList.append(userId);
+        idList.append(id);
+        ack.add_deletedguid(id);
+    }
+    deleter.addBindValue(userList);
+    deleter.addBindValue(idList);
+    if(!deleter.execBatch())
+    {
+        qDebug() << tr("Cannot delete entities from server!");
+        ack.clear_deletedguid();
+    }
+
     // should execute each query async-ly because lastInsertId works only for last :(
     for(sync::Entity entity : response.entity())
     {
-        sync::Account acc = entity.account();
-        adder.addBindValue(userId);
-        adder.addBindValue(acc.name().data());
-        if(acc.has_description())
-            adder.addBindValue(acc.description().data());
-        else
-            adder.addBindValue(QVariant(QVariant::String)); // no desc
-        adder.addBindValue(acc.currency().data());
-        adder.addBindValue(acc.amount().data());
-        if(acc.has_color())
-            adder.addBindValue(acc.color());
-        else
-            adder.addBindValue(QVariant(QVariant::Int));
+        switch(state)
+        {
+            case WAITING_ACCOUNTS:
+            {
+                const sync::Account& acc = entity.account();
+                adder.addBindValue(userId);
+                adder.addBindValue(acc.name().data());
+                if(acc.has_description())
+                    adder.addBindValue(acc.description().data());
+                else
+                    adder.addBindValue(QVariant(QVariant::String)); // no desc
+                adder.addBindValue(acc.currency().data());
+                adder.addBindValue(acc.amount().data());
+                if(acc.has_color())
+                    adder.addBindValue(acc.color());
+                else
+                    adder.addBindValue(QVariant(QVariant::Int));
+                break;
+            }
+            case WAITING_CATEGORIES:
+            {
+                const sync::Category& category = entity.category();
+                break;
+            }
+            case WAITING_OPERATIONS:
+            {
+                const sync::Operation& operation = entity.operation();
+                break;
+            }
+            default:
+                qDebug() << tr("Unknown entity type processing!");
+                break;
+        }
 
         if(adder.exec())
             ack.add_writtenguid(adder.lastInsertId().toLongLong());
@@ -309,27 +397,4 @@ template<typename REQ, typename RESP> void SyncClientSocket::handleGeneric(const
     // send response
     if(!writeDelimited(response))
         qDebug() << tr("Error sending %2 to client! error string %1").arg(this->errorString()).arg(response.GetMetadata().descriptor->name().data());
-}
-
-template<typename REQ, typename RESP> void SyncClientSocket::syncDeleted(const REQ& request, RESP& ack, const QString& tableName)
-{
-    // delete entities that deleted on device
-    QSqlQuery deleter(*conn);
-    deleter.prepare("DELETE FROM " + tableName + " WHERE sync_account = :userId AND id = :guid");
-    QVariantList userList, idList;
-    userList.reserve(request.deletedid_size());
-    idList.reserve(request.deletedid_size());
-    for(qint64 id : request.deletedid())
-    {
-        userList.append(userId);
-        idList.append(id);
-        ack.add_deletedguid(id);
-    }
-    deleter.addBindValue(userList);
-    deleter.addBindValue(idList);
-    if(!deleter.execBatch())
-    {
-        qDebug() << tr("Cannot delete %1 from server!").arg(tableName);
-        ack.clear_deletedguid();
-    }
 }

@@ -28,13 +28,14 @@ message EntityRequest {
 }
 
 message EntityResponse {
-    repeated int64 deletedID = 1; // accounts deleted on server/client
-    repeated Entity entity = 2; // accounts added on server/client
+    repeated int64 deletedID = 1; // entities deleted on server/client
+    repeated Entity entity = 2; // entities added on server/client
+    repeated Entity modifiedEntity = 3; // entities modified
 }
 
 message EntityAck {
-    repeated int64 deletedGuid = 1; // accounts deleted on server as confirmation
-    repeated int64 writtenGuid = 2; // accounts written on server as confirmation
+    repeated int64 deletedGuid = 1; // entities deleted on server as confirmation
+    repeated int64 writtenGuid = 2; // entities written on server as confirmation
 }
 
 message Entity {
