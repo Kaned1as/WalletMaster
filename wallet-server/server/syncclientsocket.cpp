@@ -121,13 +121,13 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
         }
         case AUTHORIZED:
         {
-            handleGeneric<sync::AccountRequest, sync::AccountResponse>(incomingData);
+            handleGeneric<sync::EntityRequest, sync::EntityResponse>(incomingData);
             setState(SENT_ACCOUNTS);
             break;
         }
         case SENT_ACCOUNTS:
         {
-            handleGeneric<sync::AccountResponse, sync::AccountAck>(incomingData);
+            handleGeneric<sync::EntityResponse, sync::EntityAck>(incomingData);
             break;
         }
         default:
@@ -214,9 +214,9 @@ sync::SyncResponse SyncClientSocket::handle(const sync::SyncRequest& request)
     return response;
 }
 
-sync::AccountResponse SyncClientSocket::handle(const sync::AccountRequest &request)
+sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request)
 {
-    sync::AccountResponse response;
+    sync::EntityResponse response;
 
     // we should select all accounts associated with
     QSqlQuery selectUserAccs(*conn);
@@ -242,7 +242,7 @@ sync::AccountResponse SyncClientSocket::handle(const sync::AccountRequest &reque
             knownIds.removeOne(currentId);
         else // we don't have this account on device
         {
-            sync::Account* const account = response.add_account();
+            sync::Account* const account = response.add_entity()->mutable_account();
             account->set_id(selectUserAccs.value("id").toLongLong());
             account->set_name(selectUserAccs.value("name").toString().toStdString());
             account->set_description(selectUserAccs.value("description").toString().toStdString());
@@ -259,9 +259,9 @@ sync::AccountResponse SyncClientSocket::handle(const sync::AccountRequest &reque
     return response;
 }
 
-sync::AccountAck SyncClientSocket::handle(const sync::AccountResponse &response)
+sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
 {
-    sync::AccountAck ack;
+    sync::EntityAck ack;
 
     syncDeleted(response, ack, "accounts");
 
@@ -269,8 +269,9 @@ sync::AccountAck SyncClientSocket::handle(const sync::AccountResponse &response)
     QSqlQuery adder(*conn);
     adder.prepare("INSERT INTO accounts(sync_account, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?)");
     // should execute each query async-ly because lastInsertId works only for last :(
-    for(sync::Account acc : response.account())
+    for(sync::Entity entity : response.entity())
     {
+        sync::Account acc = entity.account();
         adder.addBindValue(userId);
         adder.addBindValue(acc.name().data());
         if(acc.has_description())

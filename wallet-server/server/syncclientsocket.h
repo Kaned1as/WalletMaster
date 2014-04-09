@@ -45,8 +45,8 @@ private:
     void handleMessage(const QByteArray& incomingData);
 
     sync::SyncResponse handle(const sync::SyncRequest& request);
-    sync::AccountResponse handle(const sync::AccountRequest& request);
-    sync::AccountAck handle(const sync::AccountResponse& response);
+    sync::EntityResponse handle(const sync::EntityRequest& request);
+    sync::EntityAck handle(const sync::EntityResponse& response);
 
     template<typename REQ, typename RESP> void handleGeneric(const QByteArray& incomingData);
     template<typename REQ, typename RESP> void syncDeleted(const REQ& request, RESP& ack, const QString& tableName);
