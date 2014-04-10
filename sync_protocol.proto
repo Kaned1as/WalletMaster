@@ -9,7 +9,7 @@ message SyncRequest {
         MERGE = 1;
     }
     
-    optional SyncType syncType = 3 [default = MERGE];
+    required SyncType syncType = 3;
 }
 
 message SyncResponse {
@@ -24,13 +24,14 @@ message SyncResponse {
 }
 
 message EntityRequest {
-    repeated int64 knownID = 1; // known to client server IDs to detect deletions
+    repeated int64 knownID = 2; // known to client server IDs to detect deletions and modifications
+    required int64 lastKnownRevision = 1; // known to client last server revision
 }
 
 message EntityResponse {
     repeated int64 deletedID = 1; // entities deleted on server/client
-    repeated Entity entity = 2; // entities added on server/client
-    repeated Entity modifiedEntity = 3; // entities modified
+    repeated Entity added = 2; // entities added on server/client
+    repeated Entity modified = 3; // entities modified on server/client
 }
 
 message EntityAck {
