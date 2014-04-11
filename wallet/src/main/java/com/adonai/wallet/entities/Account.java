@@ -1,5 +1,9 @@
 package com.adonai.wallet.entities;
 
+import android.content.ContentValues;
+import android.util.Log;
+
+import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.sync.SyncProtocol;
 
 import java.math.BigDecimal;
@@ -8,7 +12,7 @@ import java.util.List;
 /**
  * Created by adonai on 22.02.14.
  */
-public class Account {
+public class Account extends Entity {
     private Long id;
     private String name;
     private String description;
@@ -17,6 +21,10 @@ public class Account {
     private Integer color;
     private Long guid;
     private List<Operation> operations; // foreign key from operations to budget (OneToMany)
+
+    public Account() {
+        super(DatabaseDAO.EntityType.ACCOUNT);
+    }
 
     public Long getId() {
         return id;
@@ -102,5 +110,36 @@ public class Account {
                 .setDescription(account.getDescription())
                 .setCurrency(account.getCurrency().getCode())
                 .build();
+    }
+
+    @Override
+    public long persist(DatabaseDAO dao) {
+        Log.d("addAccount", getName());
+
+        final ContentValues values = new ContentValues(5);
+        values.put(DatabaseDAO.AccountFields.NAME.toString(), getName());
+        values.put(DatabaseDAO.AccountFields.DESCRIPTION.toString(), getDescription());
+        values.put(DatabaseDAO.AccountFields.CURRENCY.toString(), getCurrency().toString());
+        values.put(DatabaseDAO.AccountFields.AMOUNT.toString(), getAmount().toPlainString());
+        values.put(DatabaseDAO.AccountFields.COLOR.toString(), getColor());
+
+        return dao.insert(values, DatabaseDAO.ACCOUNTS_TABLE_NAME);
+    }
+
+    @Override
+    public int update(DatabaseDAO dao) {
+        final ContentValues values = new ContentValues();
+        values.put(DatabaseDAO.AccountFields.NAME.toString(), getName());
+        values.put(DatabaseDAO.AccountFields.DESCRIPTION.toString(), getDescription());
+        values.put(DatabaseDAO.AccountFields.CURRENCY.toString(), getCurrency().toString());
+        values.put(DatabaseDAO.AccountFields.AMOUNT.toString(), getAmount().toPlainString());
+        values.put(DatabaseDAO.AccountFields.COLOR.toString(), getColor());
+
+        return dao.update(values, DatabaseDAO.ACCOUNTS_TABLE_NAME);
+    }
+
+    @Override
+    public int delete(DatabaseDAO dao) {
+        return dao.delete(getId(), DatabaseDAO.ACCOUNTS_TABLE_NAME);
     }
 }

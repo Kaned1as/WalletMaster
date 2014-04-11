@@ -1,5 +1,9 @@
 package com.adonai.wallet.entities;
 
+import android.content.ContentValues;
+import android.util.Log;
+
+import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.Utils;
 
 import java.math.BigDecimal;
@@ -10,7 +14,7 @@ import java.util.Date;
 /**
  * Created by adonai on 23.02.14.
  */
-public class Operation {
+public class Operation extends Entity {
 
     public enum OperationType {
         EXPENSE,
@@ -18,7 +22,6 @@ public class Operation {
         TRANSFER
     }
 
-    private Long id;
     private String description;
     private Calendar time;
     private Account charger;
@@ -29,19 +32,13 @@ public class Operation {
     private Long guid;
 
     public Operation() {
+        super(DatabaseDAO.EntityType.OPERATION);
     }
 
     public Operation(BigDecimal amount, Category category) {
+        super(DatabaseDAO.EntityType.OPERATION);
         this.amount = amount;
         this.category = category;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Account getCharger() {
@@ -133,5 +130,50 @@ public class Operation {
            return getAmount().divide(BigDecimal.valueOf(getConvertingRate()), 2, RoundingMode.HALF_UP);
         else
             return getAmount();
+    }
+
+    @Override
+    public long persist(DatabaseDAO dao) {
+        Log.d("addOperation", getAmount().toPlainString());
+
+        final ContentValues values = new ContentValues(8);
+        if(getId() != null) // use with caution
+            values.put(DatabaseDAO.OperationsFields._id.toString(), getId());
+
+        values.put(DatabaseDAO.OperationsFields.DESCRIPTION.toString(), getDescription()); // mandatory
+        values.put(DatabaseDAO.OperationsFields.CATEGORY.toString(), getCategory().getId()); // mandatory
+        values.put(DatabaseDAO.OperationsFields.AMOUNT.toString(), getAmount().toPlainString()); // mandatory
+
+        if(getTime() != null)
+            values.put(DatabaseDAO.OperationsFields.TIME.toString(), getTimeString());
+        if(getCharger() != null)
+            values.put(DatabaseDAO.OperationsFields.CHARGER.toString(), getCharger().getId());
+        if(getBeneficiar() != null)
+            values.put(DatabaseDAO.OperationsFields.RECEIVER.toString(), getBeneficiar().getId());
+        if(getConvertingRate() != null)
+            values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), getConvertingRate());
+
+        return dao.insert(values, DatabaseDAO.OPERATIONS_TABLE_NAME);
+    }
+
+    @Override
+    public int update(DatabaseDAO dao) {
+        // 2. create ContentValues to add key "column"/value
+        final ContentValues values = new ContentValues();
+        values.put(DatabaseDAO.OperationsFields.DESCRIPTION.toString(), getDescription());
+        if(getTime() != null)
+            values.put(DatabaseDAO.OperationsFields.TIME.toString(), getTimeString());
+        values.put(DatabaseDAO.OperationsFields.CHARGER.toString(), getCharger().getId());
+        if(getBeneficiar() != null)
+            values.put(DatabaseDAO.OperationsFields.RECEIVER.toString(), getBeneficiar().getId());
+        values.put(DatabaseDAO.OperationsFields.AMOUNT.toString(), getAmount().toPlainString());
+        values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), getConvertingRate());
+
+        return dao.update(values, DatabaseDAO.OPERATIONS_TABLE_NAME);
+    }
+
+    @Override
+    public int delete(DatabaseDAO dao) {
+        return dao.delete(getId(), DatabaseDAO.OPERATIONS_TABLE_NAME);
     }
 }

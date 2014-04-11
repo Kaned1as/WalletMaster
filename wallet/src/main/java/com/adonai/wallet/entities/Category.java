@@ -1,33 +1,31 @@
 package com.adonai.wallet.entities;
 
+import android.content.ContentValues;
+import android.util.Log;
+
+import com.adonai.wallet.DatabaseDAO;
+
 /**
  * Created by adonai on 23.02.14.
  */
-public class Category {
+public class Category extends Entity {
 
     final public static int EXPENSE = 0;
     final public static int INCOME = 1;
 
-    private long id;
     private String name;
     private int type;
     private Account preferredAccount;
     private Long guid;
 
     public Category() {
+        super(DatabaseDAO.EntityType.CATEGORY);
     }
 
     public Category(String name, int type) {
+        super(DatabaseDAO.EntityType.CATEGORY);
         this.name = name;
         this.type = type;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -60,5 +58,34 @@ public class Category {
 
     public void setGuid(Long guid) {
         this.guid = guid;
+    }
+
+    @Override
+    public long persist(DatabaseDAO dao) {
+        Log.d("addCategory", getName());
+        final ContentValues values = new ContentValues(3);
+        values.put(DatabaseDAO.CategoriesFields.NAME.toString(), getName());
+        values.put(DatabaseDAO.CategoriesFields.TYPE.toString(), getType());
+        if(getPreferredAccount() != null)
+            values.put(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.toString(), getPreferredAccount().getId());
+
+        return dao.insert(values, DatabaseDAO.CATEGORIES_TABLE_NAME);
+    }
+
+    @Override
+    public int update(DatabaseDAO dao) {
+        final ContentValues values = new ContentValues(3);
+        values.put(DatabaseDAO.CategoriesFields._id.toString(), getId());
+        values.put(DatabaseDAO.CategoriesFields.NAME.toString(), getName());
+        values.put(DatabaseDAO.CategoriesFields.TYPE.toString(), getType());
+        if(getPreferredAccount() != null)
+            values.put(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.toString(), getPreferredAccount().getId());
+
+        return dao.update(values, DatabaseDAO.CATEGORIES_TABLE_NAME);
+    }
+
+    @Override
+    public int delete(DatabaseDAO dao) {
+        return dao.delete(getId(), DatabaseDAO.CATEGORIES_TABLE_NAME);
     }
 }
