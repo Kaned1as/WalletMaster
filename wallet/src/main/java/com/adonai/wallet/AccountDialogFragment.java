@@ -91,7 +91,7 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
                 }
                 if(mAccount != null)  { // modifying existing account
                     fillAccountFields();
-                    final int result = mAccount.update(getWalletActivity().getEntityDAO());
+                    final long result = getWalletActivity().getEntityDAO().addAction(DatabaseDAO.ActionType.MODIFY, mAccount);
                     if(result > 0)
                         dismiss();
                     else
@@ -99,7 +99,7 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
                 } else {  // creating new account
                     mAccount = new Account();
                     fillAccountFields();
-                    final long insertRes = mAccount.persist(getWalletActivity().getEntityDAO());
+                    final long insertRes = getWalletActivity().getEntityDAO().addAction(DatabaseDAO.ActionType.ADD, mAccount);
                     if(insertRes != -1)
                         dismiss();
                     else

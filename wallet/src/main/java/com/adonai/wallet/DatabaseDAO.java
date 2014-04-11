@@ -212,7 +212,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
             while ((line = reader.readLine()) != null) {
                 final String[] tokens = line.split(":");
                 final ContentValues values = new ContentValues(3);
-                switch (tokens.length) { // case-no-break magic!
+                switch (tokens.length) { // switch-case-no-break magic!
                     case 3:
                         values.put(CurrenciesFields.USED_IN.toString(), tokens[2]);
                     case 2:
@@ -270,7 +270,6 @@ public class DatabaseDAO extends SQLiteOpenHelper
         final int result = mDatabase.update(tableName,  cv,  "_id = ?",  new String[] { cv.getAsString("_id") });
         if(result > 0)
             notifyListeners(tableName);
-
         return result;
     }
 
@@ -278,7 +277,6 @@ public class DatabaseDAO extends SQLiteOpenHelper
         int count = mDatabase.delete(tableName, "_id = ?", new String[] { String.valueOf(id) });
         if(count > 0)
             notifyListeners(tableName);
-
         return count;
     }
 
@@ -297,7 +295,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         values.put(ActionsFields.ACTION_TYPE.toString(), type.ordinal());
         final ByteArrayOutputStream holder = new ByteArrayOutputStream();
         ObjectOutputStream os = null;
-        if(type != ActionType.DELETE)
+        if(type != ActionType.DELETE) // nothing to store on deletion
             try {
                 os = new ObjectOutputStream(holder);
                 os.writeObject(entity);
