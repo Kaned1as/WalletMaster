@@ -146,7 +146,7 @@ public class AccountsFragment extends WalletBaseFragment {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    getWalletActivity().getEntityDAO().addAction(DatabaseDAO.ActionType.DELETE, getWalletActivity().getEntityDAO().getAccount(id));
+                                    getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.DELETE, getWalletActivity().getEntityDAO().getAccount(id));
                                 }
                             }).create().show();
 

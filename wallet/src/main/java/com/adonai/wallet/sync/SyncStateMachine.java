@@ -7,11 +7,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 
-import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.WalletConstants;
-import com.adonai.wallet.entities.Account;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,8 +19,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.adonai.wallet.sync.SyncProtocol.EntityRequest;
-import static com.adonai.wallet.sync.SyncProtocol.EntityResponse;
 import static com.adonai.wallet.sync.SyncProtocol.SyncRequest;
 import static com.adonai.wallet.sync.SyncProtocol.SyncResponse;
 
@@ -138,11 +134,12 @@ public class SyncStateMachine {
     }
 
     public void shutdown() {
-        try {
-            mSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        if(mSocket != null)
+            try {
+                mSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         mLooper.quit();
     }
 
@@ -189,14 +186,6 @@ public class SyncStateMachine {
                     case ACC_REQ: { // at this state we must be authorized on server
                         final InputStream is = mSocket.getInputStream();
                         final OutputStream os = mSocket.getOutputStream();
-                        sendAccountRequest(os);
-                        setState(State.ACC_REQ_SENT);
-
-                        handleAccountResponse(is);
-                        setState(State.ACC_REQ_ACK);
-
-                        mergeAccountAck(is, os);
-                        setState(State.CAT_REQ);
                         break;
                     }
                     case CAT_REQ: {
@@ -214,53 +203,6 @@ public class SyncStateMachine {
                     } catch (IOException e) { throw new RuntimeException(e); } // should not happen
             }
             return true;
-        }
-
-        private void mergeAccountAck(InputStream is, OutputStream os) throws IOException {
-            // send non-synced accounts to server
-            final DatabaseDAO.SyncHelper<Account> sHelper = mContext.getEntityDAO().getSyncHelper(Account.class);
-            final List<Account> nsAccs = sHelper.getNonSynced();
-            final EntityResponse.Builder toSend = EntityResponse.newBuilder();
-            for(final Account acc : nsAccs)
-                toSend.addEntity(SyncProtocol.Entity.newBuilder().setAccount(Account.toProtoAccount(acc)));
-            // send deleted accounts to server
-            final List<Long> delAccs = sHelper.getDeletedGUIDs();
-            toSend.addAllDeletedID(delAccs);
-            toSend.build().writeDelimitedTo(os);
-            os.flush();
-
-            // get confirmation of sync
-            final SyncProtocol.EntityAck ack = SyncProtocol.EntityAck.parseDelimitedFrom(is);
-            final List<Long> ackAccounts = ack.getWrittenGuidList();
-            for(int i = 0; i < nsAccs.size(); ++i) { // add GUIDs to previously non-synced accs
-                final Account curr = nsAccs.get(i);
-                curr.setGuid(ackAccounts.get(i));
-                mContext.getEntityDAO().updateAccount(curr);
-            }
-            sHelper.purgeDeletedGUIDs();
-        }
-
-        private void handleAccountResponse(InputStream is) throws IOException {
-            // accept account response
-            final EntityResponse response = EntityResponse.parseDelimitedFrom(is);
-            // delete accounts (that were deleted on server) locally
-            final List<Long> deletedAccounts = response.getDeletedIDList();
-            for(final Long deleted : deletedAccounts)
-                mContext.getEntityDAO().getSyncHelper(Account.class).deleteByGuid(deleted);
-            // add accounts (that were added on server) locally
-            final List<SyncProtocol.Entity> accounts = response.getEntityList();
-            for(final SyncProtocol.Entity acc : accounts) {
-                final Account toDatabase = Account.fromProtoAccount(acc.getAccount());
-                mContext.getEntityDAO().addAccount(toDatabase);
-            }
-        }
-
-        private void sendAccountRequest(OutputStream os) throws IOException {
-            // send account request with all already synced accounts
-            final EntityRequest.Builder request = EntityRequest.newBuilder()
-                    .addAllKnownID(mContext.getEntityDAO().getSyncHelper(Account.class).getKnownGUIDs());
-            request.build().writeDelimitedTo(os); // actual sending of request
-            os.flush();
         }
 
         private void handleAuthResponse(InputStream is) throws IOException {

@@ -2,12 +2,10 @@ package com.adonai.wallet.entities;
 
 import com.adonai.wallet.DatabaseDAO;
 
-import java.io.Serializable;
-
 /**
  * Created by Ochernovskiy on 11/04/2014.
  */
-public abstract class Entity implements Serializable {
+public abstract class Entity {
     protected final DatabaseDAO.EntityType entityType;
     protected Long id;
 

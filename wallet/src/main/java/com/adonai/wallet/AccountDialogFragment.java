@@ -91,16 +91,14 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
                 }
                 if(mAccount != null)  { // modifying existing account
                     fillAccountFields();
-                    final long result = getWalletActivity().getEntityDAO().addAction(DatabaseDAO.ActionType.MODIFY, mAccount);
-                    if(result > 0)
+                    if(getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.MODIFY, mAccount))
                         dismiss();
                     else
                         Toast.makeText(getActivity(), R.string.account_not_found, Toast.LENGTH_SHORT).show();
                 } else {  // creating new account
                     mAccount = new Account();
                     fillAccountFields();
-                    final long insertRes = getWalletActivity().getEntityDAO().addAction(DatabaseDAO.ActionType.ADD, mAccount);
-                    if(insertRes != -1)
+                    if(getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.ADD, mAccount))
                         dismiss();
                     else
                         Toast.makeText(getActivity(), R.string.account_already_exist, Toast.LENGTH_SHORT).show();

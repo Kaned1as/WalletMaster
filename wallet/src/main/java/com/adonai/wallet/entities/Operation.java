@@ -29,7 +29,6 @@ public class Operation extends Entity {
     private BigDecimal amount;
     private Double convertingRate;
     private Category category;
-    private Long guid;
 
     public Operation() {
         super(DatabaseDAO.EntityType.OPERATION);
@@ -95,14 +94,6 @@ public class Operation extends Entity {
 
     public void setTime(Calendar time) {
         this.time = time;
-    }
-
-    public Long getGuid() {
-        return guid;
-    }
-
-    public void setGuid(Long guid) {
-        this.guid = guid;
     }
 
     public void setTime(Date time) {

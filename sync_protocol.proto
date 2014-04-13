@@ -10,6 +10,7 @@ message SyncRequest {
     }
     
     required SyncType syncType = 3;
+    required int64 lastKnownRevision = 1; // known to client last server revision
 }
 
 message SyncResponse {
@@ -25,7 +26,6 @@ message SyncResponse {
 
 message EntityRequest {
     repeated int64 knownID = 2; // known to client server IDs to detect deletions and modifications
-    required int64 lastKnownRevision = 1; // known to client last server revision
 }
 
 message EntityResponse {

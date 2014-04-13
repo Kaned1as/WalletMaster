@@ -15,13 +15,12 @@ import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Currency;
 import com.adonai.wallet.entities.Entity;
 import com.adonai.wallet.entities.Operation;
+import com.google.gson.Gson;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -31,11 +30,13 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
-
+/**
+ * Database always contains current working copy
+ * Actions contain original data
+ */
 public class DatabaseDAO extends SQLiteOpenHelper
 {
     private final Context mContext;
-    private Map<Class, SyncHelper> syncHelpers = new HashMap<>(3);
 
     public interface DatabaseListener {
         void handleUpdate();
@@ -101,7 +102,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         DATA_TYPE,
         ACTION_TYPE,
         ACTION_TIMESTAMP,
-        DATA
+        ORIGINAL_DATA,
     }
 
     public static enum EntityType {
@@ -184,7 +185,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 ActionsFields.DATA_TYPE + " INTEGER NOT NULL, " +
                 ActionsFields.ACTION_TYPE + " INTEGER NOT NULL, " +
                 ActionsFields.ACTION_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP PRIMARY KEY, " +
-                ActionsFields.DATA + " BLOB" +
+                ActionsFields.ORIGINAL_DATA + " TEXT" +
                 ")");
 
         sqLiteDatabase.beginTransaction(); // initial fill
@@ -274,7 +275,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public int delete(Long id, String tableName) {
-        int count = mDatabase.delete(tableName, "_id = ?", new String[] { String.valueOf(id) });
+        int count = mDatabase.delete(tableName, "_id = ?", new String[]{String.valueOf(id)});
         if(count > 0)
             notifyListeners(tableName);
         return count;
@@ -286,60 +287,103 @@ public class DatabaseDAO extends SQLiteOpenHelper
      * @param entity optional entity (for deletion ID and entityType are needed)
      * @return
      */
-    public long addAction(ActionType type, Entity entity) {
-        long result = -1;
-        Log.d("addAction", String.format("Entity type %s, action type %s", entity.getEntityType().toString(), type.toString()));
-        final ContentValues values = new ContentValues(5);
-        values.put(ActionsFields.DATA_ID.toString(), entity.getId());
-        values.put(ActionsFields.DATA_TYPE.toString(), entity.getEntityType().ordinal());
-        values.put(ActionsFields.ACTION_TYPE.toString(), type.ordinal());
-        final ByteArrayOutputStream holder = new ByteArrayOutputStream();
-        ObjectOutputStream os = null;
-        if(type != ActionType.DELETE) // nothing to store on deletion
-            try {
-                os = new ObjectOutputStream(holder);
-                os.writeObject(entity);
-                os.flush();
-                values.put(ActionsFields.DATA.toString(), holder.toByteArray());
-            } catch (IOException e) {
-                return result;
-            } finally {
-                try {
-                    if (os != null)
-                        os.close();
-                    if (holder != null)
-                        holder.close();
-                } catch (IOException ignored) {
-                    // ignore close exception
-                }
-            }
-
+    public boolean makeAction(ActionType type, Entity entity) {
+        Log.d("makeAction", String.format("Entity type %s, action type %s", entity.getEntityType().toString(), type.toString()));
+        boolean status = false;
         mDatabase.beginTransaction();
         transactionFlow:
         {
-            result = mDatabase.insert(ACTIONS_TABLE_NAME, null, values);
-            if (result == -1)
-                break transactionFlow;
-
+            final ContentValues values = new ContentValues(5);
+            values.put(ActionsFields.DATA_TYPE.toString(), entity.getEntityType().ordinal());
+            values.put(ActionsFields.ACTION_TYPE.toString(), type.ordinal());
             switch (type) {
-                case ADD:
-                    result = entity.persist(this);
+                case ADD: { // we're adding, only store ID to keep track of it
+                    final long persistedId = entity.persist(this); // result holds ID now
+                    if (persistedId == -1) // error
+                        break transactionFlow;
+                    entity.setId(persistedId); // we should track new ID of entity in action fields
+
+                    values.put(ActionsFields.DATA_ID.toString(), entity.getId());
+                    values.put(ActionsFields.ORIGINAL_DATA.toString(), (byte[]) null);
+                    final long actionRow = mDatabase.insert(ACTIONS_TABLE_NAME, null, values);
+                    if(actionRow == -1)
+                        break transactionFlow;
                     break;
-                case MODIFY:
-                    result = entity.update(this);
+                }
+                case MODIFY: { // we are modifying, need to backup original!
+                    // first, retrieve old entity
+                    final Entity oldEntity;
+                    switch (entity.getEntityType()) {
+                        case ACCOUNT:
+                            oldEntity = getAccount(entity.getId());
+                            break;
+                        case CATEGORY:
+                            oldEntity = getCategory(entity.getId());
+                            break;
+                        case OPERATION:
+                            oldEntity = getOperation(entity.getId());
+                            break;
+                        default:
+                            throw new IllegalArgumentException("No such entity type!" + entity.getEntityType());
+                    }
+
+                    // second, update old row with new data
+                    final long rowsUpdated = entity.update(this); // result holds updated entities count now
+                    if (rowsUpdated != 1) // error
+                        break transactionFlow;
+
+                    // third, do we have original already?
+                    final Cursor cursor = mDatabase.query(ACTIONS_TABLE_NAME, null, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())}, null, null, null, null);
+                    if(cursor.moveToNext()) // we already have this entity stored (added or modified), nothing to do
+                        break;
+
+                    values.put(ActionsFields.DATA_ID.toString(), entity.getId());
+                    values.put(ActionsFields.ORIGINAL_DATA.toString(), new Gson().toJson(oldEntity));
+                    final long insertedActionId = mDatabase.insert(ACTIONS_TABLE_NAME, null, values);
+                    if(insertedActionId == -1)
+                        break transactionFlow;
                     break;
-                case DELETE:
-                    result = entity.delete(this);
+                }
+                case DELETE: { // we are deleting need to store all original data
+                    // first delete entity from DB
+                    final long entitiesDeleted = entity.delete(this); // result holds updated entities count now
+                    if (entitiesDeleted != 1) // error
+                        break transactionFlow;
+
+                    // second, do we have this data in any actions?
+                    final Cursor cursor = mDatabase.query(ACTIONS_TABLE_NAME, null, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())}, null, null, null, null);
+                    if(cursor.moveToNext()) { // we already have this entity stored, added or modified, need to update previous action
+                        final int previousActionType = cursor.getInt(ActionsFields.ACTION_TYPE.ordinal());
+                        if(previousActionType == ActionType.ADD.ordinal()) { // if entity was added, we should just delete action, so all will look like nothing happened
+                            final long actionsDeleted = mDatabase.delete(ACTIONS_TABLE_NAME, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())});
+                            if(actionsDeleted != 1)
+                                break transactionFlow;
+                        } else if(previousActionType == ActionType.MODIFY.ordinal()) { // change action type to deleted
+                            values.put(ActionsFields.DATA_ID.toString(), entity.getId());
+                            final long actionsUpdated = mDatabase.update(ACTIONS_TABLE_NAME, values, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())});
+                            if(actionsUpdated != 1)
+                                break transactionFlow;
+                        } else
+                            throw new IllegalArgumentException("Can't delete already deleted item!");
+                    } else { // we don't have any actions, should create and store original
+                        values.put(ActionsFields.DATA_ID.toString(), entity.getId());
+                        values.put(ActionsFields.ORIGINAL_DATA.toString(), new Gson().toJson(entity));
+                        final long actionRow = mDatabase.insert(ACTIONS_TABLE_NAME, null, values);
+                        if(actionRow == -1)
+                            break transactionFlow;
+                    }
                     break;
+                }
             }
-            if(result > 0) // all succeeded
-                mDatabase.setTransactionSuccessful();
+
+            // all succeeded
+            mDatabase.setTransactionSuccessful();
+            status = true;
         }
         mDatabase.endTransaction();
 
-        return result;
+        return status;
     }
-
 
     public Account getAccount(long id) {
         final Cursor cursor = mDatabase.query(ACCOUNTS_TABLE_NAME, null, " _id = ?", new String[]{String.valueOf(id)}, // d. selections args
@@ -378,6 +422,11 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public Cursor getOperationsCursor() {
         Log.d("Query", "getOperationsCursor");
         return mDatabase.query(OPERATIONS_TABLE_NAME, null, null, null, null, null, null, null);
+    }
+
+    public Cursor getEntityCursor(String tableName, long id) {
+        Log.d("Query", "getOperationsCursor");
+        return mDatabase.query(tableName, null, " _id = ?", new String[]{String.valueOf(id)}, null, null, null, null);
     }
 
     public Cursor getOperationsCursor(String filter) {
@@ -550,24 +599,24 @@ public class DatabaseDAO extends SQLiteOpenHelper
         mDatabase.beginTransaction();
         transactionFlow:
         {
-            if(operation.persist(this) == -1)
+            if(!makeAction(ActionType.ADD, operation))
                 break transactionFlow;
 
             switch (operation.getOperationType()) {
                 case TRANSFER:
                     benefAcc.setAmount(benefAcc.getAmount().add(operation.getAmountDelivered()));
                     chargeAcc.setAmount(chargeAcc.getAmount().subtract(amount));
-                    if(benefAcc.update(this) != 1 || chargeAcc.update(this) != 1) // apply to db
+                    if(!makeAction(ActionType.MODIFY, benefAcc) || !makeAction(ActionType.MODIFY, chargeAcc)) // apply to db
                         break transactionFlow;
                     break;
                 case EXPENSE: // subtract value
                     chargeAcc.setAmount(chargeAcc.getAmount().subtract(amount));
-                    if(chargeAcc.update(this) != 1)
+                    if(!makeAction(ActionType.MODIFY, chargeAcc))
                         break transactionFlow;
                     break;
                 case INCOME: // add value
                     benefAcc.setAmount(benefAcc.getAmount().add(amount));
-                    if(benefAcc.update(this) != 1)
+                    if(!makeAction(ActionType.MODIFY, benefAcc))
                         break transactionFlow;
                     break;
             }
@@ -598,81 +647,32 @@ public class DatabaseDAO extends SQLiteOpenHelper
         mDatabase.beginTransaction();
         transactionFlow:
         {
-            if(operation.delete(this) != 1)
+            if(!makeAction(ActionType.DELETE, operation))
                 break transactionFlow;
 
             switch (operation.getOperationType()) {
                 case TRANSFER:
                     benefAcc.setAmount(benefAcc.getAmount().subtract(operation.getAmountDelivered()));
                     chargeAcc.setAmount(chargeAcc.getAmount().add(amount));
-                    if(benefAcc.update(this) != 1 || chargeAcc.update(this) != 1)
+                    if(!makeAction(ActionType.MODIFY, benefAcc) || !makeAction(ActionType.MODIFY, chargeAcc))
                         break transactionFlow;
                     break;
                 case EXPENSE: // add subtracted value
                     chargeAcc.setAmount(chargeAcc.getAmount().add(amount));
-                    if(chargeAcc.update(this) != 1)
+                    if(!makeAction(ActionType.MODIFY, chargeAcc))
                         break transactionFlow;
                     break;
                 case INCOME: // subtract added value
                     benefAcc.setAmount(benefAcc.getAmount().subtract(amount));
-                    if(benefAcc.update(this) != 1)
+                    if(!makeAction(ActionType.MODIFY, benefAcc))
                         break transactionFlow;
                     break;
             }
             mDatabase.setTransactionSuccessful();
             allSucceeded = true;
-
-            notifyListeners(OPERATIONS_TABLE_NAME);
-            notifyListeners(ACCOUNTS_TABLE_NAME);
         }
         mDatabase.endTransaction();
         return allSucceeded;
-    }
-
-    public class SyncHelper<T> {
-        private final String tableName;
-        private final EntityType type;
-        private final Class<T> clazz;
-
-        public SyncHelper(Class<T> clazz) {
-            this.clazz = clazz;
-
-            if(clazz == Account.class) {
-                tableName = ACCOUNTS_TABLE_NAME;
-                type = EntityType.ACCOUNT;
-            }
-            else if(clazz == Operation.class) {
-                tableName = OPERATIONS_TABLE_NAME;
-                type = EntityType.OPERATION;
-            }
-            else if(clazz == Category.class) {
-                tableName = CATEGORIES_TABLE_NAME;
-                type = EntityType.CATEGORY;
-            }
-            else
-                throw new IllegalArgumentException("Wrong class!");
-        }
-
-        public T get(Long id) {
-            if(clazz == Account.class)
-                return clazz.cast(getAccount(id));
-            else if(clazz == Operation.class)
-                return clazz.cast(getOperation(id));
-            else if(clazz == Category.class)
-                return clazz.cast(getCategory(id));
-            else
-                throw new IllegalArgumentException("Wrong class!");
-        }
-    }
-
-    public <T> SyncHelper<T> getSyncHelper(Class<T> clazz) {
-        if(syncHelpers.containsKey(clazz))
-            return syncHelpers.get(clazz);
-        else {
-            final SyncHelper sHelper = new SyncHelper<>(clazz);
-            syncHelpers.put(clazz, sHelper);
-            return sHelper;
-        }
     }
 }
 

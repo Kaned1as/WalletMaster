@@ -7,31 +7,19 @@ import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.sync.SyncProtocol;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
- * Created by adonai on 22.02.14.
+ * @author adonai
  */
 public class Account extends Entity {
-    private Long id;
     private String name;
     private String description;
     private Currency currency;
     private BigDecimal amount;
     private Integer color;
-    private Long guid;
-    private List<Operation> operations; // foreign key from operations to budget (OneToMany)
 
     public Account() {
         super(DatabaseDAO.EntityType.ACCOUNT);
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -66,28 +54,12 @@ public class Account extends Entity {
         this.amount = amount;
     }
 
-    public List<Operation> getOperations() {
-        return operations;
-    }
-
-    public void setOperations(List<Operation> operations) {
-        this.operations = operations;
-    }
-
     public Integer getColor() {
         return color;
     }
 
     public void setColor(Integer color) {
         this.color = color;
-    }
-
-    public Long getGuid() {
-        return guid;
-    }
-
-    public void setGuid(Long guid) {
-        this.guid = guid;
     }
 
     public static Account fromProtoAccount(SyncProtocol.Account account) {
@@ -97,7 +69,6 @@ public class Account extends Entity {
         temp.setColor(account.getColor());
         temp.setDescription(account.getDescription());
         temp.setCurrency(new Currency(account.getCurrency()));
-        temp.setGuid(account.getID()); // ID of synced account is real ID in server database
         return temp;
     }
 
@@ -117,6 +88,9 @@ public class Account extends Entity {
         Log.d("addAccount", getName());
 
         final ContentValues values = new ContentValues(5);
+        if(getId() != null) // use with caution
+            values.put(DatabaseDAO.AccountFields._id.toString(), getId());
+
         values.put(DatabaseDAO.AccountFields.NAME.toString(), getName());
         values.put(DatabaseDAO.AccountFields.DESCRIPTION.toString(), getDescription());
         values.put(DatabaseDAO.AccountFields.CURRENCY.toString(), getCurrency().toString());
@@ -129,6 +103,7 @@ public class Account extends Entity {
     @Override
     public int update(DatabaseDAO dao) {
         final ContentValues values = new ContentValues();
+        values.put(DatabaseDAO.AccountFields._id.toString(), getId());
         values.put(DatabaseDAO.AccountFields.NAME.toString(), getName());
         values.put(DatabaseDAO.AccountFields.DESCRIPTION.toString(), getDescription());
         values.put(DatabaseDAO.AccountFields.CURRENCY.toString(), getCurrency().toString());

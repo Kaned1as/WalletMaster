@@ -16,7 +16,6 @@ public class Category extends Entity {
     private String name;
     private int type;
     private Account preferredAccount;
-    private Long guid;
 
     public Category() {
         super(DatabaseDAO.EntityType.CATEGORY);
@@ -52,18 +51,13 @@ public class Category extends Entity {
         this.preferredAccount = preferredAccount;
     }
 
-    public Long getGuid() {
-        return guid;
-    }
-
-    public void setGuid(Long guid) {
-        this.guid = guid;
-    }
-
     @Override
     public long persist(DatabaseDAO dao) {
         Log.d("addCategory", getName());
         final ContentValues values = new ContentValues(3);
+        if(getId() != null) // use with caution
+            values.put(DatabaseDAO.CategoriesFields._id.toString(), getId());
+
         values.put(DatabaseDAO.CategoriesFields.NAME.toString(), getName());
         values.put(DatabaseDAO.CategoriesFields.TYPE.toString(), getType());
         if(getPreferredAccount() != null)
