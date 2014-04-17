@@ -97,7 +97,8 @@ void protobuf_AssignDesc_sync_5fprotocol_2eproto() {
       sizeof(SyncResponse));
   SyncResponse_SyncAck_descriptor_ = SyncResponse_descriptor_->enum_type(0);
   EntityRequest_descriptor_ = file->message_type(2);
-  static const int EntityRequest_offsets_[1] = {
+  static const int EntityRequest_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityRequest, lastknownservertimestamp_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityRequest, knownid_),
   };
   EntityRequest_reflection_ =
@@ -112,9 +113,10 @@ void protobuf_AssignDesc_sync_5fprotocol_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(EntityRequest));
   EntityResponse_descriptor_ = file->message_type(3);
-  static const int EntityResponse_offsets_[2] = {
+  static const int EntityResponse_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityResponse, deletedid_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityResponse, entity_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityResponse, added_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityResponse, modified_),
   };
   EntityResponse_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -128,9 +130,8 @@ void protobuf_AssignDesc_sync_5fprotocol_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(EntityResponse));
   EntityAck_descriptor_ = file->message_type(4);
-  static const int EntityAck_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityAck, deletedguid_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityAck, writtenguid_),
+  static const int EntityAck_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityAck, newservertimestamp_),
   };
   EntityAck_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -283,32 +284,34 @@ void protobuf_AddDesc_sync_5fprotocol_2eproto() {
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\023sync_protocol.proto\022\026com.adonai.wallet"
-    ".sync\"\234\001\n\013SyncRequest\022\017\n\007account\030\001 \002(\t\022\020"
-    "\n\010password\030\002 \002(\t\022E\n\010syncType\030\003 \001(\0162,.com"
+    ".sync\"\225\001\n\013SyncRequest\022\017\n\007account\030\001 \002(\t\022\020"
+    "\n\010password\030\002 \002(\t\022>\n\010syncType\030\003 \002(\0162,.com"
     ".adonai.wallet.sync.SyncRequest.SyncType"
-    ":\005MERGE\"#\n\010SyncType\022\014\n\010REGISTER\020\000\022\t\n\005MER"
-    "GE\020\001\"\233\001\n\014SyncResponse\022=\n\007syncAck\030\001 \002(\0162,"
-    ".com.adonai.wallet.sync.SyncResponse.Syn"
-    "cAck\"L\n\007SyncAck\022\007\n\002OK\020\310\001\022\023\n\016ACCOUNT_EXIS"
-    "TS\020\222\003\022\017\n\nAUTH_WRONG\020\223\003\022\022\n\rUNKNOWN_ERROR\020"
-    "\347\007\" \n\rEntityRequest\022\017\n\007knownID\030\001 \003(\003\"S\n\016"
-    "EntityResponse\022\021\n\tdeletedID\030\001 \003(\003\022.\n\006ent"
-    "ity\030\002 \003(\0132\036.com.adonai.wallet.sync.Entit"
-    "y\"5\n\tEntityAck\022\023\n\013deletedGuid\030\001 \003(\003\022\023\n\013w"
-    "rittenGuid\030\002 \003(\003\"\244\001\n\006Entity\0220\n\007account\030\001"
-    " \001(\0132\037.com.adonai.wallet.sync.Account\0224\n"
-    "\toperation\030\002 \001(\0132!.com.adonai.wallet.syn"
-    "c.Operation\0222\n\010category\030\003 \001(\0132 .com.adon"
-    "ai.wallet.sync.Category\"i\n\007Account\022\n\n\002ID"
-    "\030\001 \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n\013description\030\003 \001("
-    "\t\022\020\n\010currency\030\004 \002(\t\022\016\n\006amount\030\005 \002(\t\022\r\n\005c"
-    "olor\030\006 \001(\005\"\237\001\n\tOperation\022\n\n\002ID\030\001 \002(\004\022\023\n\013"
-    "description\030\002 \001(\t\022\014\n\004time\030\003 \002(\004\022\021\n\tcharg"
-    "erId\030\004 \001(\004\022\024\n\014beneficiarId\030\005 \001(\004\022\016\n\006amou"
-    "nt\030\006 \002(\t\022\026\n\016convertingRate\030\007 \001(\002\022\022\n\ncate"
-    "goryId\030\010 \002(\004\"L\n\010Category\022\n\n\002ID\030\001 \002(\004\022\014\n\004"
-    "name\030\002 \002(\t\022\014\n\004type\030\003 \002(\r\022\030\n\020preferredAcc"
-    "ount\030\004 \001(\004", 1050);
+    "\"#\n\010SyncType\022\014\n\010REGISTER\020\000\022\t\n\005MERGE\020\001\"\261\001"
+    "\n\014SyncResponse\022=\n\007syncAck\030\001 \002(\0162,.com.ad"
+    "onai.wallet.sync.SyncResponse.SyncAck\"b\n"
+    "\007SyncAck\022\007\n\002OK\020\310\001\022\023\n\016ACCOUNT_EXISTS\020\222\003\022\017"
+    "\n\nAUTH_WRONG\020\223\003\022\024\n\017ALREADY_SYNCING\020\231\003\022\022\n"
+    "\rUNKNOWN_ERROR\020\347\007\"B\n\rEntityRequest\022 \n\030la"
+    "stKnownServerTimestamp\030\001 \002(\004\022\017\n\007knownID\030"
+    "\002 \003(\003\"\204\001\n\016EntityResponse\022\021\n\tdeletedID\030\001 "
+    "\003(\003\022-\n\005added\030\002 \003(\0132\036.com.adonai.wallet.s"
+    "ync.Entity\0220\n\010modified\030\003 \003(\0132\036.com.adona"
+    "i.wallet.sync.Entity\"\'\n\tEntityAck\022\032\n\022new"
+    "ServerTimestamp\030\001 \002(\004\"\244\001\n\006Entity\0220\n\007acco"
+    "unt\030\001 \001(\0132\037.com.adonai.wallet.sync.Accou"
+    "nt\0224\n\toperation\030\002 \001(\0132!.com.adonai.walle"
+    "t.sync.Operation\0222\n\010category\030\003 \001(\0132 .com"
+    ".adonai.wallet.sync.Category\"i\n\007Account\022"
+    "\n\n\002ID\030\001 \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n\013description"
+    "\030\003 \001(\t\022\020\n\010currency\030\004 \002(\t\022\016\n\006amount\030\005 \002(\t"
+    "\022\r\n\005color\030\006 \001(\005\"\237\001\n\tOperation\022\n\n\002ID\030\001 \002("
+    "\004\022\023\n\013description\030\002 \001(\t\022\014\n\004time\030\003 \002(\004\022\021\n\t"
+    "chargerId\030\004 \001(\004\022\024\n\014beneficiarId\030\005 \001(\004\022\016\n"
+    "\006amount\030\006 \002(\t\022\026\n\016convertingRate\030\007 \001(\002\022\022\n"
+    "\ncategoryId\030\010 \002(\004\"L\n\010Category\022\n\n\002ID\030\001 \002("
+    "\004\022\014\n\004name\030\002 \002(\t\022\014\n\004type\030\003 \002(\r\022\030\n\020preferr"
+    "edAccount\030\004 \001(\004", 1135);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "sync_protocol.proto", &protobuf_RegisterTypes);
   SyncRequest::default_instance_ = new SyncRequest();
@@ -386,7 +389,7 @@ void SyncRequest::SharedCtor() {
   _cached_size_ = 0;
   account_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   password_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  synctype_ = 1;
+  synctype_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -438,7 +441,7 @@ void SyncRequest::Clear() {
         password_->clear();
       }
     }
-    synctype_ = 1;
+    synctype_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -483,7 +486,7 @@ bool SyncRequest::MergePartialFromCodedStream(
         break;
       }
 
-      // optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];
+      // required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;
       case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
@@ -540,7 +543,7 @@ void SyncRequest::SerializeWithCachedSizes(
       2, this->password(), output);
   }
 
-  // optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];
+  // required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;
   if (has_synctype()) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
       3, this->synctype(), output);
@@ -574,7 +577,7 @@ void SyncRequest::SerializeWithCachedSizes(
         2, this->password(), target);
   }
 
-  // optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];
+  // required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;
   if (has_synctype()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
       3, this->synctype(), target);
@@ -605,7 +608,7 @@ int SyncRequest::ByteSize() const {
           this->password());
     }
 
-    // optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];
+    // required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;
     if (has_synctype()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->synctype());
@@ -664,7 +667,7 @@ void SyncRequest::CopyFrom(const SyncRequest& from) {
 }
 
 bool SyncRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
 
   return true;
 }
@@ -700,6 +703,7 @@ bool SyncResponse_SyncAck_IsValid(int value) {
     case 200:
     case 402:
     case 403:
+    case 409:
     case 999:
       return true;
     default:
@@ -711,6 +715,7 @@ bool SyncResponse_SyncAck_IsValid(int value) {
 const SyncResponse_SyncAck SyncResponse::OK;
 const SyncResponse_SyncAck SyncResponse::ACCOUNT_EXISTS;
 const SyncResponse_SyncAck SyncResponse::AUTH_WRONG;
+const SyncResponse_SyncAck SyncResponse::ALREADY_SYNCING;
 const SyncResponse_SyncAck SyncResponse::UNKNOWN_ERROR;
 const SyncResponse_SyncAck SyncResponse::SyncAck_MIN;
 const SyncResponse_SyncAck SyncResponse::SyncAck_MAX;
@@ -932,6 +937,7 @@ void SyncResponse::Swap(SyncResponse* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int EntityRequest::kLastKnownServerTimestampFieldNumber;
 const int EntityRequest::kKnownIDFieldNumber;
 #endif  // !_MSC_VER
 
@@ -951,6 +957,7 @@ EntityRequest::EntityRequest(const EntityRequest& from)
 
 void EntityRequest::SharedCtor() {
   _cached_size_ = 0;
+  lastknownservertimestamp_ = GOOGLE_ULONGLONG(0);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -985,6 +992,9 @@ EntityRequest* EntityRequest::New() const {
 }
 
 void EntityRequest::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    lastknownservertimestamp_ = GOOGLE_ULONGLONG(0);
+  }
   knownid_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -996,14 +1006,29 @@ bool EntityRequest::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated int64 knownID = 1;
+      // required uint64 lastKnownServerTimestamp = 1;
       case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &lastknownservertimestamp_)));
+          set_has_lastknownservertimestamp();
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(16)) goto parse_knownID;
+        break;
+      }
+
+      // repeated int64 knownID = 2;
+      case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
          parse_knownID:
           DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
                    ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
-                 1, 8, input, this->mutable_knownid())));
+                 1, 16, input, this->mutable_knownid())));
         } else if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag)
                    == ::google::protobuf::internal::WireFormatLite::
                       WIRETYPE_LENGTH_DELIMITED) {
@@ -1013,7 +1038,7 @@ bool EntityRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(8)) goto parse_knownID;
+        if (input->ExpectTag(16)) goto parse_knownID;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1036,10 +1061,15 @@ bool EntityRequest::MergePartialFromCodedStream(
 
 void EntityRequest::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // repeated int64 knownID = 1;
+  // required uint64 lastKnownServerTimestamp = 1;
+  if (has_lastknownservertimestamp()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->lastknownservertimestamp(), output);
+  }
+
+  // repeated int64 knownID = 2;
   for (int i = 0; i < this->knownid_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteInt64(
-      1, this->knownid(i), output);
+      2, this->knownid(i), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -1050,10 +1080,15 @@ void EntityRequest::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* EntityRequest::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // repeated int64 knownID = 1;
+  // required uint64 lastKnownServerTimestamp = 1;
+  if (has_lastknownservertimestamp()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->lastknownservertimestamp(), target);
+  }
+
+  // repeated int64 knownID = 2;
   for (int i = 0; i < this->knownid_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
-      WriteInt64ToArray(1, this->knownid(i), target);
+      WriteInt64ToArray(2, this->knownid(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1066,7 +1101,16 @@ void EntityRequest::SerializeWithCachedSizes(
 int EntityRequest::ByteSize() const {
   int total_size = 0;
 
-  // repeated int64 knownID = 1;
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required uint64 lastKnownServerTimestamp = 1;
+    if (has_lastknownservertimestamp()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->lastknownservertimestamp());
+    }
+
+  }
+  // repeated int64 knownID = 2;
   {
     int data_size = 0;
     for (int i = 0; i < this->knownid_size(); i++) {
@@ -1102,6 +1146,11 @@ void EntityRequest::MergeFrom(const ::google::protobuf::Message& from) {
 void EntityRequest::MergeFrom(const EntityRequest& from) {
   GOOGLE_CHECK_NE(&from, this);
   knownid_.MergeFrom(from.knownid_);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_lastknownservertimestamp()) {
+      set_lastknownservertimestamp(from.lastknownservertimestamp());
+    }
+  }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -1118,12 +1167,14 @@ void EntityRequest::CopyFrom(const EntityRequest& from) {
 }
 
 bool EntityRequest::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
 
   return true;
 }
 
 void EntityRequest::Swap(EntityRequest* other) {
   if (other != this) {
+    std::swap(lastknownservertimestamp_, other->lastknownservertimestamp_);
     knownid_.Swap(&other->knownid_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
@@ -1144,7 +1195,8 @@ void EntityRequest::Swap(EntityRequest* other) {
 
 #ifndef _MSC_VER
 const int EntityResponse::kDeletedIDFieldNumber;
-const int EntityResponse::kEntityFieldNumber;
+const int EntityResponse::kAddedFieldNumber;
+const int EntityResponse::kModifiedFieldNumber;
 #endif  // !_MSC_VER
 
 EntityResponse::EntityResponse()
@@ -1198,7 +1250,8 @@ EntityResponse* EntityResponse::New() const {
 
 void EntityResponse::Clear() {
   deletedid_.Clear();
-  entity_.Clear();
+  added_.Clear();
+  modified_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -1227,21 +1280,36 @@ bool EntityResponse::MergePartialFromCodedStream(
           goto handle_uninterpreted;
         }
         if (input->ExpectTag(8)) goto parse_deletedID;
-        if (input->ExpectTag(18)) goto parse_entity;
+        if (input->ExpectTag(18)) goto parse_added;
         break;
       }
 
-      // repeated .com.adonai.wallet.sync.Entity entity = 2;
+      // repeated .com.adonai.wallet.sync.Entity added = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_entity:
+         parse_added:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_entity()));
+                input, add_added()));
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(18)) goto parse_entity;
+        if (input->ExpectTag(18)) goto parse_added;
+        if (input->ExpectTag(26)) goto parse_modified;
+        break;
+      }
+
+      // repeated .com.adonai.wallet.sync.Entity modified = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_modified:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_modified()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(26)) goto parse_modified;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1270,10 +1338,16 @@ void EntityResponse::SerializeWithCachedSizes(
       1, this->deletedid(i), output);
   }
 
-  // repeated .com.adonai.wallet.sync.Entity entity = 2;
-  for (int i = 0; i < this->entity_size(); i++) {
+  // repeated .com.adonai.wallet.sync.Entity added = 2;
+  for (int i = 0; i < this->added_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->entity(i), output);
+      2, this->added(i), output);
+  }
+
+  // repeated .com.adonai.wallet.sync.Entity modified = 3;
+  for (int i = 0; i < this->modified_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, this->modified(i), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -1290,11 +1364,18 @@ void EntityResponse::SerializeWithCachedSizes(
       WriteInt64ToArray(1, this->deletedid(i), target);
   }
 
-  // repeated .com.adonai.wallet.sync.Entity entity = 2;
-  for (int i = 0; i < this->entity_size(); i++) {
+  // repeated .com.adonai.wallet.sync.Entity added = 2;
+  for (int i = 0; i < this->added_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        2, this->entity(i), target);
+        2, this->added(i), target);
+  }
+
+  // repeated .com.adonai.wallet.sync.Entity modified = 3;
+  for (int i = 0; i < this->modified_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        3, this->modified(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1317,12 +1398,20 @@ int EntityResponse::ByteSize() const {
     total_size += 1 * this->deletedid_size() + data_size;
   }
 
-  // repeated .com.adonai.wallet.sync.Entity entity = 2;
-  total_size += 1 * this->entity_size();
-  for (int i = 0; i < this->entity_size(); i++) {
+  // repeated .com.adonai.wallet.sync.Entity added = 2;
+  total_size += 1 * this->added_size();
+  for (int i = 0; i < this->added_size(); i++) {
     total_size +=
       ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->entity(i));
+        this->added(i));
+  }
+
+  // repeated .com.adonai.wallet.sync.Entity modified = 3;
+  total_size += 1 * this->modified_size();
+  for (int i = 0; i < this->modified_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->modified(i));
   }
 
   if (!unknown_fields().empty()) {
@@ -1351,7 +1440,8 @@ void EntityResponse::MergeFrom(const ::google::protobuf::Message& from) {
 void EntityResponse::MergeFrom(const EntityResponse& from) {
   GOOGLE_CHECK_NE(&from, this);
   deletedid_.MergeFrom(from.deletedid_);
-  entity_.MergeFrom(from.entity_);
+  added_.MergeFrom(from.added_);
+  modified_.MergeFrom(from.modified_);
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -1369,8 +1459,11 @@ void EntityResponse::CopyFrom(const EntityResponse& from) {
 
 bool EntityResponse::IsInitialized() const {
 
-  for (int i = 0; i < entity_size(); i++) {
-    if (!this->entity(i).IsInitialized()) return false;
+  for (int i = 0; i < added_size(); i++) {
+    if (!this->added(i).IsInitialized()) return false;
+  }
+  for (int i = 0; i < modified_size(); i++) {
+    if (!this->modified(i).IsInitialized()) return false;
   }
   return true;
 }
@@ -1378,7 +1471,8 @@ bool EntityResponse::IsInitialized() const {
 void EntityResponse::Swap(EntityResponse* other) {
   if (other != this) {
     deletedid_.Swap(&other->deletedid_);
-    entity_.Swap(&other->entity_);
+    added_.Swap(&other->added_);
+    modified_.Swap(&other->modified_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -1397,8 +1491,7 @@ void EntityResponse::Swap(EntityResponse* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int EntityAck::kDeletedGuidFieldNumber;
-const int EntityAck::kWrittenGuidFieldNumber;
+const int EntityAck::kNewServerTimestampFieldNumber;
 #endif  // !_MSC_VER
 
 EntityAck::EntityAck()
@@ -1417,6 +1510,7 @@ EntityAck::EntityAck(const EntityAck& from)
 
 void EntityAck::SharedCtor() {
   _cached_size_ = 0;
+  newservertimestamp_ = GOOGLE_ULONGLONG(0);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1451,8 +1545,9 @@ EntityAck* EntityAck::New() const {
 }
 
 void EntityAck::Clear() {
-  deletedguid_.Clear();
-  writtenguid_.Clear();
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    newservertimestamp_ = GOOGLE_ULONGLONG(0);
+  }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -1463,46 +1558,17 @@ bool EntityAck::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated int64 deletedGuid = 1;
+      // required uint64 newServerTimestamp = 1;
       case 1: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_deletedGuid:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
-                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
-                 1, 8, input, this->mutable_deletedguid())));
-        } else if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag)
-                   == ::google::protobuf::internal::WireFormatLite::
-                      WIRETYPE_LENGTH_DELIMITED) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitiveNoInline<
-                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
-                 input, this->mutable_deletedguid())));
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &newservertimestamp_)));
+          set_has_newservertimestamp();
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(8)) goto parse_deletedGuid;
-        if (input->ExpectTag(16)) goto parse_writtenGuid;
-        break;
-      }
-
-      // repeated int64 writtenGuid = 2;
-      case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_writtenGuid:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
-                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
-                 1, 16, input, this->mutable_writtenguid())));
-        } else if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag)
-                   == ::google::protobuf::internal::WireFormatLite::
-                      WIRETYPE_LENGTH_DELIMITED) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitiveNoInline<
-                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
-                 input, this->mutable_writtenguid())));
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(16)) goto parse_writtenGuid;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1525,16 +1591,9 @@ bool EntityAck::MergePartialFromCodedStream(
 
 void EntityAck::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // repeated int64 deletedGuid = 1;
-  for (int i = 0; i < this->deletedguid_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt64(
-      1, this->deletedguid(i), output);
-  }
-
-  // repeated int64 writtenGuid = 2;
-  for (int i = 0; i < this->writtenguid_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt64(
-      2, this->writtenguid(i), output);
+  // required uint64 newServerTimestamp = 1;
+  if (has_newservertimestamp()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->newservertimestamp(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -1545,16 +1604,9 @@ void EntityAck::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* EntityAck::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
-  // repeated int64 deletedGuid = 1;
-  for (int i = 0; i < this->deletedguid_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteInt64ToArray(1, this->deletedguid(i), target);
-  }
-
-  // repeated int64 writtenGuid = 2;
-  for (int i = 0; i < this->writtenguid_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteInt64ToArray(2, this->writtenguid(i), target);
+  // required uint64 newServerTimestamp = 1;
+  if (has_newservertimestamp()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->newservertimestamp(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1567,26 +1619,15 @@ void EntityAck::SerializeWithCachedSizes(
 int EntityAck::ByteSize() const {
   int total_size = 0;
 
-  // repeated int64 deletedGuid = 1;
-  {
-    int data_size = 0;
-    for (int i = 0; i < this->deletedguid_size(); i++) {
-      data_size += ::google::protobuf::internal::WireFormatLite::
-        Int64Size(this->deletedguid(i));
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required uint64 newServerTimestamp = 1;
+    if (has_newservertimestamp()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->newservertimestamp());
     }
-    total_size += 1 * this->deletedguid_size() + data_size;
-  }
 
-  // repeated int64 writtenGuid = 2;
-  {
-    int data_size = 0;
-    for (int i = 0; i < this->writtenguid_size(); i++) {
-      data_size += ::google::protobuf::internal::WireFormatLite::
-        Int64Size(this->writtenguid(i));
-    }
-    total_size += 1 * this->writtenguid_size() + data_size;
   }
-
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -1612,8 +1653,11 @@ void EntityAck::MergeFrom(const ::google::protobuf::Message& from) {
 
 void EntityAck::MergeFrom(const EntityAck& from) {
   GOOGLE_CHECK_NE(&from, this);
-  deletedguid_.MergeFrom(from.deletedguid_);
-  writtenguid_.MergeFrom(from.writtenguid_);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_newservertimestamp()) {
+      set_newservertimestamp(from.newservertimestamp());
+    }
+  }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -1630,14 +1674,14 @@ void EntityAck::CopyFrom(const EntityAck& from) {
 }
 
 bool EntityAck::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
 
   return true;
 }
 
 void EntityAck::Swap(EntityAck* other) {
   if (other != this) {
-    deletedguid_.Swap(&other->deletedguid_);
-    writtenguid_.Swap(&other->writtenguid_);
+    std::swap(newservertimestamp_, other->newservertimestamp_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

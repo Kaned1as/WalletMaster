@@ -10,7 +10,6 @@ message SyncRequest {
     }
     
     required SyncType syncType = 3;
-    required int64 lastKnownRevision = 1; // known to client last server revision
 }
 
 message SyncResponse {
@@ -18,6 +17,7 @@ message SyncResponse {
         OK = 200;
         ACCOUNT_EXISTS = 402;
         AUTH_WRONG = 403;
+        ALREADY_SYNCING = 409;
         UNKNOWN_ERROR = 999;
     }
     
@@ -25,6 +25,7 @@ message SyncResponse {
 }
 
 message EntityRequest {
+    required uint64 lastKnownServerTimestamp = 1; // known to client last server revision
     repeated int64 knownID = 2; // known to client server IDs to detect deletions and modifications
 }
 
@@ -35,8 +36,7 @@ message EntityResponse {
 }
 
 message EntityAck {
-    repeated int64 deletedGuid = 1; // entities deleted on server as confirmation
-    repeated int64 writtenGuid = 2; // entities written on server as confirmation
+    required uint64 newServerTimestamp = 1;
 }
 
 message Entity {

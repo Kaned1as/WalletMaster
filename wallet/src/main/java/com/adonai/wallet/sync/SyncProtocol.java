@@ -41,13 +41,13 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getPasswordBytes();
 
-    // optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];
+    // required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;
     /**
-     * <code>optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];</code>
+     * <code>required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;</code>
      */
     boolean hasSyncType();
     /**
-     * <code>optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];</code>
+     * <code>required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;</code>
      */
     com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType getSyncType();
   }
@@ -339,17 +339,17 @@ public final class SyncProtocol {
       }
     }
 
-    // optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];
+    // required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;
     public static final int SYNCTYPE_FIELD_NUMBER = 3;
     private com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType syncType_;
     /**
-     * <code>optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];</code>
+     * <code>required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;</code>
      */
     public boolean hasSyncType() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];</code>
+     * <code>required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;</code>
      */
     public com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType getSyncType() {
       return syncType_;
@@ -358,7 +358,7 @@ public final class SyncProtocol {
     private void initFields() {
       account_ = "";
       password_ = "";
-      syncType_ = com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType.MERGE;
+      syncType_ = com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType.REGISTER;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -370,6 +370,10 @@ public final class SyncProtocol {
         return false;
       }
       if (!hasPassword()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasSyncType()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -530,7 +534,7 @@ public final class SyncProtocol {
         bitField0_ = (bitField0_ & ~0x00000001);
         password_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
-        syncType_ = com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType.MERGE;
+        syncType_ = com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType.REGISTER;
         bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
@@ -611,6 +615,10 @@ public final class SyncProtocol {
           return false;
         }
         if (!hasPassword()) {
+          
+          return false;
+        }
+        if (!hasSyncType()) {
           
           return false;
         }
@@ -784,22 +792,22 @@ public final class SyncProtocol {
         return this;
       }
 
-      // optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];
-      private com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType syncType_ = com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType.MERGE;
+      // required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;
+      private com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType syncType_ = com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType.REGISTER;
       /**
-       * <code>optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];</code>
+       * <code>required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;</code>
        */
       public boolean hasSyncType() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];</code>
+       * <code>required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;</code>
        */
       public com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType getSyncType() {
         return syncType_;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];</code>
+       * <code>required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;</code>
        */
       public Builder setSyncType(com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType value) {
         if (value == null) {
@@ -811,11 +819,11 @@ public final class SyncProtocol {
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];</code>
+       * <code>required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;</code>
        */
       public Builder clearSyncType() {
         bitField0_ = (bitField0_ & ~0x00000004);
-        syncType_ = com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType.MERGE;
+        syncType_ = com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType.REGISTER;
         onChanged();
         return this;
       }
@@ -963,9 +971,13 @@ public final class SyncProtocol {
        */
       AUTH_WRONG(2, 403),
       /**
+       * <code>ALREADY_SYNCING = 409;</code>
+       */
+      ALREADY_SYNCING(3, 409),
+      /**
        * <code>UNKNOWN_ERROR = 999;</code>
        */
-      UNKNOWN_ERROR(3, 999),
+      UNKNOWN_ERROR(4, 999),
       ;
 
       /**
@@ -981,6 +993,10 @@ public final class SyncProtocol {
        */
       public static final int AUTH_WRONG_VALUE = 403;
       /**
+       * <code>ALREADY_SYNCING = 409;</code>
+       */
+      public static final int ALREADY_SYNCING_VALUE = 409;
+      /**
        * <code>UNKNOWN_ERROR = 999;</code>
        */
       public static final int UNKNOWN_ERROR_VALUE = 999;
@@ -993,6 +1009,7 @@ public final class SyncProtocol {
           case 200: return OK;
           case 402: return ACCOUNT_EXISTS;
           case 403: return AUTH_WRONG;
+          case 409: return ALREADY_SYNCING;
           case 999: return UNKNOWN_ERROR;
           default: return null;
         }
@@ -1347,28 +1364,46 @@ public final class SyncProtocol {
   public interface EntityRequestOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // repeated int64 knownID = 1;
+    // required uint64 lastKnownServerTimestamp = 1;
     /**
-     * <code>repeated int64 knownID = 1;</code>
+     * <code>required uint64 lastKnownServerTimestamp = 1;</code>
      *
      * <pre>
-     * known to client server IDs to detect deletions
+     * known to client last server revision
+     * </pre>
+     */
+    boolean hasLastKnownServerTimestamp();
+    /**
+     * <code>required uint64 lastKnownServerTimestamp = 1;</code>
+     *
+     * <pre>
+     * known to client last server revision
+     * </pre>
+     */
+    long getLastKnownServerTimestamp();
+
+    // repeated int64 knownID = 2;
+    /**
+     * <code>repeated int64 knownID = 2;</code>
+     *
+     * <pre>
+     * known to client server IDs to detect deletions and modifications
      * </pre>
      */
     java.util.List<java.lang.Long> getKnownIDList();
     /**
-     * <code>repeated int64 knownID = 1;</code>
+     * <code>repeated int64 knownID = 2;</code>
      *
      * <pre>
-     * known to client server IDs to detect deletions
+     * known to client server IDs to detect deletions and modifications
      * </pre>
      */
     int getKnownIDCount();
     /**
-     * <code>repeated int64 knownID = 1;</code>
+     * <code>repeated int64 knownID = 2;</code>
      *
      * <pre>
-     * known to client server IDs to detect deletions
+     * known to client server IDs to detect deletions and modifications
      * </pre>
      */
     long getKnownID(int index);
@@ -1425,19 +1460,24 @@ public final class SyncProtocol {
               break;
             }
             case 8: {
-              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+              bitField0_ |= 0x00000001;
+              lastKnownServerTimestamp_ = input.readUInt64();
+              break;
+            }
+            case 16: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
                 knownID_ = new java.util.ArrayList<java.lang.Long>();
-                mutable_bitField0_ |= 0x00000001;
+                mutable_bitField0_ |= 0x00000002;
               }
               knownID_.add(input.readInt64());
               break;
             }
-            case 10: {
+            case 18: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001) && input.getBytesUntilLimit() > 0) {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
                 knownID_ = new java.util.ArrayList<java.lang.Long>();
-                mutable_bitField0_ |= 0x00000001;
+                mutable_bitField0_ |= 0x00000002;
               }
               while (input.getBytesUntilLimit() > 0) {
                 knownID_.add(input.readInt64());
@@ -1453,7 +1493,7 @@ public final class SyncProtocol {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           knownID_ = java.util.Collections.unmodifiableList(knownID_);
         }
         this.unknownFields = unknownFields.build();
@@ -1487,14 +1527,39 @@ public final class SyncProtocol {
       return PARSER;
     }
 
-    // repeated int64 knownID = 1;
-    public static final int KNOWNID_FIELD_NUMBER = 1;
-    private java.util.List<java.lang.Long> knownID_;
+    private int bitField0_;
+    // required uint64 lastKnownServerTimestamp = 1;
+    public static final int LASTKNOWNSERVERTIMESTAMP_FIELD_NUMBER = 1;
+    private long lastKnownServerTimestamp_;
     /**
-     * <code>repeated int64 knownID = 1;</code>
+     * <code>required uint64 lastKnownServerTimestamp = 1;</code>
      *
      * <pre>
-     * known to client server IDs to detect deletions
+     * known to client last server revision
+     * </pre>
+     */
+    public boolean hasLastKnownServerTimestamp() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required uint64 lastKnownServerTimestamp = 1;</code>
+     *
+     * <pre>
+     * known to client last server revision
+     * </pre>
+     */
+    public long getLastKnownServerTimestamp() {
+      return lastKnownServerTimestamp_;
+    }
+
+    // repeated int64 knownID = 2;
+    public static final int KNOWNID_FIELD_NUMBER = 2;
+    private java.util.List<java.lang.Long> knownID_;
+    /**
+     * <code>repeated int64 knownID = 2;</code>
+     *
+     * <pre>
+     * known to client server IDs to detect deletions and modifications
      * </pre>
      */
     public java.util.List<java.lang.Long>
@@ -1502,20 +1567,20 @@ public final class SyncProtocol {
       return knownID_;
     }
     /**
-     * <code>repeated int64 knownID = 1;</code>
+     * <code>repeated int64 knownID = 2;</code>
      *
      * <pre>
-     * known to client server IDs to detect deletions
+     * known to client server IDs to detect deletions and modifications
      * </pre>
      */
     public int getKnownIDCount() {
       return knownID_.size();
     }
     /**
-     * <code>repeated int64 knownID = 1;</code>
+     * <code>repeated int64 knownID = 2;</code>
      *
      * <pre>
-     * known to client server IDs to detect deletions
+     * known to client server IDs to detect deletions and modifications
      * </pre>
      */
     public long getKnownID(int index) {
@@ -1523,6 +1588,7 @@ public final class SyncProtocol {
     }
 
     private void initFields() {
+      lastKnownServerTimestamp_ = 0L;
       knownID_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
@@ -1530,6 +1596,10 @@ public final class SyncProtocol {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
 
+      if (!hasLastKnownServerTimestamp()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -1537,8 +1607,11 @@ public final class SyncProtocol {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeUInt64(1, lastKnownServerTimestamp_);
+      }
       for (int i = 0; i < knownID_.size(); i++) {
-        output.writeInt64(1, knownID_.get(i));
+        output.writeInt64(2, knownID_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -1549,6 +1622,10 @@ public final class SyncProtocol {
       if (size != -1) return size;
 
       size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt64Size(1, lastKnownServerTimestamp_);
+      }
       {
         int dataSize = 0;
         for (int i = 0; i < knownID_.size(); i++) {
@@ -1674,8 +1751,10 @@ public final class SyncProtocol {
 
       public Builder clear() {
         super.clear();
-        knownID_ = java.util.Collections.emptyList();
+        lastKnownServerTimestamp_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000001);
+        knownID_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
@@ -1703,11 +1782,17 @@ public final class SyncProtocol {
       public com.adonai.wallet.sync.SyncProtocol.EntityRequest buildPartial() {
         com.adonai.wallet.sync.SyncProtocol.EntityRequest result = new com.adonai.wallet.sync.SyncProtocol.EntityRequest(this);
         int from_bitField0_ = bitField0_;
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.lastKnownServerTimestamp_ = lastKnownServerTimestamp_;
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
           knownID_ = java.util.Collections.unmodifiableList(knownID_);
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000002);
         }
         result.knownID_ = knownID_;
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -1723,10 +1808,13 @@ public final class SyncProtocol {
 
       public Builder mergeFrom(com.adonai.wallet.sync.SyncProtocol.EntityRequest other) {
         if (other == com.adonai.wallet.sync.SyncProtocol.EntityRequest.getDefaultInstance()) return this;
+        if (other.hasLastKnownServerTimestamp()) {
+          setLastKnownServerTimestamp(other.getLastKnownServerTimestamp());
+        }
         if (!other.knownID_.isEmpty()) {
           if (knownID_.isEmpty()) {
             knownID_ = other.knownID_;
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000002);
           } else {
             ensureKnownIDIsMutable();
             knownID_.addAll(other.knownID_);
@@ -1738,6 +1826,10 @@ public final class SyncProtocol {
       }
 
       public final boolean isInitialized() {
+        if (!hasLastKnownServerTimestamp()) {
+          
+          return false;
+        }
         return true;
       }
 
@@ -1760,19 +1852,68 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // repeated int64 knownID = 1;
+      // required uint64 lastKnownServerTimestamp = 1;
+      private long lastKnownServerTimestamp_ ;
+      /**
+       * <code>required uint64 lastKnownServerTimestamp = 1;</code>
+       *
+       * <pre>
+       * known to client last server revision
+       * </pre>
+       */
+      public boolean hasLastKnownServerTimestamp() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>required uint64 lastKnownServerTimestamp = 1;</code>
+       *
+       * <pre>
+       * known to client last server revision
+       * </pre>
+       */
+      public long getLastKnownServerTimestamp() {
+        return lastKnownServerTimestamp_;
+      }
+      /**
+       * <code>required uint64 lastKnownServerTimestamp = 1;</code>
+       *
+       * <pre>
+       * known to client last server revision
+       * </pre>
+       */
+      public Builder setLastKnownServerTimestamp(long value) {
+        bitField0_ |= 0x00000001;
+        lastKnownServerTimestamp_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required uint64 lastKnownServerTimestamp = 1;</code>
+       *
+       * <pre>
+       * known to client last server revision
+       * </pre>
+       */
+      public Builder clearLastKnownServerTimestamp() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        lastKnownServerTimestamp_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      // repeated int64 knownID = 2;
       private java.util.List<java.lang.Long> knownID_ = java.util.Collections.emptyList();
       private void ensureKnownIDIsMutable() {
-        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
           knownID_ = new java.util.ArrayList<java.lang.Long>(knownID_);
-          bitField0_ |= 0x00000001;
+          bitField0_ |= 0x00000002;
          }
       }
       /**
-       * <code>repeated int64 knownID = 1;</code>
+       * <code>repeated int64 knownID = 2;</code>
        *
        * <pre>
-       * known to client server IDs to detect deletions
+       * known to client server IDs to detect deletions and modifications
        * </pre>
        */
       public java.util.List<java.lang.Long>
@@ -1780,30 +1921,30 @@ public final class SyncProtocol {
         return java.util.Collections.unmodifiableList(knownID_);
       }
       /**
-       * <code>repeated int64 knownID = 1;</code>
+       * <code>repeated int64 knownID = 2;</code>
        *
        * <pre>
-       * known to client server IDs to detect deletions
+       * known to client server IDs to detect deletions and modifications
        * </pre>
        */
       public int getKnownIDCount() {
         return knownID_.size();
       }
       /**
-       * <code>repeated int64 knownID = 1;</code>
+       * <code>repeated int64 knownID = 2;</code>
        *
        * <pre>
-       * known to client server IDs to detect deletions
+       * known to client server IDs to detect deletions and modifications
        * </pre>
        */
       public long getKnownID(int index) {
         return knownID_.get(index);
       }
       /**
-       * <code>repeated int64 knownID = 1;</code>
+       * <code>repeated int64 knownID = 2;</code>
        *
        * <pre>
-       * known to client server IDs to detect deletions
+       * known to client server IDs to detect deletions and modifications
        * </pre>
        */
       public Builder setKnownID(
@@ -1814,10 +1955,10 @@ public final class SyncProtocol {
         return this;
       }
       /**
-       * <code>repeated int64 knownID = 1;</code>
+       * <code>repeated int64 knownID = 2;</code>
        *
        * <pre>
-       * known to client server IDs to detect deletions
+       * known to client server IDs to detect deletions and modifications
        * </pre>
        */
       public Builder addKnownID(long value) {
@@ -1827,10 +1968,10 @@ public final class SyncProtocol {
         return this;
       }
       /**
-       * <code>repeated int64 knownID = 1;</code>
+       * <code>repeated int64 knownID = 2;</code>
        *
        * <pre>
-       * known to client server IDs to detect deletions
+       * known to client server IDs to detect deletions and modifications
        * </pre>
        */
       public Builder addAllKnownID(
@@ -1841,15 +1982,15 @@ public final class SyncProtocol {
         return this;
       }
       /**
-       * <code>repeated int64 knownID = 1;</code>
+       * <code>repeated int64 knownID = 2;</code>
        *
        * <pre>
-       * known to client server IDs to detect deletions
+       * known to client server IDs to detect deletions and modifications
        * </pre>
        */
       public Builder clearKnownID() {
         knownID_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000001);
+        bitField0_ = (bitField0_ & ~0x00000002);
         onChanged();
         return this;
       }
@@ -1873,7 +2014,7 @@ public final class SyncProtocol {
      * <code>repeated int64 deletedID = 1;</code>
      *
      * <pre>
-     * accounts deleted on server/client
+     * entities deleted on server/client
      * </pre>
      */
     java.util.List<java.lang.Long> getDeletedIDList();
@@ -1881,7 +2022,7 @@ public final class SyncProtocol {
      * <code>repeated int64 deletedID = 1;</code>
      *
      * <pre>
-     * accounts deleted on server/client
+     * entities deleted on server/client
      * </pre>
      */
     int getDeletedIDCount();
@@ -1889,54 +2030,99 @@ public final class SyncProtocol {
      * <code>repeated int64 deletedID = 1;</code>
      *
      * <pre>
-     * accounts deleted on server/client
+     * entities deleted on server/client
      * </pre>
      */
     long getDeletedID(int index);
 
-    // repeated .com.adonai.wallet.sync.Entity entity = 2;
+    // repeated .com.adonai.wallet.sync.Entity added = 2;
     /**
-     * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+     * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
      *
      * <pre>
-     * accounts added on server/client
+     * entities added on server/client
      * </pre>
      */
     java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> 
-        getEntityList();
+        getAddedList();
     /**
-     * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+     * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
      *
      * <pre>
-     * accounts added on server/client
+     * entities added on server/client
      * </pre>
      */
-    com.adonai.wallet.sync.SyncProtocol.Entity getEntity(int index);
+    com.adonai.wallet.sync.SyncProtocol.Entity getAdded(int index);
     /**
-     * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+     * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
      *
      * <pre>
-     * accounts added on server/client
+     * entities added on server/client
      * </pre>
      */
-    int getEntityCount();
+    int getAddedCount();
     /**
-     * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+     * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
      *
      * <pre>
-     * accounts added on server/client
+     * entities added on server/client
      * </pre>
      */
     java.util.List<? extends com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder> 
-        getEntityOrBuilderList();
+        getAddedOrBuilderList();
     /**
-     * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+     * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
      *
      * <pre>
-     * accounts added on server/client
+     * entities added on server/client
      * </pre>
      */
-    com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder getEntityOrBuilder(
+    com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder getAddedOrBuilder(
+        int index);
+
+    // repeated .com.adonai.wallet.sync.Entity modified = 3;
+    /**
+     * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+     *
+     * <pre>
+     * entities modified on server/client
+     * </pre>
+     */
+    java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> 
+        getModifiedList();
+    /**
+     * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+     *
+     * <pre>
+     * entities modified on server/client
+     * </pre>
+     */
+    com.adonai.wallet.sync.SyncProtocol.Entity getModified(int index);
+    /**
+     * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+     *
+     * <pre>
+     * entities modified on server/client
+     * </pre>
+     */
+    int getModifiedCount();
+    /**
+     * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+     *
+     * <pre>
+     * entities modified on server/client
+     * </pre>
+     */
+    java.util.List<? extends com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder> 
+        getModifiedOrBuilderList();
+    /**
+     * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+     *
+     * <pre>
+     * entities modified on server/client
+     * </pre>
+     */
+    com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder getModifiedOrBuilder(
         int index);
   }
   /**
@@ -2013,10 +2199,18 @@ public final class SyncProtocol {
             }
             case 18: {
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                entity_ = new java.util.ArrayList<com.adonai.wallet.sync.SyncProtocol.Entity>();
+                added_ = new java.util.ArrayList<com.adonai.wallet.sync.SyncProtocol.Entity>();
                 mutable_bitField0_ |= 0x00000002;
               }
-              entity_.add(input.readMessage(com.adonai.wallet.sync.SyncProtocol.Entity.PARSER, extensionRegistry));
+              added_.add(input.readMessage(com.adonai.wallet.sync.SyncProtocol.Entity.PARSER, extensionRegistry));
+              break;
+            }
+            case 26: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                modified_ = new java.util.ArrayList<com.adonai.wallet.sync.SyncProtocol.Entity>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              modified_.add(input.readMessage(com.adonai.wallet.sync.SyncProtocol.Entity.PARSER, extensionRegistry));
               break;
             }
           }
@@ -2031,7 +2225,10 @@ public final class SyncProtocol {
           deletedID_ = java.util.Collections.unmodifiableList(deletedID_);
         }
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-          entity_ = java.util.Collections.unmodifiableList(entity_);
+          added_ = java.util.Collections.unmodifiableList(added_);
+        }
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+          modified_ = java.util.Collections.unmodifiableList(modified_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -2071,7 +2268,7 @@ public final class SyncProtocol {
      * <code>repeated int64 deletedID = 1;</code>
      *
      * <pre>
-     * accounts deleted on server/client
+     * entities deleted on server/client
      * </pre>
      */
     public java.util.List<java.lang.Long>
@@ -2082,7 +2279,7 @@ public final class SyncProtocol {
      * <code>repeated int64 deletedID = 1;</code>
      *
      * <pre>
-     * accounts deleted on server/client
+     * entities deleted on server/client
      * </pre>
      */
     public int getDeletedIDCount() {
@@ -2092,80 +2289,143 @@ public final class SyncProtocol {
      * <code>repeated int64 deletedID = 1;</code>
      *
      * <pre>
-     * accounts deleted on server/client
+     * entities deleted on server/client
      * </pre>
      */
     public long getDeletedID(int index) {
       return deletedID_.get(index);
     }
 
-    // repeated .com.adonai.wallet.sync.Entity entity = 2;
-    public static final int ENTITY_FIELD_NUMBER = 2;
-    private java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> entity_;
+    // repeated .com.adonai.wallet.sync.Entity added = 2;
+    public static final int ADDED_FIELD_NUMBER = 2;
+    private java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> added_;
     /**
-     * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+     * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
      *
      * <pre>
-     * accounts added on server/client
+     * entities added on server/client
      * </pre>
      */
-    public java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> getEntityList() {
-      return entity_;
+    public java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> getAddedList() {
+      return added_;
     }
     /**
-     * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+     * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
      *
      * <pre>
-     * accounts added on server/client
+     * entities added on server/client
      * </pre>
      */
     public java.util.List<? extends com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder> 
-        getEntityOrBuilderList() {
-      return entity_;
+        getAddedOrBuilderList() {
+      return added_;
     }
     /**
-     * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+     * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
      *
      * <pre>
-     * accounts added on server/client
+     * entities added on server/client
      * </pre>
      */
-    public int getEntityCount() {
-      return entity_.size();
+    public int getAddedCount() {
+      return added_.size();
     }
     /**
-     * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+     * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
      *
      * <pre>
-     * accounts added on server/client
+     * entities added on server/client
      * </pre>
      */
-    public com.adonai.wallet.sync.SyncProtocol.Entity getEntity(int index) {
-      return entity_.get(index);
+    public com.adonai.wallet.sync.SyncProtocol.Entity getAdded(int index) {
+      return added_.get(index);
     }
     /**
-     * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+     * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
      *
      * <pre>
-     * accounts added on server/client
+     * entities added on server/client
      * </pre>
      */
-    public com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder getEntityOrBuilder(
+    public com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder getAddedOrBuilder(
         int index) {
-      return entity_.get(index);
+      return added_.get(index);
+    }
+
+    // repeated .com.adonai.wallet.sync.Entity modified = 3;
+    public static final int MODIFIED_FIELD_NUMBER = 3;
+    private java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> modified_;
+    /**
+     * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+     *
+     * <pre>
+     * entities modified on server/client
+     * </pre>
+     */
+    public java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> getModifiedList() {
+      return modified_;
+    }
+    /**
+     * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+     *
+     * <pre>
+     * entities modified on server/client
+     * </pre>
+     */
+    public java.util.List<? extends com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder> 
+        getModifiedOrBuilderList() {
+      return modified_;
+    }
+    /**
+     * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+     *
+     * <pre>
+     * entities modified on server/client
+     * </pre>
+     */
+    public int getModifiedCount() {
+      return modified_.size();
+    }
+    /**
+     * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+     *
+     * <pre>
+     * entities modified on server/client
+     * </pre>
+     */
+    public com.adonai.wallet.sync.SyncProtocol.Entity getModified(int index) {
+      return modified_.get(index);
+    }
+    /**
+     * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+     *
+     * <pre>
+     * entities modified on server/client
+     * </pre>
+     */
+    public com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder getModifiedOrBuilder(
+        int index) {
+      return modified_.get(index);
     }
 
     private void initFields() {
       deletedID_ = java.util.Collections.emptyList();
-      entity_ = java.util.Collections.emptyList();
+      added_ = java.util.Collections.emptyList();
+      modified_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
 
-      for (int i = 0; i < getEntityCount(); i++) {
-        if (!getEntity(i).isInitialized()) {
+      for (int i = 0; i < getAddedCount(); i++) {
+        if (!getAdded(i).isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+      }
+      for (int i = 0; i < getModifiedCount(); i++) {
+        if (!getModified(i).isInitialized()) {
           memoizedIsInitialized = 0;
           return false;
         }
@@ -2180,8 +2440,11 @@ public final class SyncProtocol {
       for (int i = 0; i < deletedID_.size(); i++) {
         output.writeInt64(1, deletedID_.get(i));
       }
-      for (int i = 0; i < entity_.size(); i++) {
-        output.writeMessage(2, entity_.get(i));
+      for (int i = 0; i < added_.size(); i++) {
+        output.writeMessage(2, added_.get(i));
+      }
+      for (int i = 0; i < modified_.size(); i++) {
+        output.writeMessage(3, modified_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -2201,9 +2464,13 @@ public final class SyncProtocol {
         size += dataSize;
         size += 1 * getDeletedIDList().size();
       }
-      for (int i = 0; i < entity_.size(); i++) {
+      for (int i = 0; i < added_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, entity_.get(i));
+          .computeMessageSize(2, added_.get(i));
+      }
+      for (int i = 0; i < modified_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, modified_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2313,7 +2580,8 @@ public final class SyncProtocol {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          getEntityFieldBuilder();
+          getAddedFieldBuilder();
+          getModifiedFieldBuilder();
         }
       }
       private static Builder create() {
@@ -2324,11 +2592,17 @@ public final class SyncProtocol {
         super.clear();
         deletedID_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000001);
-        if (entityBuilder_ == null) {
-          entity_ = java.util.Collections.emptyList();
+        if (addedBuilder_ == null) {
+          added_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000002);
         } else {
-          entityBuilder_.clear();
+          addedBuilder_.clear();
+        }
+        if (modifiedBuilder_ == null) {
+          modified_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000004);
+        } else {
+          modifiedBuilder_.clear();
         }
         return this;
       }
@@ -2362,14 +2636,23 @@ public final class SyncProtocol {
           bitField0_ = (bitField0_ & ~0x00000001);
         }
         result.deletedID_ = deletedID_;
-        if (entityBuilder_ == null) {
+        if (addedBuilder_ == null) {
           if (((bitField0_ & 0x00000002) == 0x00000002)) {
-            entity_ = java.util.Collections.unmodifiableList(entity_);
+            added_ = java.util.Collections.unmodifiableList(added_);
             bitField0_ = (bitField0_ & ~0x00000002);
           }
-          result.entity_ = entity_;
+          result.added_ = added_;
         } else {
-          result.entity_ = entityBuilder_.build();
+          result.added_ = addedBuilder_.build();
+        }
+        if (modifiedBuilder_ == null) {
+          if (((bitField0_ & 0x00000004) == 0x00000004)) {
+            modified_ = java.util.Collections.unmodifiableList(modified_);
+            bitField0_ = (bitField0_ & ~0x00000004);
+          }
+          result.modified_ = modified_;
+        } else {
+          result.modified_ = modifiedBuilder_.build();
         }
         onBuilt();
         return result;
@@ -2396,29 +2679,55 @@ public final class SyncProtocol {
           }
           onChanged();
         }
-        if (entityBuilder_ == null) {
-          if (!other.entity_.isEmpty()) {
-            if (entity_.isEmpty()) {
-              entity_ = other.entity_;
+        if (addedBuilder_ == null) {
+          if (!other.added_.isEmpty()) {
+            if (added_.isEmpty()) {
+              added_ = other.added_;
               bitField0_ = (bitField0_ & ~0x00000002);
             } else {
-              ensureEntityIsMutable();
-              entity_.addAll(other.entity_);
+              ensureAddedIsMutable();
+              added_.addAll(other.added_);
             }
             onChanged();
           }
         } else {
-          if (!other.entity_.isEmpty()) {
-            if (entityBuilder_.isEmpty()) {
-              entityBuilder_.dispose();
-              entityBuilder_ = null;
-              entity_ = other.entity_;
+          if (!other.added_.isEmpty()) {
+            if (addedBuilder_.isEmpty()) {
+              addedBuilder_.dispose();
+              addedBuilder_ = null;
+              added_ = other.added_;
               bitField0_ = (bitField0_ & ~0x00000002);
-              entityBuilder_ = 
+              addedBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getEntityFieldBuilder() : null;
+                   getAddedFieldBuilder() : null;
             } else {
-              entityBuilder_.addAllMessages(other.entity_);
+              addedBuilder_.addAllMessages(other.added_);
+            }
+          }
+        }
+        if (modifiedBuilder_ == null) {
+          if (!other.modified_.isEmpty()) {
+            if (modified_.isEmpty()) {
+              modified_ = other.modified_;
+              bitField0_ = (bitField0_ & ~0x00000004);
+            } else {
+              ensureModifiedIsMutable();
+              modified_.addAll(other.modified_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.modified_.isEmpty()) {
+            if (modifiedBuilder_.isEmpty()) {
+              modifiedBuilder_.dispose();
+              modifiedBuilder_ = null;
+              modified_ = other.modified_;
+              bitField0_ = (bitField0_ & ~0x00000004);
+              modifiedBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getModifiedFieldBuilder() : null;
+            } else {
+              modifiedBuilder_.addAllMessages(other.modified_);
             }
           }
         }
@@ -2427,8 +2736,14 @@ public final class SyncProtocol {
       }
 
       public final boolean isInitialized() {
-        for (int i = 0; i < getEntityCount(); i++) {
-          if (!getEntity(i).isInitialized()) {
+        for (int i = 0; i < getAddedCount(); i++) {
+          if (!getAdded(i).isInitialized()) {
+            
+            return false;
+          }
+        }
+        for (int i = 0; i < getModifiedCount(); i++) {
+          if (!getModified(i).isInitialized()) {
             
             return false;
           }
@@ -2467,7 +2782,7 @@ public final class SyncProtocol {
        * <code>repeated int64 deletedID = 1;</code>
        *
        * <pre>
-       * accounts deleted on server/client
+       * entities deleted on server/client
        * </pre>
        */
       public java.util.List<java.lang.Long>
@@ -2478,7 +2793,7 @@ public final class SyncProtocol {
        * <code>repeated int64 deletedID = 1;</code>
        *
        * <pre>
-       * accounts deleted on server/client
+       * entities deleted on server/client
        * </pre>
        */
       public int getDeletedIDCount() {
@@ -2488,7 +2803,7 @@ public final class SyncProtocol {
        * <code>repeated int64 deletedID = 1;</code>
        *
        * <pre>
-       * accounts deleted on server/client
+       * entities deleted on server/client
        * </pre>
        */
       public long getDeletedID(int index) {
@@ -2498,7 +2813,7 @@ public final class SyncProtocol {
        * <code>repeated int64 deletedID = 1;</code>
        *
        * <pre>
-       * accounts deleted on server/client
+       * entities deleted on server/client
        * </pre>
        */
       public Builder setDeletedID(
@@ -2512,7 +2827,7 @@ public final class SyncProtocol {
        * <code>repeated int64 deletedID = 1;</code>
        *
        * <pre>
-       * accounts deleted on server/client
+       * entities deleted on server/client
        * </pre>
        */
       public Builder addDeletedID(long value) {
@@ -2525,7 +2840,7 @@ public final class SyncProtocol {
        * <code>repeated int64 deletedID = 1;</code>
        *
        * <pre>
-       * accounts deleted on server/client
+       * entities deleted on server/client
        * </pre>
        */
       public Builder addAllDeletedID(
@@ -2539,7 +2854,7 @@ public final class SyncProtocol {
        * <code>repeated int64 deletedID = 1;</code>
        *
        * <pre>
-       * accounts deleted on server/client
+       * entities deleted on server/client
        * </pre>
        */
       public Builder clearDeletedID() {
@@ -2549,316 +2864,628 @@ public final class SyncProtocol {
         return this;
       }
 
-      // repeated .com.adonai.wallet.sync.Entity entity = 2;
-      private java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> entity_ =
+      // repeated .com.adonai.wallet.sync.Entity added = 2;
+      private java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> added_ =
         java.util.Collections.emptyList();
-      private void ensureEntityIsMutable() {
+      private void ensureAddedIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          entity_ = new java.util.ArrayList<com.adonai.wallet.sync.SyncProtocol.Entity>(entity_);
+          added_ = new java.util.ArrayList<com.adonai.wallet.sync.SyncProtocol.Entity>(added_);
           bitField0_ |= 0x00000002;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          com.adonai.wallet.sync.SyncProtocol.Entity, com.adonai.wallet.sync.SyncProtocol.Entity.Builder, com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder> entityBuilder_;
+          com.adonai.wallet.sync.SyncProtocol.Entity, com.adonai.wallet.sync.SyncProtocol.Entity.Builder, com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder> addedBuilder_;
 
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> getEntityList() {
-        if (entityBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(entity_);
+      public java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> getAddedList() {
+        if (addedBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(added_);
         } else {
-          return entityBuilder_.getMessageList();
+          return addedBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public int getEntityCount() {
-        if (entityBuilder_ == null) {
-          return entity_.size();
+      public int getAddedCount() {
+        if (addedBuilder_ == null) {
+          return added_.size();
         } else {
-          return entityBuilder_.getCount();
+          return addedBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public com.adonai.wallet.sync.SyncProtocol.Entity getEntity(int index) {
-        if (entityBuilder_ == null) {
-          return entity_.get(index);
+      public com.adonai.wallet.sync.SyncProtocol.Entity getAdded(int index) {
+        if (addedBuilder_ == null) {
+          return added_.get(index);
         } else {
-          return entityBuilder_.getMessage(index);
+          return addedBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public Builder setEntity(
+      public Builder setAdded(
           int index, com.adonai.wallet.sync.SyncProtocol.Entity value) {
-        if (entityBuilder_ == null) {
+        if (addedBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureEntityIsMutable();
-          entity_.set(index, value);
+          ensureAddedIsMutable();
+          added_.set(index, value);
           onChanged();
         } else {
-          entityBuilder_.setMessage(index, value);
+          addedBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public Builder setEntity(
+      public Builder setAdded(
           int index, com.adonai.wallet.sync.SyncProtocol.Entity.Builder builderForValue) {
-        if (entityBuilder_ == null) {
-          ensureEntityIsMutable();
-          entity_.set(index, builderForValue.build());
+        if (addedBuilder_ == null) {
+          ensureAddedIsMutable();
+          added_.set(index, builderForValue.build());
           onChanged();
         } else {
-          entityBuilder_.setMessage(index, builderForValue.build());
+          addedBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public Builder addEntity(com.adonai.wallet.sync.SyncProtocol.Entity value) {
-        if (entityBuilder_ == null) {
+      public Builder addAdded(com.adonai.wallet.sync.SyncProtocol.Entity value) {
+        if (addedBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureEntityIsMutable();
-          entity_.add(value);
+          ensureAddedIsMutable();
+          added_.add(value);
           onChanged();
         } else {
-          entityBuilder_.addMessage(value);
+          addedBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public Builder addEntity(
+      public Builder addAdded(
           int index, com.adonai.wallet.sync.SyncProtocol.Entity value) {
-        if (entityBuilder_ == null) {
+        if (addedBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureEntityIsMutable();
-          entity_.add(index, value);
+          ensureAddedIsMutable();
+          added_.add(index, value);
           onChanged();
         } else {
-          entityBuilder_.addMessage(index, value);
+          addedBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public Builder addEntity(
+      public Builder addAdded(
           com.adonai.wallet.sync.SyncProtocol.Entity.Builder builderForValue) {
-        if (entityBuilder_ == null) {
-          ensureEntityIsMutable();
-          entity_.add(builderForValue.build());
+        if (addedBuilder_ == null) {
+          ensureAddedIsMutable();
+          added_.add(builderForValue.build());
           onChanged();
         } else {
-          entityBuilder_.addMessage(builderForValue.build());
+          addedBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public Builder addEntity(
+      public Builder addAdded(
           int index, com.adonai.wallet.sync.SyncProtocol.Entity.Builder builderForValue) {
-        if (entityBuilder_ == null) {
-          ensureEntityIsMutable();
-          entity_.add(index, builderForValue.build());
+        if (addedBuilder_ == null) {
+          ensureAddedIsMutable();
+          added_.add(index, builderForValue.build());
           onChanged();
         } else {
-          entityBuilder_.addMessage(index, builderForValue.build());
+          addedBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public Builder addAllEntity(
+      public Builder addAllAdded(
           java.lang.Iterable<? extends com.adonai.wallet.sync.SyncProtocol.Entity> values) {
-        if (entityBuilder_ == null) {
-          ensureEntityIsMutable();
-          super.addAll(values, entity_);
+        if (addedBuilder_ == null) {
+          ensureAddedIsMutable();
+          super.addAll(values, added_);
           onChanged();
         } else {
-          entityBuilder_.addAllMessages(values);
+          addedBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public Builder clearEntity() {
-        if (entityBuilder_ == null) {
-          entity_ = java.util.Collections.emptyList();
+      public Builder clearAdded() {
+        if (addedBuilder_ == null) {
+          added_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000002);
           onChanged();
         } else {
-          entityBuilder_.clear();
+          addedBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public Builder removeEntity(int index) {
-        if (entityBuilder_ == null) {
-          ensureEntityIsMutable();
-          entity_.remove(index);
+      public Builder removeAdded(int index) {
+        if (addedBuilder_ == null) {
+          ensureAddedIsMutable();
+          added_.remove(index);
           onChanged();
         } else {
-          entityBuilder_.remove(index);
+          addedBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public com.adonai.wallet.sync.SyncProtocol.Entity.Builder getEntityBuilder(
+      public com.adonai.wallet.sync.SyncProtocol.Entity.Builder getAddedBuilder(
           int index) {
-        return getEntityFieldBuilder().getBuilder(index);
+        return getAddedFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder getEntityOrBuilder(
+      public com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder getAddedOrBuilder(
           int index) {
-        if (entityBuilder_ == null) {
-          return entity_.get(index);  } else {
-          return entityBuilder_.getMessageOrBuilder(index);
+        if (addedBuilder_ == null) {
+          return added_.get(index);  } else {
+          return addedBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
       public java.util.List<? extends com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder> 
-           getEntityOrBuilderList() {
-        if (entityBuilder_ != null) {
-          return entityBuilder_.getMessageOrBuilderList();
+           getAddedOrBuilderList() {
+        if (addedBuilder_ != null) {
+          return addedBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(entity_);
+          return java.util.Collections.unmodifiableList(added_);
         }
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public com.adonai.wallet.sync.SyncProtocol.Entity.Builder addEntityBuilder() {
-        return getEntityFieldBuilder().addBuilder(
+      public com.adonai.wallet.sync.SyncProtocol.Entity.Builder addAddedBuilder() {
+        return getAddedFieldBuilder().addBuilder(
             com.adonai.wallet.sync.SyncProtocol.Entity.getDefaultInstance());
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
-      public com.adonai.wallet.sync.SyncProtocol.Entity.Builder addEntityBuilder(
+      public com.adonai.wallet.sync.SyncProtocol.Entity.Builder addAddedBuilder(
           int index) {
-        return getEntityFieldBuilder().addBuilder(
+        return getAddedFieldBuilder().addBuilder(
             index, com.adonai.wallet.sync.SyncProtocol.Entity.getDefaultInstance());
       }
       /**
-       * <code>repeated .com.adonai.wallet.sync.Entity entity = 2;</code>
+       * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
        *
        * <pre>
-       * accounts added on server/client
+       * entities added on server/client
        * </pre>
        */
       public java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity.Builder> 
-           getEntityBuilderList() {
-        return getEntityFieldBuilder().getBuilderList();
+           getAddedBuilderList() {
+        return getAddedFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
           com.adonai.wallet.sync.SyncProtocol.Entity, com.adonai.wallet.sync.SyncProtocol.Entity.Builder, com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder> 
-          getEntityFieldBuilder() {
-        if (entityBuilder_ == null) {
-          entityBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+          getAddedFieldBuilder() {
+        if (addedBuilder_ == null) {
+          addedBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               com.adonai.wallet.sync.SyncProtocol.Entity, com.adonai.wallet.sync.SyncProtocol.Entity.Builder, com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder>(
-                  entity_,
+                  added_,
                   ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
                   isClean());
-          entity_ = null;
+          added_ = null;
         }
-        return entityBuilder_;
+        return addedBuilder_;
+      }
+
+      // repeated .com.adonai.wallet.sync.Entity modified = 3;
+      private java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> modified_ =
+        java.util.Collections.emptyList();
+      private void ensureModifiedIsMutable() {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+          modified_ = new java.util.ArrayList<com.adonai.wallet.sync.SyncProtocol.Entity>(modified_);
+          bitField0_ |= 0x00000004;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.adonai.wallet.sync.SyncProtocol.Entity, com.adonai.wallet.sync.SyncProtocol.Entity.Builder, com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder> modifiedBuilder_;
+
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> getModifiedList() {
+        if (modifiedBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(modified_);
+        } else {
+          return modifiedBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public int getModifiedCount() {
+        if (modifiedBuilder_ == null) {
+          return modified_.size();
+        } else {
+          return modifiedBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public com.adonai.wallet.sync.SyncProtocol.Entity getModified(int index) {
+        if (modifiedBuilder_ == null) {
+          return modified_.get(index);
+        } else {
+          return modifiedBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public Builder setModified(
+          int index, com.adonai.wallet.sync.SyncProtocol.Entity value) {
+        if (modifiedBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureModifiedIsMutable();
+          modified_.set(index, value);
+          onChanged();
+        } else {
+          modifiedBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public Builder setModified(
+          int index, com.adonai.wallet.sync.SyncProtocol.Entity.Builder builderForValue) {
+        if (modifiedBuilder_ == null) {
+          ensureModifiedIsMutable();
+          modified_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          modifiedBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public Builder addModified(com.adonai.wallet.sync.SyncProtocol.Entity value) {
+        if (modifiedBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureModifiedIsMutable();
+          modified_.add(value);
+          onChanged();
+        } else {
+          modifiedBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public Builder addModified(
+          int index, com.adonai.wallet.sync.SyncProtocol.Entity value) {
+        if (modifiedBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureModifiedIsMutable();
+          modified_.add(index, value);
+          onChanged();
+        } else {
+          modifiedBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public Builder addModified(
+          com.adonai.wallet.sync.SyncProtocol.Entity.Builder builderForValue) {
+        if (modifiedBuilder_ == null) {
+          ensureModifiedIsMutable();
+          modified_.add(builderForValue.build());
+          onChanged();
+        } else {
+          modifiedBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public Builder addModified(
+          int index, com.adonai.wallet.sync.SyncProtocol.Entity.Builder builderForValue) {
+        if (modifiedBuilder_ == null) {
+          ensureModifiedIsMutable();
+          modified_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          modifiedBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public Builder addAllModified(
+          java.lang.Iterable<? extends com.adonai.wallet.sync.SyncProtocol.Entity> values) {
+        if (modifiedBuilder_ == null) {
+          ensureModifiedIsMutable();
+          super.addAll(values, modified_);
+          onChanged();
+        } else {
+          modifiedBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public Builder clearModified() {
+        if (modifiedBuilder_ == null) {
+          modified_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000004);
+          onChanged();
+        } else {
+          modifiedBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public Builder removeModified(int index) {
+        if (modifiedBuilder_ == null) {
+          ensureModifiedIsMutable();
+          modified_.remove(index);
+          onChanged();
+        } else {
+          modifiedBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public com.adonai.wallet.sync.SyncProtocol.Entity.Builder getModifiedBuilder(
+          int index) {
+        return getModifiedFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder getModifiedOrBuilder(
+          int index) {
+        if (modifiedBuilder_ == null) {
+          return modified_.get(index);  } else {
+          return modifiedBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public java.util.List<? extends com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder> 
+           getModifiedOrBuilderList() {
+        if (modifiedBuilder_ != null) {
+          return modifiedBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(modified_);
+        }
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public com.adonai.wallet.sync.SyncProtocol.Entity.Builder addModifiedBuilder() {
+        return getModifiedFieldBuilder().addBuilder(
+            com.adonai.wallet.sync.SyncProtocol.Entity.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public com.adonai.wallet.sync.SyncProtocol.Entity.Builder addModifiedBuilder(
+          int index) {
+        return getModifiedFieldBuilder().addBuilder(
+            index, com.adonai.wallet.sync.SyncProtocol.Entity.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .com.adonai.wallet.sync.Entity modified = 3;</code>
+       *
+       * <pre>
+       * entities modified on server/client
+       * </pre>
+       */
+      public java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity.Builder> 
+           getModifiedBuilderList() {
+        return getModifiedFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.adonai.wallet.sync.SyncProtocol.Entity, com.adonai.wallet.sync.SyncProtocol.Entity.Builder, com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder> 
+          getModifiedFieldBuilder() {
+        if (modifiedBuilder_ == null) {
+          modifiedBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              com.adonai.wallet.sync.SyncProtocol.Entity, com.adonai.wallet.sync.SyncProtocol.Entity.Builder, com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder>(
+                  modified_,
+                  ((bitField0_ & 0x00000004) == 0x00000004),
+                  getParentForChildren(),
+                  isClean());
+          modified_ = null;
+        }
+        return modifiedBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:com.adonai.wallet.sync.EntityResponse)
@@ -2875,57 +3502,15 @@ public final class SyncProtocol {
   public interface EntityAckOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // repeated int64 deletedGuid = 1;
+    // required uint64 newServerTimestamp = 1;
     /**
-     * <code>repeated int64 deletedGuid = 1;</code>
-     *
-     * <pre>
-     * accounts deleted on server as confirmation
-     * </pre>
+     * <code>required uint64 newServerTimestamp = 1;</code>
      */
-    java.util.List<java.lang.Long> getDeletedGuidList();
+    boolean hasNewServerTimestamp();
     /**
-     * <code>repeated int64 deletedGuid = 1;</code>
-     *
-     * <pre>
-     * accounts deleted on server as confirmation
-     * </pre>
+     * <code>required uint64 newServerTimestamp = 1;</code>
      */
-    int getDeletedGuidCount();
-    /**
-     * <code>repeated int64 deletedGuid = 1;</code>
-     *
-     * <pre>
-     * accounts deleted on server as confirmation
-     * </pre>
-     */
-    long getDeletedGuid(int index);
-
-    // repeated int64 writtenGuid = 2;
-    /**
-     * <code>repeated int64 writtenGuid = 2;</code>
-     *
-     * <pre>
-     * accounts written on server as confirmation
-     * </pre>
-     */
-    java.util.List<java.lang.Long> getWrittenGuidList();
-    /**
-     * <code>repeated int64 writtenGuid = 2;</code>
-     *
-     * <pre>
-     * accounts written on server as confirmation
-     * </pre>
-     */
-    int getWrittenGuidCount();
-    /**
-     * <code>repeated int64 writtenGuid = 2;</code>
-     *
-     * <pre>
-     * accounts written on server as confirmation
-     * </pre>
-     */
-    long getWrittenGuid(int index);
+    long getNewServerTimestamp();
   }
   /**
    * Protobuf type {@code com.adonai.wallet.sync.EntityAck}
@@ -2979,45 +3564,8 @@ public final class SyncProtocol {
               break;
             }
             case 8: {
-              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                deletedGuid_ = new java.util.ArrayList<java.lang.Long>();
-                mutable_bitField0_ |= 0x00000001;
-              }
-              deletedGuid_.add(input.readInt64());
-              break;
-            }
-            case 10: {
-              int length = input.readRawVarint32();
-              int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001) && input.getBytesUntilLimit() > 0) {
-                deletedGuid_ = new java.util.ArrayList<java.lang.Long>();
-                mutable_bitField0_ |= 0x00000001;
-              }
-              while (input.getBytesUntilLimit() > 0) {
-                deletedGuid_.add(input.readInt64());
-              }
-              input.popLimit(limit);
-              break;
-            }
-            case 16: {
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                writtenGuid_ = new java.util.ArrayList<java.lang.Long>();
-                mutable_bitField0_ |= 0x00000002;
-              }
-              writtenGuid_.add(input.readInt64());
-              break;
-            }
-            case 18: {
-              int length = input.readRawVarint32();
-              int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
-                writtenGuid_ = new java.util.ArrayList<java.lang.Long>();
-                mutable_bitField0_ |= 0x00000002;
-              }
-              while (input.getBytesUntilLimit() > 0) {
-                writtenGuid_.add(input.readInt64());
-              }
-              input.popLimit(limit);
+              bitField0_ |= 0x00000001;
+              newServerTimestamp_ = input.readUInt64();
               break;
             }
           }
@@ -3028,12 +3576,6 @@ public final class SyncProtocol {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-          deletedGuid_ = java.util.Collections.unmodifiableList(deletedGuid_);
-        }
-        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-          writtenGuid_ = java.util.Collections.unmodifiableList(writtenGuid_);
-        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
@@ -3065,85 +3607,35 @@ public final class SyncProtocol {
       return PARSER;
     }
 
-    // repeated int64 deletedGuid = 1;
-    public static final int DELETEDGUID_FIELD_NUMBER = 1;
-    private java.util.List<java.lang.Long> deletedGuid_;
+    private int bitField0_;
+    // required uint64 newServerTimestamp = 1;
+    public static final int NEWSERVERTIMESTAMP_FIELD_NUMBER = 1;
+    private long newServerTimestamp_;
     /**
-     * <code>repeated int64 deletedGuid = 1;</code>
-     *
-     * <pre>
-     * accounts deleted on server as confirmation
-     * </pre>
+     * <code>required uint64 newServerTimestamp = 1;</code>
      */
-    public java.util.List<java.lang.Long>
-        getDeletedGuidList() {
-      return deletedGuid_;
+    public boolean hasNewServerTimestamp() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>repeated int64 deletedGuid = 1;</code>
-     *
-     * <pre>
-     * accounts deleted on server as confirmation
-     * </pre>
+     * <code>required uint64 newServerTimestamp = 1;</code>
      */
-    public int getDeletedGuidCount() {
-      return deletedGuid_.size();
-    }
-    /**
-     * <code>repeated int64 deletedGuid = 1;</code>
-     *
-     * <pre>
-     * accounts deleted on server as confirmation
-     * </pre>
-     */
-    public long getDeletedGuid(int index) {
-      return deletedGuid_.get(index);
-    }
-
-    // repeated int64 writtenGuid = 2;
-    public static final int WRITTENGUID_FIELD_NUMBER = 2;
-    private java.util.List<java.lang.Long> writtenGuid_;
-    /**
-     * <code>repeated int64 writtenGuid = 2;</code>
-     *
-     * <pre>
-     * accounts written on server as confirmation
-     * </pre>
-     */
-    public java.util.List<java.lang.Long>
-        getWrittenGuidList() {
-      return writtenGuid_;
-    }
-    /**
-     * <code>repeated int64 writtenGuid = 2;</code>
-     *
-     * <pre>
-     * accounts written on server as confirmation
-     * </pre>
-     */
-    public int getWrittenGuidCount() {
-      return writtenGuid_.size();
-    }
-    /**
-     * <code>repeated int64 writtenGuid = 2;</code>
-     *
-     * <pre>
-     * accounts written on server as confirmation
-     * </pre>
-     */
-    public long getWrittenGuid(int index) {
-      return writtenGuid_.get(index);
+    public long getNewServerTimestamp() {
+      return newServerTimestamp_;
     }
 
     private void initFields() {
-      deletedGuid_ = java.util.Collections.emptyList();
-      writtenGuid_ = java.util.Collections.emptyList();
+      newServerTimestamp_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
 
+      if (!hasNewServerTimestamp()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -3151,11 +3643,8 @@ public final class SyncProtocol {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      for (int i = 0; i < deletedGuid_.size(); i++) {
-        output.writeInt64(1, deletedGuid_.get(i));
-      }
-      for (int i = 0; i < writtenGuid_.size(); i++) {
-        output.writeInt64(2, writtenGuid_.get(i));
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeUInt64(1, newServerTimestamp_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -3166,23 +3655,9 @@ public final class SyncProtocol {
       if (size != -1) return size;
 
       size = 0;
-      {
-        int dataSize = 0;
-        for (int i = 0; i < deletedGuid_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
-            .computeInt64SizeNoTag(deletedGuid_.get(i));
-        }
-        size += dataSize;
-        size += 1 * getDeletedGuidList().size();
-      }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < writtenGuid_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
-            .computeInt64SizeNoTag(writtenGuid_.get(i));
-        }
-        size += dataSize;
-        size += 1 * getWrittenGuidList().size();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt64Size(1, newServerTimestamp_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -3300,10 +3775,8 @@ public final class SyncProtocol {
 
       public Builder clear() {
         super.clear();
-        deletedGuid_ = java.util.Collections.emptyList();
+        newServerTimestamp_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000001);
-        writtenGuid_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
@@ -3331,16 +3804,12 @@ public final class SyncProtocol {
       public com.adonai.wallet.sync.SyncProtocol.EntityAck buildPartial() {
         com.adonai.wallet.sync.SyncProtocol.EntityAck result = new com.adonai.wallet.sync.SyncProtocol.EntityAck(this);
         int from_bitField0_ = bitField0_;
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          deletedGuid_ = java.util.Collections.unmodifiableList(deletedGuid_);
-          bitField0_ = (bitField0_ & ~0x00000001);
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
         }
-        result.deletedGuid_ = deletedGuid_;
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          writtenGuid_ = java.util.Collections.unmodifiableList(writtenGuid_);
-          bitField0_ = (bitField0_ & ~0x00000002);
-        }
-        result.writtenGuid_ = writtenGuid_;
+        result.newServerTimestamp_ = newServerTimestamp_;
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -3356,31 +3825,18 @@ public final class SyncProtocol {
 
       public Builder mergeFrom(com.adonai.wallet.sync.SyncProtocol.EntityAck other) {
         if (other == com.adonai.wallet.sync.SyncProtocol.EntityAck.getDefaultInstance()) return this;
-        if (!other.deletedGuid_.isEmpty()) {
-          if (deletedGuid_.isEmpty()) {
-            deletedGuid_ = other.deletedGuid_;
-            bitField0_ = (bitField0_ & ~0x00000001);
-          } else {
-            ensureDeletedGuidIsMutable();
-            deletedGuid_.addAll(other.deletedGuid_);
-          }
-          onChanged();
-        }
-        if (!other.writtenGuid_.isEmpty()) {
-          if (writtenGuid_.isEmpty()) {
-            writtenGuid_ = other.writtenGuid_;
-            bitField0_ = (bitField0_ & ~0x00000002);
-          } else {
-            ensureWrittenGuidIsMutable();
-            writtenGuid_.addAll(other.writtenGuid_);
-          }
-          onChanged();
+        if (other.hasNewServerTimestamp()) {
+          setNewServerTimestamp(other.getNewServerTimestamp());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
 
       public final boolean isInitialized() {
+        if (!hasNewServerTimestamp()) {
+          
+          return false;
+        }
         return true;
       }
 
@@ -3403,190 +3859,35 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // repeated int64 deletedGuid = 1;
-      private java.util.List<java.lang.Long> deletedGuid_ = java.util.Collections.emptyList();
-      private void ensureDeletedGuidIsMutable() {
-        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          deletedGuid_ = new java.util.ArrayList<java.lang.Long>(deletedGuid_);
-          bitField0_ |= 0x00000001;
-         }
+      // required uint64 newServerTimestamp = 1;
+      private long newServerTimestamp_ ;
+      /**
+       * <code>required uint64 newServerTimestamp = 1;</code>
+       */
+      public boolean hasNewServerTimestamp() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>repeated int64 deletedGuid = 1;</code>
-       *
-       * <pre>
-       * accounts deleted on server as confirmation
-       * </pre>
+       * <code>required uint64 newServerTimestamp = 1;</code>
        */
-      public java.util.List<java.lang.Long>
-          getDeletedGuidList() {
-        return java.util.Collections.unmodifiableList(deletedGuid_);
+      public long getNewServerTimestamp() {
+        return newServerTimestamp_;
       }
       /**
-       * <code>repeated int64 deletedGuid = 1;</code>
-       *
-       * <pre>
-       * accounts deleted on server as confirmation
-       * </pre>
+       * <code>required uint64 newServerTimestamp = 1;</code>
        */
-      public int getDeletedGuidCount() {
-        return deletedGuid_.size();
-      }
-      /**
-       * <code>repeated int64 deletedGuid = 1;</code>
-       *
-       * <pre>
-       * accounts deleted on server as confirmation
-       * </pre>
-       */
-      public long getDeletedGuid(int index) {
-        return deletedGuid_.get(index);
-      }
-      /**
-       * <code>repeated int64 deletedGuid = 1;</code>
-       *
-       * <pre>
-       * accounts deleted on server as confirmation
-       * </pre>
-       */
-      public Builder setDeletedGuid(
-          int index, long value) {
-        ensureDeletedGuidIsMutable();
-        deletedGuid_.set(index, value);
+      public Builder setNewServerTimestamp(long value) {
+        bitField0_ |= 0x00000001;
+        newServerTimestamp_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>repeated int64 deletedGuid = 1;</code>
-       *
-       * <pre>
-       * accounts deleted on server as confirmation
-       * </pre>
+       * <code>required uint64 newServerTimestamp = 1;</code>
        */
-      public Builder addDeletedGuid(long value) {
-        ensureDeletedGuidIsMutable();
-        deletedGuid_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int64 deletedGuid = 1;</code>
-       *
-       * <pre>
-       * accounts deleted on server as confirmation
-       * </pre>
-       */
-      public Builder addAllDeletedGuid(
-          java.lang.Iterable<? extends java.lang.Long> values) {
-        ensureDeletedGuidIsMutable();
-        super.addAll(values, deletedGuid_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int64 deletedGuid = 1;</code>
-       *
-       * <pre>
-       * accounts deleted on server as confirmation
-       * </pre>
-       */
-      public Builder clearDeletedGuid() {
-        deletedGuid_ = java.util.Collections.emptyList();
+      public Builder clearNewServerTimestamp() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        onChanged();
-        return this;
-      }
-
-      // repeated int64 writtenGuid = 2;
-      private java.util.List<java.lang.Long> writtenGuid_ = java.util.Collections.emptyList();
-      private void ensureWrittenGuidIsMutable() {
-        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          writtenGuid_ = new java.util.ArrayList<java.lang.Long>(writtenGuid_);
-          bitField0_ |= 0x00000002;
-         }
-      }
-      /**
-       * <code>repeated int64 writtenGuid = 2;</code>
-       *
-       * <pre>
-       * accounts written on server as confirmation
-       * </pre>
-       */
-      public java.util.List<java.lang.Long>
-          getWrittenGuidList() {
-        return java.util.Collections.unmodifiableList(writtenGuid_);
-      }
-      /**
-       * <code>repeated int64 writtenGuid = 2;</code>
-       *
-       * <pre>
-       * accounts written on server as confirmation
-       * </pre>
-       */
-      public int getWrittenGuidCount() {
-        return writtenGuid_.size();
-      }
-      /**
-       * <code>repeated int64 writtenGuid = 2;</code>
-       *
-       * <pre>
-       * accounts written on server as confirmation
-       * </pre>
-       */
-      public long getWrittenGuid(int index) {
-        return writtenGuid_.get(index);
-      }
-      /**
-       * <code>repeated int64 writtenGuid = 2;</code>
-       *
-       * <pre>
-       * accounts written on server as confirmation
-       * </pre>
-       */
-      public Builder setWrittenGuid(
-          int index, long value) {
-        ensureWrittenGuidIsMutable();
-        writtenGuid_.set(index, value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int64 writtenGuid = 2;</code>
-       *
-       * <pre>
-       * accounts written on server as confirmation
-       * </pre>
-       */
-      public Builder addWrittenGuid(long value) {
-        ensureWrittenGuidIsMutable();
-        writtenGuid_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int64 writtenGuid = 2;</code>
-       *
-       * <pre>
-       * accounts written on server as confirmation
-       * </pre>
-       */
-      public Builder addAllWrittenGuid(
-          java.lang.Iterable<? extends java.lang.Long> values) {
-        ensureWrittenGuidIsMutable();
-        super.addAll(values, writtenGuid_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int64 writtenGuid = 2;</code>
-       *
-       * <pre>
-       * accounts written on server as confirmation
-       * </pre>
-       */
-      public Builder clearWrittenGuid() {
-        writtenGuid_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000002);
+        newServerTimestamp_ = 0L;
         onChanged();
         return this;
       }
@@ -7648,32 +7949,34 @@ public final class SyncProtocol {
   static {
     java.lang.String[] descriptorData = {
       "\n\023sync_protocol.proto\022\026com.adonai.wallet" +
-      ".sync\"\234\001\n\013SyncRequest\022\017\n\007account\030\001 \002(\t\022\020" +
-      "\n\010password\030\002 \002(\t\022E\n\010syncType\030\003 \001(\0162,.com" +
+      ".sync\"\225\001\n\013SyncRequest\022\017\n\007account\030\001 \002(\t\022\020" +
+      "\n\010password\030\002 \002(\t\022>\n\010syncType\030\003 \002(\0162,.com" +
       ".adonai.wallet.sync.SyncRequest.SyncType" +
-      ":\005MERGE\"#\n\010SyncType\022\014\n\010REGISTER\020\000\022\t\n\005MER" +
-      "GE\020\001\"\233\001\n\014SyncResponse\022=\n\007syncAck\030\001 \002(\0162," +
-      ".com.adonai.wallet.sync.SyncResponse.Syn" +
-      "cAck\"L\n\007SyncAck\022\007\n\002OK\020\310\001\022\023\n\016ACCOUNT_EXIS" +
-      "TS\020\222\003\022\017\n\nAUTH_WRONG\020\223\003\022\022\n\rUNKNOWN_ERROR\020" +
-      "\347\007\" \n\rEntityRequest\022\017\n\007knownID\030\001 \003(\003\"S\n\016",
-      "EntityResponse\022\021\n\tdeletedID\030\001 \003(\003\022.\n\006ent" +
-      "ity\030\002 \003(\0132\036.com.adonai.wallet.sync.Entit" +
-      "y\"5\n\tEntityAck\022\023\n\013deletedGuid\030\001 \003(\003\022\023\n\013w" +
-      "rittenGuid\030\002 \003(\003\"\244\001\n\006Entity\0220\n\007account\030\001" +
-      " \001(\0132\037.com.adonai.wallet.sync.Account\0224\n" +
-      "\toperation\030\002 \001(\0132!.com.adonai.wallet.syn" +
-      "c.Operation\0222\n\010category\030\003 \001(\0132 .com.adon" +
-      "ai.wallet.sync.Category\"i\n\007Account\022\n\n\002ID" +
-      "\030\001 \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n\013description\030\003 \001(" +
-      "\t\022\020\n\010currency\030\004 \002(\t\022\016\n\006amount\030\005 \002(\t\022\r\n\005c",
-      "olor\030\006 \001(\005\"\237\001\n\tOperation\022\n\n\002ID\030\001 \002(\004\022\023\n\013" +
-      "description\030\002 \001(\t\022\014\n\004time\030\003 \002(\004\022\021\n\tcharg" +
-      "erId\030\004 \001(\004\022\024\n\014beneficiarId\030\005 \001(\004\022\016\n\006amou" +
-      "nt\030\006 \002(\t\022\026\n\016convertingRate\030\007 \001(\002\022\022\n\ncate" +
-      "goryId\030\010 \002(\004\"L\n\010Category\022\n\n\002ID\030\001 \002(\004\022\014\n\004" +
-      "name\030\002 \002(\t\022\014\n\004type\030\003 \002(\r\022\030\n\020preferredAcc" +
-      "ount\030\004 \001(\004"
+      "\"#\n\010SyncType\022\014\n\010REGISTER\020\000\022\t\n\005MERGE\020\001\"\261\001" +
+      "\n\014SyncResponse\022=\n\007syncAck\030\001 \002(\0162,.com.ad" +
+      "onai.wallet.sync.SyncResponse.SyncAck\"b\n" +
+      "\007SyncAck\022\007\n\002OK\020\310\001\022\023\n\016ACCOUNT_EXISTS\020\222\003\022\017" +
+      "\n\nAUTH_WRONG\020\223\003\022\024\n\017ALREADY_SYNCING\020\231\003\022\022\n" +
+      "\rUNKNOWN_ERROR\020\347\007\"B\n\rEntityRequest\022 \n\030la",
+      "stKnownServerTimestamp\030\001 \002(\004\022\017\n\007knownID\030" +
+      "\002 \003(\003\"\204\001\n\016EntityResponse\022\021\n\tdeletedID\030\001 " +
+      "\003(\003\022-\n\005added\030\002 \003(\0132\036.com.adonai.wallet.s" +
+      "ync.Entity\0220\n\010modified\030\003 \003(\0132\036.com.adona" +
+      "i.wallet.sync.Entity\"\'\n\tEntityAck\022\032\n\022new" +
+      "ServerTimestamp\030\001 \002(\004\"\244\001\n\006Entity\0220\n\007acco" +
+      "unt\030\001 \001(\0132\037.com.adonai.wallet.sync.Accou" +
+      "nt\0224\n\toperation\030\002 \001(\0132!.com.adonai.walle" +
+      "t.sync.Operation\0222\n\010category\030\003 \001(\0132 .com" +
+      ".adonai.wallet.sync.Category\"i\n\007Account\022",
+      "\n\n\002ID\030\001 \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n\013description" +
+      "\030\003 \001(\t\022\020\n\010currency\030\004 \002(\t\022\016\n\006amount\030\005 \002(\t" +
+      "\022\r\n\005color\030\006 \001(\005\"\237\001\n\tOperation\022\n\n\002ID\030\001 \002(" +
+      "\004\022\023\n\013description\030\002 \001(\t\022\014\n\004time\030\003 \002(\004\022\021\n\t" +
+      "chargerId\030\004 \001(\004\022\024\n\014beneficiarId\030\005 \001(\004\022\016\n" +
+      "\006amount\030\006 \002(\t\022\026\n\016convertingRate\030\007 \001(\002\022\022\n" +
+      "\ncategoryId\030\010 \002(\004\"L\n\010Category\022\n\n\002ID\030\001 \002(" +
+      "\004\022\014\n\004name\030\002 \002(\t\022\014\n\004type\030\003 \002(\r\022\030\n\020preferr" +
+      "edAccount\030\004 \001(\004"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -7697,19 +8000,19 @@ public final class SyncProtocol {
           internal_static_com_adonai_wallet_sync_EntityRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_com_adonai_wallet_sync_EntityRequest_descriptor,
-              new java.lang.String[] { "KnownID", });
+              new java.lang.String[] { "LastKnownServerTimestamp", "KnownID", });
           internal_static_com_adonai_wallet_sync_EntityResponse_descriptor =
             getDescriptor().getMessageTypes().get(3);
           internal_static_com_adonai_wallet_sync_EntityResponse_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_com_adonai_wallet_sync_EntityResponse_descriptor,
-              new java.lang.String[] { "DeletedID", "Entity", });
+              new java.lang.String[] { "DeletedID", "Added", "Modified", });
           internal_static_com_adonai_wallet_sync_EntityAck_descriptor =
             getDescriptor().getMessageTypes().get(4);
           internal_static_com_adonai_wallet_sync_EntityAck_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_com_adonai_wallet_sync_EntityAck_descriptor,
-              new java.lang.String[] { "DeletedGuid", "WrittenGuid", });
+              new java.lang.String[] { "NewServerTimestamp", });
           internal_static_com_adonai_wallet_sync_Entity_descriptor =
             getDescriptor().getMessageTypes().get(5);
           internal_static_com_adonai_wallet_sync_Entity_fieldAccessorTable = new

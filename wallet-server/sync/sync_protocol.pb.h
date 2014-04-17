@@ -70,6 +70,7 @@ enum SyncResponse_SyncAck {
   SyncResponse_SyncAck_OK = 200,
   SyncResponse_SyncAck_ACCOUNT_EXISTS = 402,
   SyncResponse_SyncAck_AUTH_WRONG = 403,
+  SyncResponse_SyncAck_ALREADY_SYNCING = 409,
   SyncResponse_SyncAck_UNKNOWN_ERROR = 999
 };
 bool SyncResponse_SyncAck_IsValid(int value);
@@ -191,7 +192,7 @@ class SyncRequest : public ::google::protobuf::Message {
   inline ::std::string* release_password();
   inline void set_allocated_password(::std::string* password);
 
-  // optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];
+  // required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;
   inline bool has_synctype() const;
   inline void clear_synctype();
   static const int kSyncTypeFieldNumber = 3;
@@ -281,6 +282,7 @@ class SyncResponse : public ::google::protobuf::Message {
   static const SyncAck OK = SyncResponse_SyncAck_OK;
   static const SyncAck ACCOUNT_EXISTS = SyncResponse_SyncAck_ACCOUNT_EXISTS;
   static const SyncAck AUTH_WRONG = SyncResponse_SyncAck_AUTH_WRONG;
+  static const SyncAck ALREADY_SYNCING = SyncResponse_SyncAck_ALREADY_SYNCING;
   static const SyncAck UNKNOWN_ERROR = SyncResponse_SyncAck_UNKNOWN_ERROR;
   static inline bool SyncAck_IsValid(int value) {
     return SyncResponse_SyncAck_IsValid(value);
@@ -387,10 +389,17 @@ class EntityRequest : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // repeated int64 knownID = 1;
+  // required uint64 lastKnownServerTimestamp = 1;
+  inline bool has_lastknownservertimestamp() const;
+  inline void clear_lastknownservertimestamp();
+  static const int kLastKnownServerTimestampFieldNumber = 1;
+  inline ::google::protobuf::uint64 lastknownservertimestamp() const;
+  inline void set_lastknownservertimestamp(::google::protobuf::uint64 value);
+
+  // repeated int64 knownID = 2;
   inline int knownid_size() const;
   inline void clear_knownid();
-  static const int kKnownIDFieldNumber = 1;
+  static const int kKnownIDFieldNumber = 2;
   inline ::google::protobuf::int64 knownid(int index) const;
   inline void set_knownid(int index, ::google::protobuf::int64 value);
   inline void add_knownid(::google::protobuf::int64 value);
@@ -401,13 +410,16 @@ class EntityRequest : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.EntityRequest)
  private:
+  inline void set_has_lastknownservertimestamp();
+  inline void clear_has_lastknownservertimestamp();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
+  ::google::protobuf::uint64 lastknownservertimestamp_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int64 > knownid_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
 
   friend void  protobuf_AddDesc_sync_5fprotocol_2eproto();
   friend void protobuf_AssignDesc_sync_5fprotocol_2eproto();
@@ -484,17 +496,29 @@ class EntityResponse : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
       mutable_deletedid();
 
-  // repeated .com.adonai.wallet.sync.Entity entity = 2;
-  inline int entity_size() const;
-  inline void clear_entity();
-  static const int kEntityFieldNumber = 2;
-  inline const ::com::adonai::wallet::sync::Entity& entity(int index) const;
-  inline ::com::adonai::wallet::sync::Entity* mutable_entity(int index);
-  inline ::com::adonai::wallet::sync::Entity* add_entity();
+  // repeated .com.adonai.wallet.sync.Entity added = 2;
+  inline int added_size() const;
+  inline void clear_added();
+  static const int kAddedFieldNumber = 2;
+  inline const ::com::adonai::wallet::sync::Entity& added(int index) const;
+  inline ::com::adonai::wallet::sync::Entity* mutable_added(int index);
+  inline ::com::adonai::wallet::sync::Entity* add_added();
   inline const ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity >&
-      entity() const;
+      added() const;
   inline ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity >*
-      mutable_entity();
+      mutable_added();
+
+  // repeated .com.adonai.wallet.sync.Entity modified = 3;
+  inline int modified_size() const;
+  inline void clear_modified();
+  static const int kModifiedFieldNumber = 3;
+  inline const ::com::adonai::wallet::sync::Entity& modified(int index) const;
+  inline ::com::adonai::wallet::sync::Entity* mutable_modified(int index);
+  inline ::com::adonai::wallet::sync::Entity* add_modified();
+  inline const ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity >&
+      modified() const;
+  inline ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity >*
+      mutable_modified();
 
   // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.EntityResponse)
  private:
@@ -502,10 +526,11 @@ class EntityResponse : public ::google::protobuf::Message {
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::RepeatedField< ::google::protobuf::int64 > deletedid_;
-  ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity > entity_;
+  ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity > added_;
+  ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity > modified_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
 
   friend void  protobuf_AddDesc_sync_5fprotocol_2eproto();
   friend void protobuf_AssignDesc_sync_5fprotocol_2eproto();
@@ -570,40 +595,24 @@ class EntityAck : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // repeated int64 deletedGuid = 1;
-  inline int deletedguid_size() const;
-  inline void clear_deletedguid();
-  static const int kDeletedGuidFieldNumber = 1;
-  inline ::google::protobuf::int64 deletedguid(int index) const;
-  inline void set_deletedguid(int index, ::google::protobuf::int64 value);
-  inline void add_deletedguid(::google::protobuf::int64 value);
-  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
-      deletedguid() const;
-  inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
-      mutable_deletedguid();
-
-  // repeated int64 writtenGuid = 2;
-  inline int writtenguid_size() const;
-  inline void clear_writtenguid();
-  static const int kWrittenGuidFieldNumber = 2;
-  inline ::google::protobuf::int64 writtenguid(int index) const;
-  inline void set_writtenguid(int index, ::google::protobuf::int64 value);
-  inline void add_writtenguid(::google::protobuf::int64 value);
-  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
-      writtenguid() const;
-  inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
-      mutable_writtenguid();
+  // required uint64 newServerTimestamp = 1;
+  inline bool has_newservertimestamp() const;
+  inline void clear_newservertimestamp();
+  static const int kNewServerTimestampFieldNumber = 1;
+  inline ::google::protobuf::uint64 newservertimestamp() const;
+  inline void set_newservertimestamp(::google::protobuf::uint64 value);
 
   // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.EntityAck)
  private:
+  inline void set_has_newservertimestamp();
+  inline void clear_has_newservertimestamp();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::google::protobuf::RepeatedField< ::google::protobuf::int64 > deletedguid_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::int64 > writtenguid_;
+  ::google::protobuf::uint64 newservertimestamp_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
 
   friend void  protobuf_AddDesc_sync_5fprotocol_2eproto();
   friend void protobuf_AssignDesc_sync_5fprotocol_2eproto();
@@ -1298,7 +1307,7 @@ inline void SyncRequest::set_allocated_password(::std::string* password) {
   }
 }
 
-// optional .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3 [default = MERGE];
+// required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;
 inline bool SyncRequest::has_synctype() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -1309,7 +1318,7 @@ inline void SyncRequest::clear_has_synctype() {
   _has_bits_[0] &= ~0x00000004u;
 }
 inline void SyncRequest::clear_synctype() {
-  synctype_ = 1;
+  synctype_ = 0;
   clear_has_synctype();
 }
 inline ::com::adonai::wallet::sync::SyncRequest_SyncType SyncRequest::synctype() const {
@@ -1352,7 +1361,29 @@ inline void SyncResponse::set_syncack(::com::adonai::wallet::sync::SyncResponse_
 
 // EntityRequest
 
-// repeated int64 knownID = 1;
+// required uint64 lastKnownServerTimestamp = 1;
+inline bool EntityRequest::has_lastknownservertimestamp() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void EntityRequest::set_has_lastknownservertimestamp() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void EntityRequest::clear_has_lastknownservertimestamp() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void EntityRequest::clear_lastknownservertimestamp() {
+  lastknownservertimestamp_ = GOOGLE_ULONGLONG(0);
+  clear_has_lastknownservertimestamp();
+}
+inline ::google::protobuf::uint64 EntityRequest::lastknownservertimestamp() const {
+  return lastknownservertimestamp_;
+}
+inline void EntityRequest::set_lastknownservertimestamp(::google::protobuf::uint64 value) {
+  set_has_lastknownservertimestamp();
+  lastknownservertimestamp_ = value;
+}
+
+// repeated int64 knownID = 2;
 inline int EntityRequest::knownid_size() const {
   return knownid_.size();
 }
@@ -1406,83 +1437,80 @@ EntityResponse::mutable_deletedid() {
   return &deletedid_;
 }
 
-// repeated .com.adonai.wallet.sync.Entity entity = 2;
-inline int EntityResponse::entity_size() const {
-  return entity_.size();
+// repeated .com.adonai.wallet.sync.Entity added = 2;
+inline int EntityResponse::added_size() const {
+  return added_.size();
 }
-inline void EntityResponse::clear_entity() {
-  entity_.Clear();
+inline void EntityResponse::clear_added() {
+  added_.Clear();
 }
-inline const ::com::adonai::wallet::sync::Entity& EntityResponse::entity(int index) const {
-  return entity_.Get(index);
+inline const ::com::adonai::wallet::sync::Entity& EntityResponse::added(int index) const {
+  return added_.Get(index);
 }
-inline ::com::adonai::wallet::sync::Entity* EntityResponse::mutable_entity(int index) {
-  return entity_.Mutable(index);
+inline ::com::adonai::wallet::sync::Entity* EntityResponse::mutable_added(int index) {
+  return added_.Mutable(index);
 }
-inline ::com::adonai::wallet::sync::Entity* EntityResponse::add_entity() {
-  return entity_.Add();
+inline ::com::adonai::wallet::sync::Entity* EntityResponse::add_added() {
+  return added_.Add();
 }
 inline const ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity >&
-EntityResponse::entity() const {
-  return entity_;
+EntityResponse::added() const {
+  return added_;
 }
 inline ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity >*
-EntityResponse::mutable_entity() {
-  return &entity_;
+EntityResponse::mutable_added() {
+  return &added_;
+}
+
+// repeated .com.adonai.wallet.sync.Entity modified = 3;
+inline int EntityResponse::modified_size() const {
+  return modified_.size();
+}
+inline void EntityResponse::clear_modified() {
+  modified_.Clear();
+}
+inline const ::com::adonai::wallet::sync::Entity& EntityResponse::modified(int index) const {
+  return modified_.Get(index);
+}
+inline ::com::adonai::wallet::sync::Entity* EntityResponse::mutable_modified(int index) {
+  return modified_.Mutable(index);
+}
+inline ::com::adonai::wallet::sync::Entity* EntityResponse::add_modified() {
+  return modified_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity >&
+EntityResponse::modified() const {
+  return modified_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity >*
+EntityResponse::mutable_modified() {
+  return &modified_;
 }
 
 // -------------------------------------------------------------------
 
 // EntityAck
 
-// repeated int64 deletedGuid = 1;
-inline int EntityAck::deletedguid_size() const {
-  return deletedguid_.size();
+// required uint64 newServerTimestamp = 1;
+inline bool EntityAck::has_newservertimestamp() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void EntityAck::clear_deletedguid() {
-  deletedguid_.Clear();
+inline void EntityAck::set_has_newservertimestamp() {
+  _has_bits_[0] |= 0x00000001u;
 }
-inline ::google::protobuf::int64 EntityAck::deletedguid(int index) const {
-  return deletedguid_.Get(index);
+inline void EntityAck::clear_has_newservertimestamp() {
+  _has_bits_[0] &= ~0x00000001u;
 }
-inline void EntityAck::set_deletedguid(int index, ::google::protobuf::int64 value) {
-  deletedguid_.Set(index, value);
+inline void EntityAck::clear_newservertimestamp() {
+  newservertimestamp_ = GOOGLE_ULONGLONG(0);
+  clear_has_newservertimestamp();
 }
-inline void EntityAck::add_deletedguid(::google::protobuf::int64 value) {
-  deletedguid_.Add(value);
+inline ::google::protobuf::uint64 EntityAck::newservertimestamp() const {
+  return newservertimestamp_;
 }
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
-EntityAck::deletedguid() const {
-  return deletedguid_;
-}
-inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
-EntityAck::mutable_deletedguid() {
-  return &deletedguid_;
-}
-
-// repeated int64 writtenGuid = 2;
-inline int EntityAck::writtenguid_size() const {
-  return writtenguid_.size();
-}
-inline void EntityAck::clear_writtenguid() {
-  writtenguid_.Clear();
-}
-inline ::google::protobuf::int64 EntityAck::writtenguid(int index) const {
-  return writtenguid_.Get(index);
-}
-inline void EntityAck::set_writtenguid(int index, ::google::protobuf::int64 value) {
-  writtenguid_.Set(index, value);
-}
-inline void EntityAck::add_writtenguid(::google::protobuf::int64 value) {
-  writtenguid_.Add(value);
-}
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
-EntityAck::writtenguid() const {
-  return writtenguid_;
-}
-inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
-EntityAck::mutable_writtenguid() {
-  return &writtenguid_;
+inline void EntityAck::set_newservertimestamp(::google::protobuf::uint64 value) {
+  set_has_newservertimestamp();
+  newservertimestamp_ = value;
 }
 
 // -------------------------------------------------------------------
