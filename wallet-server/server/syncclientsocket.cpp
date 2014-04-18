@@ -227,7 +227,8 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
     switch(state)
     {
         case WAITING_ACCOUNTS:
-            selectSyncedEntities.prepare("SELECT id, name, description, currency, amount, color FROM accounts WHERE sync_account = :userId");
+            // get all known entities on server!
+            selectSyncedEntities.prepare("SELECT id, name, description, currency, amount, color, last_modified FROM accounts WHERE sync_account = :userId");
             break;
         case WAITING_CATEGORIES:
             break;
@@ -253,36 +254,52 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
     while(selectSyncedEntities.next())
     {
         const qint64 currentId = selectSyncedEntities.value("id").toLongLong();
-        if(knownIds.contains(currentId)) // we have this entity on device already
-            knownIds.removeOne(currentId);
-        else // we don't have this entity on device
-            switch(state)
+        EntityState entityState = EQUAL;
+        // check whether we need any processing
+        if(knownIds.contains(currentId)) // we have this entity on device already, should detect, if entity was modified
+        {
+            const quint64 serverLastModified = selectSyncedEntities.value("last_modified").toLongLong();
+            if(request.lastknownservertimestamp() > serverLastModified)
             {
-                case WAITING_ACCOUNTS:
-                {
-                    sync::Account* const account = response.add_entity()->mutable_account();
-                    account->set_id(selectSyncedEntities.value("id").toLongLong());
-                    account->set_name(selectSyncedEntities.value("name").toString().toStdString());
-                    account->set_description(selectSyncedEntities.value("description").toString().toStdString());
-                    account->set_currency(selectSyncedEntities.value("currency").toString().toStdString());
-                    account->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
-                    account->set_color(selectSyncedEntities.value("color").toInt());
-                    break;
-                }
-                case WAITING_CATEGORIES:
-                {
-                    sync::Category* const category = response.add_entity()->mutable_category();
-                    break;
-                }
-                case WAITING_OPERATIONS:
-                {
-                    sync::Operation* const operation = response.add_entity()->mutable_operation();
-                    break;
-                }
-                default:
-                    qDebug() << tr("Unknown entity type processing!");
-                    break;
+                knownIds.removeOne(currentId); // we already have latest copy on device, nothing needed
+                continue;
             }
+            else
+                entityState = MODIFIED; // we have old copy on our device, need to update (or merge!)
+
+        }
+        else // we don't have this entity on device
+            entityState = ADDED;
+
+        switch(state)
+        {
+            case WAITING_ACCOUNTS:
+            {
+                sync::Account* const account = entityState == ADDED
+                    ? response.add_added()->mutable_account()
+                    : response.add_modified()->mutable_account();
+                account->set_id(selectSyncedEntities.value("id").toLongLong());
+                account->set_name(selectSyncedEntities.value("name").toString().toStdString());
+                account->set_description(selectSyncedEntities.value("description").toString().toStdString());
+                account->set_currency(selectSyncedEntities.value("currency").toString().toStdString());
+                account->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
+                account->set_color(selectSyncedEntities.value("color").toInt());
+                break;
+            }
+            case WAITING_CATEGORIES:
+            {
+                //sync::Category* const category = response.add_entity()->mutable_category();
+                break;
+            }
+            case WAITING_OPERATIONS:
+            {
+                //sync::Operation* const operation = response.add_entity()->mutable_operation();
+                break;
+            }
+            default:
+                qDebug() << tr("Unknown entity type processing!");
+                break;
+        }
     }
 
     // remaining entities are deleted on server, and so, should be returned to device being marked for deletion
@@ -292,26 +309,40 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
     return response;
 }
 
+/**
+ * @brief SyncClientSocket::handle
+ *
+ * First we need to add entities that were added on device
+ * Then we need to modify entities merged on device and sent back
+ * Then we need to delete entities deleted on device
+ * That's all for now
+ *
+ * @param response - response from client with entities
+ * @return Ack with new timestamp to set for client
+ */
 sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
 {
     sync::EntityAck ack;
 
     // delete entities that deleted on device
     QSqlQuery deleter(*conn);
-    // add accounts that were created on device
+    // add entities that were created on device
     QSqlQuery adder(*conn);
+    // modify entities that were merged on device
+    QSqlQuery modifier(*conn);
     switch(state)
     {
         case SENT_ACCOUNTS:
-            deleter.prepare("DELETE FROM accounts WHERE sync_account = :userId AND id = :guid");
+            deleter.prepare("DELETE FROM accounts WHERE sync_account = :userId AND id = :id");
             adder.prepare("INSERT INTO accounts(sync_account, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?)");
+            modifier.prepare("UPDATE accounts SET name = ? AND description = ? and currency = ? and amount = ? and color = ? WHERE sync_account = ? AND id = ?");
             break;
         case SENT_CATEGORIES:
-            deleter.prepare("DELETE FROM categories WHERE sync_account = :userId AND id = :guid");
+            deleter.prepare("DELETE FROM categories WHERE sync_account = :userId AND id = :id");
             //adder.prepare("INSERT INTO accounts(sync_account, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?)");
             break;
         case SENT_OPERATIONS:
-            deleter.prepare("DELETE FROM operations WHERE sync_account = :userId AND id = :guid");
+            deleter.prepare("DELETE FROM operations WHERE sync_account = :userId AND id = :id");
             //adder.prepare("INSERT INTO accounts(sync_account, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?)");
             break;
         default:
@@ -319,6 +350,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             break;
     }
 
+    /// delete entities
     QVariantList userList, idList;
     userList.reserve(response.deletedid_size());
     idList.reserve(response.deletedid_size());
@@ -326,18 +358,19 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
     {
         userList.append(userId);
         idList.append(id);
-        ack.add_deletedguid(id);
+        //ack.add_deletedguid(id);
     }
     deleter.addBindValue(userList);
     deleter.addBindValue(idList);
     if(!deleter.execBatch())
     {
         qDebug() << tr("Cannot delete entities from server!");
-        ack.clear_deletedguid();
+        //ack.clear_deletedguid();
     }
 
+    /// add entities
     // should execute each query async-ly because lastInsertId works only for last :(
-    for(sync::Entity entity : response.entity())
+    for(sync::Entity entity : response.added())
     {
         switch(state)
         {
@@ -373,13 +406,64 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
                 break;
         }
 
-        if(adder.exec())
-            ack.add_writtenguid(adder.lastInsertId().toLongLong());
-        else
-            qDebug() << tr("Cannot add accounts from device!");
+        if(!adder.exec())
+            //ack.add_writtenguid(adder.lastInsertId().toLongLong());
+        //else
+            qDebug() << tr("Cannot add entities from device!");
 
         adder.finish();
     }
+
+    /// modify entities
+    for(sync::Entity entity : response.modified())
+    {
+        switch(state)
+        {
+            case WAITING_ACCOUNTS:
+            {
+                const sync::Account& acc = entity.account();
+                modifier.addBindValue(acc.name().data());
+                if(acc.has_description())
+                    modifier.addBindValue(acc.description().data());
+                else
+                    modifier.addBindValue(QVariant(QVariant::String)); // no desc
+                modifier.addBindValue(acc.currency().data());
+                modifier.addBindValue(acc.amount().data());
+                if(acc.has_color())
+                    modifier.addBindValue(acc.color());
+                else
+                    modifier.addBindValue(QVariant(QVariant::Int));
+                modifier.addBindValue(userId);
+                modifier.addBindValue((quint64) acc.id());
+                break;
+            }
+            case WAITING_CATEGORIES:
+            {
+                const sync::Category& category = entity.category();
+                break;
+            }
+            case WAITING_OPERATIONS:
+            {
+                const sync::Operation& operation = entity.operation();
+                break;
+            }
+            default:
+                qDebug() << tr("Unknown entity type processing!");
+                break;
+        }
+
+        if(!modifier.exec())
+            //ack.add_writtenguid(adder.lastInsertId().toLongLong());
+        //else
+            qDebug() << tr("Cannot add entities from device!");
+
+        modifier.finish();
+    }
+
+    QSqlQuery newTimeRetriever(*conn);
+    newTimeRetriever.exec("SELECT CURRENT_TIMESTAMP");
+    if(newTimeRetriever.exec() && newTimeRetriever.next())
+        ack.set_newservertimestamp(newTimeRetriever.value(0).toLongLong());
 
     return ack;
 }

@@ -63,6 +63,14 @@ public:
         FINISHED
     };
 
+    enum EntityState
+    {
+        EQUAL = 0,
+        ADDED,
+        MODIFIED,
+        DELETED
+    };
+
     SyncState getState() const;
     void setState(const SyncState &value);
 
