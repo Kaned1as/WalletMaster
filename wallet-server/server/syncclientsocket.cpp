@@ -364,7 +364,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
     deleter.addBindValue(idList);
     if(!deleter.execBatch())
     {
-        qDebug() << tr("Cannot delete entities from server!");
+        qDebug() << tr("Cannot delete entities from server! Error %1").arg(deleter.lastError().text());
         //ack.clear_deletedguid();
     }
 
@@ -409,7 +409,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
         if(!adder.exec())
             //ack.add_writtenguid(adder.lastInsertId().toLongLong());
         //else
-            qDebug() << tr("Cannot add entities from device!");
+            qDebug() << tr("Cannot add entities from device! Error: %1").arg(adder.lastError().text());
 
         adder.finish();
     }
@@ -455,7 +455,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
         if(!modifier.exec())
             //ack.add_writtenguid(adder.lastInsertId().toLongLong());
         //else
-            qDebug() << tr("Cannot add entities from device!");
+            qDebug() << tr("Cannot modify entities from device! Error %1").arg(modifier.lastError().text());
 
         modifier.finish();
     }
@@ -464,6 +464,8 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
     newTimeRetriever.exec("SELECT CURRENT_TIMESTAMP");
     if(newTimeRetriever.exec() && newTimeRetriever.next())
         ack.set_newservertimestamp(newTimeRetriever.value(0).toLongLong());
+    else
+        qDebug() << tr("Cannot send new time to device! Error %1").arg(newTimeRetriever.lastError().text());
 
     return ack;
 }
