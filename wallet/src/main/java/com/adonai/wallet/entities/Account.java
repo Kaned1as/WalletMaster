@@ -1,17 +1,21 @@
 package com.adonai.wallet.entities;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.util.Log;
 
 import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.sync.SyncProtocol;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author adonai
  */
 public class Account extends Entity {
+    public static final String TABLE_NAME = "accounts";
     private String name;
     private String description;
     private Currency currency;
@@ -64,6 +68,7 @@ public class Account extends Entity {
 
     public static Account fromProtoAccount(SyncProtocol.Account account) {
         final Account temp = new Account();
+        temp.setId(account.getID());
         temp.setName(account.getName());
         temp.setAmount(new BigDecimal(account.getAmount()));
         temp.setColor(account.getColor());
@@ -97,7 +102,7 @@ public class Account extends Entity {
         values.put(DatabaseDAO.AccountFields.AMOUNT.toString(), getAmount().toPlainString());
         values.put(DatabaseDAO.AccountFields.COLOR.toString(), getColor());
 
-        return dao.insert(values, DatabaseDAO.ACCOUNTS_TABLE_NAME);
+        return dao.insert(values, TABLE_NAME);
     }
 
     @Override
@@ -110,11 +115,39 @@ public class Account extends Entity {
         values.put(DatabaseDAO.AccountFields.AMOUNT.toString(), getAmount().toPlainString());
         values.put(DatabaseDAO.AccountFields.COLOR.toString(), getColor());
 
-        return dao.update(values, DatabaseDAO.ACCOUNTS_TABLE_NAME);
+        return dao.update(values, TABLE_NAME);
     }
 
     @Override
     public int delete(DatabaseDAO dao) {
-        return dao.delete(getId(), DatabaseDAO.ACCOUNTS_TABLE_NAME);
+        return dao.delete(getId(), TABLE_NAME);
+    }
+
+    /**
+     * Select all entities that are known to client
+     * Note that entities added on device are not in this list
+     * @param dao
+     * @return
+     */
+    public static List<Long> getKnownIDs(DatabaseDAO dao) {
+        final List<Long> result = new ArrayList<>();
+        final Cursor selections = dao.select(
+                "SELECT " + DatabaseDAO.AccountFields._id +
+                " FROM " + TABLE_NAME +
+                " WHERE " + DatabaseDAO.AccountFields._id + " NOT IN (" +
+                        "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
+                        " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
+                        " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + DatabaseDAO.EntityType.ACCOUNT.ordinal() +
+                        " AND " + DatabaseDAO.ActionsFields.ACTION_TYPE + " = " + DatabaseDAO.ActionType.ADD.ordinal() +
+                        ")" +
+                " UNION ALL " +
+                "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
+                " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
+                " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + DatabaseDAO.EntityType.ACCOUNT.ordinal() +
+                " AND " + DatabaseDAO.ActionsFields.ACTION_TYPE + " = " + DatabaseDAO.ActionType.DELETE.ordinal()
+                , null);
+        while (selections.moveToNext())
+            result.add(selections.getLong(0));
+        return result;
     }
 }

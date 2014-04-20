@@ -55,7 +55,7 @@ public class AccountsFragment extends WalletBaseFragment {
         mAccountsAdapter = new AccountsAdapter();
 
         mAccountList.setAdapter(mAccountsAdapter);
-        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, mAccountsAdapter);
+        getWalletActivity().getEntityDAO().registerDatabaseListener(Account.TABLE_NAME, mAccountsAdapter);
         mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
         mAccountList.setOnItemClickListener(new AccountClickListener());
 
@@ -172,7 +172,7 @@ public class AccountsFragment extends WalletBaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.ACCOUNTS_TABLE_NAME, mAccountsAdapter);
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(Account.TABLE_NAME, mAccountsAdapter);
         mAccountsAdapter.changeCursor(null); // close opened cursor
     }
 

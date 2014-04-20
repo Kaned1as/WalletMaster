@@ -15,6 +15,7 @@ import java.util.Date;
  * Created by adonai on 23.02.14.
  */
 public class Operation extends Entity {
+    public static final String TABLE_NAME = "operations";
 
     public enum OperationType {
         EXPENSE,
@@ -144,7 +145,7 @@ public class Operation extends Entity {
         if(getConvertingRate() != null)
             values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), getConvertingRate());
 
-        return dao.insert(values, DatabaseDAO.OPERATIONS_TABLE_NAME);
+        return dao.insert(values, TABLE_NAME);
     }
 
     @Override
@@ -160,11 +161,11 @@ public class Operation extends Entity {
         values.put(DatabaseDAO.OperationsFields.AMOUNT.toString(), getAmount().toPlainString());
         values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), getConvertingRate());
 
-        return dao.update(values, DatabaseDAO.OPERATIONS_TABLE_NAME);
+        return dao.update(values, TABLE_NAME);
     }
 
     @Override
     public int delete(DatabaseDAO dao) {
-        return dao.delete(getId(), DatabaseDAO.OPERATIONS_TABLE_NAME);
+        return dao.delete(getId(), TABLE_NAME);
     }
 }

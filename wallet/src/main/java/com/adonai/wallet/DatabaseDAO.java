@@ -57,7 +57,6 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public static final String dbName = "moneyDB";
     public static final int dbVersion = 1;
 
-    public static final String ACCOUNTS_TABLE_NAME = "accounts";
     public static enum AccountFields {
         _id,
         NAME,
@@ -67,7 +66,6 @@ public class DatabaseDAO extends SQLiteOpenHelper
         COLOR,
     }
 
-    public static final String OPERATIONS_TABLE_NAME = "operations";
     public static enum OperationsFields {
         _id,
         DESCRIPTION,
@@ -79,7 +77,6 @@ public class DatabaseDAO extends SQLiteOpenHelper
         CONVERT_RATE,
     }
 
-    public static final String CURRENCIES_TABLE_NAME = "currencies";
     public static enum CurrenciesFields {
         CODE,
         DESCRIPTION,
@@ -87,7 +84,6 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
 
-    public static final String CATEGORIES_TABLE_NAME = "categories";
     public static enum CategoriesFields {
         _id,
         NAME,
@@ -139,7 +135,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         mDatabase = sqLiteDatabase;
 
-        sqLiteDatabase.execSQL("CREATE TABLE " + ACCOUNTS_TABLE_NAME + " (" +
+        sqLiteDatabase.execSQL("CREATE TABLE " + Account.TABLE_NAME + " (" +
                 AccountFields._id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 AccountFields.NAME + " TEXT DEFAULT '' NOT NULL, " +
                 AccountFields.DESCRIPTION + " TEXT DEFAULT NULL, " +
@@ -147,9 +143,9 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 AccountFields.AMOUNT + " TEXT DEFAULT '0' NOT NULL, " +
                 AccountFields.COLOR + " TEXT DEFAULT NULL" +
                 ")");
-        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "ACCOUNT_NAME_IDX ON " + ACCOUNTS_TABLE_NAME + " (" + AccountFields.NAME + ")");
+        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "ACCOUNT_NAME_IDX ON " + Account.TABLE_NAME + " (" + AccountFields.NAME + ")");
 
-        sqLiteDatabase.execSQL("CREATE TABLE " + OPERATIONS_TABLE_NAME + " (" +
+        sqLiteDatabase.execSQL("CREATE TABLE " + Operation.TABLE_NAME + " (" +
                 OperationsFields._id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 OperationsFields.DESCRIPTION + " TEXT DEFAULT NULL, " +
                 OperationsFields.CATEGORY + " INTEGER NOT NULL, " +
@@ -158,26 +154,26 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 OperationsFields.RECEIVER + " INTEGER DEFAULT NULL, " +
                 OperationsFields.AMOUNT + " TEXT DEFAULT '0' NOT NULL, " +
                 OperationsFields.CONVERT_RATE + " REAL DEFAULT NULL, " +
-                " FOREIGN KEY (" + OperationsFields.CATEGORY + ") REFERENCES " + CATEGORIES_TABLE_NAME + " (" + CategoriesFields._id + ") ON DELETE SET NULL," +
-                " FOREIGN KEY (" + OperationsFields.CHARGER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE," + // delete associated transactions
-                " FOREIGN KEY (" + OperationsFields.RECEIVER + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE" + // delete associated transactions
+                " FOREIGN KEY (" + OperationsFields.CATEGORY + ") REFERENCES " + Category.TABLE_NAME + " (" + CategoriesFields._id + ") ON DELETE SET NULL," +
+                " FOREIGN KEY (" + OperationsFields.CHARGER + ") REFERENCES " + Account.TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE," + // delete associated transactions
+                " FOREIGN KEY (" + OperationsFields.RECEIVER + ") REFERENCES " + Account.TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE" + // delete associated transactions
                 ")");
 
-        sqLiteDatabase.execSQL("CREATE TABLE " + CURRENCIES_TABLE_NAME + " (" +
+        sqLiteDatabase.execSQL("CREATE TABLE " + Currency.TABLE_NAME + " (" +
                 CurrenciesFields.CODE + " TEXT PRIMARY KEY NOT NULL, " +
                 CurrenciesFields.DESCRIPTION + " TEXT DEFAULT NULL, " +
                 CurrenciesFields.USED_IN + " TEXT DEFAULT NULL" +
                 ")");
-        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CURRENCY_IDX ON " + CURRENCIES_TABLE_NAME + " (" +  CurrenciesFields.CODE + ")");
+        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CURRENCY_IDX ON " + Currency.TABLE_NAME + " (" +  CurrenciesFields.CODE + ")");
 
-        sqLiteDatabase.execSQL("CREATE TABLE " + CATEGORIES_TABLE_NAME + " (" +
+        sqLiteDatabase.execSQL("CREATE TABLE " + Category.TABLE_NAME + " (" +
                 CategoriesFields._id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 CategoriesFields.NAME + " TEXT DEFAULT '' NOT NULL, " +
                 CategoriesFields.TYPE + " INTEGER DEFAULT 0 NOT NULL, " +
                 CategoriesFields.PREFERRED_ACCOUNT + " INTEGER DEFAULT NULL, " +
-                " FOREIGN KEY (" + CategoriesFields.PREFERRED_ACCOUNT + ") REFERENCES " + ACCOUNTS_TABLE_NAME + " (" + AccountFields._id + ") ON DELETE SET NULL" +
+                " FOREIGN KEY (" + CategoriesFields.PREFERRED_ACCOUNT + ") REFERENCES " + Account.TABLE_NAME + " (" + AccountFields._id + ") ON DELETE SET NULL" +
                 ")");
-        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CATEGORY_UNIQUE_NAME_IDX ON " + CATEGORIES_TABLE_NAME + " (" +  CategoriesFields.NAME + "," + CategoriesFields.TYPE + ")");
+        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CATEGORY_UNIQUE_NAME_IDX ON " + Category.TABLE_NAME + " (" +  CategoriesFields.NAME + "," + CategoriesFields.TYPE + ")");
 
         sqLiteDatabase.execSQL("CREATE TABLE " + ACTIONS_TABLE_NAME + " (" +
                 ActionsFields.GUID + " INTEGER DEFAULT NULL, " + // action ID is null till not synced
@@ -196,13 +192,13 @@ public class DatabaseDAO extends SQLiteOpenHelper
             final ContentValues values = new ContentValues(2);
             values.put(CategoriesFields.NAME.toString(), outCategory);
             values.put(CategoriesFields.TYPE.toString(), Category.EXPENSE);
-            sqLiteDatabase.insert(CATEGORIES_TABLE_NAME, null, values);
+            sqLiteDatabase.insert(Category.TABLE_NAME, null, values);
         }
         for(final String inCategory : defaultIncomeCategories) {
             final ContentValues values = new ContentValues(2);
             values.put(CategoriesFields.NAME.toString(), inCategory);
             values.put(CategoriesFields.TYPE.toString(), Category.INCOME);
-            sqLiteDatabase.insert(CATEGORIES_TABLE_NAME, null, values);
+            sqLiteDatabase.insert(Category.TABLE_NAME, null, values);
         }
 
         //fill Currencies
@@ -222,7 +218,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                         values.put(CurrenciesFields.CODE.toString(), tokens[0]);
                         break;
                 }
-                sqLiteDatabase.insert(CURRENCIES_TABLE_NAME, null, values);
+                sqLiteDatabase.insert(Currency.TABLE_NAME, null, values);
             }
         } catch (IOException e) {
             throw new RuntimeException(e); // should not happen!
@@ -242,7 +238,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
             values.put(AccountFields.AMOUNT.toString(), String.valueOf(rand.nextInt(1000)));
             values.put(AccountFields.COLOR.toString(), Color.rgb(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)));
 
-            sqLiteDatabase.insert(ACCOUNTS_TABLE_NAME, null, values);
+            sqLiteDatabase.insert(Account.TABLE_NAME, null, values);
         }
 
         for(int i = 0; i < 1000; ++i) {
@@ -252,7 +248,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
             values.put(OperationsFields.AMOUNT.toString(), String.valueOf(rand.nextInt(500))); // mandatory
             values.put(OperationsFields.CHARGER.toString(), 1+rand.nextInt(90));
 
-            sqLiteDatabase.insert(OPERATIONS_TABLE_NAME, null, values);
+            sqLiteDatabase.insert(Operation.TABLE_NAME, null, values);
         }
     }
 
@@ -279,6 +275,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
         if(count > 0)
             notifyListeners(tableName);
         return count;
+    }
+
+    public Cursor select(String query, String[] args) {
+        return mDatabase.rawQuery(query, args);
     }
 
     /**
@@ -386,7 +386,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public Account getAccount(long id) {
-        final Cursor cursor = mDatabase.query(ACCOUNTS_TABLE_NAME, null, " _id = ?", new String[]{String.valueOf(id)}, // d. selections args
+        final Cursor cursor = mDatabase.query(Account.TABLE_NAME, null, " _id = ?", new String[]{String.valueOf(id)}, // d. selections args
                 null, // e. group by
                 null, // f. having
                 null, // g. order by
@@ -411,17 +411,17 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     public Cursor getAccountCursor() {
         Log.d("Query", "getAccountCursor");
-        return mDatabase.query(ACCOUNTS_TABLE_NAME, null, null, null, null, null, null, null);
+        return mDatabase.query(Account.TABLE_NAME, null, null, null, null, null, null, null);
     }
 
     public Cursor getCurrencyCursor() {
         Log.d("Query", "getCurrencyCursor");
-        return mDatabase.query(CURRENCIES_TABLE_NAME, null, null, null, null, null, null, null);
+        return mDatabase.query(Currency.TABLE_NAME, null, null, null, null, null, null, null);
     }
 
     public Cursor getOperationsCursor() {
         Log.d("Query", "getOperationsCursor");
-        return mDatabase.query(OPERATIONS_TABLE_NAME, null, null, null, null, null, null, null);
+        return mDatabase.query(Operation.TABLE_NAME, null, null, null, null, null, null, null);
     }
 
     public Cursor getEntityCursor(String tableName, long id) {
@@ -443,26 +443,26 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
         sb.append(") LIKE LOWER(?)");
         filterBuilder.appendWhere(sb.toString());
-        filterBuilder.setTables(OPERATIONS_TABLE_NAME + " AS op" +
-                " LEFT JOIN " + ACCOUNTS_TABLE_NAME + " AS charger " + "ON op." + OperationsFields.CHARGER + " = " + "charger." + AccountFields._id +
-                " LEFT JOIN " + ACCOUNTS_TABLE_NAME + " AS benefic " + "ON op." + OperationsFields.CHARGER + " = " + "benefic." + AccountFields._id);
+        filterBuilder.setTables(Operation.TABLE_NAME + " AS op" +
+                " LEFT JOIN " + Account.TABLE_NAME + " AS charger " + "ON op." + OperationsFields.CHARGER + " = " + "charger." + AccountFields._id +
+                " LEFT JOIN " + Account.TABLE_NAME + " AS benefic " + "ON op." + OperationsFields.CHARGER + " = " + "benefic." + AccountFields._id);
         return filterBuilder.query(mDatabase, new String[]{"op.*"}, null, new String[] {"%" + filter + "%"}, null, null, null);
-        //mDatabase.query(OPERATIONS_TABLE_NAME, null, sb.toString(), new String[]{"%" + filter + "%"}, null, null, null, null);
+        //mDatabase.query(TABLE_NAME, null, sb.toString(), new String[]{"%" + filter + "%"}, null, null, null, null);
     }
 
     public Cursor getCategoryCursor() {
         Log.d("Query", "getCategoryCursor");
-        return mDatabase.query(CATEGORIES_TABLE_NAME, null, null, null, null, null, null, null);
+        return mDatabase.query(Category.TABLE_NAME, null, null, null, null, null, null, null);
     }
 
     public Cursor getCategoryCursor(int type) {
         Log.d("Query", "getCategoryCursorWithType");
-        return mDatabase.query(CATEGORIES_TABLE_NAME, null, CategoriesFields.TYPE + " = ?", new String[]{String.valueOf(type)}, null, null, null, null);
+        return mDatabase.query(Category.TABLE_NAME, null, CategoriesFields.TYPE + " = ?", new String[]{String.valueOf(type)}, null, null, null, null);
     }
 
     public Operation getOperation(long id) {
         final Long preciseTime = System.currentTimeMillis();
-        final Cursor cursor = mDatabase.query(OPERATIONS_TABLE_NAME, null, OperationsFields._id + " = ?", new String[] {String.valueOf(id)}, // d. selections args
+        final Cursor cursor = mDatabase.query(Operation.TABLE_NAME, null, OperationsFields._id + " = ?", new String[] {String.valueOf(id)}, // d. selections args
                 null, // e. group by
                 null, // f. having
                 null, // g. order by
@@ -492,7 +492,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public Category getCategory(long id) {
-        final Cursor cursor = mDatabase.query(CATEGORIES_TABLE_NAME, null, CategoriesFields._id + " = ?", new String[] {String.valueOf(id)}, // d. selections args
+        final Cursor cursor = mDatabase.query(Category.TABLE_NAME, null, CategoriesFields._id + " = ?", new String[] {String.valueOf(id)}, // d. selections args
                 null, // e. group by
                 null, // f. having
                 null, // g. order by
@@ -530,12 +530,12 @@ public class DatabaseDAO extends SQLiteOpenHelper
         if(curr.getUsedIn() != null)
             values.put(CurrenciesFields.USED_IN.toString(), curr.getUsedIn());
 
-        return mDatabase.insert(CURRENCIES_TABLE_NAME, null, values);
+        return mDatabase.insert(Currency.TABLE_NAME, null, values);
     }
 
     public Currency getCurrency(String code) {
         Log.d("getCurrency", code);
-        final Cursor cursor = mDatabase.query(CURRENCIES_TABLE_NAME, null, CurrenciesFields.CODE + " = ?", new String[]{code}, null, null, null, null);
+        final Cursor cursor = mDatabase.query(Currency.TABLE_NAME, null, CurrenciesFields.CODE + " = ?", new String[]{code}, null, null, null, null);
 
         if (cursor.moveToNext()) {
             final Currency result = new Currency(cursor.getString(0), cursor.getString(1), cursor.getString(2));
@@ -623,8 +623,8 @@ public class DatabaseDAO extends SQLiteOpenHelper
             mDatabase.setTransactionSuccessful();
             allSucceeded = true;
 
-            notifyListeners(OPERATIONS_TABLE_NAME);
-            notifyListeners(ACCOUNTS_TABLE_NAME);
+            notifyListeners(Operation.TABLE_NAME);
+            notifyListeners(Account.TABLE_NAME);
         }
         mDatabase.endTransaction();
         return allSucceeded;

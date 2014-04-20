@@ -4,6 +4,8 @@ package com.adonai.wallet.entities;
  * @author adonai
  */
 public class Currency {
+    public static final String TABLE_NAME = "currencies";
+
     public Currency(String code, String description, String usedIn) {
         assert code != null;
 
@@ -19,8 +21,8 @@ public class Currency {
     }
 
     private String code;
-    private String description;
-    private String usedIn;
+    transient private String description;
+    transient private String usedIn;
 
     public String getCode() {
         return code;

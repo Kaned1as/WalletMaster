@@ -67,7 +67,7 @@ public class OperationsFragment extends WalletBaseFragment {
 
         mOperationsList.setAdapter(mOpAdapter);
         mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
-        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.OPERATIONS_TABLE_NAME, mOpAdapter);
+        getWalletActivity().getEntityDAO().registerDatabaseListener(Operation.TABLE_NAME, mOpAdapter);
 
         return rootView;
     }
@@ -269,7 +269,7 @@ public class OperationsFragment extends WalletBaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.OPERATIONS_TABLE_NAME, mOpAdapter);
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(Operation.TABLE_NAME, mOpAdapter);
         mOpAdapter.changeCursor(null); // close opened cursor
     }
 

@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.WalletConstants;
+import com.adonai.wallet.entities.Account;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -186,6 +187,20 @@ public class SyncStateMachine {
                     case ACC_REQ: { // at this state we must be authorized on server
                         final InputStream is = mSocket.getInputStream();
                         final OutputStream os = mSocket.getOutputStream();
+
+                        final Long lastServerTime = mPreferences.getLong(WalletConstants.ACCOUNT_LAST_SYNC, 0);
+                        final List<Long> knownIDs = Account.getKnownIDs(mContext.getEntityDAO());
+
+                        SyncProtocol.EntityRequest.newBuilder()
+                                .setLastKnownServerTimestamp(lastServerTime)
+                                .addAllKnownID(knownIDs)
+                                .build().writeDelimitedTo(os); // sent account request
+
+                        final SyncProtocol.EntityResponse serverSide = SyncProtocol.EntityResponse.parseDelimitedFrom(is);
+                        for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
+                            entity.getAccount(); // ---
+                        }
+
                         break;
                     }
                     case CAT_REQ: {

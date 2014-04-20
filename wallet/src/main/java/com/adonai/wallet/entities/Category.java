@@ -9,7 +9,7 @@ import com.adonai.wallet.DatabaseDAO;
  * Created by adonai on 23.02.14.
  */
 public class Category extends Entity {
-
+    public static final String TABLE_NAME = "categories";
     final public static int EXPENSE = 0;
     final public static int INCOME = 1;
 
@@ -63,7 +63,7 @@ public class Category extends Entity {
         if(getPreferredAccount() != null)
             values.put(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.toString(), getPreferredAccount().getId());
 
-        return dao.insert(values, DatabaseDAO.CATEGORIES_TABLE_NAME);
+        return dao.insert(values, TABLE_NAME);
     }
 
     @Override
@@ -75,11 +75,11 @@ public class Category extends Entity {
         if(getPreferredAccount() != null)
             values.put(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.toString(), getPreferredAccount().getId());
 
-        return dao.update(values, DatabaseDAO.CATEGORIES_TABLE_NAME);
+        return dao.update(values, TABLE_NAME);
     }
 
     @Override
     public int delete(DatabaseDAO dao) {
-        return dao.delete(getId(), DatabaseDAO.CATEGORIES_TABLE_NAME);
+        return dao.delete(getId(), TABLE_NAME);
     }
 }
