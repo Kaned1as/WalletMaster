@@ -197,10 +197,23 @@ public class SyncStateMachine {
                                 .build().writeDelimitedTo(os); // sent account request
 
                         final SyncProtocol.EntityResponse serverSide = SyncProtocol.EntityResponse.parseDelimitedFrom(is);
+
+                        // handle modified entities - check if we updated it too...
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
-                            entity.getAccount(); // ---
+                            final Account remote = Account.fromProtoAccount(entity.getAccount());
+                            final Account local = mContext.getEntityDAO().getLocallyModified(remote);
+                            final Account base = mContext.getEntityDAO().getAccount(remote.getId());
+
+                            if(local == null) // we haven't modified entity since last sync
+                                remote.update(mContext.getEntityDAO()); // just replace local with remote
+                            // else we should merge manually - add amounts
                         }
 
+                        // handle added entities
+                        for(final SyncProtocol.Entity entity : serverSide.getAddedList()) {
+                            final Account acc = Account.fromProtoAccount(entity.getAccount());
+                            acc.update(mContext.getEntityDAO());
+                        }
                         break;
                     }
                     case CAT_REQ: {

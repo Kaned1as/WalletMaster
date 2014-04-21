@@ -674,5 +674,20 @@ public class DatabaseDAO extends SQLiteOpenHelper
         mDatabase.endTransaction();
         return allSucceeded;
     }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Entity> T getLocallyModified(T entity) {
+        final Cursor actionCursor = mDatabase.query(ACTIONS_TABLE_NAME,
+                new String[]{ActionsFields.ORIGINAL_DATA.toString()},
+                ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ? AND " + ActionsFields.ACTION_TYPE + " = " + ActionType.MODIFY.ordinal(),
+                new String[]{String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())}, null, null, null);
+        if(actionCursor.moveToNext()) {
+            final String json = actionCursor.getString(0);
+            final Entity modifiedEntity = new Gson().fromJson(json, entity.getClass());
+            return (T) modifiedEntity;
+        }
+
+        return null;
+    }
 }
 

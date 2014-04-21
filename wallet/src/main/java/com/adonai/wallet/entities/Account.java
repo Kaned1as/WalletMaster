@@ -148,6 +148,7 @@ public class Account extends Entity {
                 , null);
         while (selections.moveToNext())
             result.add(selections.getLong(0));
+        selections.close();
         return result;
     }
 }
