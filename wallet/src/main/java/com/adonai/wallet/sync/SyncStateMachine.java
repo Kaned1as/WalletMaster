@@ -202,11 +202,10 @@ public class SyncStateMachine {
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
                             final Account remote = Account.fromProtoAccount(entity.getAccount());
                             final Account local = mContext.getEntityDAO().getLocallyModified(remote);
-                            final Account base = mContext.getEntityDAO().getAccount(remote.getId());
+                            final Account base = mContext.getEntityDAO().getAccount(remote.getId()); // should not be null
 
-                            if(local == null) // we haven't modified entity since last sync
-                                remote.update(mContext.getEntityDAO()); // just replace local with remote
-                            // else we should merge manually - add amounts
+                            final Account result = mergeAccounts(remote, local, base);
+                            result.update(mContext.getEntityDAO());
                         }
 
                         // handle added entities
@@ -274,6 +273,42 @@ public class SyncStateMachine {
                     .remove(WalletConstants.ACCOUNT_NAME_KEY)
                     .remove(WalletConstants.ACCOUNT_PASSWORD_KEY)
                     .commit();
+        }
+    }
+
+    private Account mergeAccounts(Account remote, Account local, Account base) {
+        if(local == null) // we haven't modified entity since last sync
+            return remote; // just replace local with remote
+        else {
+            final Account result = new Account();
+            result.setId(local.getId());
+
+            if(local.getName().equals(base.getName())) // name wasn't changed
+                result.setName(remote.getName()); // set name to remote's
+            else // name changed locally
+                result.setName(local.getName()); // set name to local
+
+            if(local.getDescription().equals(base.getDescription()))
+                result.setDescription(remote.getDescription());
+            else
+                result.setDescription(local.getDescription());
+
+            if(local.getColor().equals(base.getColor()))
+                result.setColor(remote.getColor());
+            else
+                result.setColor(local.getColor());
+
+            if(local.getCurrency().equals(base.getCurrency()))
+                result.setCurrency(remote.getCurrency());
+            else
+                result.setCurrency(local.getCurrency());
+
+            if(local.getAmount().equals(base.getAmount())) // amount wasn't changed locally
+                result.setAmount(remote.getAmount());
+            else // amount changed locally and remotely - get diff!
+                result.setAmount(local.getAmount().subtract(base.getAmount()).add(remote.getAmount()));
+
+            return result;
         }
     }
 }
