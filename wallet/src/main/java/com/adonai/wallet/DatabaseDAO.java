@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.util.Pair;
 
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Category;
@@ -675,16 +676,23 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return allSucceeded;
     }
 
+    /**
+     * We have locally modified entity in one action only
+     * @param entity entity that should be found in action list
+     * @param <T> type of entity to be found
+     * @return found entity with modification type or null if nothing was found
+     */
     @SuppressWarnings("unchecked")
-    public <T extends Entity> T getLocallyModified(T entity) {
+    public <T extends Entity> Pair<ActionType,T> getBackedVersion(T entity) {
         final Cursor actionCursor = mDatabase.query(ACTIONS_TABLE_NAME,
-                new String[]{ActionsFields.ORIGINAL_DATA.toString()},
-                ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ? AND " + ActionsFields.ACTION_TYPE + " = " + ActionType.MODIFY.ordinal(),
+                new String[]{ActionsFields.ACTION_TYPE.toString(), ActionsFields.ORIGINAL_DATA.toString()},
+                ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?",
                 new String[]{String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())}, null, null, null);
         if(actionCursor.moveToNext()) {
-            final String json = actionCursor.getString(0);
+            final ActionType action = ActionType.values()[actionCursor.getInt(0)];
+            final String json = actionCursor.getString(1);
             final Entity modifiedEntity = new Gson().fromJson(json, entity.getClass());
-            return (T) modifiedEntity;
+            return new Pair<>(action, (T) modifiedEntity);
         }
 
         return null;

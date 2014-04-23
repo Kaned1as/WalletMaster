@@ -6,7 +6,9 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.Pair;
 
+import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.WalletConstants;
@@ -201,11 +203,20 @@ public class SyncStateMachine {
                         // handle modified entities - check if we updated it too...
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
                             final Account remote = Account.fromProtoAccount(entity.getAccount());
-                            final Account local = mContext.getEntityDAO().getLocallyModified(remote);
                             final Account base = mContext.getEntityDAO().getAccount(remote.getId()); // should not be null
+                            final Pair<DatabaseDAO.ActionType, Account> changed = mContext.getEntityDAO().getBackedVersion(remote);
+                            if(changed != null) // we have modified account locally!
+                                switch (changed.first) {
+                                    case ADD: // should not happen...
+                                    case DELETE: // should remain deleted...
+                                        continue;
+                                    case MODIFY: // should merge
+                                        final Account result = mergeAccounts(remote, changed.second, base);
+                                        result.update(mContext.getEntityDAO());
+                                        continue;
+                                }
+                            else
 
-                            final Account result = mergeAccounts(remote, local, base);
-                            result.update(mContext.getEntityDAO());
                         }
 
                         // handle added entities
