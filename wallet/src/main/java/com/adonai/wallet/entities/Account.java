@@ -138,13 +138,16 @@ public class Account extends Entity {
                         "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
                         " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
                         " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + DatabaseDAO.EntityType.ACCOUNT.ordinal() +
-                        " AND " + DatabaseDAO.ActionsFields.ACTION_TYPE + " = " + DatabaseDAO.ActionType.ADD.ordinal() +
+                        " AND " + DatabaseDAO.ActionsFields.ORIGINAL_DATA + " IS NULL" + // not in added entities
                         ")" +
-                " UNION ALL " +
+                " UNION ALL " + // we also know about deleted entities, so we should add them
                 "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
                 " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
                 " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + DatabaseDAO.EntityType.ACCOUNT.ordinal() +
-                " AND " + DatabaseDAO.ActionsFields.ACTION_TYPE + " = " + DatabaseDAO.ActionType.DELETE.ordinal()
+                " AND " + DatabaseDAO.ActionsFields.DATA_ID + " NOT IN (" +
+                        "SELECT " + DatabaseDAO.AccountFields._id +
+                        " FROM " + TABLE_NAME + // these are deleted entities - present in backup table but not exist in real entities table
+                        ")"
                 , null);
         while (selections.moveToNext())
             result.add(selections.getLong(0));

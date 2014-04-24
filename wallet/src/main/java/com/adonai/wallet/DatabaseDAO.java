@@ -9,7 +9,6 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.util.Pair;
 
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Category;
@@ -97,7 +96,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         GUID,
         DATA_ID,
         DATA_TYPE,
-        ACTION_TYPE,
+        //ACTION_TYPE, // isn't really needed - we can determine it at runtime
         ACTION_TIMESTAMP,
         ORIGINAL_DATA,
     }
@@ -180,7 +179,6 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 ActionsFields.GUID + " INTEGER DEFAULT NULL, " + // action ID is null till not synced
                 ActionsFields.DATA_ID + " INTEGER NOT NULL, " +
                 ActionsFields.DATA_TYPE + " INTEGER NOT NULL, " +
-                ActionsFields.ACTION_TYPE + " INTEGER NOT NULL, " +
                 ActionsFields.ACTION_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP PRIMARY KEY, " +
                 ActionsFields.ORIGINAL_DATA + " TEXT" +
                 ")");
@@ -296,7 +294,6 @@ public class DatabaseDAO extends SQLiteOpenHelper
         {
             final ContentValues values = new ContentValues(5);
             values.put(ActionsFields.DATA_TYPE.toString(), entity.getEntityType().ordinal());
-            values.put(ActionsFields.ACTION_TYPE.toString(), type.ordinal());
             switch (type) {
                 case ADD: { // we're adding, only store ID to keep track of it
                     final long persistedId = entity.persist(this); // result holds ID now
@@ -354,18 +351,17 @@ public class DatabaseDAO extends SQLiteOpenHelper
                     // second, do we have this data in any actions?
                     final Cursor cursor = mDatabase.query(ACTIONS_TABLE_NAME, null, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())}, null, null, null, null);
                     if(cursor.moveToNext()) { // we already have this entity stored, added or modified, need to update previous action
-                        final int previousActionType = cursor.getInt(ActionsFields.ACTION_TYPE.ordinal());
-                        if(previousActionType == ActionType.ADD.ordinal()) { // if entity was added, we should just delete action, so all will look like nothing happened
+                        final String backedEntity = cursor.getString(ActionsFields.ORIGINAL_DATA.ordinal());
+                        if(backedEntity == null) { // if entity was added, we should just delete action, so all will look like nothing happened
                             final long actionsDeleted = mDatabase.delete(ACTIONS_TABLE_NAME, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())});
                             if(actionsDeleted != 1)
                                 break transactionFlow;
-                        } else if(previousActionType == ActionType.MODIFY.ordinal()) { // change action type to deleted
+                        } else { // was modified, change action type to deleted
                             values.put(ActionsFields.DATA_ID.toString(), entity.getId());
                             final long actionsUpdated = mDatabase.update(ACTIONS_TABLE_NAME, values, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())});
                             if(actionsUpdated != 1)
                                 break transactionFlow;
-                        } else
-                            throw new IllegalArgumentException("Can't delete already deleted item!");
+                        }
                     } else { // we don't have any actions, should create and store original
                         values.put(ActionsFields.DATA_ID.toString(), entity.getId());
                         values.put(ActionsFields.ORIGINAL_DATA.toString(), new Gson().toJson(entity));
@@ -683,16 +679,15 @@ public class DatabaseDAO extends SQLiteOpenHelper
      * @return found entity with modification type or null if nothing was found
      */
     @SuppressWarnings("unchecked")
-    public <T extends Entity> Pair<ActionType,T> getBackedVersion(T entity) {
+    public <T extends Entity> T getBackedVersion(T entity) {
         final Cursor actionCursor = mDatabase.query(ACTIONS_TABLE_NAME,
-                new String[]{ActionsFields.ACTION_TYPE.toString(), ActionsFields.ORIGINAL_DATA.toString()},
+                new String[]{ActionsFields.ORIGINAL_DATA.toString()},
                 ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?",
                 new String[]{String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())}, null, null, null);
         if(actionCursor.moveToNext()) {
-            final ActionType action = ActionType.values()[actionCursor.getInt(0)];
-            final String json = actionCursor.getString(1);
+            final String json = actionCursor.getString(0);
             final Entity modifiedEntity = new Gson().fromJson(json, entity.getClass());
-            return new Pair<>(action, (T) modifiedEntity);
+            return (T) modifiedEntity;
         }
 
         return null;
