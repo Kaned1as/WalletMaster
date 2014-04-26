@@ -214,10 +214,27 @@ public class SyncStateMachine {
                         }
 
                         // handle added entities
-                        for(final SyncProtocol.Entity entity : serverSide.getAddedList()) {
-                            final Account acc = Account.fromProtoAccount(entity.getAccount());
-                            acc.update(mContext.getEntityDAO());
+                        // need to delete all entities and replace it with ours...
+                        final List<Account> addedAccounts = Account.getAdded(mContext.getEntityDAO());
+                        // delete locals
+                        for(final Account acc : addedAccounts) {
+                            acc.delete(mContext.getEntityDAO());
+                            acc.setId(null);
                         }
+                        // add remote
+                        for(final SyncProtocol.Entity entity : serverSide.getAddedList()) {
+                            final Account remote = Account.fromProtoAccount(entity.getAccount());
+                            remote.persist(mContext.getEntityDAO());
+                        }
+                        // readd locals
+                        for(final Account acc : addedAccounts)
+                            acc.persist(mContext.getEntityDAO());
+
+                        // handle deleted
+                        for(final Long deletedID : serverSide.getDeletedIDList())
+                            mContext.getEntityDAO().delete(deletedID, Account.TABLE_NAME);
+
+                        mContext.getEntityDAO().clearActions();
                         break;
                     }
                     case CAT_REQ: {

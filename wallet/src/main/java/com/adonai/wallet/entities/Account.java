@@ -126,8 +126,8 @@ public class Account extends Entity {
     /**
      * Select all entities that are known to client
      * Note that entities added on device are not in this list
-     * @param dao
-     * @return
+     * @param dao database wrapper
+     * @return list of known entities IDs
      */
     public static List<Long> getKnownIDs(DatabaseDAO dao) {
         final List<Long> result = new ArrayList<>();
@@ -151,6 +151,25 @@ public class Account extends Entity {
                 , null);
         while (selections.moveToNext())
             result.add(selections.getLong(0));
+        selections.close();
+        return result;
+    }
+
+    /**
+     * Select all entities that are added locally and not yet synchronized with remote database
+     * @param dao database wrapper
+     * @return
+     */
+    public static List<Account> getAdded(DatabaseDAO dao) {
+        final List<Account> result = new ArrayList<>();
+        final Cursor selections = dao.select(
+                "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
+                " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
+                " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + DatabaseDAO.EntityType.ACCOUNT.ordinal() +
+                " AND " + DatabaseDAO.ActionsFields.ORIGINAL_DATA + " IS NULL" //  added entities
+                , null);
+        while (selections.moveToNext())
+            result.add(dao.getAccount(selections.getLong(0)));
         selections.close();
         return result;
     }

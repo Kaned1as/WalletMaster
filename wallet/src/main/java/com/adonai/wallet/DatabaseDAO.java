@@ -692,5 +692,9 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
         return null;
     }
+
+    public int clearActions() {
+        return mDatabase.delete(ACTIONS_TABLE_NAME, "1", null);
+    }
 }
 
