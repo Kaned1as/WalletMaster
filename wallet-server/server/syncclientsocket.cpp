@@ -258,12 +258,10 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
         // check whether we need any processing
         if(knownIds.contains(currentId)) // we have this entity on device already, should detect, if entity was modified
         {
+            knownIds.removeOne(currentId); // we have it on server and client, remove it
             const quint64 serverLastModified = selectSyncedEntities.value("last_modified").toLongLong();
             if(request.lastknownservertimestamp() > serverLastModified)
-            {
-                knownIds.removeOne(currentId); // we already have latest copy on device, nothing needed
                 continue;
-            }
             else
                 entityState = MODIFIED; // we have old copy on our device, need to update (or merge!)
 
@@ -374,7 +372,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
     {
         switch(state)
         {
-            case WAITING_ACCOUNTS:
+            case SENT_ACCOUNTS:
             {
                 const sync::Account& acc = entity.account();
                 adder.addBindValue(userId);
@@ -391,12 +389,12 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
                     adder.addBindValue(QVariant(QVariant::Int));
                 break;
             }
-            case WAITING_CATEGORIES:
+            case SENT_CATEGORIES:
             {
                 const sync::Category& category = entity.category();
                 break;
             }
-            case WAITING_OPERATIONS:
+            case SENT_OPERATIONS:
             {
                 const sync::Operation& operation = entity.operation();
                 break;

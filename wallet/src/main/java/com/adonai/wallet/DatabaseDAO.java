@@ -290,8 +290,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         Log.d("makeAction", String.format("Entity type %s, action type %s", entity.getEntityType().toString(), type.toString()));
         boolean status = false;
         mDatabase.beginTransaction();
-        transactionFlow:
-        {
+        transactionFlow: {
             final ContentValues values = new ContentValues(5);
             values.put(ActionsFields.DATA_TYPE.toString(), entity.getEntityType().ordinal());
             switch (type) {

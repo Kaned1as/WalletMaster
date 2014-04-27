@@ -173,4 +173,39 @@ public class Account extends Entity {
         selections.close();
         return result;
     }
+
+    public static List<Long> getDeleted(DatabaseDAO dao) {
+        final List<Long> result = new ArrayList<>();
+        final Cursor selections = dao.select(
+                "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
+                " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
+                " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + DatabaseDAO.EntityType.ACCOUNT.ordinal() +
+                " AND " + DatabaseDAO.ActionsFields.DATA_ID + " NOT IN (" +
+                    "SELECT " + DatabaseDAO.AccountFields._id +
+                    " FROM " + TABLE_NAME + // these are deleted entities - present in backup table but not exist in real entities table
+                    ")"
+                , null);
+        while (selections.moveToNext())
+            result.add(selections.getLong(0));
+        selections.close();
+        return result;
+    }
+
+    public static List<Account> getModified(DatabaseDAO dao) {
+        final List<Account> result = new ArrayList<>();
+        final Cursor selections = dao.select(
+                "SELECT " + DatabaseDAO.AccountFields._id +
+                " FROM " + TABLE_NAME +
+                " WHERE " + DatabaseDAO.AccountFields._id + " IN (" +
+                    "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
+                    " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
+                    " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + DatabaseDAO.EntityType.ACCOUNT.ordinal() +
+                    " AND " + DatabaseDAO.ActionsFields.ORIGINAL_DATA + " IS NOT NULL" + // exists in original and modified version - it's modified!
+                    ")"
+                , null);
+        while (selections.moveToNext())
+            result.add(dao.getAccount(selections.getLong(0)));
+        selections.close();
+        return result;
+    }
 }

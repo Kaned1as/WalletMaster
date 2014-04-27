@@ -44,11 +44,13 @@ namespace pbuf = google::protobuf;
  *
  */
 
+class SyncTcpServer;
+
 class SyncClientSocket : public QTcpSocket
 {
+    friend class SyncTcpServer;
     Q_OBJECT
 public:
-    explicit SyncClientSocket(QObject *parent = 0);
     ~SyncClientSocket();
 
     enum SyncState
@@ -79,6 +81,7 @@ signals:
 public slots:
 
 private:
+    explicit SyncClientSocket(QObject *parent = 0); // only sync tcp server can create this!
     void initDbConnection();
 
     void readClientData();
