@@ -195,8 +195,10 @@ public class SyncStateMachine {
                                 .setLastKnownServerTimestamp(lastServerTime)
                                 .addAllKnownID(knownIDs)
                                 .build().writeDelimitedTo(os); // sent account request
+                        setState(State.ACC_REQ_SENT);
 
                         final SyncProtocol.EntityResponse serverSide = SyncProtocol.EntityResponse.parseDelimitedFrom(is);
+                        setState(State.ACC_REQ_ACK);
 
                         final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
                         final List<Account> addedLocally = Account.getAdded(mContext.getEntityDAO());
@@ -207,9 +209,9 @@ public class SyncStateMachine {
                             final Account remote = Account.fromProtoAccount(entity.getAccount());
                             final Account changed = mContext.getEntityDAO().getAccount(remote.getId()); // should not be null
                             final Account base = mContext.getEntityDAO().getBackedVersion(remote);
-                            if(changed == null) // we have not modified this entity locally
+                            if(base == null) // we have not modified this entity locally
                                 remote.update(mContext.getEntityDAO());
-                            else if (base == null) // it's modified on server and deleted locally
+                            else if (changed == null) // it's modified on server and deleted locally
                                 continue; // leave deleted
                             else { // changed and base are present, merge them + add to mod-list later
                                 final Account result = mergeAccounts(remote, changed, base);
@@ -249,13 +251,19 @@ public class SyncStateMachine {
                             serverUpdate.addDeletedID(deletedLocal);
 
                         serverUpdate.build().writeDelimitedTo(os);
-                        mContext.getEntityDAO().clearActions();
+                        setState(State.OP_REQ);
                         break;
                     }
                     case CAT_REQ: {
                         final InputStream is = mSocket.getInputStream();
                         final OutputStream os = mSocket.getOutputStream();
 
+                        break;
+                    }
+                    case OP_REQ: {
+
+
+                        mContext.getEntityDAO().clearActions();
                         break;
                     }
                 }
