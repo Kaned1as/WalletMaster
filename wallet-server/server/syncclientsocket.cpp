@@ -332,8 +332,8 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
     {
         case SENT_ACCOUNTS:
             deleter.prepare("DELETE FROM accounts WHERE sync_account = :userId AND id = :id");
-            adder.prepare("INSERT INTO accounts(sync_account, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?)");
-            modifier.prepare("UPDATE accounts SET name = ? AND description = ? and currency = ? and amount = ? and color = ? WHERE sync_account = ? AND id = ?");
+            adder.prepare("INSERT INTO accounts(sync_account, id, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?, ?)");
+            modifier.prepare("UPDATE accounts SET name = ?, description = ?, currency = ?, amount = ?, color = ? WHERE sync_account = ? AND id = ?");
             break;
         case SENT_CATEGORIES:
             deleter.prepare("DELETE FROM categories WHERE sync_account = :userId AND id = :id");
@@ -376,6 +376,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             {
                 const sync::Account& acc = entity.account();
                 adder.addBindValue(userId);
+                adder.addBindValue((quint64)acc.id());
                 adder.addBindValue(acc.name().data());
                 if(acc.has_description())
                     adder.addBindValue(acc.description().data());
@@ -417,7 +418,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
     {
         switch(state)
         {
-            case WAITING_ACCOUNTS:
+            case SENT_ACCOUNTS:
             {
                 const sync::Account& acc = entity.account();
                 modifier.addBindValue(acc.name().data());
@@ -435,12 +436,12 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
                 modifier.addBindValue((quint64) acc.id());
                 break;
             }
-            case WAITING_CATEGORIES:
+            case SENT_CATEGORIES:
             {
                 const sync::Category& category = entity.category();
                 break;
             }
-            case WAITING_OPERATIONS:
+            case SENT_OPERATIONS:
             {
                 const sync::Operation& operation = entity.operation();
                 break;
@@ -454,7 +455,6 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             //ack.add_writtenguid(adder.lastInsertId().toLongLong());
         //else
             qDebug() << tr("Cannot modify entities from device! Error %1").arg(modifier.lastError().text());
-
         modifier.finish();
     }
 

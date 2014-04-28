@@ -199,15 +199,14 @@ public class SyncStateMachine {
                         final SyncProtocol.EntityResponse serverSide = SyncProtocol.EntityResponse.parseDelimitedFrom(is);
 
                         final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
-                        final List<Account> modifiedLocally = Account.getModified(mContext.getEntityDAO());
                         final List<Account> addedLocally = Account.getAdded(mContext.getEntityDAO());
                         final List<Long> deletedLocally = Account.getDeleted(mContext.getEntityDAO());
 
                         // handle modified entities - check if we updated them too...
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
                             final Account remote = Account.fromProtoAccount(entity.getAccount());
-                            final Account base = mContext.getEntityDAO().getAccount(remote.getId()); // should not be null
-                            final Account changed = mContext.getEntityDAO().getBackedVersion(remote);
+                            final Account changed = mContext.getEntityDAO().getAccount(remote.getId()); // should not be null
+                            final Account base = mContext.getEntityDAO().getBackedVersion(remote);
                             if(changed == null) // we have not modified this entity locally
                                 remote.update(mContext.getEntityDAO());
                             else if (base == null) // it's modified on server and deleted locally
@@ -218,6 +217,7 @@ public class SyncStateMachine {
                             }
                         }
                         // add to modified list local modifications
+                        final List<Account> modifiedLocally = Account.getModified(mContext.getEntityDAO());
                         for(final Account acc : modifiedLocally)
                             serverUpdate.addModified(SyncProtocol.Entity.newBuilder().setAccount(Account.toProtoAccount(acc)).build());
 
