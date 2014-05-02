@@ -302,7 +302,7 @@ public class SyncStateMachine {
                         }
                         // add remote
                         for(final SyncProtocol.Entity entity : serverSide.getAddedList()) {
-                            final Account remote = Account.fromProtoAccount(entity.getAccount());
+                            final Operation remote = Operation.fromProtoOperation(entity.getOperation(), mContext.getEntityDAO());
                             remote.persist(mContext.getEntityDAO());
                         }
                         // readd locals + add to add-list

@@ -644,24 +644,23 @@ public class DatabaseDAO extends SQLiteOpenHelper
         final List<Long> result = new ArrayList<>();
         final EntityType type = clazz.getAnnotation(EntityDescriptor.class).type();
         final Cursor selections = select(
-                "SELECT " + DatabaseDAO.AccountFields._id +
+                "SELECT " + OperationsFields._id +
                 " FROM " + type.toString() +
-                " WHERE " + DatabaseDAO.AccountFields._id + " NOT IN (" +
-                    "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
-                    " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
-                    " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + type.ordinal() +
-                    " AND " + DatabaseDAO.ActionsFields.ORIGINAL_DATA + " IS NULL" + // not in added entities
+                " WHERE " + OperationsFields._id + " NOT IN (" +
+                    "SELECT " + ActionsFields.DATA_ID +
+                    " FROM " + ACTIONS_TABLE_NAME +
+                    " WHERE " + ActionsFields.DATA_TYPE + " = " + type.ordinal() +
+                    " AND " + ActionsFields.ORIGINAL_DATA + " IS NULL" + // not in added entities
                     ")" +
                 " UNION ALL " + // we also know about deleted entities, so we should add them
-                "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
-                " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
-                " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + type.ordinal() +
-                " AND " + DatabaseDAO.ActionsFields.DATA_ID + " NOT IN (" +
-                    "SELECT " + DatabaseDAO.AccountFields._id +
+                "SELECT " + ActionsFields.DATA_ID +
+                " FROM " + ACTIONS_TABLE_NAME +
+                " WHERE " + ActionsFields.DATA_TYPE + " = " + type.ordinal() +
+                " AND " + ActionsFields.DATA_ID + " NOT IN (" +
+                    "SELECT " + OperationsFields._id +
                     " FROM " + type.toString() + // these are deleted entities - present in backup table but not exist in real entities table
                     ")"
-                , null
-        );
+                , null);
         while (selections.moveToNext())
             result.add(selections.getLong(0));
         selections.close();
