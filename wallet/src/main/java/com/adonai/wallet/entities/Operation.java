@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.Utils;
+import com.adonai.wallet.sync.SyncProtocol;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -170,7 +171,8 @@ public class Operation extends Entity {
             op.setDescription(cursor.getString(DatabaseDAO.OperationsFields.DESCRIPTION.ordinal()));
             op.setCategory(Category.getFromDB(dao, cursor.getLong(DatabaseDAO.OperationsFields.CATEGORY.ordinal())));
             op.setTime(Utils.SQLITE_DATE_FORMAT.parse(cursor.getString(DatabaseDAO.OperationsFields.TIME.ordinal())));
-            op.setCharger(Account.getFromDB(dao, cursor.getLong(DatabaseDAO.OperationsFields.CHARGER.ordinal())));
+            if(!cursor.isNull(DatabaseDAO.OperationsFields.CHARGER.ordinal()))
+                op.setCharger(Account.getFromDB(dao, cursor.getLong(DatabaseDAO.OperationsFields.CHARGER.ordinal())));
             if(!cursor.isNull(DatabaseDAO.OperationsFields.RECEIVER.ordinal()))
                 op.setBeneficiar(Account.getFromDB(dao, cursor.getLong(DatabaseDAO.OperationsFields.RECEIVER.ordinal())));
             op.setAmount(new BigDecimal(cursor.getString(DatabaseDAO.OperationsFields.AMOUNT.ordinal())));
@@ -188,4 +190,36 @@ public class Operation extends Entity {
         return null;
     }
 
+    public static Operation fromProtoOperation(SyncProtocol.Operation operation, DatabaseDAO dao) {
+        final Operation temp = new Operation();
+        temp.setId(operation.getID());
+        temp.setDescription(operation.getDescription());
+        temp.setCategory(Category.getFromDB(dao, operation.getCategoryId()));
+        temp.setTime(new Date(operation.getTime()));
+        if(operation.hasChargerId())
+            temp.setCharger(Account.getFromDB(dao, operation.getChargerId()));
+        if(operation.hasBeneficiarId())
+            temp.setBeneficiar(Account.getFromDB(dao, operation.getBeneficiarId()));
+        temp.setAmount(new BigDecimal(operation.getAmount()));
+        if(operation.hasConvertingRate())
+            temp.setConvertingRate(operation.getConvertingRate());
+        return temp;
+    }
+
+    public static SyncProtocol.Operation toProtoOperation(Operation operation) {
+        SyncProtocol.Operation.Builder builder = SyncProtocol.Operation.newBuilder()
+                .setID(operation.getId())
+                .setDescription(operation.getDescription())
+                .setAmount(operation.getAmount().toPlainString())
+                .setTime(operation.getTime().getTimeInMillis())
+                .setCategoryId(operation.getCategory().getId());
+        if(operation.getCharger() != null)
+            builder.setChargerId(operation.getCharger().getId());
+        if(operation.getBeneficiar() != null)
+            builder.setBeneficiarId(operation.getBeneficiar().getId());
+        if(operation.getConvertingRate() != null)
+            builder.setConvertingRate(operation.getConvertingRate());
+
+        return builder.build();
+    }
 }

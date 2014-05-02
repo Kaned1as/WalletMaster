@@ -61,7 +61,7 @@ message Operation {
     optional uint64 chargerId = 4;
     optional uint64 beneficiarId = 5;
     required string amount = 6;
-    optional float convertingRate = 7;
+    optional double convertingRate = 7;
     required uint64 categoryId = 8;
 }
 

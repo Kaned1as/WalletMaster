@@ -989,12 +989,12 @@ class Operation : public ::google::protobuf::Message {
   inline ::std::string* release_amount();
   inline void set_allocated_amount(::std::string* amount);
 
-  // optional float convertingRate = 7;
+  // optional double convertingRate = 7;
   inline bool has_convertingrate() const;
   inline void clear_convertingrate();
   static const int kConvertingRateFieldNumber = 7;
-  inline float convertingrate() const;
-  inline void set_convertingrate(float value);
+  inline double convertingrate() const;
+  inline void set_convertingrate(double value);
 
   // required uint64 categoryId = 8;
   inline bool has_categoryid() const;
@@ -1030,8 +1030,8 @@ class Operation : public ::google::protobuf::Message {
   ::google::protobuf::uint64 chargerid_;
   ::google::protobuf::uint64 beneficiarid_;
   ::std::string* amount_;
+  double convertingrate_;
   ::google::protobuf::uint64 categoryid_;
-  float convertingrate_;
 
   mutable int _cached_size_;
   ::google::protobuf::uint32 _has_bits_[(8 + 31) / 32];
@@ -2191,7 +2191,7 @@ inline void Operation::set_allocated_amount(::std::string* amount) {
   }
 }
 
-// optional float convertingRate = 7;
+// optional double convertingRate = 7;
 inline bool Operation::has_convertingrate() const {
   return (_has_bits_[0] & 0x00000040u) != 0;
 }
@@ -2205,10 +2205,10 @@ inline void Operation::clear_convertingrate() {
   convertingrate_ = 0;
   clear_has_convertingrate();
 }
-inline float Operation::convertingrate() const {
+inline double Operation::convertingrate() const {
   return convertingrate_;
 }
-inline void Operation::set_convertingrate(float value) {
+inline void Operation::set_convertingrate(double value) {
   set_has_convertingrate();
   convertingrate_ = value;
 }

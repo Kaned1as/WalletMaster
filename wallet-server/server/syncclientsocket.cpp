@@ -118,13 +118,30 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
         case SENT_ACCOUNTS: // wait response
         {
             handleGeneric<sync::EntityResponse, sync::EntityAck>(incomingData);
-            setState(WAITING_CATEGORIES);
+            //setState(WAITING_CATEGORIES); // TODO
+            setState(WAITING_OPERATIONS);
             break;
         }
         case WAITING_CATEGORIES: // wait categories
         {
             handleGeneric<sync::EntityRequest, sync::EntityResponse>(incomingData);
             setState(SENT_CATEGORIES);
+            break;
+        }
+        case SENT_CATEGORIES:
+        {
+            break; // TODO
+        }
+        case WAITING_OPERATIONS:
+        {
+            handleGeneric<sync::EntityRequest, sync::EntityResponse>(incomingData);
+            setState(SENT_ACCOUNTS);
+            break;
+        }
+        case SENT_OPERATIONS:
+        {
+            handleGeneric<sync::EntityResponse, sync::EntityAck>(incomingData);
+            setState(FINISHED);
             break;
         }
         case FINISHED:
@@ -224,15 +241,16 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
 
     // we should select all entities present on server
     QSqlQuery selectSyncedEntities(*conn);
+    // get all known entities on server
     switch(state)
     {
         case WAITING_ACCOUNTS:
-            // get all known entities on server!
             selectSyncedEntities.prepare("SELECT id, name, description, currency, amount, color, last_modified FROM accounts WHERE sync_account = :userId");
             break;
         case WAITING_CATEGORIES:
             break;
         case WAITING_OPERATIONS:
+            selectSyncedEntities.prepare("SELECT id, description, amount, category_id, time, charger_id, beneficiar_id, converting_rate, last_modified FROM operations WHERE sync_account = :userId");
             break;
         default:
             qDebug() << tr("Unknown entity type processing!");
@@ -278,7 +296,8 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
                     : response.add_modified()->mutable_account();
                 account->set_id(selectSyncedEntities.value("id").toLongLong());
                 account->set_name(selectSyncedEntities.value("name").toString().toStdString());
-                account->set_description(selectSyncedEntities.value("description").toString().toStdString());
+                if(!selectSyncedEntities.value("description").isNull())
+                    account->set_description(selectSyncedEntities.value("description").toString().toStdString());
                 account->set_currency(selectSyncedEntities.value("currency").toString().toStdString());
                 account->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
                 account->set_color(selectSyncedEntities.value("color").toInt());
@@ -286,12 +305,27 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
             }
             case WAITING_CATEGORIES:
             {
-                //sync::Category* const category = response.add_entity()->mutable_category();
+
                 break;
             }
             case WAITING_OPERATIONS:
             {
-                //sync::Operation* const operation = response.add_entity()->mutable_operation();
+                sync::Operation* const operation = entityState == ADDED
+                    ? response.add_added()->mutable_operation()
+                    : response.add_modified()->mutable_operation();
+                operation->set_id(selectSyncedEntities.value("id").toLongLong());
+                if(!selectSyncedEntities.value("description").isNull())
+                    operation->set_description(selectSyncedEntities.value("description").toString().toStdString());
+                operation->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
+                operation->set_time(selectSyncedEntities.value("time").toLongLong());
+                operation->set_categoryid(selectSyncedEntities.value("category_id").toLongLong());
+                if(!selectSyncedEntities.value("charger_id").isNull())
+                    operation->set_chargerid(selectSyncedEntities.value("charger_id").toLongLong());
+                if(!selectSyncedEntities.value("beneficiar_id").isNull())
+                    operation->set_beneficiarid(selectSyncedEntities.value("beneficiar_id").toLongLong());
+                if(!selectSyncedEntities.value("converting_rate").isNull())
+                    operation->set_convertingrate(selectSyncedEntities.value("converting_rate").toDouble());
+                operation->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
                 break;
             }
             default:
@@ -341,7 +375,8 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             break;
         case SENT_OPERATIONS:
             deleter.prepare("DELETE FROM operations WHERE sync_account = :userId AND id = :id");
-            //adder.prepare("INSERT INTO accounts(sync_account, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?)");
+            adder.prepare("INSERT INTO operations(sync_account, id, description, amount, category_id, time, charger_id, beneficiar_id, converting_rate) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            modifier.prepare("UPDATE operations SET description = ?, amount = ?, category_id = ?, time = ?, charger_id = ?, beneficiar_id = ?, converting_rate = ? WHERE sync_account = ? AND id = ?");
             break;
         default:
             qDebug() << tr("Unknown entity type processing!");
@@ -398,6 +433,30 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             case SENT_OPERATIONS:
             {
                 const sync::Operation& operation = entity.operation();
+                adder.addBindValue(userId);
+                adder.addBindValue((quint64)operation.id());
+                if(operation.has_description())
+                    adder.addBindValue(operation.description().data());
+                else
+                    adder.addBindValue(QVariant(QVariant::String)); // no desc
+                adder.addBindValue(operation.amount().data());
+                adder.addBindValue((quint64)operation.categoryid());
+                adder.addBindValue((quint64)operation.time());
+
+                if(operation.has_chargerid())
+                    adder.addBindValue((quint64)operation.chargerid());
+                else
+                    adder.addBindValue(QVariant(QVariant::LongLong)); // no charger
+
+                if(operation.has_beneficiarid())
+                    adder.addBindValue((quint64)operation.beneficiarid());
+                else
+                    adder.addBindValue(QVariant(QVariant::LongLong)); // no beneficiar
+
+                if(operation.has_convertingrate())
+                    adder.addBindValue(operation.convertingrate());
+                else
+                    adder.addBindValue(QVariant(QVariant::Double)); // no converting rate
                 break;
             }
             default:
@@ -444,6 +503,31 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             case SENT_OPERATIONS:
             {
                 const sync::Operation& operation = entity.operation();
+                if(operation.has_description())
+                    modifier.addBindValue(operation.description().data());
+                else
+                    modifier.addBindValue(QVariant(QVariant::String));
+
+                modifier.addBindValue(operation.amount().data());
+                modifier.addBindValue((quint64)operation.categoryid());
+                modifier.addBindValue((quint64)operation.time());
+                if(operation.has_chargerid())
+                    modifier.addBindValue((quint64)operation.chargerid());
+                else
+                    modifier.addBindValue(QVariant(QVariant::LongLong));
+
+                if(operation.has_beneficiarid())
+                    modifier.addBindValue((quint64)operation.beneficiarid());
+                else
+                    modifier.addBindValue(QVariant(QVariant::LongLong));
+
+                if(operation.has_convertingrate())
+                    modifier.addBindValue(operation.convertingrate());
+                else
+                    modifier.addBindValue(QVariant(QVariant::LongLong));
+
+                modifier.addBindValue(userId);
+                modifier.addBindValue((quint64) operation.id());
                 break;
             }
             default:

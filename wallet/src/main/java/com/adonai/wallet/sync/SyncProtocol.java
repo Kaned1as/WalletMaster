@@ -6084,15 +6084,15 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getAmountBytes();
 
-    // optional float convertingRate = 7;
+    // optional double convertingRate = 7;
     /**
-     * <code>optional float convertingRate = 7;</code>
+     * <code>optional double convertingRate = 7;</code>
      */
     boolean hasConvertingRate();
     /**
-     * <code>optional float convertingRate = 7;</code>
+     * <code>optional double convertingRate = 7;</code>
      */
-    float getConvertingRate();
+    double getConvertingRate();
 
     // required uint64 categoryId = 8;
     /**
@@ -6185,9 +6185,9 @@ public final class SyncProtocol {
               amount_ = input.readBytes();
               break;
             }
-            case 61: {
+            case 57: {
               bitField0_ |= 0x00000040;
-              convertingRate_ = input.readFloat();
+              convertingRate_ = input.readDouble();
               break;
             }
             case 64: {
@@ -6385,19 +6385,19 @@ public final class SyncProtocol {
       }
     }
 
-    // optional float convertingRate = 7;
+    // optional double convertingRate = 7;
     public static final int CONVERTINGRATE_FIELD_NUMBER = 7;
-    private float convertingRate_;
+    private double convertingRate_;
     /**
-     * <code>optional float convertingRate = 7;</code>
+     * <code>optional double convertingRate = 7;</code>
      */
     public boolean hasConvertingRate() {
       return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
-     * <code>optional float convertingRate = 7;</code>
+     * <code>optional double convertingRate = 7;</code>
      */
-    public float getConvertingRate() {
+    public double getConvertingRate() {
       return convertingRate_;
     }
 
@@ -6424,7 +6424,7 @@ public final class SyncProtocol {
       chargerId_ = 0L;
       beneficiarId_ = 0L;
       amount_ = "";
-      convertingRate_ = 0F;
+      convertingRate_ = 0D;
       categoryId_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
@@ -6474,7 +6474,7 @@ public final class SyncProtocol {
         output.writeBytes(6, getAmountBytes());
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeFloat(7, convertingRate_);
+        output.writeDouble(7, convertingRate_);
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         output.writeUInt64(8, categoryId_);
@@ -6514,7 +6514,7 @@ public final class SyncProtocol {
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFloatSize(7, convertingRate_);
+          .computeDoubleSize(7, convertingRate_);
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
@@ -6648,7 +6648,7 @@ public final class SyncProtocol {
         bitField0_ = (bitField0_ & ~0x00000010);
         amount_ = "";
         bitField0_ = (bitField0_ & ~0x00000020);
-        convertingRate_ = 0F;
+        convertingRate_ = 0D;
         bitField0_ = (bitField0_ & ~0x00000040);
         categoryId_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000080);
@@ -7079,35 +7079,35 @@ public final class SyncProtocol {
         return this;
       }
 
-      // optional float convertingRate = 7;
-      private float convertingRate_ ;
+      // optional double convertingRate = 7;
+      private double convertingRate_ ;
       /**
-       * <code>optional float convertingRate = 7;</code>
+       * <code>optional double convertingRate = 7;</code>
        */
       public boolean hasConvertingRate() {
         return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
-       * <code>optional float convertingRate = 7;</code>
+       * <code>optional double convertingRate = 7;</code>
        */
-      public float getConvertingRate() {
+      public double getConvertingRate() {
         return convertingRate_;
       }
       /**
-       * <code>optional float convertingRate = 7;</code>
+       * <code>optional double convertingRate = 7;</code>
        */
-      public Builder setConvertingRate(float value) {
+      public Builder setConvertingRate(double value) {
         bitField0_ |= 0x00000040;
         convertingRate_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional float convertingRate = 7;</code>
+       * <code>optional double convertingRate = 7;</code>
        */
       public Builder clearConvertingRate() {
         bitField0_ = (bitField0_ & ~0x00000040);
-        convertingRate_ = 0F;
+        convertingRate_ = 0D;
         onChanged();
         return this;
       }
@@ -7973,7 +7973,7 @@ public final class SyncProtocol {
       "\022\r\n\005color\030\006 \001(\005\"\237\001\n\tOperation\022\n\n\002ID\030\001 \002(" +
       "\004\022\023\n\013description\030\002 \001(\t\022\014\n\004time\030\003 \002(\004\022\021\n\t" +
       "chargerId\030\004 \001(\004\022\024\n\014beneficiarId\030\005 \001(\004\022\016\n" +
-      "\006amount\030\006 \002(\t\022\026\n\016convertingRate\030\007 \001(\002\022\022\n" +
+      "\006amount\030\006 \002(\t\022\026\n\016convertingRate\030\007 \001(\001\022\022\n" +
       "\ncategoryId\030\010 \002(\004\"L\n\010Category\022\n\n\002ID\030\001 \002(" +
       "\004\022\014\n\004name\030\002 \002(\t\022\014\n\004type\030\003 \002(\r\022\030\n\020preferr" +
       "edAccount\030\004 \001(\004"

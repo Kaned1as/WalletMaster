@@ -12,6 +12,8 @@ import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.WalletConstants;
 import com.adonai.wallet.entities.Account;
+import com.adonai.wallet.entities.Entity;
+import com.adonai.wallet.entities.Operation;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -189,13 +191,7 @@ public class SyncStateMachine {
                         final InputStream is = mSocket.getInputStream();
                         final OutputStream os = mSocket.getOutputStream();
 
-                        final Long lastServerTime = mPreferences.getLong(WalletConstants.ACCOUNT_LAST_SYNC, 0);
-                        final List<Long> knownIDs = mContext.getEntityDAO().getKnownIDs(Account.class);
-
-                        SyncProtocol.EntityRequest.newBuilder()
-                                .setLastKnownServerTimestamp(lastServerTime)
-                                .addAllKnownID(knownIDs)
-                                .build().writeDelimitedTo(os); // sent account request
+                        sendKnownEntities(os, Account.class);
                         setState(State.ACC_REQ_SENT);
 
                         final SyncProtocol.EntityResponse serverSide = SyncProtocol.EntityResponse.parseDelimitedFrom(is);
@@ -252,6 +248,8 @@ public class SyncStateMachine {
                             serverUpdate.addDeletedID(deletedLocal);
 
                         serverUpdate.build().writeDelimitedTo(os);
+
+                        final SyncProtocol.EntityAck ack = SyncProtocol.EntityAck.parseDelimitedFrom(is);
                         setState(State.OP_REQ);
                         break;
                     }
@@ -259,12 +257,75 @@ public class SyncStateMachine {
                         final InputStream is = mSocket.getInputStream();
                         final OutputStream os = mSocket.getOutputStream();
 
+
                         break;
                     }
                     case OP_REQ: {
+                        final InputStream is = mSocket.getInputStream();
+                        final OutputStream os = mSocket.getOutputStream();
 
+                        sendKnownEntities(os, Operation.class);
+                        setState(State.OP_REQ_SENT);
 
+                        final SyncProtocol.EntityResponse serverSide = SyncProtocol.EntityResponse.parseDelimitedFrom(is);
+                        setState(State.OP_REQ_ACK);
+
+                        final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
+                        final List<Operation> addedLocally = mContext.getEntityDAO().getAdded(Operation.class);
+                        final List<Long> deletedLocally = mContext.getEntityDAO().getDeleted(Operation.class);
+
+                        // handle modified entities - check if we updated them too...
+                        for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
+                            final Operation remote = Operation.fromProtoOperation(entity.getOperation(), mContext.getEntityDAO());
+                            final Operation changed = Operation.getFromDB(mContext.getEntityDAO(), remote.getId()); // should not be null
+                            final Operation base = mContext.getEntityDAO().getBackedVersion(remote);
+                            if(base == null) // we have not modified this entity locally
+                                remote.update(mContext.getEntityDAO());
+                            else if (changed == null) // it's modified on server and deleted locally
+                                continue; // leave deleted
+                            else { // select changed as resulting operation
+                                changed.update(mContext.getEntityDAO());
+                            }
+                        }
+                        // add to modified list local modifications
+                        final List<Operation> modifiedLocally = mContext.getEntityDAO().getModified(Operation.class);
+                        for(final Operation op : modifiedLocally)
+                            serverUpdate.addModified(SyncProtocol.Entity.newBuilder().setOperation(Operation.toProtoOperation(op)).build());
+
+                        // handle added entities
+                        // need to delete all entities and replace it with ours...
+
+                        // delete locals
+                        for(final Operation op : addedLocally) {
+                            op.delete(mContext.getEntityDAO());
+                            op.setId(null);
+                        }
+                        // add remote
+                        for(final SyncProtocol.Entity entity : serverSide.getAddedList()) {
+                            final Account remote = Account.fromProtoAccount(entity.getAccount());
+                            remote.persist(mContext.getEntityDAO());
+                        }
+                        // readd locals + add to add-list
+                        for(final Operation op : addedLocally) {
+                            final Long newId = op.persist(mContext.getEntityDAO());
+                            op.setId(newId);
+                            serverUpdate.addAdded(SyncProtocol.Entity.newBuilder().setOperation(Operation.toProtoOperation(op)).build());
+                        }
+
+                        // handle deleted
+                        for(final Long deletedID : serverSide.getDeletedIDList())
+                            mContext.getEntityDAO().delete(deletedID, DatabaseDAO.EntityType.OPERATIONS.toString());
+                        // + add to delete list entities that we deleted locally
+                        for(final Long deletedLocal : deletedLocally)
+                            serverUpdate.addDeletedID(deletedLocal);
+
+                        serverUpdate.build().writeDelimitedTo(os);
+
+                        final SyncProtocol.EntityAck ack = SyncProtocol.EntityAck.parseDelimitedFrom(is);
                         mContext.getEntityDAO().clearActions();
+                        mPreferences.edit().putLong(WalletConstants.ACCOUNT_LAST_SYNC, ack.getNewServerTimestamp()).commit();
+                        setState(State.INIT);
+
                         break;
                     }
                 }
@@ -276,6 +337,16 @@ public class SyncStateMachine {
                     } catch (IOException e) { throw new RuntimeException(e); } // should not happen
             }
             return true;
+        }
+
+        private void sendKnownEntities(OutputStream os, Class<? extends Entity> clazz) throws IOException {
+            final Long lastServerTime = mPreferences.getLong(WalletConstants.ACCOUNT_LAST_SYNC, 0);
+            final List<Long> knownIDs = mContext.getEntityDAO().getKnownIDs(clazz);
+
+            SyncProtocol.EntityRequest.newBuilder()
+                    .setLastKnownServerTimestamp(lastServerTime)
+                    .addAllKnownID(knownIDs)
+                    .build().writeDelimitedTo(os); // sent account request
         }
 
         private void handleAuthResponse(InputStream is) throws IOException {
@@ -323,38 +394,35 @@ public class SyncStateMachine {
     }
 
     private Account mergeAccounts(Account remote, Account local, Account base) {
-        if(local == null) // we haven't modified entity since last sync
-            return remote; // just replace local with remote
-        else {
-            final Account result = new Account();
-            result.setId(local.getId());
+        final Account result = new Account();
+        result.setId(local.getId());
 
-            if(local.getName().equals(base.getName())) // name wasn't changed
-                result.setName(remote.getName()); // set name to remote's
-            else // name changed locally
-                result.setName(local.getName()); // set name to local
+        if(local.getName().equals(base.getName())) // name wasn't changed
+            result.setName(remote.getName()); // set name to remote's
+        else // name changed locally
+            result.setName(local.getName()); // set name to local
 
-            if(local.getDescription().equals(base.getDescription()))
-                result.setDescription(remote.getDescription());
-            else
-                result.setDescription(local.getDescription());
+        if(local.getDescription().equals(base.getDescription()))
+            result.setDescription(remote.getDescription());
+        else
+            result.setDescription(local.getDescription());
 
-            if(local.getColor().equals(base.getColor()))
-                result.setColor(remote.getColor());
-            else
-                result.setColor(local.getColor());
+        if(local.getColor().equals(base.getColor()))
+            result.setColor(remote.getColor());
+        else
+            result.setColor(local.getColor());
 
-            if(local.getCurrency().equals(base.getCurrency()))
-                result.setCurrency(remote.getCurrency());
-            else
-                result.setCurrency(local.getCurrency());
+        if(local.getCurrency().equals(base.getCurrency()))
+            result.setCurrency(remote.getCurrency());
+        else
+            result.setCurrency(local.getCurrency());
 
-            if(local.getAmount().equals(base.getAmount())) // amount wasn't changed locally
-                result.setAmount(remote.getAmount());
-            else // amount changed locally and remotely - get diff!
-                result.setAmount(local.getAmount().subtract(base.getAmount()).add(remote.getAmount()));
+        if(local.getAmount().equals(base.getAmount())) // amount wasn't changed locally
+            result.setAmount(remote.getAmount());
+        else // amount changed locally and remotely - get diff!
+            result.setAmount(local.getAmount().subtract(base.getAmount()).add(remote.getAmount()));
 
-            return result;
-        }
+        return result;
     }
+
 }

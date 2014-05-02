@@ -308,7 +308,7 @@ void protobuf_AddDesc_sync_5fprotocol_2eproto() {
     "\022\r\n\005color\030\006 \001(\005\"\237\001\n\tOperation\022\n\n\002ID\030\001 \002("
     "\004\022\023\n\013description\030\002 \001(\t\022\014\n\004time\030\003 \002(\004\022\021\n\t"
     "chargerId\030\004 \001(\004\022\024\n\014beneficiarId\030\005 \001(\004\022\016\n"
-    "\006amount\030\006 \002(\t\022\026\n\016convertingRate\030\007 \001(\002\022\022\n"
+    "\006amount\030\006 \002(\t\022\026\n\016convertingRate\030\007 \001(\001\022\022\n"
     "\ncategoryId\030\010 \002(\004\"L\n\010Category\022\n\n\002ID\030\001 \002("
     "\004\022\014\n\004name\030\002 \002(\t\022\014\n\004type\030\003 \002(\r\022\030\n\020preferr"
     "edAccount\030\004 \001(\004", 1135);
@@ -2684,17 +2684,17 @@ bool Operation::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(61)) goto parse_convertingRate;
+        if (input->ExpectTag(57)) goto parse_convertingRate;
         break;
       }
 
-      // optional float convertingRate = 7;
+      // optional double convertingRate = 7;
       case 7: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED32) {
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED64) {
          parse_convertingRate:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &convertingrate_)));
           set_has_convertingrate();
         } else {
@@ -2776,9 +2776,9 @@ void Operation::SerializeWithCachedSizes(
       6, this->amount(), output);
   }
 
-  // optional float convertingRate = 7;
+  // optional double convertingRate = 7;
   if (has_convertingrate()) {
-    ::google::protobuf::internal::WireFormatLite::WriteFloat(7, this->convertingrate(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(7, this->convertingrate(), output);
   }
 
   // required uint64 categoryId = 8;
@@ -2834,9 +2834,9 @@ void Operation::SerializeWithCachedSizes(
         6, this->amount(), target);
   }
 
-  // optional float convertingRate = 7;
+  // optional double convertingRate = 7;
   if (has_convertingrate()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(7, this->convertingrate(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(7, this->convertingrate(), target);
   }
 
   // required uint64 categoryId = 8;
@@ -2897,9 +2897,9 @@ int Operation::ByteSize() const {
           this->amount());
     }
 
-    // optional float convertingRate = 7;
+    // optional double convertingRate = 7;
     if (has_convertingrate()) {
-      total_size += 1 + 4;
+      total_size += 1 + 8;
     }
 
     // required uint64 categoryId = 8;
