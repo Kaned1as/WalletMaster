@@ -67,7 +67,7 @@ public class OperationsFragment extends WalletBaseFragment {
 
         mOperationsList.setAdapter(mOpAdapter);
         mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
-        getWalletActivity().getEntityDAO().registerDatabaseListener(Operation.TABLE_NAME, mOpAdapter);
+        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.OPERATIONS.toString(), mOpAdapter);
 
         return rootView;
     }
@@ -186,7 +186,7 @@ public class OperationsFragment extends WalletBaseFragment {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     final DatabaseDAO db = getWalletActivity().getEntityDAO();
-                                    final Operation op = db.getOperation(id);
+                                    final Operation op = Operation.getFromDB(db, id);
                                     if (op != null) {
                                         if (!db.revertOperation(op))
                                             throw new IllegalStateException("Cannot delete operation!"); // should never happen!!
@@ -201,7 +201,7 @@ public class OperationsFragment extends WalletBaseFragment {
             edit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final Operation operation = getWalletActivity().getEntityDAO().getOperation(id);
+                    final Operation operation = Operation.getFromDB(getWalletActivity().getEntityDAO(), id);
                     new OperationDialogFragment(operation).show(getFragmentManager(), "opModify");
                     popover.dismissPopover(true);
                 }
@@ -269,7 +269,7 @@ public class OperationsFragment extends WalletBaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(Operation.TABLE_NAME, mOpAdapter);
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.OPERATIONS.toString(), mOpAdapter);
         mOpAdapter.changeCursor(null); // close opened cursor
     }
 

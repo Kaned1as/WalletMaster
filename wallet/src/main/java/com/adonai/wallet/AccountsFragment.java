@@ -55,7 +55,7 @@ public class AccountsFragment extends WalletBaseFragment {
         mAccountsAdapter = new AccountsAdapter();
 
         mAccountList.setAdapter(mAccountsAdapter);
-        getWalletActivity().getEntityDAO().registerDatabaseListener(Account.TABLE_NAME, mAccountsAdapter);
+        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mAccountsAdapter);
         mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
         mAccountList.setOnItemClickListener(new AccountClickListener());
 
@@ -146,7 +146,7 @@ public class AccountsFragment extends WalletBaseFragment {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.DELETE, getWalletActivity().getEntityDAO().getAccount(id));
+                                    getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.DELETE, Account.getFromDB(getWalletActivity().getEntityDAO(), id));
                                 }
                             }).create().show();
 
@@ -158,7 +158,7 @@ public class AccountsFragment extends WalletBaseFragment {
             edit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final Account managed = getWalletActivity().getEntityDAO().getAccount(id);
+                    final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), id);
                     new AccountDialogFragment(managed).show(getFragmentManager(), "accModify");
                     popover.dismissPopover(true);
                 }
@@ -172,14 +172,14 @@ public class AccountsFragment extends WalletBaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(Account.TABLE_NAME, mAccountsAdapter);
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mAccountsAdapter);
         mAccountsAdapter.changeCursor(null); // close opened cursor
     }
 
     private class AccountClickListener implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            final Account managed = getWalletActivity().getEntityDAO().getAccount(id);
+            final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), id);
             new OperationDialogFragment(managed).show(getFragmentManager(), "opModify");
         }
     }

@@ -1,6 +1,7 @@
 package com.adonai.wallet.entities;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.util.Log;
 
 import com.adonai.wallet.DatabaseDAO;
@@ -8,14 +9,12 @@ import com.adonai.wallet.Utils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Created by adonai on 23.02.14.
- */
+@EntityDescriptor(type = DatabaseDAO.EntityType.OPERATIONS)
 public class Operation extends Entity {
-    public static final String TABLE_NAME = "operations";
 
     public enum OperationType {
         EXPENSE,
@@ -32,11 +31,9 @@ public class Operation extends Entity {
     private Category category;
 
     public Operation() {
-        super(DatabaseDAO.EntityType.OPERATION);
     }
 
     public Operation(BigDecimal amount, Category category) {
-        super(DatabaseDAO.EntityType.OPERATION);
         this.amount = amount;
         this.category = category;
     }
@@ -145,7 +142,7 @@ public class Operation extends Entity {
         if(getConvertingRate() != null)
             values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), getConvertingRate());
 
-        return dao.insert(values, TABLE_NAME);
+        return dao.insert(values, entityType.toString());
     }
 
     @Override
@@ -161,11 +158,34 @@ public class Operation extends Entity {
         values.put(DatabaseDAO.OperationsFields.AMOUNT.toString(), getAmount().toPlainString());
         values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), getConvertingRate());
 
-        return dao.update(values, TABLE_NAME);
+        return dao.update(values, entityType.toString());
     }
 
-    @Override
-    public int delete(DatabaseDAO dao) {
-        return dao.delete(getId(), TABLE_NAME);
+    public static Operation getFromDB(DatabaseDAO dao, Long id) {
+        final Long preciseTime = System.currentTimeMillis();
+        final Cursor cursor = dao.get(DatabaseDAO.EntityType.OPERATIONS, id);
+        if (cursor.moveToFirst()) try {
+            final Operation op = new Operation();
+            op.setId(cursor.getLong(DatabaseDAO.OperationsFields._id.ordinal()));
+            op.setDescription(cursor.getString(DatabaseDAO.OperationsFields.DESCRIPTION.ordinal()));
+            op.setCategory(Category.getFromDB(dao, cursor.getLong(DatabaseDAO.OperationsFields.CATEGORY.ordinal())));
+            op.setTime(Utils.SQLITE_DATE_FORMAT.parse(cursor.getString(DatabaseDAO.OperationsFields.TIME.ordinal())));
+            op.setCharger(Account.getFromDB(dao, cursor.getLong(DatabaseDAO.OperationsFields.CHARGER.ordinal())));
+            if(!cursor.isNull(DatabaseDAO.OperationsFields.RECEIVER.ordinal()))
+                op.setBeneficiar(Account.getFromDB(dao, cursor.getLong(DatabaseDAO.OperationsFields.RECEIVER.ordinal())));
+            op.setAmount(new BigDecimal(cursor.getString(DatabaseDAO.OperationsFields.AMOUNT.ordinal())));
+            if(!cursor.isNull(DatabaseDAO.OperationsFields.CONVERT_RATE.ordinal()))
+                op.setConvertingRate(cursor.getDouble(DatabaseDAO.OperationsFields.CONVERT_RATE.ordinal()));
+            cursor.close();
+
+            Log.d(String.format("getOperation(%d), took %d ms", id, System.currentTimeMillis() - preciseTime), op.getAmount().toPlainString());
+            return op;
+        } catch (ParseException ex) {
+            throw new RuntimeException(ex); // should never happen
+        }
+
+        cursor.close();
+        return null;
     }
+
 }

@@ -14,6 +14,7 @@ import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Currency;
 import com.adonai.wallet.entities.Entity;
+import com.adonai.wallet.entities.EntityDescriptor;
 import com.adonai.wallet.entities.Operation;
 import com.google.gson.Gson;
 
@@ -21,8 +22,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -102,9 +104,9 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public static enum EntityType {
-        ACCOUNT,
-        CATEGORY,
-        OPERATION
+        ACCOUNTS,
+        CATEGORIES,
+        OPERATIONS
     }
 
     public static enum ActionType {
@@ -135,7 +137,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         mDatabase = sqLiteDatabase;
 
-        sqLiteDatabase.execSQL("CREATE TABLE " + Account.TABLE_NAME + " (" +
+        sqLiteDatabase.execSQL("CREATE TABLE " + EntityType.ACCOUNTS + " (" +
                 AccountFields._id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 AccountFields.NAME + " TEXT DEFAULT '' NOT NULL, " +
                 AccountFields.DESCRIPTION + " TEXT DEFAULT NULL, " +
@@ -143,9 +145,9 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 AccountFields.AMOUNT + " TEXT DEFAULT '0' NOT NULL, " +
                 AccountFields.COLOR + " TEXT DEFAULT NULL" +
                 ")");
-        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "ACCOUNT_NAME_IDX ON " + Account.TABLE_NAME + " (" + AccountFields.NAME + ")");
+        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "ACCOUNT_NAME_IDX ON " + EntityType.ACCOUNTS + " (" + AccountFields.NAME + ")");
 
-        sqLiteDatabase.execSQL("CREATE TABLE " + Operation.TABLE_NAME + " (" +
+        sqLiteDatabase.execSQL("CREATE TABLE " + EntityType.OPERATIONS + " (" +
                 OperationsFields._id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 OperationsFields.DESCRIPTION + " TEXT DEFAULT NULL, " +
                 OperationsFields.CATEGORY + " INTEGER NOT NULL, " +
@@ -154,9 +156,9 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 OperationsFields.RECEIVER + " INTEGER DEFAULT NULL, " +
                 OperationsFields.AMOUNT + " TEXT DEFAULT '0' NOT NULL, " +
                 OperationsFields.CONVERT_RATE + " REAL DEFAULT NULL, " +
-                " FOREIGN KEY (" + OperationsFields.CATEGORY + ") REFERENCES " + Category.TABLE_NAME + " (" + CategoriesFields._id + ") ON DELETE SET NULL," +
-                " FOREIGN KEY (" + OperationsFields.CHARGER + ") REFERENCES " + Account.TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE," + // delete associated transactions
-                " FOREIGN KEY (" + OperationsFields.RECEIVER + ") REFERENCES " + Account.TABLE_NAME + " (" + AccountFields._id + ") ON DELETE CASCADE" + // delete associated transactions
+                " FOREIGN KEY (" + OperationsFields.CATEGORY + ") REFERENCES " + EntityType.CATEGORIES + " (" + CategoriesFields._id + ") ON DELETE SET NULL," +
+                " FOREIGN KEY (" + OperationsFields.CHARGER + ") REFERENCES " + EntityType.ACCOUNTS + " (" + AccountFields._id + ") ON DELETE CASCADE," + // delete associated transactions
+                " FOREIGN KEY (" + OperationsFields.RECEIVER + ") REFERENCES " + EntityType.ACCOUNTS + " (" + AccountFields._id + ") ON DELETE CASCADE" + // delete associated transactions
                 ")");
 
         sqLiteDatabase.execSQL("CREATE TABLE " + Currency.TABLE_NAME + " (" +
@@ -166,14 +168,14 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 ")");
         sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CURRENCY_IDX ON " + Currency.TABLE_NAME + " (" +  CurrenciesFields.CODE + ")");
 
-        sqLiteDatabase.execSQL("CREATE TABLE " + Category.TABLE_NAME + " (" +
+        sqLiteDatabase.execSQL("CREATE TABLE " + EntityType.CATEGORIES + " (" +
                 CategoriesFields._id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 CategoriesFields.NAME + " TEXT DEFAULT '' NOT NULL, " +
                 CategoriesFields.TYPE + " INTEGER DEFAULT 0 NOT NULL, " +
                 CategoriesFields.PREFERRED_ACCOUNT + " INTEGER DEFAULT NULL, " +
-                " FOREIGN KEY (" + CategoriesFields.PREFERRED_ACCOUNT + ") REFERENCES " + Account.TABLE_NAME + " (" + AccountFields._id + ") ON DELETE SET NULL" +
+                " FOREIGN KEY (" + CategoriesFields.PREFERRED_ACCOUNT + ") REFERENCES " + EntityType.ACCOUNTS + " (" + AccountFields._id + ") ON DELETE SET NULL" +
                 ")");
-        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CATEGORY_UNIQUE_NAME_IDX ON " + Category.TABLE_NAME + " (" +  CategoriesFields.NAME + "," + CategoriesFields.TYPE + ")");
+        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CATEGORY_UNIQUE_NAME_IDX ON " + EntityType.CATEGORIES + " (" +  CategoriesFields.NAME + "," + CategoriesFields.TYPE + ")");
 
         sqLiteDatabase.execSQL("CREATE TABLE " + ACTIONS_TABLE_NAME + " (" +
                 ActionsFields.GUID + " INTEGER DEFAULT NULL, " + // action ID is null till not synced
@@ -191,13 +193,13 @@ public class DatabaseDAO extends SQLiteOpenHelper
             final ContentValues values = new ContentValues(2);
             values.put(CategoriesFields.NAME.toString(), outCategory);
             values.put(CategoriesFields.TYPE.toString(), Category.EXPENSE);
-            sqLiteDatabase.insert(Category.TABLE_NAME, null, values);
+            sqLiteDatabase.insert(EntityType.CATEGORIES.toString(), null, values);
         }
         for(final String inCategory : defaultIncomeCategories) {
             final ContentValues values = new ContentValues(2);
             values.put(CategoriesFields.NAME.toString(), inCategory);
             values.put(CategoriesFields.TYPE.toString(), Category.INCOME);
-            sqLiteDatabase.insert(Category.TABLE_NAME, null, values);
+            sqLiteDatabase.insert(EntityType.CATEGORIES.toString(), null, values);
         }
 
         //fill Currencies
@@ -237,7 +239,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
             values.put(AccountFields.AMOUNT.toString(), String.valueOf(rand.nextInt(1000)));
             values.put(AccountFields.COLOR.toString(), Color.rgb(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)));
 
-            sqLiteDatabase.insert(Account.TABLE_NAME, null, values);
+            sqLiteDatabase.insert(EntityType.ACCOUNTS.toString(), null, values);
         }
 
         for(int i = 0; i < 1000; ++i) {
@@ -247,7 +249,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
             values.put(OperationsFields.AMOUNT.toString(), String.valueOf(rand.nextInt(500))); // mandatory
             values.put(OperationsFields.CHARGER.toString(), 1+rand.nextInt(90));
 
-            sqLiteDatabase.insert(Operation.TABLE_NAME, null, values);
+            sqLiteDatabase.insert(EntityType.OPERATIONS.toString(), null, values);
         }
     }
 
@@ -276,8 +278,26 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return count;
     }
 
+    /**
+     * Retrieves cursor of raw query request to underlying database
+     * Don't forget to close the cursor!
+     * @param query raw query to database
+     * @param args query arguments
+     * @return cursor of resulting query
+     */
     public Cursor select(String query, String[] args) {
         return mDatabase.rawQuery(query, args);
+    }
+
+    /**
+     * Retrieves cursor of direct query by id
+     * Don't forget to close the cursor!
+     * @param entityType type of entity to retrieve
+     * @param id id of entity to retrieve
+     * @return cursor of resulting query
+     */
+    public Cursor get(EntityType entityType, Long id) {
+        return mDatabase.query(entityType.toString(), null, " _id = ?", new String[]{String.valueOf(id)}, null, null, null, null);
     }
 
     /**
@@ -287,12 +307,13 @@ public class DatabaseDAO extends SQLiteOpenHelper
      * @return
      */
     public boolean makeAction(ActionType type, Entity entity) {
-        Log.d("makeAction", String.format("Entity type %s, action type %s", entity.getEntityType().toString(), type.toString()));
+        final EntityType entityType = entity.getClass().getAnnotation(EntityDescriptor.class).type();
+        Log.d("makeAction", String.format("Entity type %s, action type %s", entityType.toString(), type.toString()));
         boolean status = false;
         mDatabase.beginTransaction();
         transactionFlow: {
             final ContentValues values = new ContentValues(5);
-            values.put(ActionsFields.DATA_TYPE.toString(), entity.getEntityType().ordinal());
+            values.put(ActionsFields.DATA_TYPE.toString(), entityType.ordinal());
             switch (type) {
                 case ADD: { // we're adding, only store ID to keep track of it
                     final long persistedId = entity.persist(this); // result holds ID now
@@ -311,18 +332,19 @@ public class DatabaseDAO extends SQLiteOpenHelper
                     // first, retrieve old entity
                     final Entity oldEntity;
                     switch (entity.getEntityType()) {
-                        case ACCOUNT:
-                            oldEntity = getAccount(entity.getId());
+                        case ACCOUNTS:
+                            oldEntity = Account.getFromDB(this, entity.getId());
                             break;
-                        case CATEGORY:
-                            oldEntity = getCategory(entity.getId());
+                        case CATEGORIES:
+                            oldEntity = Category.getFromDB(this, entity.getId());
                             break;
-                        case OPERATION:
-                            oldEntity = getOperation(entity.getId());
+                        case OPERATIONS:
+                            oldEntity = Operation.getFromDB(this, entity.getId());
                             break;
                         default:
                             throw new IllegalArgumentException("No such entity type!" + entity.getEntityType());
                     }
+
 
                     // second, update old row with new data
                     final long rowsUpdated = entity.update(this); // result holds updated entities count now
@@ -330,7 +352,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                         break transactionFlow;
 
                     // third, do we have original already?
-                    final Cursor cursor = mDatabase.query(ACTIONS_TABLE_NAME, null, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())}, null, null, null, null);
+                    final Cursor cursor = mDatabase.query(ACTIONS_TABLE_NAME, null, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entityType.ordinal())}, null, null, null, null);
                     if(cursor.moveToNext()) // we already have this entity stored (added or modified), nothing to do
                         break;
 
@@ -348,16 +370,16 @@ public class DatabaseDAO extends SQLiteOpenHelper
                         break transactionFlow;
 
                     // second, do we have this data in any actions?
-                    final Cursor cursor = mDatabase.query(ACTIONS_TABLE_NAME, null, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())}, null, null, null, null);
+                    final Cursor cursor = mDatabase.query(ACTIONS_TABLE_NAME, null, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entityType.ordinal())}, null, null, null, null);
                     if(cursor.moveToNext()) { // we already have this entity stored, added or modified, need to update previous action
                         final String backedEntity = cursor.getString(ActionsFields.ORIGINAL_DATA.ordinal());
                         if(backedEntity == null) { // if entity was added, we should just delete action, so all will look like nothing happened
-                            final long actionsDeleted = mDatabase.delete(ACTIONS_TABLE_NAME, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())});
+                            final long actionsDeleted = mDatabase.delete(ACTIONS_TABLE_NAME, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entityType.ordinal())});
                             if(actionsDeleted != 1)
                                 break transactionFlow;
                         } else { // was modified, change action type to deleted
                             values.put(ActionsFields.DATA_ID.toString(), entity.getId());
-                            final long actionsUpdated = mDatabase.update(ACTIONS_TABLE_NAME, values, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())});
+                            final long actionsUpdated = mDatabase.update(ACTIONS_TABLE_NAME, values, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entityType.ordinal())});
                             if(actionsUpdated != 1)
                                 break transactionFlow;
                         }
@@ -381,33 +403,9 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return status;
     }
 
-    public Account getAccount(long id) {
-        final Cursor cursor = mDatabase.query(Account.TABLE_NAME, null, " _id = ?", new String[]{String.valueOf(id)}, // d. selections args
-                null, // e. group by
-                null, // f. having
-                null, // g. order by
-                null); // h. limit
-        if (cursor.moveToFirst()) {
-            final Account acc = new Account();
-            acc.setId(cursor.getLong(AccountFields._id.ordinal()));
-            acc.setName(cursor.getString(AccountFields.NAME.ordinal()));
-            acc.setDescription(cursor.getString(AccountFields.DESCRIPTION.ordinal()));
-            acc.setCurrency(getCurrency(cursor.getString(AccountFields.CURRENCY.ordinal())));
-            acc.setAmount(new BigDecimal(cursor.getString(AccountFields.AMOUNT.ordinal())));
-            acc.setColor(cursor.getInt(AccountFields.COLOR.ordinal()));
-
-            Log.d("getAccount(" + id + ")", acc.getName());
-            cursor.close();
-            return acc;
-        }
-
-        cursor.close();
-        return null;
-    }
-
     public Cursor getAccountCursor() {
         Log.d("Query", "getAccountCursor");
-        return mDatabase.query(Account.TABLE_NAME, null, null, null, null, null, null, null);
+        return mDatabase.query(EntityType.ACCOUNTS.toString(), null, null, null, null, null, null, null);
     }
 
     public Cursor getCurrencyCursor() {
@@ -417,7 +415,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     public Cursor getOperationsCursor() {
         Log.d("Query", "getOperationsCursor");
-        return mDatabase.query(Operation.TABLE_NAME, null, null, null, null, null, null, null);
+        return mDatabase.query(EntityType.OPERATIONS.toString(), null, null, null, null, null, null, null);
     }
 
     public Cursor getEntityCursor(String tableName, long id) {
@@ -439,76 +437,21 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
         sb.append(") LIKE LOWER(?)");
         filterBuilder.appendWhere(sb.toString());
-        filterBuilder.setTables(Operation.TABLE_NAME + " AS op" +
-                " LEFT JOIN " + Account.TABLE_NAME + " AS charger " + "ON op." + OperationsFields.CHARGER + " = " + "charger." + AccountFields._id +
-                " LEFT JOIN " + Account.TABLE_NAME + " AS benefic " + "ON op." + OperationsFields.CHARGER + " = " + "benefic." + AccountFields._id);
+        filterBuilder.setTables(EntityType.OPERATIONS + " AS op" +
+                " LEFT JOIN " + EntityType.ACCOUNTS + " AS charger " + "ON op." + OperationsFields.CHARGER + " = " + "charger." + AccountFields._id +
+                " LEFT JOIN " + EntityType.ACCOUNTS + " AS benefic " + "ON op." + OperationsFields.CHARGER + " = " + "benefic." + AccountFields._id);
         return filterBuilder.query(mDatabase, new String[]{"op.*"}, null, new String[] {"%" + filter + "%"}, null, null, null);
-        //mDatabase.query(TABLE_NAME, null, sb.toString(), new String[]{"%" + filter + "%"}, null, null, null, null);
+        //mDatabase.query(tableName, null, sb.toString(), new String[]{"%" + filter + "%"}, null, null, null, null);
     }
 
     public Cursor getCategoryCursor() {
         Log.d("Query", "getCategoryCursor");
-        return mDatabase.query(Category.TABLE_NAME, null, null, null, null, null, null, null);
+        return mDatabase.query(EntityType.CATEGORIES.toString(), null, null, null, null, null, null, null);
     }
 
     public Cursor getCategoryCursor(int type) {
         Log.d("Query", "getCategoryCursorWithType");
-        return mDatabase.query(Category.TABLE_NAME, null, CategoriesFields.TYPE + " = ?", new String[]{String.valueOf(type)}, null, null, null, null);
-    }
-
-    public Operation getOperation(long id) {
-        final Long preciseTime = System.currentTimeMillis();
-        final Cursor cursor = mDatabase.query(Operation.TABLE_NAME, null, OperationsFields._id + " = ?", new String[] {String.valueOf(id)}, // d. selections args
-                null, // e. group by
-                null, // f. having
-                null, // g. order by
-                null); // h. limit
-        if (cursor.moveToFirst()) try {
-            final Operation op = new Operation();
-            op.setId(cursor.getLong(OperationsFields._id.ordinal()));
-            op.setDescription(cursor.getString(OperationsFields.DESCRIPTION.ordinal()));
-            op.setCategory(getCategory(cursor.getLong(OperationsFields.CATEGORY.ordinal())));
-            op.setTime(Utils.SQLITE_DATE_FORMAT.parse(cursor.getString(OperationsFields.TIME.ordinal())));
-            op.setCharger(getAccount(cursor.getInt(OperationsFields.CHARGER.ordinal())));
-            if(!cursor.isNull(OperationsFields.RECEIVER.ordinal()))
-                op.setBeneficiar(getAccount(cursor.getInt(OperationsFields.RECEIVER.ordinal())));
-            op.setAmount(new BigDecimal(cursor.getString(OperationsFields.AMOUNT.ordinal())));
-            if(!cursor.isNull(OperationsFields.CONVERT_RATE.ordinal()))
-                op.setConvertingRate(cursor.getDouble(OperationsFields.CONVERT_RATE.ordinal()));
-            cursor.close();
-
-            Log.d(String.format("getOperation(%d), took %d ms", id, System.currentTimeMillis() - preciseTime), op.getAmount().toPlainString());
-            return op;
-        } catch (ParseException ex) {
-            throw new RuntimeException(ex); // should never happen
-        }
-
-        cursor.close();
-        return null;
-    }
-
-    public Category getCategory(long id) {
-        final Cursor cursor = mDatabase.query(Category.TABLE_NAME, null, CategoriesFields._id + " = ?", new String[] {String.valueOf(id)}, // d. selections args
-                null, // e. group by
-                null, // f. having
-                null, // g. order by
-                null); // h. limit
-        if (cursor.moveToFirst()) {
-            // 4. build operation object
-            final Category cat = new Category();
-            cat.setId(cursor.getLong(CategoriesFields._id.ordinal()));
-            cat.setName(cursor.getString(CategoriesFields.NAME.ordinal()));
-            cat.setType(cursor.getInt(CategoriesFields.TYPE.ordinal()));
-            if(!cursor.isNull(CategoriesFields.PREFERRED_ACCOUNT.ordinal()))
-                cat.setPreferredAccount(getAccount(cursor.getLong(CategoriesFields.PREFERRED_ACCOUNT.ordinal())));
-            cursor.close();
-
-            Log.d(String.format("getCategory(%d)", id), cat.getName());
-            return cat;
-        }
-
-        cursor.close();
-        return null;
+        return mDatabase.query(EntityType.CATEGORIES.toString(), null, CategoriesFields.TYPE + " = ?", new String[]{String.valueOf(type)}, null, null, null, null);
     }
 
     public void notifyListeners(String table) {
@@ -577,7 +520,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         new AsyncDbQuery<>(lst).execute(new Callable<Operation>() {
             @Override
             public Operation call() throws Exception {
-                return getOperation(id);
+                return Operation.getFromDB(DatabaseDAO.this, id);
             }
         });
     }
@@ -619,15 +562,15 @@ public class DatabaseDAO extends SQLiteOpenHelper
             mDatabase.setTransactionSuccessful();
             allSucceeded = true;
 
-            notifyListeners(Operation.TABLE_NAME);
-            notifyListeners(Account.TABLE_NAME);
+            notifyListeners(EntityType.OPERATIONS.toString());
+            notifyListeners(EntityType.ACCOUNTS.toString());
         }
         mDatabase.endTransaction();
         return allSucceeded;
     }
 
     public boolean revertOperation(Long id) {
-        return revertOperation(getOperation(id));
+        return revertOperation(Operation.getFromDB(this, id));
     }
 
     /**
@@ -690,6 +633,110 @@ public class DatabaseDAO extends SQLiteOpenHelper
         }
 
         return null;
+    }
+
+    /**
+     * Select all entities that are known to client
+     * Note that entities added on device are not in this list
+     * @return list of known entities IDs
+     */
+    public <T extends Entity> List<Long> getKnownIDs(Class<T> clazz) {
+        final List<Long> result = new ArrayList<>();
+        final EntityType type = clazz.getAnnotation(EntityDescriptor.class).type();
+        final Cursor selections = select(
+                "SELECT " + DatabaseDAO.AccountFields._id +
+                " FROM " + type.toString() +
+                " WHERE " + DatabaseDAO.AccountFields._id + " NOT IN (" +
+                    "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
+                    " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
+                    " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + type.ordinal() +
+                    " AND " + DatabaseDAO.ActionsFields.ORIGINAL_DATA + " IS NULL" + // not in added entities
+                    ")" +
+                " UNION ALL " + // we also know about deleted entities, so we should add them
+                "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
+                " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
+                " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + type.ordinal() +
+                " AND " + DatabaseDAO.ActionsFields.DATA_ID + " NOT IN (" +
+                    "SELECT " + DatabaseDAO.AccountFields._id +
+                    " FROM " + type.toString() + // these are deleted entities - present in backup table but not exist in real entities table
+                    ")"
+                , null
+        );
+        while (selections.moveToNext())
+            result.add(selections.getLong(0));
+        selections.close();
+        return result;
+    }
+
+    /**
+     * Select all entities that are added locally and not yet synchronized with remote database
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Entity> List<T> getAdded(Class<T> clazz) {
+        final List<T> result = new ArrayList<>();
+        final EntityType type = clazz.getAnnotation(EntityDescriptor.class).type();
+        final Cursor selections = select(
+                "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
+                " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
+                " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + type.ordinal() +
+                " AND " + DatabaseDAO.ActionsFields.ORIGINAL_DATA + " IS NULL" //  added entities
+                , null);
+        while (selections.moveToNext())
+            try {
+                final Method filler = clazz.getDeclaredMethod("getFromDB", DatabaseDAO.class, Long.class);
+                final T newEntity = (T) filler.invoke(null, this, selections.getLong(0));
+                result.add(newEntity);
+            } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException ignored) {
+                throw new IllegalArgumentException("No such public static method in child entity class!");
+            }
+
+        selections.close();
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Entity> List<T> getModified(Class<T> clazz) {
+        final List<T> result = new ArrayList<>();
+        final EntityType type = clazz.getAnnotation(EntityDescriptor.class).type();
+        final Cursor selections = select(
+                "SELECT " + DatabaseDAO.AccountFields._id +
+                " FROM " + type +
+                " WHERE " + DatabaseDAO.AccountFields._id + " IN (" +
+                    "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
+                    " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
+                    " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + type.ordinal() +
+                    " AND " + DatabaseDAO.ActionsFields.ORIGINAL_DATA + " IS NOT NULL" + // exists in original and modified version - it's modified!
+                    ")"
+                , null);
+        while (selections.moveToNext())
+            try {
+                final Method filler = clazz.getDeclaredMethod("getFromDB", DatabaseDAO.class, Long.class);
+                final T newEntity = (T) filler.invoke(null, this, selections.getLong(0));
+                result.add(newEntity);
+            } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException ignored) {
+                throw new IllegalArgumentException("No such public static method in child entity class!");
+            }
+        selections.close();
+        return result;
+    }
+
+    public <T extends Entity> List<Long> getDeleted(Class<T> clazz) {
+        final List<Long> result = new ArrayList<>();
+        final EntityType type = clazz.getAnnotation(EntityDescriptor.class).type();
+        final Cursor selections = select(
+                "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
+                " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
+                " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + type.ordinal() +
+                " AND " + DatabaseDAO.ActionsFields.DATA_ID + " NOT IN (" +
+                    "SELECT " + DatabaseDAO.AccountFields._id +
+                    " FROM " + type + // these are deleted entities - present in backup table but not exist in real entities table
+                    ")"
+                , null);
+        while (selections.moveToNext())
+            result.add(selections.getLong(0));
+        selections.close();
+        return result;
     }
 
     public int clearActions() {

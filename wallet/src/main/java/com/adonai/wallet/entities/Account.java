@@ -8,23 +8,17 @@ import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.sync.SyncProtocol;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author adonai
  */
+@EntityDescriptor(type = DatabaseDAO.EntityType.ACCOUNTS)
 public class Account extends Entity {
-    public static final String TABLE_NAME = "accounts";
     private String name;
     private String description;
     private Currency currency;
     private BigDecimal amount;
     private Integer color;
-
-    public Account() {
-        super(DatabaseDAO.EntityType.ACCOUNT);
-    }
 
     public String getName() {
         return name;
@@ -102,7 +96,7 @@ public class Account extends Entity {
         values.put(DatabaseDAO.AccountFields.AMOUNT.toString(), getAmount().toPlainString());
         values.put(DatabaseDAO.AccountFields.COLOR.toString(), getColor());
 
-        return dao.insert(values, TABLE_NAME);
+        return dao.insert(values, entityType.toString());
     }
 
     @Override
@@ -115,97 +109,26 @@ public class Account extends Entity {
         values.put(DatabaseDAO.AccountFields.AMOUNT.toString(), getAmount().toPlainString());
         values.put(DatabaseDAO.AccountFields.COLOR.toString(), getColor());
 
-        return dao.update(values, TABLE_NAME);
+        return dao.update(values, entityType.toString());
     }
 
-    @Override
-    public int delete(DatabaseDAO dao) {
-        return dao.delete(getId(), TABLE_NAME);
-    }
+    public static Account getFromDB(DatabaseDAO dao, Long id) {
+        final Cursor cursor = dao.get(DatabaseDAO.EntityType.ACCOUNTS, id);
+        if (cursor.moveToFirst()) {
+            final Account acc = new Account();
+            acc.setId(cursor.getLong(DatabaseDAO.AccountFields._id.ordinal()));
+            acc.setName(cursor.getString(DatabaseDAO.AccountFields.NAME.ordinal()));
+            acc.setDescription(cursor.getString(DatabaseDAO.AccountFields.DESCRIPTION.ordinal()));
+            acc.setCurrency(dao.getCurrency(cursor.getString(DatabaseDAO.AccountFields.CURRENCY.ordinal())));
+            acc.setAmount(new BigDecimal(cursor.getString(DatabaseDAO.AccountFields.AMOUNT.ordinal())));
+            acc.setColor(cursor.getInt(DatabaseDAO.AccountFields.COLOR.ordinal()));
 
-    /**
-     * Select all entities that are known to client
-     * Note that entities added on device are not in this list
-     * @param dao database wrapper
-     * @return list of known entities IDs
-     */
-    public static List<Long> getKnownIDs(DatabaseDAO dao) {
-        final List<Long> result = new ArrayList<>();
-        final Cursor selections = dao.select(
-                "SELECT " + DatabaseDAO.AccountFields._id +
-                " FROM " + TABLE_NAME +
-                " WHERE " + DatabaseDAO.AccountFields._id + " NOT IN (" +
-                        "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
-                        " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
-                        " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + DatabaseDAO.EntityType.ACCOUNT.ordinal() +
-                        " AND " + DatabaseDAO.ActionsFields.ORIGINAL_DATA + " IS NULL" + // not in added entities
-                        ")" +
-                " UNION ALL " + // we also know about deleted entities, so we should add them
-                "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
-                " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
-                " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + DatabaseDAO.EntityType.ACCOUNT.ordinal() +
-                " AND " + DatabaseDAO.ActionsFields.DATA_ID + " NOT IN (" +
-                        "SELECT " + DatabaseDAO.AccountFields._id +
-                        " FROM " + TABLE_NAME + // these are deleted entities - present in backup table but not exist in real entities table
-                        ")"
-                , null);
-        while (selections.moveToNext())
-            result.add(selections.getLong(0));
-        selections.close();
-        return result;
-    }
+            Log.d("getAccount(" + id + ")", acc.getName());
+            cursor.close();
+            return acc;
+        }
 
-    /**
-     * Select all entities that are added locally and not yet synchronized with remote database
-     * @param dao database wrapper
-     * @return
-     */
-    public static List<Account> getAdded(DatabaseDAO dao) {
-        final List<Account> result = new ArrayList<>();
-        final Cursor selections = dao.select(
-                "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
-                " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
-                " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + DatabaseDAO.EntityType.ACCOUNT.ordinal() +
-                " AND " + DatabaseDAO.ActionsFields.ORIGINAL_DATA + " IS NULL" //  added entities
-                , null);
-        while (selections.moveToNext())
-            result.add(dao.getAccount(selections.getLong(0)));
-        selections.close();
-        return result;
-    }
-
-    public static List<Long> getDeleted(DatabaseDAO dao) {
-        final List<Long> result = new ArrayList<>();
-        final Cursor selections = dao.select(
-                "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
-                " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
-                " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + DatabaseDAO.EntityType.ACCOUNT.ordinal() +
-                " AND " + DatabaseDAO.ActionsFields.DATA_ID + " NOT IN (" +
-                    "SELECT " + DatabaseDAO.AccountFields._id +
-                    " FROM " + TABLE_NAME + // these are deleted entities - present in backup table but not exist in real entities table
-                    ")"
-                , null);
-        while (selections.moveToNext())
-            result.add(selections.getLong(0));
-        selections.close();
-        return result;
-    }
-
-    public static List<Account> getModified(DatabaseDAO dao) {
-        final List<Account> result = new ArrayList<>();
-        final Cursor selections = dao.select(
-                "SELECT " + DatabaseDAO.AccountFields._id +
-                " FROM " + TABLE_NAME +
-                " WHERE " + DatabaseDAO.AccountFields._id + " IN (" +
-                    "SELECT " + DatabaseDAO.ActionsFields.DATA_ID +
-                    " FROM " + DatabaseDAO.ACTIONS_TABLE_NAME +
-                    " WHERE " + DatabaseDAO.ActionsFields.DATA_TYPE + " = " + DatabaseDAO.EntityType.ACCOUNT.ordinal() +
-                    " AND " + DatabaseDAO.ActionsFields.ORIGINAL_DATA + " IS NOT NULL" + // exists in original and modified version - it's modified!
-                    ")"
-                , null);
-        while (selections.moveToNext())
-            result.add(dao.getAccount(selections.getLong(0)));
-        selections.close();
-        return result;
+        cursor.close();
+        return null;
     }
 }

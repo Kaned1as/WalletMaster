@@ -3,19 +3,11 @@ package com.adonai.wallet.entities;
 import com.adonai.wallet.DatabaseDAO;
 
 /**
- * Created by Ochernovskiy on 11/04/2014.
+ * Abstract type for all entities in DB
  */
 public abstract class Entity {
-    protected final DatabaseDAO.EntityType entityType;
     protected Long id;
-
-    public Entity(DatabaseDAO.EntityType entityType) {
-        this.entityType = entityType;
-    }
-
-    public DatabaseDAO.EntityType getEntityType() {
-        return entityType;
-    }
+    protected final DatabaseDAO.EntityType entityType = getClass().getAnnotation(EntityDescriptor.class).type();
 
     public Long getId() {
         return id;
@@ -25,9 +17,15 @@ public abstract class Entity {
         this.id = id;
     }
 
+    public DatabaseDAO.EntityType getEntityType() {
+        return entityType;
+    }
+
     public abstract long persist(DatabaseDAO dao);
 
     public abstract int update(DatabaseDAO dao);
 
-    public abstract int delete(DatabaseDAO dao);
+    public int delete(DatabaseDAO dao) {
+        return dao.delete(getId(), entityType.toString());
+    }
 }

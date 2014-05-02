@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 
+import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.WalletConstants;
@@ -189,7 +190,7 @@ public class SyncStateMachine {
                         final OutputStream os = mSocket.getOutputStream();
 
                         final Long lastServerTime = mPreferences.getLong(WalletConstants.ACCOUNT_LAST_SYNC, 0);
-                        final List<Long> knownIDs = Account.getKnownIDs(mContext.getEntityDAO());
+                        final List<Long> knownIDs = mContext.getEntityDAO().getKnownIDs(Account.class);
 
                         SyncProtocol.EntityRequest.newBuilder()
                                 .setLastKnownServerTimestamp(lastServerTime)
@@ -201,13 +202,13 @@ public class SyncStateMachine {
                         setState(State.ACC_REQ_ACK);
 
                         final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
-                        final List<Account> addedLocally = Account.getAdded(mContext.getEntityDAO());
-                        final List<Long> deletedLocally = Account.getDeleted(mContext.getEntityDAO());
+                        final List<Account> addedLocally = mContext.getEntityDAO().getAdded(Account.class);
+                        final List<Long> deletedLocally = mContext.getEntityDAO().getDeleted(Account.class);
 
                         // handle modified entities - check if we updated them too...
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
                             final Account remote = Account.fromProtoAccount(entity.getAccount());
-                            final Account changed = mContext.getEntityDAO().getAccount(remote.getId()); // should not be null
+                            final Account changed = Account.getFromDB(mContext.getEntityDAO(), remote.getId()); // should not be null
                             final Account base = mContext.getEntityDAO().getBackedVersion(remote);
                             if(base == null) // we have not modified this entity locally
                                 remote.update(mContext.getEntityDAO());
@@ -219,7 +220,7 @@ public class SyncStateMachine {
                             }
                         }
                         // add to modified list local modifications
-                        final List<Account> modifiedLocally = Account.getModified(mContext.getEntityDAO());
+                        final List<Account> modifiedLocally = mContext.getEntityDAO().getModified(Account.class);
                         for(final Account acc : modifiedLocally)
                             serverUpdate.addModified(SyncProtocol.Entity.newBuilder().setAccount(Account.toProtoAccount(acc)).build());
 
@@ -245,7 +246,7 @@ public class SyncStateMachine {
 
                         // handle deleted
                         for(final Long deletedID : serverSide.getDeletedIDList())
-                            mContext.getEntityDAO().delete(deletedID, Account.TABLE_NAME);
+                            mContext.getEntityDAO().delete(deletedID, DatabaseDAO.EntityType.ACCOUNTS.toString());
                         // + add to delete list entities that we deleted locally
                         for(final Long deletedLocal : deletedLocally)
                             serverUpdate.addDeletedID(deletedLocal);

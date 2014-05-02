@@ -1,15 +1,13 @@
 package com.adonai.wallet.entities;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.util.Log;
 
 import com.adonai.wallet.DatabaseDAO;
 
-/**
- * Created by adonai on 23.02.14.
- */
+@EntityDescriptor(type = DatabaseDAO.EntityType.CATEGORIES)
 public class Category extends Entity {
-    public static final String TABLE_NAME = "categories";
     final public static int EXPENSE = 0;
     final public static int INCOME = 1;
 
@@ -18,11 +16,9 @@ public class Category extends Entity {
     private Account preferredAccount;
 
     public Category() {
-        super(DatabaseDAO.EntityType.CATEGORY);
     }
 
     public Category(String name, int type) {
-        super(DatabaseDAO.EntityType.CATEGORY);
         this.name = name;
         this.type = type;
     }
@@ -63,7 +59,7 @@ public class Category extends Entity {
         if(getPreferredAccount() != null)
             values.put(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.toString(), getPreferredAccount().getId());
 
-        return dao.insert(values, TABLE_NAME);
+        return dao.insert(values, entityType.toString());
     }
 
     @Override
@@ -75,11 +71,26 @@ public class Category extends Entity {
         if(getPreferredAccount() != null)
             values.put(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.toString(), getPreferredAccount().getId());
 
-        return dao.update(values, TABLE_NAME);
+        return dao.update(values, entityType.toString());
     }
 
-    @Override
-    public int delete(DatabaseDAO dao) {
-        return dao.delete(getId(), TABLE_NAME);
+    public static Category getFromDB(DatabaseDAO dao, Long id) {
+        final Cursor cursor = dao.get(DatabaseDAO.EntityType.CATEGORIES, id);
+        if (cursor.moveToFirst()) {
+            final Category cat = new Category();
+            cat.setId(cursor.getLong(DatabaseDAO.CategoriesFields._id.ordinal()));
+            cat.setName(cursor.getString(DatabaseDAO.CategoriesFields.NAME.ordinal()));
+            cat.setType(cursor.getInt(DatabaseDAO.CategoriesFields.TYPE.ordinal()));
+            if(!cursor.isNull(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.ordinal()))
+                cat.setPreferredAccount(Account.getFromDB(dao, cursor.getLong(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.ordinal())));
+            cursor.close();
+
+            Log.d(String.format("getCategory(%d)", id), cat.getName());
+            return cat;
+        }
+
+        cursor.close();
+        return null;
     }
+
 }
