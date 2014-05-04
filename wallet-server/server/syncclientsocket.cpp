@@ -135,7 +135,7 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
         case WAITING_OPERATIONS:
         {
             handleGeneric<sync::EntityRequest, sync::EntityResponse>(incomingData);
-            setState(SENT_ACCOUNTS);
+            setState(SENT_OPERATIONS);
             break;
         }
         case SENT_OPERATIONS:
