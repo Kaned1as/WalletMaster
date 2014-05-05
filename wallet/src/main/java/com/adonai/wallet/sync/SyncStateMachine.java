@@ -223,28 +223,21 @@ public class SyncStateMachine {
                         // handle added entities
                         // need to delete all entities and replace it with ours...
 
-                        // delete locals
-                        for(final Account acc : addedLocally) {
-                            acc.delete(mContext.getEntityDAO());
-                            acc.setId(null);
-                        }
                         // add remote
                         for(final SyncProtocol.Entity entity : serverSide.getAddedList()) {
                             final Account remote = Account.fromProtoAccount(entity.getAccount());
                             remote.persist(mContext.getEntityDAO());
                         }
                         // readd locals + add to add-list
-                        for(final Account acc : addedLocally) {
-                            final String newId = acc.persist(mContext.getEntityDAO());
-                            acc.setId(newId);
+                        for(final Account acc : addedLocally)
                             serverUpdate.addAdded(SyncProtocol.Entity.newBuilder().setAccount(Account.toProtoAccount(acc)).build());
-                        }
+
 
                         // handle deleted
-                        for(final Long deletedID : serverSide.getDeletedIDList())
+                        for(final String deletedID : serverSide.getDeletedIDList())
                             mContext.getEntityDAO().delete(deletedID, DatabaseDAO.EntityType.ACCOUNTS.toString());
                         // + add to delete list entities that we deleted locally
-                        for(final Long deletedLocal : deletedLocally)
+                        for(final String deletedLocal : deletedLocally)
                             serverUpdate.addDeletedID(deletedLocal);
 
                         serverUpdate.build().writeDelimitedTo(os);
@@ -272,7 +265,7 @@ public class SyncStateMachine {
 
                         final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
                         final List<Operation> addedLocally = mContext.getEntityDAO().getAdded(Operation.class);
-                        final List<Long> deletedLocally = mContext.getEntityDAO().getDeleted(Operation.class);
+                        final List<String> deletedLocally = mContext.getEntityDAO().getDeleted(Operation.class);
 
                         // handle modified entities - check if we updated them too...
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
@@ -295,28 +288,20 @@ public class SyncStateMachine {
                         // handle added entities
                         // need to delete all entities and replace it with ours...
 
-                        // delete locals
-                        for(final Operation op : addedLocally) {
-                            op.delete(mContext.getEntityDAO());
-                            op.setId(null);
-                        }
                         // add remote
                         for(final SyncProtocol.Entity entity : serverSide.getAddedList()) {
                             final Operation remote = Operation.fromProtoOperation(entity.getOperation(), mContext.getEntityDAO());
                             remote.persist(mContext.getEntityDAO());
                         }
                         // readd locals + add to add-list
-                        for(final Operation op : addedLocally) {
-                            final Long newId = op.persist(mContext.getEntityDAO());
-                            op.setId(newId);
+                        for(final Operation op : addedLocally)
                             serverUpdate.addAdded(SyncProtocol.Entity.newBuilder().setOperation(Operation.toProtoOperation(op)).build());
-                        }
 
                         // handle deleted
-                        for(final Long deletedID : serverSide.getDeletedIDList())
+                        for(final String deletedID : serverSide.getDeletedIDList())
                             mContext.getEntityDAO().delete(deletedID, DatabaseDAO.EntityType.OPERATIONS.toString());
                         // + add to delete list entities that we deleted locally
-                        for(final Long deletedLocal : deletedLocally)
+                        for(final String deletedLocal : deletedLocally)
                             serverUpdate.addDeletedID(deletedLocal);
 
                         serverUpdate.build().writeDelimitedTo(os);
@@ -341,7 +326,7 @@ public class SyncStateMachine {
 
         private void sendKnownEntities(OutputStream os, Class<? extends Entity> clazz) throws IOException {
             final Long lastServerTime = mPreferences.getLong(WalletConstants.ACCOUNT_LAST_SYNC, 0);
-            final List<Long> knownIDs = mContext.getEntityDAO().getKnownIDs(clazz);
+            final List<String> knownIDs = mContext.getEntityDAO().getKnownIDs(clazz);
 
             SyncProtocol.EntityRequest.newBuilder()
                     .setLastKnownServerTimestamp(lastServerTime)

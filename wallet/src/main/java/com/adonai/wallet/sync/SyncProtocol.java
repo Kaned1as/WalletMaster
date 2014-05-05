@@ -1382,17 +1382,18 @@ public final class SyncProtocol {
      */
     long getLastKnownServerTimestamp();
 
-    // repeated int64 knownID = 2;
+    // repeated string knownID = 2;
     /**
-     * <code>repeated int64 knownID = 2;</code>
+     * <code>repeated string knownID = 2;</code>
      *
      * <pre>
      * known to client server IDs to detect deletions and modifications
      * </pre>
      */
-    java.util.List<java.lang.Long> getKnownIDList();
+    java.util.List<java.lang.String>
+    getKnownIDList();
     /**
-     * <code>repeated int64 knownID = 2;</code>
+     * <code>repeated string knownID = 2;</code>
      *
      * <pre>
      * known to client server IDs to detect deletions and modifications
@@ -1400,13 +1401,22 @@ public final class SyncProtocol {
      */
     int getKnownIDCount();
     /**
-     * <code>repeated int64 knownID = 2;</code>
+     * <code>repeated string knownID = 2;</code>
      *
      * <pre>
      * known to client server IDs to detect deletions and modifications
      * </pre>
      */
-    long getKnownID(int index);
+    java.lang.String getKnownID(int index);
+    /**
+     * <code>repeated string knownID = 2;</code>
+     *
+     * <pre>
+     * known to client server IDs to detect deletions and modifications
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getKnownIDBytes(int index);
   }
   /**
    * Protobuf type {@code com.adonai.wallet.sync.EntityRequest}
@@ -1464,25 +1474,12 @@ public final class SyncProtocol {
               lastKnownServerTimestamp_ = input.readUInt64();
               break;
             }
-            case 16: {
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                knownID_ = new java.util.ArrayList<java.lang.Long>();
-                mutable_bitField0_ |= 0x00000002;
-              }
-              knownID_.add(input.readInt64());
-              break;
-            }
             case 18: {
-              int length = input.readRawVarint32();
-              int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
-                knownID_ = new java.util.ArrayList<java.lang.Long>();
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                knownID_ = new com.google.protobuf.LazyStringArrayList();
                 mutable_bitField0_ |= 0x00000002;
               }
-              while (input.getBytesUntilLimit() > 0) {
-                knownID_.add(input.readInt64());
-              }
-              input.popLimit(limit);
+              knownID_.add(input.readBytes());
               break;
             }
           }
@@ -1494,7 +1491,7 @@ public final class SyncProtocol {
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-          knownID_ = java.util.Collections.unmodifiableList(knownID_);
+          knownID_ = new com.google.protobuf.UnmodifiableLazyStringList(knownID_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -1552,22 +1549,22 @@ public final class SyncProtocol {
       return lastKnownServerTimestamp_;
     }
 
-    // repeated int64 knownID = 2;
+    // repeated string knownID = 2;
     public static final int KNOWNID_FIELD_NUMBER = 2;
-    private java.util.List<java.lang.Long> knownID_;
+    private com.google.protobuf.LazyStringList knownID_;
     /**
-     * <code>repeated int64 knownID = 2;</code>
+     * <code>repeated string knownID = 2;</code>
      *
      * <pre>
      * known to client server IDs to detect deletions and modifications
      * </pre>
      */
-    public java.util.List<java.lang.Long>
+    public java.util.List<java.lang.String>
         getKnownIDList() {
       return knownID_;
     }
     /**
-     * <code>repeated int64 knownID = 2;</code>
+     * <code>repeated string knownID = 2;</code>
      *
      * <pre>
      * known to client server IDs to detect deletions and modifications
@@ -1577,19 +1574,30 @@ public final class SyncProtocol {
       return knownID_.size();
     }
     /**
-     * <code>repeated int64 knownID = 2;</code>
+     * <code>repeated string knownID = 2;</code>
      *
      * <pre>
      * known to client server IDs to detect deletions and modifications
      * </pre>
      */
-    public long getKnownID(int index) {
+    public java.lang.String getKnownID(int index) {
       return knownID_.get(index);
+    }
+    /**
+     * <code>repeated string knownID = 2;</code>
+     *
+     * <pre>
+     * known to client server IDs to detect deletions and modifications
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getKnownIDBytes(int index) {
+      return knownID_.getByteString(index);
     }
 
     private void initFields() {
       lastKnownServerTimestamp_ = 0L;
-      knownID_ = java.util.Collections.emptyList();
+      knownID_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1611,7 +1619,7 @@ public final class SyncProtocol {
         output.writeUInt64(1, lastKnownServerTimestamp_);
       }
       for (int i = 0; i < knownID_.size(); i++) {
-        output.writeInt64(2, knownID_.get(i));
+        output.writeBytes(2, knownID_.getByteString(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -1630,7 +1638,7 @@ public final class SyncProtocol {
         int dataSize = 0;
         for (int i = 0; i < knownID_.size(); i++) {
           dataSize += com.google.protobuf.CodedOutputStream
-            .computeInt64SizeNoTag(knownID_.get(i));
+            .computeBytesSizeNoTag(knownID_.getByteString(i));
         }
         size += dataSize;
         size += 1 * getKnownIDList().size();
@@ -1753,7 +1761,7 @@ public final class SyncProtocol {
         super.clear();
         lastKnownServerTimestamp_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000001);
-        knownID_ = java.util.Collections.emptyList();
+        knownID_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
@@ -1788,7 +1796,8 @@ public final class SyncProtocol {
         }
         result.lastKnownServerTimestamp_ = lastKnownServerTimestamp_;
         if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          knownID_ = java.util.Collections.unmodifiableList(knownID_);
+          knownID_ = new com.google.protobuf.UnmodifiableLazyStringList(
+              knownID_);
           bitField0_ = (bitField0_ & ~0x00000002);
         }
         result.knownID_ = knownID_;
@@ -1901,27 +1910,27 @@ public final class SyncProtocol {
         return this;
       }
 
-      // repeated int64 knownID = 2;
-      private java.util.List<java.lang.Long> knownID_ = java.util.Collections.emptyList();
+      // repeated string knownID = 2;
+      private com.google.protobuf.LazyStringList knownID_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       private void ensureKnownIDIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          knownID_ = new java.util.ArrayList<java.lang.Long>(knownID_);
+          knownID_ = new com.google.protobuf.LazyStringArrayList(knownID_);
           bitField0_ |= 0x00000002;
          }
       }
       /**
-       * <code>repeated int64 knownID = 2;</code>
+       * <code>repeated string knownID = 2;</code>
        *
        * <pre>
        * known to client server IDs to detect deletions and modifications
        * </pre>
        */
-      public java.util.List<java.lang.Long>
+      public java.util.List<java.lang.String>
           getKnownIDList() {
         return java.util.Collections.unmodifiableList(knownID_);
       }
       /**
-       * <code>repeated int64 knownID = 2;</code>
+       * <code>repeated string knownID = 2;</code>
        *
        * <pre>
        * known to client server IDs to detect deletions and modifications
@@ -1931,66 +1940,101 @@ public final class SyncProtocol {
         return knownID_.size();
       }
       /**
-       * <code>repeated int64 knownID = 2;</code>
+       * <code>repeated string knownID = 2;</code>
        *
        * <pre>
        * known to client server IDs to detect deletions and modifications
        * </pre>
        */
-      public long getKnownID(int index) {
+      public java.lang.String getKnownID(int index) {
         return knownID_.get(index);
       }
       /**
-       * <code>repeated int64 knownID = 2;</code>
+       * <code>repeated string knownID = 2;</code>
+       *
+       * <pre>
+       * known to client server IDs to detect deletions and modifications
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getKnownIDBytes(int index) {
+        return knownID_.getByteString(index);
+      }
+      /**
+       * <code>repeated string knownID = 2;</code>
        *
        * <pre>
        * known to client server IDs to detect deletions and modifications
        * </pre>
        */
       public Builder setKnownID(
-          int index, long value) {
-        ensureKnownIDIsMutable();
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureKnownIDIsMutable();
         knownID_.set(index, value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated int64 knownID = 2;</code>
+       * <code>repeated string knownID = 2;</code>
        *
        * <pre>
        * known to client server IDs to detect deletions and modifications
        * </pre>
        */
-      public Builder addKnownID(long value) {
-        ensureKnownIDIsMutable();
+      public Builder addKnownID(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureKnownIDIsMutable();
         knownID_.add(value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated int64 knownID = 2;</code>
+       * <code>repeated string knownID = 2;</code>
        *
        * <pre>
        * known to client server IDs to detect deletions and modifications
        * </pre>
        */
       public Builder addAllKnownID(
-          java.lang.Iterable<? extends java.lang.Long> values) {
+          java.lang.Iterable<java.lang.String> values) {
         ensureKnownIDIsMutable();
         super.addAll(values, knownID_);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated int64 knownID = 2;</code>
+       * <code>repeated string knownID = 2;</code>
        *
        * <pre>
        * known to client server IDs to detect deletions and modifications
        * </pre>
        */
       public Builder clearKnownID() {
-        knownID_ = java.util.Collections.emptyList();
+        knownID_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string knownID = 2;</code>
+       *
+       * <pre>
+       * known to client server IDs to detect deletions and modifications
+       * </pre>
+       */
+      public Builder addKnownIDBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureKnownIDIsMutable();
+        knownID_.add(value);
         onChanged();
         return this;
       }
@@ -2009,17 +2053,18 @@ public final class SyncProtocol {
   public interface EntityResponseOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // repeated int64 deletedID = 1;
+    // repeated string deletedID = 1;
     /**
-     * <code>repeated int64 deletedID = 1;</code>
+     * <code>repeated string deletedID = 1;</code>
      *
      * <pre>
      * entities deleted on server/client
      * </pre>
      */
-    java.util.List<java.lang.Long> getDeletedIDList();
+    java.util.List<java.lang.String>
+    getDeletedIDList();
     /**
-     * <code>repeated int64 deletedID = 1;</code>
+     * <code>repeated string deletedID = 1;</code>
      *
      * <pre>
      * entities deleted on server/client
@@ -2027,13 +2072,22 @@ public final class SyncProtocol {
      */
     int getDeletedIDCount();
     /**
-     * <code>repeated int64 deletedID = 1;</code>
+     * <code>repeated string deletedID = 1;</code>
      *
      * <pre>
      * entities deleted on server/client
      * </pre>
      */
-    long getDeletedID(int index);
+    java.lang.String getDeletedID(int index);
+    /**
+     * <code>repeated string deletedID = 1;</code>
+     *
+     * <pre>
+     * entities deleted on server/client
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getDeletedIDBytes(int index);
 
     // repeated .com.adonai.wallet.sync.Entity added = 2;
     /**
@@ -2176,25 +2230,12 @@ public final class SyncProtocol {
               }
               break;
             }
-            case 8: {
-              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                deletedID_ = new java.util.ArrayList<java.lang.Long>();
-                mutable_bitField0_ |= 0x00000001;
-              }
-              deletedID_.add(input.readInt64());
-              break;
-            }
             case 10: {
-              int length = input.readRawVarint32();
-              int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001) && input.getBytesUntilLimit() > 0) {
-                deletedID_ = new java.util.ArrayList<java.lang.Long>();
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                deletedID_ = new com.google.protobuf.LazyStringArrayList();
                 mutable_bitField0_ |= 0x00000001;
               }
-              while (input.getBytesUntilLimit() > 0) {
-                deletedID_.add(input.readInt64());
-              }
-              input.popLimit(limit);
+              deletedID_.add(input.readBytes());
               break;
             }
             case 18: {
@@ -2222,7 +2263,7 @@ public final class SyncProtocol {
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-          deletedID_ = java.util.Collections.unmodifiableList(deletedID_);
+          deletedID_ = new com.google.protobuf.UnmodifiableLazyStringList(deletedID_);
         }
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           added_ = java.util.Collections.unmodifiableList(added_);
@@ -2261,22 +2302,22 @@ public final class SyncProtocol {
       return PARSER;
     }
 
-    // repeated int64 deletedID = 1;
+    // repeated string deletedID = 1;
     public static final int DELETEDID_FIELD_NUMBER = 1;
-    private java.util.List<java.lang.Long> deletedID_;
+    private com.google.protobuf.LazyStringList deletedID_;
     /**
-     * <code>repeated int64 deletedID = 1;</code>
+     * <code>repeated string deletedID = 1;</code>
      *
      * <pre>
      * entities deleted on server/client
      * </pre>
      */
-    public java.util.List<java.lang.Long>
+    public java.util.List<java.lang.String>
         getDeletedIDList() {
       return deletedID_;
     }
     /**
-     * <code>repeated int64 deletedID = 1;</code>
+     * <code>repeated string deletedID = 1;</code>
      *
      * <pre>
      * entities deleted on server/client
@@ -2286,14 +2327,25 @@ public final class SyncProtocol {
       return deletedID_.size();
     }
     /**
-     * <code>repeated int64 deletedID = 1;</code>
+     * <code>repeated string deletedID = 1;</code>
      *
      * <pre>
      * entities deleted on server/client
      * </pre>
      */
-    public long getDeletedID(int index) {
+    public java.lang.String getDeletedID(int index) {
       return deletedID_.get(index);
+    }
+    /**
+     * <code>repeated string deletedID = 1;</code>
+     *
+     * <pre>
+     * entities deleted on server/client
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getDeletedIDBytes(int index) {
+      return deletedID_.getByteString(index);
     }
 
     // repeated .com.adonai.wallet.sync.Entity added = 2;
@@ -2409,7 +2461,7 @@ public final class SyncProtocol {
     }
 
     private void initFields() {
-      deletedID_ = java.util.Collections.emptyList();
+      deletedID_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       added_ = java.util.Collections.emptyList();
       modified_ = java.util.Collections.emptyList();
     }
@@ -2438,7 +2490,7 @@ public final class SyncProtocol {
                         throws java.io.IOException {
       getSerializedSize();
       for (int i = 0; i < deletedID_.size(); i++) {
-        output.writeInt64(1, deletedID_.get(i));
+        output.writeBytes(1, deletedID_.getByteString(i));
       }
       for (int i = 0; i < added_.size(); i++) {
         output.writeMessage(2, added_.get(i));
@@ -2459,7 +2511,7 @@ public final class SyncProtocol {
         int dataSize = 0;
         for (int i = 0; i < deletedID_.size(); i++) {
           dataSize += com.google.protobuf.CodedOutputStream
-            .computeInt64SizeNoTag(deletedID_.get(i));
+            .computeBytesSizeNoTag(deletedID_.getByteString(i));
         }
         size += dataSize;
         size += 1 * getDeletedIDList().size();
@@ -2590,7 +2642,7 @@ public final class SyncProtocol {
 
       public Builder clear() {
         super.clear();
-        deletedID_ = java.util.Collections.emptyList();
+        deletedID_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
         if (addedBuilder_ == null) {
           added_ = java.util.Collections.emptyList();
@@ -2632,7 +2684,8 @@ public final class SyncProtocol {
         com.adonai.wallet.sync.SyncProtocol.EntityResponse result = new com.adonai.wallet.sync.SyncProtocol.EntityResponse(this);
         int from_bitField0_ = bitField0_;
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          deletedID_ = java.util.Collections.unmodifiableList(deletedID_);
+          deletedID_ = new com.google.protobuf.UnmodifiableLazyStringList(
+              deletedID_);
           bitField0_ = (bitField0_ & ~0x00000001);
         }
         result.deletedID_ = deletedID_;
@@ -2770,27 +2823,27 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // repeated int64 deletedID = 1;
-      private java.util.List<java.lang.Long> deletedID_ = java.util.Collections.emptyList();
+      // repeated string deletedID = 1;
+      private com.google.protobuf.LazyStringList deletedID_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       private void ensureDeletedIDIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          deletedID_ = new java.util.ArrayList<java.lang.Long>(deletedID_);
+          deletedID_ = new com.google.protobuf.LazyStringArrayList(deletedID_);
           bitField0_ |= 0x00000001;
          }
       }
       /**
-       * <code>repeated int64 deletedID = 1;</code>
+       * <code>repeated string deletedID = 1;</code>
        *
        * <pre>
        * entities deleted on server/client
        * </pre>
        */
-      public java.util.List<java.lang.Long>
+      public java.util.List<java.lang.String>
           getDeletedIDList() {
         return java.util.Collections.unmodifiableList(deletedID_);
       }
       /**
-       * <code>repeated int64 deletedID = 1;</code>
+       * <code>repeated string deletedID = 1;</code>
        *
        * <pre>
        * entities deleted on server/client
@@ -2800,66 +2853,101 @@ public final class SyncProtocol {
         return deletedID_.size();
       }
       /**
-       * <code>repeated int64 deletedID = 1;</code>
+       * <code>repeated string deletedID = 1;</code>
        *
        * <pre>
        * entities deleted on server/client
        * </pre>
        */
-      public long getDeletedID(int index) {
+      public java.lang.String getDeletedID(int index) {
         return deletedID_.get(index);
       }
       /**
-       * <code>repeated int64 deletedID = 1;</code>
+       * <code>repeated string deletedID = 1;</code>
+       *
+       * <pre>
+       * entities deleted on server/client
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getDeletedIDBytes(int index) {
+        return deletedID_.getByteString(index);
+      }
+      /**
+       * <code>repeated string deletedID = 1;</code>
        *
        * <pre>
        * entities deleted on server/client
        * </pre>
        */
       public Builder setDeletedID(
-          int index, long value) {
-        ensureDeletedIDIsMutable();
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureDeletedIDIsMutable();
         deletedID_.set(index, value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated int64 deletedID = 1;</code>
+       * <code>repeated string deletedID = 1;</code>
        *
        * <pre>
        * entities deleted on server/client
        * </pre>
        */
-      public Builder addDeletedID(long value) {
-        ensureDeletedIDIsMutable();
+      public Builder addDeletedID(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureDeletedIDIsMutable();
         deletedID_.add(value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated int64 deletedID = 1;</code>
+       * <code>repeated string deletedID = 1;</code>
        *
        * <pre>
        * entities deleted on server/client
        * </pre>
        */
       public Builder addAllDeletedID(
-          java.lang.Iterable<? extends java.lang.Long> values) {
+          java.lang.Iterable<java.lang.String> values) {
         ensureDeletedIDIsMutable();
         super.addAll(values, deletedID_);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated int64 deletedID = 1;</code>
+       * <code>repeated string deletedID = 1;</code>
        *
        * <pre>
        * entities deleted on server/client
        * </pre>
        */
       public Builder clearDeletedID() {
-        deletedID_ = java.util.Collections.emptyList();
+        deletedID_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string deletedID = 1;</code>
+       *
+       * <pre>
+       * entities deleted on server/client
+       * </pre>
+       */
+      public Builder addDeletedIDBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureDeletedIDIsMutable();
+        deletedID_.add(value);
         onChanged();
         return this;
       }
@@ -4833,15 +4921,20 @@ public final class SyncProtocol {
   public interface AccountOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // required uint64 ID = 1;
+    // required string ID = 1;
     /**
-     * <code>required uint64 ID = 1;</code>
+     * <code>required string ID = 1;</code>
      */
     boolean hasID();
     /**
-     * <code>required uint64 ID = 1;</code>
+     * <code>required string ID = 1;</code>
      */
-    long getID();
+    java.lang.String getID();
+    /**
+     * <code>required string ID = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getIDBytes();
 
     // required string name = 2;
     /**
@@ -4976,9 +5069,9 @@ public final class SyncProtocol {
               }
               break;
             }
-            case 8: {
+            case 10: {
               bitField0_ |= 0x00000001;
-              iD_ = input.readUInt64();
+              iD_ = input.readBytes();
               break;
             }
             case 18: {
@@ -5046,20 +5139,47 @@ public final class SyncProtocol {
     }
 
     private int bitField0_;
-    // required uint64 ID = 1;
+    // required string ID = 1;
     public static final int ID_FIELD_NUMBER = 1;
-    private long iD_;
+    private java.lang.Object iD_;
     /**
-     * <code>required uint64 ID = 1;</code>
+     * <code>required string ID = 1;</code>
      */
     public boolean hasID() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>required uint64 ID = 1;</code>
+     * <code>required string ID = 1;</code>
      */
-    public long getID() {
-      return iD_;
+    public java.lang.String getID() {
+      java.lang.Object ref = iD_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          iD_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string ID = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getIDBytes() {
+      java.lang.Object ref = iD_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        iD_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     // required string name = 2;
@@ -5263,7 +5383,7 @@ public final class SyncProtocol {
     }
 
     private void initFields() {
-      iD_ = 0L;
+      iD_ = "";
       name_ = "";
       description_ = "";
       currency_ = "";
@@ -5299,7 +5419,7 @@ public final class SyncProtocol {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeUInt64(1, iD_);
+        output.writeBytes(1, getIDBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, getNameBytes());
@@ -5327,7 +5447,7 @@ public final class SyncProtocol {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(1, iD_);
+          .computeBytesSize(1, getIDBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
@@ -5465,7 +5585,7 @@ public final class SyncProtocol {
 
       public Builder clear() {
         super.clear();
-        iD_ = 0L;
+        iD_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
         name_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -5546,7 +5666,9 @@ public final class SyncProtocol {
       public Builder mergeFrom(com.adonai.wallet.sync.SyncProtocol.Account other) {
         if (other == com.adonai.wallet.sync.SyncProtocol.Account.getDefaultInstance()) return this;
         if (other.hasID()) {
-          setID(other.getID());
+          bitField0_ |= 0x00000001;
+          iD_ = other.iD_;
+          onChanged();
         }
         if (other.hasName()) {
           bitField0_ |= 0x00000002;
@@ -5614,35 +5736,76 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required uint64 ID = 1;
-      private long iD_ ;
+      // required string ID = 1;
+      private java.lang.Object iD_ = "";
       /**
-       * <code>required uint64 ID = 1;</code>
+       * <code>required string ID = 1;</code>
        */
       public boolean hasID() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required uint64 ID = 1;</code>
+       * <code>required string ID = 1;</code>
        */
-      public long getID() {
-        return iD_;
+      public java.lang.String getID() {
+        java.lang.Object ref = iD_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          iD_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>required uint64 ID = 1;</code>
+       * <code>required string ID = 1;</code>
        */
-      public Builder setID(long value) {
-        bitField0_ |= 0x00000001;
+      public com.google.protobuf.ByteString
+          getIDBytes() {
+        java.lang.Object ref = iD_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          iD_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string ID = 1;</code>
+       */
+      public Builder setID(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
         iD_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required uint64 ID = 1;</code>
+       * <code>required string ID = 1;</code>
        */
       public Builder clearID() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        iD_ = 0L;
+        iD_ = getDefaultInstance().getID();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string ID = 1;</code>
+       */
+      public Builder setIDBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        iD_ = value;
         onChanged();
         return this;
       }
@@ -6014,15 +6177,20 @@ public final class SyncProtocol {
   public interface OperationOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // required uint64 ID = 1;
+    // required string ID = 1;
     /**
-     * <code>required uint64 ID = 1;</code>
+     * <code>required string ID = 1;</code>
      */
     boolean hasID();
     /**
-     * <code>required uint64 ID = 1;</code>
+     * <code>required string ID = 1;</code>
      */
-    long getID();
+    java.lang.String getID();
+    /**
+     * <code>required string ID = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getIDBytes();
 
     // optional string description = 2;
     /**
@@ -6049,25 +6217,35 @@ public final class SyncProtocol {
      */
     long getTime();
 
-    // optional uint64 chargerId = 4;
+    // optional string chargerId = 4;
     /**
-     * <code>optional uint64 chargerId = 4;</code>
+     * <code>optional string chargerId = 4;</code>
      */
     boolean hasChargerId();
     /**
-     * <code>optional uint64 chargerId = 4;</code>
+     * <code>optional string chargerId = 4;</code>
      */
-    long getChargerId();
-
-    // optional uint64 beneficiarId = 5;
+    java.lang.String getChargerId();
     /**
-     * <code>optional uint64 beneficiarId = 5;</code>
+     * <code>optional string chargerId = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getChargerIdBytes();
+
+    // optional string beneficiarId = 5;
+    /**
+     * <code>optional string beneficiarId = 5;</code>
      */
     boolean hasBeneficiarId();
     /**
-     * <code>optional uint64 beneficiarId = 5;</code>
+     * <code>optional string beneficiarId = 5;</code>
      */
-    long getBeneficiarId();
+    java.lang.String getBeneficiarId();
+    /**
+     * <code>optional string beneficiarId = 5;</code>
+     */
+    com.google.protobuf.ByteString
+        getBeneficiarIdBytes();
 
     // required string amount = 6;
     /**
@@ -6094,15 +6272,20 @@ public final class SyncProtocol {
      */
     double getConvertingRate();
 
-    // required uint64 categoryId = 8;
+    // required string categoryId = 8;
     /**
-     * <code>required uint64 categoryId = 8;</code>
+     * <code>required string categoryId = 8;</code>
      */
     boolean hasCategoryId();
     /**
-     * <code>required uint64 categoryId = 8;</code>
+     * <code>required string categoryId = 8;</code>
      */
-    long getCategoryId();
+    java.lang.String getCategoryId();
+    /**
+     * <code>required string categoryId = 8;</code>
+     */
+    com.google.protobuf.ByteString
+        getCategoryIdBytes();
   }
   /**
    * Protobuf type {@code com.adonai.wallet.sync.Operation}
@@ -6155,9 +6338,9 @@ public final class SyncProtocol {
               }
               break;
             }
-            case 8: {
+            case 10: {
               bitField0_ |= 0x00000001;
-              iD_ = input.readUInt64();
+              iD_ = input.readBytes();
               break;
             }
             case 18: {
@@ -6170,14 +6353,14 @@ public final class SyncProtocol {
               time_ = input.readUInt64();
               break;
             }
-            case 32: {
+            case 34: {
               bitField0_ |= 0x00000008;
-              chargerId_ = input.readUInt64();
+              chargerId_ = input.readBytes();
               break;
             }
-            case 40: {
+            case 42: {
               bitField0_ |= 0x00000010;
-              beneficiarId_ = input.readUInt64();
+              beneficiarId_ = input.readBytes();
               break;
             }
             case 50: {
@@ -6190,9 +6373,9 @@ public final class SyncProtocol {
               convertingRate_ = input.readDouble();
               break;
             }
-            case 64: {
+            case 66: {
               bitField0_ |= 0x00000080;
-              categoryId_ = input.readUInt64();
+              categoryId_ = input.readBytes();
               break;
             }
           }
@@ -6235,20 +6418,47 @@ public final class SyncProtocol {
     }
 
     private int bitField0_;
-    // required uint64 ID = 1;
+    // required string ID = 1;
     public static final int ID_FIELD_NUMBER = 1;
-    private long iD_;
+    private java.lang.Object iD_;
     /**
-     * <code>required uint64 ID = 1;</code>
+     * <code>required string ID = 1;</code>
      */
     public boolean hasID() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>required uint64 ID = 1;</code>
+     * <code>required string ID = 1;</code>
      */
-    public long getID() {
-      return iD_;
+    public java.lang.String getID() {
+      java.lang.Object ref = iD_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          iD_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string ID = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getIDBytes() {
+      java.lang.Object ref = iD_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        iD_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     // optional string description = 2;
@@ -6310,36 +6520,90 @@ public final class SyncProtocol {
       return time_;
     }
 
-    // optional uint64 chargerId = 4;
+    // optional string chargerId = 4;
     public static final int CHARGERID_FIELD_NUMBER = 4;
-    private long chargerId_;
+    private java.lang.Object chargerId_;
     /**
-     * <code>optional uint64 chargerId = 4;</code>
+     * <code>optional string chargerId = 4;</code>
      */
     public boolean hasChargerId() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional uint64 chargerId = 4;</code>
+     * <code>optional string chargerId = 4;</code>
      */
-    public long getChargerId() {
-      return chargerId_;
+    public java.lang.String getChargerId() {
+      java.lang.Object ref = chargerId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          chargerId_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string chargerId = 4;</code>
+     */
+    public com.google.protobuf.ByteString
+        getChargerIdBytes() {
+      java.lang.Object ref = chargerId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        chargerId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
-    // optional uint64 beneficiarId = 5;
+    // optional string beneficiarId = 5;
     public static final int BENEFICIARID_FIELD_NUMBER = 5;
-    private long beneficiarId_;
+    private java.lang.Object beneficiarId_;
     /**
-     * <code>optional uint64 beneficiarId = 5;</code>
+     * <code>optional string beneficiarId = 5;</code>
      */
     public boolean hasBeneficiarId() {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
-     * <code>optional uint64 beneficiarId = 5;</code>
+     * <code>optional string beneficiarId = 5;</code>
      */
-    public long getBeneficiarId() {
-      return beneficiarId_;
+    public java.lang.String getBeneficiarId() {
+      java.lang.Object ref = beneficiarId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          beneficiarId_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string beneficiarId = 5;</code>
+     */
+    public com.google.protobuf.ByteString
+        getBeneficiarIdBytes() {
+      java.lang.Object ref = beneficiarId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        beneficiarId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     // required string amount = 6;
@@ -6401,31 +6665,58 @@ public final class SyncProtocol {
       return convertingRate_;
     }
 
-    // required uint64 categoryId = 8;
+    // required string categoryId = 8;
     public static final int CATEGORYID_FIELD_NUMBER = 8;
-    private long categoryId_;
+    private java.lang.Object categoryId_;
     /**
-     * <code>required uint64 categoryId = 8;</code>
+     * <code>required string categoryId = 8;</code>
      */
     public boolean hasCategoryId() {
       return ((bitField0_ & 0x00000080) == 0x00000080);
     }
     /**
-     * <code>required uint64 categoryId = 8;</code>
+     * <code>required string categoryId = 8;</code>
      */
-    public long getCategoryId() {
-      return categoryId_;
+    public java.lang.String getCategoryId() {
+      java.lang.Object ref = categoryId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          categoryId_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string categoryId = 8;</code>
+     */
+    public com.google.protobuf.ByteString
+        getCategoryIdBytes() {
+      java.lang.Object ref = categoryId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        categoryId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     private void initFields() {
-      iD_ = 0L;
+      iD_ = "";
       description_ = "";
       time_ = 0L;
-      chargerId_ = 0L;
-      beneficiarId_ = 0L;
+      chargerId_ = "";
+      beneficiarId_ = "";
       amount_ = "";
       convertingRate_ = 0D;
-      categoryId_ = 0L;
+      categoryId_ = "";
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -6456,7 +6747,7 @@ public final class SyncProtocol {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeUInt64(1, iD_);
+        output.writeBytes(1, getIDBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, getDescriptionBytes());
@@ -6465,10 +6756,10 @@ public final class SyncProtocol {
         output.writeUInt64(3, time_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeUInt64(4, chargerId_);
+        output.writeBytes(4, getChargerIdBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeUInt64(5, beneficiarId_);
+        output.writeBytes(5, getBeneficiarIdBytes());
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         output.writeBytes(6, getAmountBytes());
@@ -6477,7 +6768,7 @@ public final class SyncProtocol {
         output.writeDouble(7, convertingRate_);
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        output.writeUInt64(8, categoryId_);
+        output.writeBytes(8, getCategoryIdBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -6490,7 +6781,7 @@ public final class SyncProtocol {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(1, iD_);
+          .computeBytesSize(1, getIDBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
@@ -6502,11 +6793,11 @@ public final class SyncProtocol {
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(4, chargerId_);
+          .computeBytesSize(4, getChargerIdBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(5, beneficiarId_);
+          .computeBytesSize(5, getBeneficiarIdBytes());
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
@@ -6518,7 +6809,7 @@ public final class SyncProtocol {
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(8, categoryId_);
+          .computeBytesSize(8, getCategoryIdBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -6636,21 +6927,21 @@ public final class SyncProtocol {
 
       public Builder clear() {
         super.clear();
-        iD_ = 0L;
+        iD_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
         description_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
         time_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000004);
-        chargerId_ = 0L;
+        chargerId_ = "";
         bitField0_ = (bitField0_ & ~0x00000008);
-        beneficiarId_ = 0L;
+        beneficiarId_ = "";
         bitField0_ = (bitField0_ & ~0x00000010);
         amount_ = "";
         bitField0_ = (bitField0_ & ~0x00000020);
         convertingRate_ = 0D;
         bitField0_ = (bitField0_ & ~0x00000040);
-        categoryId_ = 0L;
+        categoryId_ = "";
         bitField0_ = (bitField0_ & ~0x00000080);
         return this;
       }
@@ -6729,7 +7020,9 @@ public final class SyncProtocol {
       public Builder mergeFrom(com.adonai.wallet.sync.SyncProtocol.Operation other) {
         if (other == com.adonai.wallet.sync.SyncProtocol.Operation.getDefaultInstance()) return this;
         if (other.hasID()) {
-          setID(other.getID());
+          bitField0_ |= 0x00000001;
+          iD_ = other.iD_;
+          onChanged();
         }
         if (other.hasDescription()) {
           bitField0_ |= 0x00000002;
@@ -6740,10 +7033,14 @@ public final class SyncProtocol {
           setTime(other.getTime());
         }
         if (other.hasChargerId()) {
-          setChargerId(other.getChargerId());
+          bitField0_ |= 0x00000008;
+          chargerId_ = other.chargerId_;
+          onChanged();
         }
         if (other.hasBeneficiarId()) {
-          setBeneficiarId(other.getBeneficiarId());
+          bitField0_ |= 0x00000010;
+          beneficiarId_ = other.beneficiarId_;
+          onChanged();
         }
         if (other.hasAmount()) {
           bitField0_ |= 0x00000020;
@@ -6754,7 +7051,9 @@ public final class SyncProtocol {
           setConvertingRate(other.getConvertingRate());
         }
         if (other.hasCategoryId()) {
-          setCategoryId(other.getCategoryId());
+          bitField0_ |= 0x00000080;
+          categoryId_ = other.categoryId_;
+          onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -6799,35 +7098,76 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required uint64 ID = 1;
-      private long iD_ ;
+      // required string ID = 1;
+      private java.lang.Object iD_ = "";
       /**
-       * <code>required uint64 ID = 1;</code>
+       * <code>required string ID = 1;</code>
        */
       public boolean hasID() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required uint64 ID = 1;</code>
+       * <code>required string ID = 1;</code>
        */
-      public long getID() {
-        return iD_;
+      public java.lang.String getID() {
+        java.lang.Object ref = iD_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          iD_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>required uint64 ID = 1;</code>
+       * <code>required string ID = 1;</code>
        */
-      public Builder setID(long value) {
-        bitField0_ |= 0x00000001;
+      public com.google.protobuf.ByteString
+          getIDBytes() {
+        java.lang.Object ref = iD_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          iD_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string ID = 1;</code>
+       */
+      public Builder setID(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
         iD_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required uint64 ID = 1;</code>
+       * <code>required string ID = 1;</code>
        */
       public Builder clearID() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        iD_ = 0L;
+        iD_ = getDefaultInstance().getID();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string ID = 1;</code>
+       */
+      public Builder setIDBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        iD_ = value;
         onChanged();
         return this;
       }
@@ -6939,68 +7279,150 @@ public final class SyncProtocol {
         return this;
       }
 
-      // optional uint64 chargerId = 4;
-      private long chargerId_ ;
+      // optional string chargerId = 4;
+      private java.lang.Object chargerId_ = "";
       /**
-       * <code>optional uint64 chargerId = 4;</code>
+       * <code>optional string chargerId = 4;</code>
        */
       public boolean hasChargerId() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional uint64 chargerId = 4;</code>
+       * <code>optional string chargerId = 4;</code>
        */
-      public long getChargerId() {
-        return chargerId_;
+      public java.lang.String getChargerId() {
+        java.lang.Object ref = chargerId_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          chargerId_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>optional uint64 chargerId = 4;</code>
+       * <code>optional string chargerId = 4;</code>
        */
-      public Builder setChargerId(long value) {
-        bitField0_ |= 0x00000008;
+      public com.google.protobuf.ByteString
+          getChargerIdBytes() {
+        java.lang.Object ref = chargerId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          chargerId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string chargerId = 4;</code>
+       */
+      public Builder setChargerId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
         chargerId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional uint64 chargerId = 4;</code>
+       * <code>optional string chargerId = 4;</code>
        */
       public Builder clearChargerId() {
         bitField0_ = (bitField0_ & ~0x00000008);
-        chargerId_ = 0L;
+        chargerId_ = getDefaultInstance().getChargerId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string chargerId = 4;</code>
+       */
+      public Builder setChargerIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+        chargerId_ = value;
         onChanged();
         return this;
       }
 
-      // optional uint64 beneficiarId = 5;
-      private long beneficiarId_ ;
+      // optional string beneficiarId = 5;
+      private java.lang.Object beneficiarId_ = "";
       /**
-       * <code>optional uint64 beneficiarId = 5;</code>
+       * <code>optional string beneficiarId = 5;</code>
        */
       public boolean hasBeneficiarId() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>optional uint64 beneficiarId = 5;</code>
+       * <code>optional string beneficiarId = 5;</code>
        */
-      public long getBeneficiarId() {
-        return beneficiarId_;
+      public java.lang.String getBeneficiarId() {
+        java.lang.Object ref = beneficiarId_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          beneficiarId_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>optional uint64 beneficiarId = 5;</code>
+       * <code>optional string beneficiarId = 5;</code>
        */
-      public Builder setBeneficiarId(long value) {
-        bitField0_ |= 0x00000010;
+      public com.google.protobuf.ByteString
+          getBeneficiarIdBytes() {
+        java.lang.Object ref = beneficiarId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          beneficiarId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string beneficiarId = 5;</code>
+       */
+      public Builder setBeneficiarId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
         beneficiarId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional uint64 beneficiarId = 5;</code>
+       * <code>optional string beneficiarId = 5;</code>
        */
       public Builder clearBeneficiarId() {
         bitField0_ = (bitField0_ & ~0x00000010);
-        beneficiarId_ = 0L;
+        beneficiarId_ = getDefaultInstance().getBeneficiarId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string beneficiarId = 5;</code>
+       */
+      public Builder setBeneficiarIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        beneficiarId_ = value;
         onChanged();
         return this;
       }
@@ -7112,35 +7534,76 @@ public final class SyncProtocol {
         return this;
       }
 
-      // required uint64 categoryId = 8;
-      private long categoryId_ ;
+      // required string categoryId = 8;
+      private java.lang.Object categoryId_ = "";
       /**
-       * <code>required uint64 categoryId = 8;</code>
+       * <code>required string categoryId = 8;</code>
        */
       public boolean hasCategoryId() {
         return ((bitField0_ & 0x00000080) == 0x00000080);
       }
       /**
-       * <code>required uint64 categoryId = 8;</code>
+       * <code>required string categoryId = 8;</code>
        */
-      public long getCategoryId() {
-        return categoryId_;
+      public java.lang.String getCategoryId() {
+        java.lang.Object ref = categoryId_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          categoryId_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>required uint64 categoryId = 8;</code>
+       * <code>required string categoryId = 8;</code>
        */
-      public Builder setCategoryId(long value) {
-        bitField0_ |= 0x00000080;
+      public com.google.protobuf.ByteString
+          getCategoryIdBytes() {
+        java.lang.Object ref = categoryId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          categoryId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string categoryId = 8;</code>
+       */
+      public Builder setCategoryId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000080;
         categoryId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required uint64 categoryId = 8;</code>
+       * <code>required string categoryId = 8;</code>
        */
       public Builder clearCategoryId() {
         bitField0_ = (bitField0_ & ~0x00000080);
-        categoryId_ = 0L;
+        categoryId_ = getDefaultInstance().getCategoryId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string categoryId = 8;</code>
+       */
+      public Builder setCategoryIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000080;
+        categoryId_ = value;
         onChanged();
         return this;
       }
@@ -7159,15 +7622,20 @@ public final class SyncProtocol {
   public interface CategoryOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
 
-    // required uint64 ID = 1;
+    // required string ID = 1;
     /**
-     * <code>required uint64 ID = 1;</code>
+     * <code>required string ID = 1;</code>
      */
     boolean hasID();
     /**
-     * <code>required uint64 ID = 1;</code>
+     * <code>required string ID = 1;</code>
      */
-    long getID();
+    java.lang.String getID();
+    /**
+     * <code>required string ID = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getIDBytes();
 
     // required string name = 2;
     /**
@@ -7255,9 +7723,9 @@ public final class SyncProtocol {
               }
               break;
             }
-            case 8: {
+            case 10: {
               bitField0_ |= 0x00000001;
-              iD_ = input.readUInt64();
+              iD_ = input.readBytes();
               break;
             }
             case 18: {
@@ -7315,20 +7783,47 @@ public final class SyncProtocol {
     }
 
     private int bitField0_;
-    // required uint64 ID = 1;
+    // required string ID = 1;
     public static final int ID_FIELD_NUMBER = 1;
-    private long iD_;
+    private java.lang.Object iD_;
     /**
-     * <code>required uint64 ID = 1;</code>
+     * <code>required string ID = 1;</code>
      */
     public boolean hasID() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>required uint64 ID = 1;</code>
+     * <code>required string ID = 1;</code>
      */
-    public long getID() {
-      return iD_;
+    public java.lang.String getID() {
+      java.lang.Object ref = iD_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          iD_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string ID = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getIDBytes() {
+      java.lang.Object ref = iD_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        iD_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     // required string name = 2;
@@ -7407,7 +7902,7 @@ public final class SyncProtocol {
     }
 
     private void initFields() {
-      iD_ = 0L;
+      iD_ = "";
       name_ = "";
       type_ = 0;
       preferredAccount_ = 0L;
@@ -7437,7 +7932,7 @@ public final class SyncProtocol {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeUInt64(1, iD_);
+        output.writeBytes(1, getIDBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, getNameBytes());
@@ -7459,7 +7954,7 @@ public final class SyncProtocol {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(1, iD_);
+          .computeBytesSize(1, getIDBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
@@ -7589,7 +8084,7 @@ public final class SyncProtocol {
 
       public Builder clear() {
         super.clear();
-        iD_ = 0L;
+        iD_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
         name_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -7658,7 +8153,9 @@ public final class SyncProtocol {
       public Builder mergeFrom(com.adonai.wallet.sync.SyncProtocol.Category other) {
         if (other == com.adonai.wallet.sync.SyncProtocol.Category.getDefaultInstance()) return this;
         if (other.hasID()) {
-          setID(other.getID());
+          bitField0_ |= 0x00000001;
+          iD_ = other.iD_;
+          onChanged();
         }
         if (other.hasName()) {
           bitField0_ |= 0x00000002;
@@ -7710,35 +8207,76 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required uint64 ID = 1;
-      private long iD_ ;
+      // required string ID = 1;
+      private java.lang.Object iD_ = "";
       /**
-       * <code>required uint64 ID = 1;</code>
+       * <code>required string ID = 1;</code>
        */
       public boolean hasID() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required uint64 ID = 1;</code>
+       * <code>required string ID = 1;</code>
        */
-      public long getID() {
-        return iD_;
+      public java.lang.String getID() {
+        java.lang.Object ref = iD_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          iD_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>required uint64 ID = 1;</code>
+       * <code>required string ID = 1;</code>
        */
-      public Builder setID(long value) {
-        bitField0_ |= 0x00000001;
+      public com.google.protobuf.ByteString
+          getIDBytes() {
+        java.lang.Object ref = iD_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          iD_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string ID = 1;</code>
+       */
+      public Builder setID(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
         iD_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required uint64 ID = 1;</code>
+       * <code>required string ID = 1;</code>
        */
       public Builder clearID() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        iD_ = 0L;
+        iD_ = getDefaultInstance().getID();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string ID = 1;</code>
+       */
+      public Builder setIDBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        iD_ = value;
         onChanged();
         return this;
       }
@@ -7959,8 +8497,8 @@ public final class SyncProtocol {
       "\n\nAUTH_WRONG\020\223\003\022\024\n\017ALREADY_SYNCING\020\231\003\022\022\n" +
       "\rUNKNOWN_ERROR\020\347\007\"B\n\rEntityRequest\022 \n\030la",
       "stKnownServerTimestamp\030\001 \002(\004\022\017\n\007knownID\030" +
-      "\002 \003(\003\"\204\001\n\016EntityResponse\022\021\n\tdeletedID\030\001 " +
-      "\003(\003\022-\n\005added\030\002 \003(\0132\036.com.adonai.wallet.s" +
+      "\002 \003(\t\"\204\001\n\016EntityResponse\022\021\n\tdeletedID\030\001 " +
+      "\003(\t\022-\n\005added\030\002 \003(\0132\036.com.adonai.wallet.s" +
       "ync.Entity\0220\n\010modified\030\003 \003(\0132\036.com.adona" +
       "i.wallet.sync.Entity\"\'\n\tEntityAck\022\032\n\022new" +
       "ServerTimestamp\030\001 \002(\004\"\244\001\n\006Entity\0220\n\007acco" +
@@ -7968,14 +8506,14 @@ public final class SyncProtocol {
       "nt\0224\n\toperation\030\002 \001(\0132!.com.adonai.walle" +
       "t.sync.Operation\0222\n\010category\030\003 \001(\0132 .com" +
       ".adonai.wallet.sync.Category\"i\n\007Account\022",
-      "\n\n\002ID\030\001 \002(\004\022\014\n\004name\030\002 \002(\t\022\023\n\013description" +
+      "\n\n\002ID\030\001 \002(\t\022\014\n\004name\030\002 \002(\t\022\023\n\013description" +
       "\030\003 \001(\t\022\020\n\010currency\030\004 \002(\t\022\016\n\006amount\030\005 \002(\t" +
       "\022\r\n\005color\030\006 \001(\005\"\237\001\n\tOperation\022\n\n\002ID\030\001 \002(" +
-      "\004\022\023\n\013description\030\002 \001(\t\022\014\n\004time\030\003 \002(\004\022\021\n\t" +
-      "chargerId\030\004 \001(\004\022\024\n\014beneficiarId\030\005 \001(\004\022\016\n" +
+      "\t\022\023\n\013description\030\002 \001(\t\022\014\n\004time\030\003 \002(\004\022\021\n\t" +
+      "chargerId\030\004 \001(\t\022\024\n\014beneficiarId\030\005 \001(\t\022\016\n" +
       "\006amount\030\006 \002(\t\022\026\n\016convertingRate\030\007 \001(\001\022\022\n" +
-      "\ncategoryId\030\010 \002(\004\"L\n\010Category\022\n\n\002ID\030\001 \002(" +
-      "\004\022\014\n\004name\030\002 \002(\t\022\014\n\004type\030\003 \002(\r\022\030\n\020preferr" +
+      "\ncategoryId\030\010 \002(\t\"L\n\010Category\022\n\n\002ID\030\001 \002(" +
+      "\t\022\014\n\004name\030\002 \002(\t\022\014\n\004type\030\003 \002(\r\022\030\n\020preferr" +
       "edAccount\030\004 \001(\004"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =

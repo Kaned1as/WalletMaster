@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 /**
@@ -191,12 +192,14 @@ public class DatabaseDAO extends SQLiteOpenHelper
         final String[] defaultIncomeCategories = mContext.getResources().getStringArray(R.array.inc_categories);
         for(final String outCategory : defaultOutcomeCategories) {
             final ContentValues values = new ContentValues(2);
+            values.put(CategoriesFields._id.toString(), UUID.randomUUID().toString());
             values.put(CategoriesFields.NAME.toString(), outCategory);
             values.put(CategoriesFields.TYPE.toString(), Category.EXPENSE);
             sqLiteDatabase.insert(EntityType.CATEGORIES.toString(), null, values);
         }
         for(final String inCategory : defaultIncomeCategories) {
             final ContentValues values = new ContentValues(2);
+            values.put(CategoriesFields._id.toString(), UUID.randomUUID().toString());
             values.put(CategoriesFields.NAME.toString(), inCategory);
             values.put(CategoriesFields.TYPE.toString(), Category.INCOME);
             sqLiteDatabase.insert(EntityType.CATEGORIES.toString(), null, values);
@@ -233,6 +236,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         final Random rand = new Random();
         for(int i = 0; i < 100; ++i) {
             final ContentValues values = new ContentValues(5);
+            values.put(AccountFields._id.toString(), UUID.randomUUID().toString());
             values.put(AccountFields.NAME.toString(), "Account" + i);
             values.put(AccountFields.DESCRIPTION.toString(), "");
             values.put(AccountFields.CURRENCY.toString(), "RUB");
@@ -244,6 +248,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
         for(int i = 0; i < 1000; ++i) {
             final ContentValues values = new ContentValues(7);
+            values.put(OperationsFields._id.toString(), UUID.randomUUID().toString());
             values.put(OperationsFields.DESCRIPTION.toString(), ""); // mandatory
             values.put(OperationsFields.CATEGORY.toString(), 3); // mandatory
             values.put(OperationsFields.AMOUNT.toString(), String.valueOf(rand.nextInt(500))); // mandatory

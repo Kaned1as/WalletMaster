@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -238,10 +239,11 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             final View view;
+            final LayoutInflater inflater = LayoutInflater.from(mContext);
             mCursor.moveToPosition(position);
 
             if (convertView == null)
-                view = View.inflate(mContext, android.R.layout.simple_spinner_item, null);
+                view = inflater.inflate(android.R.layout.simple_spinner_item, parent, false);
             else
                 view = convertView;
 
@@ -278,10 +280,11 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             final View view;
+            final LayoutInflater inflater = LayoutInflater.from(mContext);
             mCursor.moveToPosition(position);
 
             if (convertView == null)
-                view = View.inflate(mContext, android.R.layout.simple_spinner_item, null);
+                view = inflater.inflate(android.R.layout.simple_spinner_item, parent, false);
             else
                 view = convertView;
 

@@ -112,11 +112,12 @@ public class OperationsFragment extends WalletBaseFragment {
         @SuppressWarnings("deprecation") // for compat with older APIs
         public View getView(int position, View convertView, ViewGroup parent) {
             final View view;
+            final LayoutInflater inflater = LayoutInflater.from(mContext);
             final DatabaseDAO db = getWalletActivity().getEntityDAO();
             mCursor.moveToPosition(position);
 
             if (convertView == null)
-                view = View.inflate(mContext, R.layout.operation_list_item, null);
+                view = inflater.inflate(R.layout.operation_list_item, parent, false);
             else
                 view = convertView;
 

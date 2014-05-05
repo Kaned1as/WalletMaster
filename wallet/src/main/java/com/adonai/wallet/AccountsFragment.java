@@ -100,10 +100,11 @@ public class AccountsFragment extends WalletBaseFragment {
         @SuppressWarnings("deprecation") // for compat with older APIs
         public View getView(int position, View convertView, ViewGroup parent) {
             final View view;
+            final LayoutInflater inflater = LayoutInflater.from(mContext);
             mCursor.moveToPosition(position);
 
             if (convertView == null)
-                view = View.inflate(mContext, R.layout.account_list_item, null);
+                view = inflater.inflate(R.layout.account_list_item, parent, false);
             else
                 view = convertView;
 

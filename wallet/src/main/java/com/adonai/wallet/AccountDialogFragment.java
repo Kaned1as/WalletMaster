@@ -141,7 +141,7 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
                 //Color
                 // Get a new instance of the row layout view
                 LayoutInflater inflater = getActivity().getLayoutInflater();
-                rowView = inflater.inflate(R.layout.color_list_item, null);
+                rowView = inflater.inflate(R.layout.color_list_item, parent, false);
                 rowView.findViewById(R.id.color_view).setBackgroundColor(Color.parseColor(getItem(position)));
             } else
                 rowView.findViewById(R.id.color_view).setBackgroundColor(Color.parseColor(getItem(position)));
@@ -160,11 +160,12 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            View view;
+            final View view;
+            final LayoutInflater inflater = LayoutInflater.from(mContext);
             mCursor.moveToPosition(position);
 
             if (convertView == null)
-                view = View.inflate(mContext, android.R.layout.simple_spinner_item, null);
+                view = inflater.inflate(android.R.layout.simple_spinner_item, parent, false);
             else
                 view = convertView;
 
@@ -176,11 +177,12 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
 
         @Override
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            View view;
+            final View view;
+            final LayoutInflater inflater = LayoutInflater.from(mContext);
             mCursor.moveToPosition(position);
 
             if (convertView == null)
-                view = View.inflate(mContext, R.layout.currency_list_item, null);
+                view = inflater.inflate(R.layout.currency_list_item, parent, false);
             else
                 view = convertView;
 
