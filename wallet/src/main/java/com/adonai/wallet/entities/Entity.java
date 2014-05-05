@@ -6,14 +6,14 @@ import com.adonai.wallet.DatabaseDAO;
  * Abstract type for all entities in DB
  */
 public abstract class Entity {
-    protected Long id;
+    protected String id;
     protected final DatabaseDAO.EntityType entityType = getClass().getAnnotation(EntityDescriptor.class).type();
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -21,7 +21,7 @@ public abstract class Entity {
         return entityType;
     }
 
-    public abstract long persist(DatabaseDAO dao);
+    public abstract String persist(DatabaseDAO dao);
 
     public abstract int update(DatabaseDAO dao);
 

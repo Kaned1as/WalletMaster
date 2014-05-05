@@ -3,19 +3,15 @@ package com.adonai.wallet;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CursorAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioGroup;
@@ -28,14 +24,17 @@ import android.widget.Toast;
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Operation;
+import com.adonai.wallet.entities.UUIDCursorAdapter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
-import static com.adonai.wallet.Utils.*;
+import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
+import static com.adonai.wallet.Utils.getValue;
 
 /**
  * @author adonai
@@ -168,9 +167,10 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private class CategorySelectListener implements AdapterView.OnItemSelectedListener {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            final Category cat = Category.getFromDB(getWalletActivity().getEntityDAO(), id);
+            final UUID categoryID = ((CategoriesAdapter) mCategorySelector.getAdapter()).getItemUUID(position);
+            final Category cat = Category.getFromDB(getWalletActivity().getEntityDAO(), categoryID.toString());
             if (cat.getPreferredAccount() != null)  { // selected category has preferred account
-                final long accId = cat.getPreferredAccount().getId();
+                final String accId = cat.getPreferredAccount().getId();
                 final int accPosition = mAccountAdapter.getPosition(accId); // get position
                 if(position != -1) {
                     mChargeAccountSelector.setSelection(accPosition);
@@ -199,8 +199,10 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
     // show conversion rows on transfer when currencies are different
     private void updateTransferConversionVisibility() {
-        final Account chargeAcc = Account.getFromDB(getWalletActivity().getEntityDAO(), mChargeAccountSelector.getSelectedItemId());
-        final Account beneficiarAcc = Account.getFromDB(getWalletActivity().getEntityDAO(), mBeneficiarAccountSelector.getSelectedItemId());
+        final UUID chargerID = mAccountAdapter.getItemUUID(mChargeAccountSelector.getSelectedItemPosition());
+        final UUID beneficiarID = mAccountAdapter.getItemUUID(mBeneficiarAccountSelector.getSelectedItemPosition());
+        final Account chargeAcc = Account.getFromDB(getWalletActivity().getEntityDAO(), chargerID.toString());
+        final Account beneficiarAcc = Account.getFromDB(getWalletActivity().getEntityDAO(), beneficiarID.toString());
         if(mTypeSwitch.getCheckedRadioButtonId() == R.id.transfer_radio && !chargeAcc.getCurrency().equals(beneficiarAcc.getCurrency())) {
             for(TableRow row : conversionRows)
                 row.setVisibility(View.VISIBLE);
@@ -218,58 +220,44 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         mBeneficiarAmountDelivered.setText(beneficiarAmount.toPlainString());
     }
 
-    private class AccountsAdapter extends CursorAdapter implements SpinnerAdapter {
+    private class AccountsAdapter extends UUIDCursorAdapter implements SpinnerAdapter {
         public AccountsAdapter() {
-            super(getActivity(), getWalletActivity().getEntityDAO().getAccountCursor(), false);
+            super(getActivity(), getWalletActivity().getEntityDAO().getAccountCursor());
         }
 
-        @Override
-        public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-            final LayoutInflater inflater = LayoutInflater.from(context);
-            return inflater.inflate(android.R.layout.simple_spinner_item, viewGroup, false);
-        }
-
-        @Override
-        public void bindView(View view, Context context, Cursor cursor) {
-            final TextView name = (TextView) view.findViewById(android.R.id.text1);
-            name.setText(cursor.getString(1));
-        }
-
-        public int getPosition(long id) {
-            if(getItemId((int) id) == id)
-                return (int) id;
-
-            final Cursor catCur = getCursor();
-            assert catCur != null;
-
-            catCur.moveToFirst();
+        public int getPosition(String id) {
+            mCursor.moveToFirst();
             do {
-                if(catCur.getLong(0) == id)
-                    return catCur.getPosition();
-            } while(catCur.moveToNext());
+                if(mCursor.getString(0).equals(id))
+                    return mCursor.getPosition();
+            } while(mCursor.moveToNext());
 
             return -1;
         }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            final View view;
+            mCursor.moveToPosition(position);
+
+            if (convertView == null)
+                view = View.inflate(mContext, android.R.layout.simple_spinner_item, null);
+            else
+                view = convertView;
+
+            final TextView name = (TextView) view.findViewById(android.R.id.text1);
+            name.setText(mCursor.getString(1));
+
+            return view;
+        }
     }
 
-    private class CategoriesAdapter extends CursorAdapter implements SpinnerAdapter, DatabaseDAO.DatabaseListener {
+    private class CategoriesAdapter extends UUIDCursorAdapter implements SpinnerAdapter, DatabaseDAO.DatabaseListener {
         private final int mCategoryType;
 
         public CategoriesAdapter(int categoryType) {
-            super(getActivity(), getWalletActivity().getEntityDAO().getCategoryCursor(categoryType), false);
+            super(getActivity(), getWalletActivity().getEntityDAO().getCategoryCursor(categoryType));
             mCategoryType = categoryType;
-        }
-
-        @Override
-        public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-            final LayoutInflater inflater = LayoutInflater.from(context);
-            return inflater.inflate(android.R.layout.simple_spinner_item, viewGroup, false);
-        }
-
-        @Override
-        public void bindView(View view, Context context, Cursor cursor) {
-            final TextView name = (TextView) view.findViewById(android.R.id.text1);
-            name.setText(cursor.getString(1));
         }
 
         @Override
@@ -277,20 +265,30 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             changeCursor(getWalletActivity().getEntityDAO().getCategoryCursor(mCategoryType));
         }
 
-        public int getPosition(long id) {
-            if(getItemId((int) id) == id)
-                return (int) id;
-
-            final Cursor catCur = getCursor();
-            assert catCur != null;
-
-            catCur.moveToFirst();
+        public int getPosition(String id) {
+            mCursor.moveToFirst();
             do {
-                if(catCur.getLong(0) == id)
-                    return catCur.getPosition();
-            } while(catCur.moveToNext());
+                if(mCursor.getString(0).equals(id))
+                    return mCursor.getPosition();
+            } while(mCursor.moveToNext());
 
             return -1;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            final View view;
+            mCursor.moveToPosition(position);
+
+            if (convertView == null)
+                view = View.inflate(mContext, android.R.layout.simple_spinner_item, null);
+            else
+                view = convertView;
+
+            final TextView name = (TextView) view.findViewById(android.R.id.text1);
+            name.setText(mCursor.getString(1));
+
+            return view;
         }
     }
 
@@ -373,7 +371,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         if (amount.equals(BigDecimal.ZERO))
             throw new IllegalArgumentException(getString(R.string.operation_needs_amount));
 
-        final Category opCategory = Category.getFromDB(db, mCategorySelector.getSelectedItemId());
+        final UUID opCategoryID = ((CategoriesAdapter) mCategorySelector.getAdapter()).getItemUUID(mCategorySelector.getSelectedItemPosition());
+        final Category opCategory = Category.getFromDB(db, opCategoryID.toString());
         if (opCategory == null)
             throw new IllegalArgumentException(getString(R.string.operation_needs_category));
         // fill operation fields
@@ -383,8 +382,10 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         mOperation.setDescription(mDescription.getText().toString());
         switch (mTypeSwitch.getCheckedRadioButtonId()) { // prepare operation depending on type
             case R.id.transfer_radio: { // transfer op, we need 2 accounts
-                final Account chargeAcc = Account.getFromDB(db, mChargeAccountSelector.getSelectedItemId());
-                final Account benefAcc = Account.getFromDB(db, mBeneficiarAccountSelector.getSelectedItemId());
+                final UUID chargerID = mAccountAdapter.getItemUUID(mChargeAccountSelector.getSelectedItemPosition());
+                final UUID beneficiarID = mAccountAdapter.getItemUUID(mBeneficiarAccountSelector.getSelectedItemPosition());
+                final Account chargeAcc = Account.getFromDB(getWalletActivity().getEntityDAO(), chargerID.toString());
+                final Account benefAcc = Account.getFromDB(getWalletActivity().getEntityDAO(), beneficiarID.toString());
                 if (chargeAcc == null || benefAcc == null)
                     throw new IllegalArgumentException(getString(R.string.operation_needs_transfer_accs));
                 if (chargeAcc.getId().equals(benefAcc.getId())) // no transfer to self
@@ -396,7 +397,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                 break;
             }
             case R.id.income_radio: { // income op, we need beneficiar
-                final Account benefAcc = Account.getFromDB(db, mBeneficiarAccountSelector.getSelectedItemId());
+                final UUID beneficiarID = mAccountAdapter.getItemUUID(mBeneficiarAccountSelector.getSelectedItemPosition());
+                final Account benefAcc = Account.getFromDB(db, beneficiarID.toString());
                 if (benefAcc == null)
                     throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
                 mOperation.setBeneficiar(benefAcc);
@@ -404,7 +406,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                 break;
             }
             case R.id.expense_radio: { // expense op, we need charger
-                final Account chargeAcc = Account.getFromDB(db, mChargeAccountSelector.getSelectedItemId());
+                final UUID chargerID = mAccountAdapter.getItemUUID(mChargeAccountSelector.getSelectedItemPosition());
+                final Account chargeAcc = Account.getFromDB(db, chargerID.toString());
                 if (chargeAcc == null)
                     throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
                 mOperation.setCharger(chargeAcc);

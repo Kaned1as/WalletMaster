@@ -26,11 +26,11 @@ message SyncResponse {
 
 message EntityRequest {
     required uint64 lastKnownServerTimestamp = 1; // known to client last server revision
-    repeated int64 knownID = 2; // known to client server IDs to detect deletions and modifications
+    repeated string knownID = 2; // known to client server IDs to detect deletions and modifications
 }
 
 message EntityResponse {
-    repeated int64 deletedID = 1; // entities deleted on server/client
+    repeated string deletedID = 1; // entities deleted on server/client
     repeated Entity added = 2; // entities added on server/client
     repeated Entity modified = 3; // entities modified on server/client
 }
@@ -46,7 +46,7 @@ message Entity {
 }
 
 message Account {
-    required uint64 ID = 1;
+    required string ID = 1;
     required string name = 2;
     optional string description = 3;
     required string currency = 4;
@@ -55,7 +55,7 @@ message Account {
 }
 
 message Operation {
-    required uint64 ID = 1;
+    required string ID = 1;
     optional string description = 2;
     required uint64 time = 3;
     optional uint64 chargerId = 4;
@@ -66,7 +66,7 @@ message Operation {
 }
 
 message Category {
-    required uint64 ID = 1;
+    required string ID = 1;
     required string name = 2;
     required uint32 type = 3;
     optional uint64 preferredAccount = 4;

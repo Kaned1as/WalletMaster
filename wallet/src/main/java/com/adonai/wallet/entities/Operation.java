@@ -13,6 +13,7 @@ import java.math.RoundingMode;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 @EntityDescriptor(type = DatabaseDAO.EntityType.OPERATIONS)
 public class Operation extends Entity {
@@ -123,12 +124,14 @@ public class Operation extends Entity {
     }
 
     @Override
-    public long persist(DatabaseDAO dao) {
+    public String persist(DatabaseDAO dao) {
         Log.d("addOperation", getAmount().toPlainString());
 
         final ContentValues values = new ContentValues(8);
         if(getId() != null) // use with caution
             values.put(DatabaseDAO.OperationsFields._id.toString(), getId());
+        else
+            values.put(DatabaseDAO.OperationsFields._id.toString(), UUID.randomUUID().toString());
 
         values.put(DatabaseDAO.OperationsFields.DESCRIPTION.toString(), getDescription()); // mandatory
         values.put(DatabaseDAO.OperationsFields.CATEGORY.toString(), getCategory().getId()); // mandatory
@@ -143,7 +146,11 @@ public class Operation extends Entity {
         if(getConvertingRate() != null)
             values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), getConvertingRate());
 
-        return dao.insert(values, entityType.toString());
+        long row = dao.insert(values, entityType.toString());
+        if(row > 0)
+            return values.getAsString(DatabaseDAO.OperationsFields._id.toString());
+        else
+            return null;
     }
 
     @Override
@@ -162,25 +169,25 @@ public class Operation extends Entity {
         return dao.update(values, entityType.toString());
     }
 
-    public static Operation getFromDB(DatabaseDAO dao, Long id) {
+    public static Operation getFromDB(DatabaseDAO dao, String id) {
         final Long preciseTime = System.currentTimeMillis();
         final Cursor cursor = dao.get(DatabaseDAO.EntityType.OPERATIONS, id);
         if (cursor.moveToFirst()) try {
             final Operation op = new Operation();
-            op.setId(cursor.getLong(DatabaseDAO.OperationsFields._id.ordinal()));
+            op.setId(cursor.getString(DatabaseDAO.OperationsFields._id.ordinal()));
             op.setDescription(cursor.getString(DatabaseDAO.OperationsFields.DESCRIPTION.ordinal()));
-            op.setCategory(Category.getFromDB(dao, cursor.getLong(DatabaseDAO.OperationsFields.CATEGORY.ordinal())));
+            op.setCategory(Category.getFromDB(dao, cursor.getString(DatabaseDAO.OperationsFields.CATEGORY.ordinal())));
             op.setTime(Utils.SQLITE_DATE_FORMAT.parse(cursor.getString(DatabaseDAO.OperationsFields.TIME.ordinal())));
             if(!cursor.isNull(DatabaseDAO.OperationsFields.CHARGER.ordinal()))
-                op.setCharger(Account.getFromDB(dao, cursor.getLong(DatabaseDAO.OperationsFields.CHARGER.ordinal())));
+                op.setCharger(Account.getFromDB(dao, cursor.getString(DatabaseDAO.OperationsFields.CHARGER.ordinal())));
             if(!cursor.isNull(DatabaseDAO.OperationsFields.RECEIVER.ordinal()))
-                op.setBeneficiar(Account.getFromDB(dao, cursor.getLong(DatabaseDAO.OperationsFields.RECEIVER.ordinal())));
+                op.setBeneficiar(Account.getFromDB(dao, cursor.getString(DatabaseDAO.OperationsFields.RECEIVER.ordinal())));
             op.setAmount(new BigDecimal(cursor.getString(DatabaseDAO.OperationsFields.AMOUNT.ordinal())));
             if(!cursor.isNull(DatabaseDAO.OperationsFields.CONVERT_RATE.ordinal()))
                 op.setConvertingRate(cursor.getDouble(DatabaseDAO.OperationsFields.CONVERT_RATE.ordinal()));
             cursor.close();
 
-            Log.d(String.format("getOperation(%d), took %d ms", id, System.currentTimeMillis() - preciseTime), op.getAmount().toPlainString());
+            Log.d(String.format("getOperation(%s), took %d ms", id, System.currentTimeMillis() - preciseTime), op.getAmount().toPlainString());
             return op;
         } catch (ParseException ex) {
             throw new RuntimeException(ex); // should never happen

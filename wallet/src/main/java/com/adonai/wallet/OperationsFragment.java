@@ -1,7 +1,6 @@
 package com.adonai.wallet;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -13,7 +12,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.ImageButton;
@@ -30,10 +27,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.adonai.wallet.entities.Operation;
+import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.daniel.lupianez.casares.PopoverView;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
 import static com.adonai.wallet.Utils.convertDpToPixel;
@@ -54,7 +53,7 @@ public class OperationsFragment extends WalletBaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         mOpAdapter = new OperationsAdapter();
-        mOpAdapter.setFilterQueryProvider(new OperationFilterQueryProvider());
+        //mOpAdapter.setFilterQueryProvider(new OperationFilterQueryProvider());
         mDrawableMap = fillDrawableMap();
 
         final View rootView = inflater.inflate(R.layout.operations_flow, container, false);
@@ -63,7 +62,7 @@ public class OperationsFragment extends WalletBaseFragment {
         mOperationsList = (ListView) rootView.findViewById(R.id.operations_list);
         mSearchBox = (EditText) rootView.findViewById(R.id.operations_filter_edit);
 
-        mSearchBox.setOnEditorActionListener(new OperationsFilterListener());
+        //mSearchBox.setOnEditorActionListener(new OperationsFilterListener());
 
         mOperationsList.setAdapter(mOpAdapter);
         mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
@@ -94,22 +93,34 @@ public class OperationsFragment extends WalletBaseFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private class OperationsAdapter extends CursorAdapter implements DatabaseDAO.DatabaseListener {
+    private class OperationsAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener {
         public OperationsAdapter() {
-            super(getActivity(), getWalletActivity().getEntityDAO().getOperationsCursor(), false);
+            super(getActivity(), getWalletActivity().getEntityDAO().getOperationsCursor());
         }
 
         @Override
-        public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-            final LayoutInflater inflater = LayoutInflater.from(context);
-            return inflater.inflate(R.layout.operation_list_item, viewGroup, false);
+        public void handleUpdate() {
+            getWalletActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    changeCursor(getWalletActivity().getEntityDAO().getOperationsCursor());
+                }
+            });
         }
 
         @Override
         @SuppressWarnings("deprecation") // for compat with older APIs
-        public void bindView(final View view, Context context, final Cursor cursor) {
+        public View getView(int position, View convertView, ViewGroup parent) {
+            final View view;
             final DatabaseDAO db = getWalletActivity().getEntityDAO();
-            db.getAsyncOperation(cursor.getLong(DatabaseDAO.OperationsFields._id.ordinal()), new DatabaseDAO.AsyncDbQuery.Listener<Operation>() {
+            mCursor.moveToPosition(position);
+
+            if (convertView == null)
+                view = View.inflate(mContext, R.layout.operation_list_item, null);
+            else
+                view = convertView;
+
+            db.getAsyncOperation(mCursor.getString(DatabaseDAO.OperationsFields._id.ordinal()), new DatabaseDAO.AsyncDbQuery.Listener<Operation>() {
                 @Override
                 public void onFinishLoad(Operation op) {
                     view.setBackgroundDrawable(mDrawableMap.get(op.getOperationType()));
@@ -153,23 +164,15 @@ public class OperationsFragment extends WalletBaseFragment {
                     }
                 }
             });
-        }
 
-        @Override
-        public void handleUpdate() {
-            getWalletActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    changeCursor(getWalletActivity().getEntityDAO().getOperationsCursor());
-                }
-            });
+            return view;
         }
     }
 
     private class OperationLongClickListener implements AdapterView.OnItemLongClickListener {
 
         @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, final long id) {
+        public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, final long id) {
             final View newView = LayoutInflater.from(getActivity()).inflate(R.layout.account_list_item_menu, null, false);
             final PopoverView popover = new PopoverView(getActivity(), newView);
             popover.setContentSizeForViewInPopover(new Point((int) convertDpToPixel(100, getActivity()), (int) convertDpToPixel(50, getActivity())));
@@ -186,7 +189,8 @@ public class OperationsFragment extends WalletBaseFragment {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     final DatabaseDAO db = getWalletActivity().getEntityDAO();
-                                    final Operation op = Operation.getFromDB(db, id);
+                                    final UUID opID = mOpAdapter.getItemUUID(position);
+                                    final Operation op = Operation.getFromDB(db, opID.toString());
                                     if (op != null) {
                                         if (!db.revertOperation(op))
                                             throw new IllegalStateException("Cannot delete operation!"); // should never happen!!
@@ -201,7 +205,8 @@ public class OperationsFragment extends WalletBaseFragment {
             edit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final Operation operation = Operation.getFromDB(getWalletActivity().getEntityDAO(), id);
+                    final UUID opID = mOpAdapter.getItemUUID(position);
+                    final Operation operation = Operation.getFromDB(getWalletActivity().getEntityDAO(), opID.toString());
                     new OperationDialogFragment(operation).show(getFragmentManager(), "opModify");
                     popover.dismissPopover(true);
                 }
@@ -279,7 +284,7 @@ public class OperationsFragment extends WalletBaseFragment {
             return getWalletActivity().getEntityDAO().getOperationsCursor(constraint.toString());
         }
     }
-
+/*
     private class OperationsFilterListener implements TextView.OnEditorActionListener {
         @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -288,4 +293,5 @@ public class OperationsFragment extends WalletBaseFragment {
             return true;
         }
     }
+*/
 }

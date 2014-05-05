@@ -1,9 +1,7 @@
 package com.adonai.wallet;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Point;
@@ -18,15 +16,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.CursorAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.adonai.wallet.entities.Account;
+import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.daniel.lupianez.casares.PopoverView;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 import static com.adonai.wallet.Utils.convertDpToPixel;
 
@@ -81,38 +80,9 @@ public class AccountsFragment extends WalletBaseFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private class AccountsAdapter extends CursorAdapter implements DatabaseDAO.DatabaseListener {
+    private class AccountsAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener {
         public AccountsAdapter() {
-            super(getActivity(), getWalletActivity().getEntityDAO().getAccountCursor(), false);
-        }
-
-        @Override
-        public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-            final LayoutInflater inflater = LayoutInflater.from(context);
-            return inflater.inflate(R.layout.account_list_item, viewGroup, false);
-        }
-
-        @Override
-        @SuppressWarnings("deprecation") // for compat with older APIs
-        public void bindView(View view, Context context, Cursor cursor) {
-
-            final int accColor = cursor.getInt(5);
-            final float[] rounds = new float[8];
-            Arrays.fill(rounds, convertDpToPixel(10f, context));
-            final ShapeDrawable mDrawable = new ShapeDrawable(new RoundRectShape(rounds, null, null));
-            mDrawable.getPaint().setShader(new LinearGradient(0, 0, context.getResources().getDisplayMetrics().widthPixels, 0,
-               Color.argb(50, Color.red(accColor), Color.green(accColor), Color.blue(accColor)),
-               Color.argb(0, Color.red(accColor), Color.green(accColor), Color.blue(accColor)), Shader.TileMode.CLAMP));
-            view.setBackgroundDrawable(mDrawable);
-
-            final TextView name = (TextView) view.findViewById(R.id.account_name_label);
-            name.setText(cursor.getString(1));
-            final TextView description = (TextView) view.findViewById(R.id.account_description_label);
-            description.setText(cursor.getString(2));
-            final TextView currency = (TextView) view.findViewById(R.id.account_currency_label);
-            currency.setText(cursor.getString(3));
-            final TextView amount = (TextView) view.findViewById(R.id.account_amount_label);
-            amount.setText(cursor.getString(4));
+            super(getActivity(), getWalletActivity().getEntityDAO().getAccountCursor());
         }
 
         @Override
@@ -125,12 +95,44 @@ public class AccountsFragment extends WalletBaseFragment {
             });
 
         }
+
+        @Override
+        @SuppressWarnings("deprecation") // for compat with older APIs
+        public View getView(int position, View convertView, ViewGroup parent) {
+            final View view;
+            mCursor.moveToPosition(position);
+
+            if (convertView == null)
+                view = View.inflate(mContext, R.layout.account_list_item, null);
+            else
+                view = convertView;
+
+            final int accColor = mCursor.getInt(5);
+            final float[] rounds = new float[8];
+            Arrays.fill(rounds, convertDpToPixel(10f, mContext));
+            final ShapeDrawable mDrawable = new ShapeDrawable(new RoundRectShape(rounds, null, null));
+            mDrawable.getPaint().setShader(new LinearGradient(0, 0, mContext.getResources().getDisplayMetrics().widthPixels, 0,
+                    Color.argb(50, Color.red(accColor), Color.green(accColor), Color.blue(accColor)),
+                    Color.argb(0, Color.red(accColor), Color.green(accColor), Color.blue(accColor)), Shader.TileMode.CLAMP));
+            view.setBackgroundDrawable(mDrawable);
+
+            final TextView name = (TextView) view.findViewById(R.id.account_name_label);
+            name.setText(mCursor.getString(1));
+            final TextView description = (TextView) view.findViewById(R.id.account_description_label);
+            description.setText(mCursor.getString(2));
+            final TextView currency = (TextView) view.findViewById(R.id.account_currency_label);
+            currency.setText(mCursor.getString(3));
+            final TextView amount = (TextView) view.findViewById(R.id.account_amount_label);
+            amount.setText(mCursor.getString(4));
+
+            return view;
+        }
     }
 
     private class AccountLongClickListener implements AdapterView.OnItemLongClickListener {
 
         @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, final long id) {
+        public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, final long id) {
             final View newView = LayoutInflater.from(getActivity()).inflate(R.layout.account_list_item_menu, null, false);
             final PopoverView popover = new PopoverView(getActivity(), newView);
             popover.setContentSizeForViewInPopover(new Point((int) convertDpToPixel(100, getActivity()), (int) convertDpToPixel(50, getActivity())));
@@ -146,7 +148,8 @@ public class AccountsFragment extends WalletBaseFragment {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.DELETE, Account.getFromDB(getWalletActivity().getEntityDAO(), id));
+                                    final UUID accountID = mAccountsAdapter.getItemUUID(position);
+                                    getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.DELETE, Account.getFromDB(getWalletActivity().getEntityDAO(), accountID.toString()));
                                 }
                             }).create().show();
 
@@ -158,7 +161,8 @@ public class AccountsFragment extends WalletBaseFragment {
             edit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), id);
+                    final UUID accountID = mAccountsAdapter.getItemUUID(position);
+                    final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), accountID.toString());
                     new AccountDialogFragment(managed).show(getFragmentManager(), "accModify");
                     popover.dismissPopover(true);
                 }
@@ -179,7 +183,8 @@ public class AccountsFragment extends WalletBaseFragment {
     private class AccountClickListener implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), id);
+            final UUID accountID = mAccountsAdapter.getItemUUID(position);
+            final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), accountID.toString());
             new OperationDialogFragment(managed).show(getFragmentManager(), "opModify");
         }
     }

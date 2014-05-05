@@ -8,6 +8,7 @@ import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.sync.SyncProtocol;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 /**
  * @author adonai
@@ -83,12 +84,14 @@ public class Account extends Entity {
     }
 
     @Override
-    public long persist(DatabaseDAO dao) {
+    public String persist(DatabaseDAO dao) {
         Log.d("addAccount", getName());
 
         final ContentValues values = new ContentValues(5);
         if(getId() != null) // use with caution
             values.put(DatabaseDAO.AccountFields._id.toString(), getId());
+        else
+            values.put(DatabaseDAO.AccountFields._id.toString(), UUID.randomUUID().toString());
 
         values.put(DatabaseDAO.AccountFields.NAME.toString(), getName());
         values.put(DatabaseDAO.AccountFields.DESCRIPTION.toString(), getDescription());
@@ -96,7 +99,11 @@ public class Account extends Entity {
         values.put(DatabaseDAO.AccountFields.AMOUNT.toString(), getAmount().toPlainString());
         values.put(DatabaseDAO.AccountFields.COLOR.toString(), getColor());
 
-        return dao.insert(values, entityType.toString());
+        long row = dao.insert(values, entityType.toString());
+        if(row > 0)
+            return values.getAsString(DatabaseDAO.AccountFields._id.toString());
+        else
+            return null;
     }
 
     @Override
@@ -112,11 +119,11 @@ public class Account extends Entity {
         return dao.update(values, entityType.toString());
     }
 
-    public static Account getFromDB(DatabaseDAO dao, Long id) {
+    public static Account getFromDB(DatabaseDAO dao, String id) {
         final Cursor cursor = dao.get(DatabaseDAO.EntityType.ACCOUNTS, id);
         if (cursor.moveToFirst()) {
             final Account acc = new Account();
-            acc.setId(cursor.getLong(DatabaseDAO.AccountFields._id.ordinal()));
+            acc.setId(cursor.getString(DatabaseDAO.AccountFields._id.ordinal()));
             acc.setName(cursor.getString(DatabaseDAO.AccountFields.NAME.ordinal()));
             acc.setDescription(cursor.getString(DatabaseDAO.AccountFields.DESCRIPTION.ordinal()));
             acc.setCurrency(dao.getCurrency(cursor.getString(DatabaseDAO.AccountFields.CURRENCY.ordinal())));

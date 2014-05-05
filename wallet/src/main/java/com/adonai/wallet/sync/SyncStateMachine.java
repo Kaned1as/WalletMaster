@@ -199,7 +199,7 @@ public class SyncStateMachine {
 
                         final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
                         final List<Account> addedLocally = mContext.getEntityDAO().getAdded(Account.class);
-                        final List<Long> deletedLocally = mContext.getEntityDAO().getDeleted(Account.class);
+                        final List<String> deletedLocally = mContext.getEntityDAO().getDeleted(Account.class);
 
                         // handle modified entities - check if we updated them too...
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
@@ -235,7 +235,7 @@ public class SyncStateMachine {
                         }
                         // readd locals + add to add-list
                         for(final Account acc : addedLocally) {
-                            final Long newId = acc.persist(mContext.getEntityDAO());
+                            final String newId = acc.persist(mContext.getEntityDAO());
                             acc.setId(newId);
                             serverUpdate.addAdded(SyncProtocol.Entity.newBuilder().setAccount(Account.toProtoAccount(acc)).build());
                         }
