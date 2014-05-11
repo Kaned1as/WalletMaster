@@ -396,17 +396,21 @@ class EntityRequest : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 lastknownservertimestamp() const;
   inline void set_lastknownservertimestamp(::google::protobuf::uint64 value);
 
-  // repeated int64 knownID = 2;
+  // repeated string knownID = 2;
   inline int knownid_size() const;
   inline void clear_knownid();
   static const int kKnownIDFieldNumber = 2;
-  inline ::google::protobuf::int64 knownid(int index) const;
-  inline void set_knownid(int index, ::google::protobuf::int64 value);
-  inline void add_knownid(::google::protobuf::int64 value);
-  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
-      knownid() const;
-  inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
-      mutable_knownid();
+  inline const ::std::string& knownid(int index) const;
+  inline ::std::string* mutable_knownid(int index);
+  inline void set_knownid(int index, const ::std::string& value);
+  inline void set_knownid(int index, const char* value);
+  inline void set_knownid(int index, const char* value, size_t size);
+  inline ::std::string* add_knownid();
+  inline void add_knownid(const ::std::string& value);
+  inline void add_knownid(const char* value);
+  inline void add_knownid(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& knownid() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_knownid();
 
   // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.EntityRequest)
  private:
@@ -416,7 +420,7 @@ class EntityRequest : public ::google::protobuf::Message {
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint64 lastknownservertimestamp_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::int64 > knownid_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> knownid_;
 
   mutable int _cached_size_;
   ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
@@ -484,17 +488,21 @@ class EntityResponse : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // repeated int64 deletedID = 1;
+  // repeated string deletedID = 1;
   inline int deletedid_size() const;
   inline void clear_deletedid();
   static const int kDeletedIDFieldNumber = 1;
-  inline ::google::protobuf::int64 deletedid(int index) const;
-  inline void set_deletedid(int index, ::google::protobuf::int64 value);
-  inline void add_deletedid(::google::protobuf::int64 value);
-  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
-      deletedid() const;
-  inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
-      mutable_deletedid();
+  inline const ::std::string& deletedid(int index) const;
+  inline ::std::string* mutable_deletedid(int index);
+  inline void set_deletedid(int index, const ::std::string& value);
+  inline void set_deletedid(int index, const char* value);
+  inline void set_deletedid(int index, const char* value, size_t size);
+  inline ::std::string* add_deletedid();
+  inline void add_deletedid(const ::std::string& value);
+  inline void add_deletedid(const char* value);
+  inline void add_deletedid(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& deletedid() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_deletedid();
 
   // repeated .com.adonai.wallet.sync.Entity added = 2;
   inline int added_size() const;
@@ -525,7 +533,7 @@ class EntityResponse : public ::google::protobuf::Message {
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::google::protobuf::RepeatedField< ::google::protobuf::int64 > deletedid_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> deletedid_;
   ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity > added_;
   ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity > modified_;
 
@@ -785,12 +793,17 @@ class Account : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required uint64 ID = 1;
+  // required string ID = 1;
   inline bool has_id() const;
   inline void clear_id();
   static const int kIDFieldNumber = 1;
-  inline ::google::protobuf::uint64 id() const;
-  inline void set_id(::google::protobuf::uint64 value);
+  inline const ::std::string& id() const;
+  inline void set_id(const ::std::string& value);
+  inline void set_id(const char* value);
+  inline void set_id(const char* value, size_t size);
+  inline ::std::string* mutable_id();
+  inline ::std::string* release_id();
+  inline void set_allocated_id(::std::string* id);
 
   // required string name = 2;
   inline bool has_name() const;
@@ -864,7 +877,7 @@ class Account : public ::google::protobuf::Message {
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::google::protobuf::uint64 id_;
+  ::std::string* id_;
   ::std::string* name_;
   ::std::string* description_;
   ::std::string* currency_;
@@ -937,12 +950,17 @@ class Operation : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required uint64 ID = 1;
+  // required string ID = 1;
   inline bool has_id() const;
   inline void clear_id();
   static const int kIDFieldNumber = 1;
-  inline ::google::protobuf::uint64 id() const;
-  inline void set_id(::google::protobuf::uint64 value);
+  inline const ::std::string& id() const;
+  inline void set_id(const ::std::string& value);
+  inline void set_id(const char* value);
+  inline void set_id(const char* value, size_t size);
+  inline ::std::string* mutable_id();
+  inline ::std::string* release_id();
+  inline void set_allocated_id(::std::string* id);
 
   // optional string description = 2;
   inline bool has_description() const;
@@ -963,19 +981,29 @@ class Operation : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 time() const;
   inline void set_time(::google::protobuf::uint64 value);
 
-  // optional uint64 chargerId = 4;
+  // optional string chargerId = 4;
   inline bool has_chargerid() const;
   inline void clear_chargerid();
   static const int kChargerIdFieldNumber = 4;
-  inline ::google::protobuf::uint64 chargerid() const;
-  inline void set_chargerid(::google::protobuf::uint64 value);
+  inline const ::std::string& chargerid() const;
+  inline void set_chargerid(const ::std::string& value);
+  inline void set_chargerid(const char* value);
+  inline void set_chargerid(const char* value, size_t size);
+  inline ::std::string* mutable_chargerid();
+  inline ::std::string* release_chargerid();
+  inline void set_allocated_chargerid(::std::string* chargerid);
 
-  // optional uint64 beneficiarId = 5;
+  // optional string beneficiarId = 5;
   inline bool has_beneficiarid() const;
   inline void clear_beneficiarid();
   static const int kBeneficiarIdFieldNumber = 5;
-  inline ::google::protobuf::uint64 beneficiarid() const;
-  inline void set_beneficiarid(::google::protobuf::uint64 value);
+  inline const ::std::string& beneficiarid() const;
+  inline void set_beneficiarid(const ::std::string& value);
+  inline void set_beneficiarid(const char* value);
+  inline void set_beneficiarid(const char* value, size_t size);
+  inline ::std::string* mutable_beneficiarid();
+  inline ::std::string* release_beneficiarid();
+  inline void set_allocated_beneficiarid(::std::string* beneficiarid);
 
   // required string amount = 6;
   inline bool has_amount() const;
@@ -996,12 +1024,17 @@ class Operation : public ::google::protobuf::Message {
   inline double convertingrate() const;
   inline void set_convertingrate(double value);
 
-  // required uint64 categoryId = 8;
+  // required string categoryId = 8;
   inline bool has_categoryid() const;
   inline void clear_categoryid();
   static const int kCategoryIdFieldNumber = 8;
-  inline ::google::protobuf::uint64 categoryid() const;
-  inline void set_categoryid(::google::protobuf::uint64 value);
+  inline const ::std::string& categoryid() const;
+  inline void set_categoryid(const ::std::string& value);
+  inline void set_categoryid(const char* value);
+  inline void set_categoryid(const char* value, size_t size);
+  inline ::std::string* mutable_categoryid();
+  inline ::std::string* release_categoryid();
+  inline void set_allocated_categoryid(::std::string* categoryid);
 
   // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.Operation)
  private:
@@ -1024,14 +1057,14 @@ class Operation : public ::google::protobuf::Message {
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::google::protobuf::uint64 id_;
+  ::std::string* id_;
   ::std::string* description_;
   ::google::protobuf::uint64 time_;
-  ::google::protobuf::uint64 chargerid_;
-  ::google::protobuf::uint64 beneficiarid_;
+  ::std::string* chargerid_;
+  ::std::string* beneficiarid_;
   ::std::string* amount_;
   double convertingrate_;
-  ::google::protobuf::uint64 categoryid_;
+  ::std::string* categoryid_;
 
   mutable int _cached_size_;
   ::google::protobuf::uint32 _has_bits_[(8 + 31) / 32];
@@ -1099,12 +1132,17 @@ class Category : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required uint64 ID = 1;
+  // required string ID = 1;
   inline bool has_id() const;
   inline void clear_id();
   static const int kIDFieldNumber = 1;
-  inline ::google::protobuf::uint64 id() const;
-  inline void set_id(::google::protobuf::uint64 value);
+  inline const ::std::string& id() const;
+  inline void set_id(const ::std::string& value);
+  inline void set_id(const char* value);
+  inline void set_id(const char* value, size_t size);
+  inline ::std::string* mutable_id();
+  inline ::std::string* release_id();
+  inline void set_allocated_id(::std::string* id);
 
   // required string name = 2;
   inline bool has_name() const;
@@ -1145,7 +1183,7 @@ class Category : public ::google::protobuf::Message {
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::google::protobuf::uint64 id_;
+  ::std::string* id_;
   ::std::string* name_;
   ::google::protobuf::uint64 preferredaccount_;
   ::google::protobuf::uint32 type_;
@@ -1383,27 +1421,46 @@ inline void EntityRequest::set_lastknownservertimestamp(::google::protobuf::uint
   lastknownservertimestamp_ = value;
 }
 
-// repeated int64 knownID = 2;
+// repeated string knownID = 2;
 inline int EntityRequest::knownid_size() const {
   return knownid_.size();
 }
 inline void EntityRequest::clear_knownid() {
   knownid_.Clear();
 }
-inline ::google::protobuf::int64 EntityRequest::knownid(int index) const {
+inline const ::std::string& EntityRequest::knownid(int index) const {
   return knownid_.Get(index);
 }
-inline void EntityRequest::set_knownid(int index, ::google::protobuf::int64 value) {
-  knownid_.Set(index, value);
+inline ::std::string* EntityRequest::mutable_knownid(int index) {
+  return knownid_.Mutable(index);
 }
-inline void EntityRequest::add_knownid(::google::protobuf::int64 value) {
-  knownid_.Add(value);
+inline void EntityRequest::set_knownid(int index, const ::std::string& value) {
+  knownid_.Mutable(index)->assign(value);
 }
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+inline void EntityRequest::set_knownid(int index, const char* value) {
+  knownid_.Mutable(index)->assign(value);
+}
+inline void EntityRequest::set_knownid(int index, const char* value, size_t size) {
+  knownid_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* EntityRequest::add_knownid() {
+  return knownid_.Add();
+}
+inline void EntityRequest::add_knownid(const ::std::string& value) {
+  knownid_.Add()->assign(value);
+}
+inline void EntityRequest::add_knownid(const char* value) {
+  knownid_.Add()->assign(value);
+}
+inline void EntityRequest::add_knownid(const char* value, size_t size) {
+  knownid_.Add()->assign(reinterpret_cast<const char*>(value), size);
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
 EntityRequest::knownid() const {
   return knownid_;
 }
-inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
 EntityRequest::mutable_knownid() {
   return &knownid_;
 }
@@ -1412,27 +1469,46 @@ EntityRequest::mutable_knownid() {
 
 // EntityResponse
 
-// repeated int64 deletedID = 1;
+// repeated string deletedID = 1;
 inline int EntityResponse::deletedid_size() const {
   return deletedid_.size();
 }
 inline void EntityResponse::clear_deletedid() {
   deletedid_.Clear();
 }
-inline ::google::protobuf::int64 EntityResponse::deletedid(int index) const {
+inline const ::std::string& EntityResponse::deletedid(int index) const {
   return deletedid_.Get(index);
 }
-inline void EntityResponse::set_deletedid(int index, ::google::protobuf::int64 value) {
-  deletedid_.Set(index, value);
+inline ::std::string* EntityResponse::mutable_deletedid(int index) {
+  return deletedid_.Mutable(index);
 }
-inline void EntityResponse::add_deletedid(::google::protobuf::int64 value) {
-  deletedid_.Add(value);
+inline void EntityResponse::set_deletedid(int index, const ::std::string& value) {
+  deletedid_.Mutable(index)->assign(value);
 }
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+inline void EntityResponse::set_deletedid(int index, const char* value) {
+  deletedid_.Mutable(index)->assign(value);
+}
+inline void EntityResponse::set_deletedid(int index, const char* value, size_t size) {
+  deletedid_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* EntityResponse::add_deletedid() {
+  return deletedid_.Add();
+}
+inline void EntityResponse::add_deletedid(const ::std::string& value) {
+  deletedid_.Add()->assign(value);
+}
+inline void EntityResponse::add_deletedid(const char* value) {
+  deletedid_.Add()->assign(value);
+}
+inline void EntityResponse::add_deletedid(const char* value, size_t size) {
+  deletedid_.Add()->assign(reinterpret_cast<const char*>(value), size);
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
 EntityResponse::deletedid() const {
   return deletedid_;
 }
-inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
 EntityResponse::mutable_deletedid() {
   return &deletedid_;
 }
@@ -1635,7 +1711,7 @@ inline void Entity::set_allocated_category(::com::adonai::wallet::sync::Category
 
 // Account
 
-// required uint64 ID = 1;
+// required string ID = 1;
 inline bool Account::has_id() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -1646,15 +1722,63 @@ inline void Account::clear_has_id() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline void Account::clear_id() {
-  id_ = GOOGLE_ULONGLONG(0);
+  if (id_ != &::google::protobuf::internal::kEmptyString) {
+    id_->clear();
+  }
   clear_has_id();
 }
-inline ::google::protobuf::uint64 Account::id() const {
+inline const ::std::string& Account::id() const {
+  return *id_;
+}
+inline void Account::set_id(const ::std::string& value) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(value);
+}
+inline void Account::set_id(const char* value) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(value);
+}
+inline void Account::set_id(const char* value, size_t size) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Account::mutable_id() {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
   return id_;
 }
-inline void Account::set_id(::google::protobuf::uint64 value) {
-  set_has_id();
-  id_ = value;
+inline ::std::string* Account::release_id() {
+  clear_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = id_;
+    id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void Account::set_allocated_id(::std::string* id) {
+  if (id_ != &::google::protobuf::internal::kEmptyString) {
+    delete id_;
+  }
+  if (id) {
+    set_has_id();
+    id_ = id;
+  } else {
+    clear_has_id();
+    id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
 }
 
 // required string name = 2;
@@ -1963,7 +2087,7 @@ inline void Account::set_color(::google::protobuf::int32 value) {
 
 // Operation
 
-// required uint64 ID = 1;
+// required string ID = 1;
 inline bool Operation::has_id() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -1974,15 +2098,63 @@ inline void Operation::clear_has_id() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline void Operation::clear_id() {
-  id_ = GOOGLE_ULONGLONG(0);
+  if (id_ != &::google::protobuf::internal::kEmptyString) {
+    id_->clear();
+  }
   clear_has_id();
 }
-inline ::google::protobuf::uint64 Operation::id() const {
+inline const ::std::string& Operation::id() const {
+  return *id_;
+}
+inline void Operation::set_id(const ::std::string& value) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(value);
+}
+inline void Operation::set_id(const char* value) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(value);
+}
+inline void Operation::set_id(const char* value, size_t size) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Operation::mutable_id() {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
   return id_;
 }
-inline void Operation::set_id(::google::protobuf::uint64 value) {
-  set_has_id();
-  id_ = value;
+inline ::std::string* Operation::release_id() {
+  clear_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = id_;
+    id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void Operation::set_allocated_id(::std::string* id) {
+  if (id_ != &::google::protobuf::internal::kEmptyString) {
+    delete id_;
+  }
+  if (id) {
+    set_has_id();
+    id_ = id;
+  } else {
+    clear_has_id();
+    id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
 }
 
 // optional string description = 2;
@@ -2077,7 +2249,7 @@ inline void Operation::set_time(::google::protobuf::uint64 value) {
   time_ = value;
 }
 
-// optional uint64 chargerId = 4;
+// optional string chargerId = 4;
 inline bool Operation::has_chargerid() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
@@ -2088,18 +2260,66 @@ inline void Operation::clear_has_chargerid() {
   _has_bits_[0] &= ~0x00000008u;
 }
 inline void Operation::clear_chargerid() {
-  chargerid_ = GOOGLE_ULONGLONG(0);
+  if (chargerid_ != &::google::protobuf::internal::kEmptyString) {
+    chargerid_->clear();
+  }
   clear_has_chargerid();
 }
-inline ::google::protobuf::uint64 Operation::chargerid() const {
+inline const ::std::string& Operation::chargerid() const {
+  return *chargerid_;
+}
+inline void Operation::set_chargerid(const ::std::string& value) {
+  set_has_chargerid();
+  if (chargerid_ == &::google::protobuf::internal::kEmptyString) {
+    chargerid_ = new ::std::string;
+  }
+  chargerid_->assign(value);
+}
+inline void Operation::set_chargerid(const char* value) {
+  set_has_chargerid();
+  if (chargerid_ == &::google::protobuf::internal::kEmptyString) {
+    chargerid_ = new ::std::string;
+  }
+  chargerid_->assign(value);
+}
+inline void Operation::set_chargerid(const char* value, size_t size) {
+  set_has_chargerid();
+  if (chargerid_ == &::google::protobuf::internal::kEmptyString) {
+    chargerid_ = new ::std::string;
+  }
+  chargerid_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Operation::mutable_chargerid() {
+  set_has_chargerid();
+  if (chargerid_ == &::google::protobuf::internal::kEmptyString) {
+    chargerid_ = new ::std::string;
+  }
   return chargerid_;
 }
-inline void Operation::set_chargerid(::google::protobuf::uint64 value) {
-  set_has_chargerid();
-  chargerid_ = value;
+inline ::std::string* Operation::release_chargerid() {
+  clear_has_chargerid();
+  if (chargerid_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = chargerid_;
+    chargerid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void Operation::set_allocated_chargerid(::std::string* chargerid) {
+  if (chargerid_ != &::google::protobuf::internal::kEmptyString) {
+    delete chargerid_;
+  }
+  if (chargerid) {
+    set_has_chargerid();
+    chargerid_ = chargerid;
+  } else {
+    clear_has_chargerid();
+    chargerid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
 }
 
-// optional uint64 beneficiarId = 5;
+// optional string beneficiarId = 5;
 inline bool Operation::has_beneficiarid() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
@@ -2110,15 +2330,63 @@ inline void Operation::clear_has_beneficiarid() {
   _has_bits_[0] &= ~0x00000010u;
 }
 inline void Operation::clear_beneficiarid() {
-  beneficiarid_ = GOOGLE_ULONGLONG(0);
+  if (beneficiarid_ != &::google::protobuf::internal::kEmptyString) {
+    beneficiarid_->clear();
+  }
   clear_has_beneficiarid();
 }
-inline ::google::protobuf::uint64 Operation::beneficiarid() const {
+inline const ::std::string& Operation::beneficiarid() const {
+  return *beneficiarid_;
+}
+inline void Operation::set_beneficiarid(const ::std::string& value) {
+  set_has_beneficiarid();
+  if (beneficiarid_ == &::google::protobuf::internal::kEmptyString) {
+    beneficiarid_ = new ::std::string;
+  }
+  beneficiarid_->assign(value);
+}
+inline void Operation::set_beneficiarid(const char* value) {
+  set_has_beneficiarid();
+  if (beneficiarid_ == &::google::protobuf::internal::kEmptyString) {
+    beneficiarid_ = new ::std::string;
+  }
+  beneficiarid_->assign(value);
+}
+inline void Operation::set_beneficiarid(const char* value, size_t size) {
+  set_has_beneficiarid();
+  if (beneficiarid_ == &::google::protobuf::internal::kEmptyString) {
+    beneficiarid_ = new ::std::string;
+  }
+  beneficiarid_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Operation::mutable_beneficiarid() {
+  set_has_beneficiarid();
+  if (beneficiarid_ == &::google::protobuf::internal::kEmptyString) {
+    beneficiarid_ = new ::std::string;
+  }
   return beneficiarid_;
 }
-inline void Operation::set_beneficiarid(::google::protobuf::uint64 value) {
-  set_has_beneficiarid();
-  beneficiarid_ = value;
+inline ::std::string* Operation::release_beneficiarid() {
+  clear_has_beneficiarid();
+  if (beneficiarid_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = beneficiarid_;
+    beneficiarid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void Operation::set_allocated_beneficiarid(::std::string* beneficiarid) {
+  if (beneficiarid_ != &::google::protobuf::internal::kEmptyString) {
+    delete beneficiarid_;
+  }
+  if (beneficiarid) {
+    set_has_beneficiarid();
+    beneficiarid_ = beneficiarid;
+  } else {
+    clear_has_beneficiarid();
+    beneficiarid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
 }
 
 // required string amount = 6;
@@ -2213,7 +2481,7 @@ inline void Operation::set_convertingrate(double value) {
   convertingrate_ = value;
 }
 
-// required uint64 categoryId = 8;
+// required string categoryId = 8;
 inline bool Operation::has_categoryid() const {
   return (_has_bits_[0] & 0x00000080u) != 0;
 }
@@ -2224,22 +2492,70 @@ inline void Operation::clear_has_categoryid() {
   _has_bits_[0] &= ~0x00000080u;
 }
 inline void Operation::clear_categoryid() {
-  categoryid_ = GOOGLE_ULONGLONG(0);
+  if (categoryid_ != &::google::protobuf::internal::kEmptyString) {
+    categoryid_->clear();
+  }
   clear_has_categoryid();
 }
-inline ::google::protobuf::uint64 Operation::categoryid() const {
+inline const ::std::string& Operation::categoryid() const {
+  return *categoryid_;
+}
+inline void Operation::set_categoryid(const ::std::string& value) {
+  set_has_categoryid();
+  if (categoryid_ == &::google::protobuf::internal::kEmptyString) {
+    categoryid_ = new ::std::string;
+  }
+  categoryid_->assign(value);
+}
+inline void Operation::set_categoryid(const char* value) {
+  set_has_categoryid();
+  if (categoryid_ == &::google::protobuf::internal::kEmptyString) {
+    categoryid_ = new ::std::string;
+  }
+  categoryid_->assign(value);
+}
+inline void Operation::set_categoryid(const char* value, size_t size) {
+  set_has_categoryid();
+  if (categoryid_ == &::google::protobuf::internal::kEmptyString) {
+    categoryid_ = new ::std::string;
+  }
+  categoryid_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Operation::mutable_categoryid() {
+  set_has_categoryid();
+  if (categoryid_ == &::google::protobuf::internal::kEmptyString) {
+    categoryid_ = new ::std::string;
+  }
   return categoryid_;
 }
-inline void Operation::set_categoryid(::google::protobuf::uint64 value) {
-  set_has_categoryid();
-  categoryid_ = value;
+inline ::std::string* Operation::release_categoryid() {
+  clear_has_categoryid();
+  if (categoryid_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = categoryid_;
+    categoryid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void Operation::set_allocated_categoryid(::std::string* categoryid) {
+  if (categoryid_ != &::google::protobuf::internal::kEmptyString) {
+    delete categoryid_;
+  }
+  if (categoryid) {
+    set_has_categoryid();
+    categoryid_ = categoryid;
+  } else {
+    clear_has_categoryid();
+    categoryid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
 }
 
 // -------------------------------------------------------------------
 
 // Category
 
-// required uint64 ID = 1;
+// required string ID = 1;
 inline bool Category::has_id() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -2250,15 +2566,63 @@ inline void Category::clear_has_id() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline void Category::clear_id() {
-  id_ = GOOGLE_ULONGLONG(0);
+  if (id_ != &::google::protobuf::internal::kEmptyString) {
+    id_->clear();
+  }
   clear_has_id();
 }
-inline ::google::protobuf::uint64 Category::id() const {
+inline const ::std::string& Category::id() const {
+  return *id_;
+}
+inline void Category::set_id(const ::std::string& value) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(value);
+}
+inline void Category::set_id(const char* value) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(value);
+}
+inline void Category::set_id(const char* value, size_t size) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Category::mutable_id() {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
   return id_;
 }
-inline void Category::set_id(::google::protobuf::uint64 value) {
-  set_has_id();
-  id_ = value;
+inline ::std::string* Category::release_id() {
+  clear_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = id_;
+    id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void Category::set_allocated_id(::std::string* id) {
+  if (id_ != &::google::protobuf::internal::kEmptyString) {
+    delete id_;
+  }
+  if (id) {
+    set_has_id();
+    id_ = id;
+  } else {
+    clear_has_id();
+    id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
 }
 
 // required string name = 2;

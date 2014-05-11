@@ -96,11 +96,8 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     public static final String ACTIONS_TABLE_NAME = "actions";
     public static enum ActionsFields {
-        GUID,
         DATA_ID,
         DATA_TYPE,
-        //ACTION_TYPE, // isn't really needed - we can determine it at runtime
-        ACTION_TIMESTAMP,
         ORIGINAL_DATA,
     }
 
@@ -179,11 +176,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
         sqLiteDatabase.execSQL("CREATE UNIQUE INDEX " + "CATEGORY_UNIQUE_NAME_IDX ON " + EntityType.CATEGORIES + " (" +  CategoriesFields.NAME + "," + CategoriesFields.TYPE + ")");
 
         sqLiteDatabase.execSQL("CREATE TABLE " + ACTIONS_TABLE_NAME + " (" +
-                ActionsFields.GUID + " INTEGER DEFAULT NULL, " + // action ID is null till not synced
                 ActionsFields.DATA_ID + " TEXT NOT NULL, " +
                 ActionsFields.DATA_TYPE + " INTEGER NOT NULL, " +
-                ActionsFields.ACTION_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP PRIMARY KEY, " +
-                ActionsFields.ORIGINAL_DATA + " TEXT" +
+                ActionsFields.ORIGINAL_DATA + " TEXT, " +
+                " PRIMARY KEY(" + ActionsFields.DATA_ID + ", " + ActionsFields.DATA_TYPE + ")" +
                 ")");
 
         sqLiteDatabase.beginTransaction(); // initial fill
@@ -674,7 +670,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     /**
      * Select all entities that are added locally and not yet synchronized with remote database
-     * @return
+     * @return list of entities of specified class that were added locally
      */
     @SuppressWarnings("unchecked")
     public <T extends Entity> List<T> getAdded(Class<T> clazz) {

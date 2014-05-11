@@ -207,8 +207,8 @@ sync::SyncResponse SyncClientSocket::handle(const sync::SyncRequest& request)
         {
             QSqlQuery checkExists(*conn);
             checkExists.prepare("SELECT id FROM sync_accounts WHERE login = :login AND password = md5(:password)");
-            checkExists.bindValue(":login", request.account().c_str());
-            checkExists.bindValue(":password", request.password().c_str());
+            checkExists.bindValue(":login", request.account().data());
+            checkExists.bindValue(":password", request.password().data());
 
             if(!checkExists.exec())
             {
@@ -264,14 +264,14 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
         return response; // empty response
     }
 
-    QList<qint64> knownIds;
+    QList<QString> knownIds;
     knownIds.reserve(request.knownid_size());
-    for(qint64 known : request.knownid())
-        knownIds.append(known);
+    for(std::string known : request.knownid())
+        knownIds.append(QString(known.data()));
 
     while(selectSyncedEntities.next())
     {
-        const qint64 currentId = selectSyncedEntities.value("id").toLongLong();
+        const QString currentId = selectSyncedEntities.value("id").toString();
         EntityState entityState = EQUAL;
         // check whether we need any processing
         if(knownIds.contains(currentId)) // we have this entity on device already, should detect, if entity was modified
@@ -294,7 +294,7 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
                 sync::Account* const account = entityState == ADDED
                     ? response.add_added()->mutable_account()
                     : response.add_modified()->mutable_account();
-                account->set_id(selectSyncedEntities.value("id").toLongLong());
+                account->set_id(selectSyncedEntities.value("id").toString().toStdString());
                 account->set_name(selectSyncedEntities.value("name").toString().toStdString());
                 if(!selectSyncedEntities.value("description").isNull())
                     account->set_description(selectSyncedEntities.value("description").toString().toStdString());
@@ -313,16 +313,16 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
                 sync::Operation* const operation = entityState == ADDED
                     ? response.add_added()->mutable_operation()
                     : response.add_modified()->mutable_operation();
-                operation->set_id(selectSyncedEntities.value("id").toLongLong());
+                operation->set_id(selectSyncedEntities.value("id").toString().toStdString());
                 if(!selectSyncedEntities.value("description").isNull())
                     operation->set_description(selectSyncedEntities.value("description").toString().toStdString());
                 operation->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
                 operation->set_time(selectSyncedEntities.value("time").toLongLong());
-                operation->set_categoryid(selectSyncedEntities.value("category_id").toLongLong());
+                operation->set_categoryid(selectSyncedEntities.value("category_id").toString().toStdString());
                 if(!selectSyncedEntities.value("charger_id").isNull())
-                    operation->set_chargerid(selectSyncedEntities.value("charger_id").toLongLong());
+                    operation->set_chargerid(selectSyncedEntities.value("charger_id").toString().toStdString());
                 if(!selectSyncedEntities.value("beneficiar_id").isNull())
-                    operation->set_beneficiarid(selectSyncedEntities.value("beneficiar_id").toLongLong());
+                    operation->set_beneficiarid(selectSyncedEntities.value("beneficiar_id").toString().toStdString());
                 if(!selectSyncedEntities.value("converting_rate").isNull())
                     operation->set_convertingrate(selectSyncedEntities.value("converting_rate").toDouble());
                 operation->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
@@ -335,8 +335,8 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
     }
 
     // remaining entities are deleted on server, and so, should be returned to device being marked for deletion
-    for(qint64 delId : knownIds)
-        response.add_deletedid(delId);
+    for(QString delId : knownIds)
+        response.add_deletedid(delId.toStdString());
 
     return response;
 }
@@ -387,10 +387,10 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
     QVariantList userList, idList;
     userList.reserve(response.deletedid_size());
     idList.reserve(response.deletedid_size());
-    for(qint64 id : response.deletedid())
+    for(std::string id : response.deletedid())
     {
         userList.append(userId);
-        idList.append(id);
+        idList.append(id.data());
         //ack.add_deletedguid(id);
     }
     deleter.addBindValue(userList);
@@ -411,7 +411,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             {
                 const sync::Account& acc = entity.account();
                 adder.addBindValue(userId);
-                adder.addBindValue((quint64)acc.id());
+                adder.addBindValue(acc.id().data());
                 adder.addBindValue(acc.name().data());
                 if(acc.has_description())
                     adder.addBindValue(acc.description().data());
@@ -434,24 +434,24 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             {
                 const sync::Operation& operation = entity.operation();
                 adder.addBindValue(userId);
-                adder.addBindValue((quint64)operation.id());
+                adder.addBindValue(operation.id().data());
                 if(operation.has_description())
                     adder.addBindValue(operation.description().data());
                 else
                     adder.addBindValue(QVariant(QVariant::String)); // no desc
                 adder.addBindValue(operation.amount().data());
-                adder.addBindValue((quint64)operation.categoryid());
+                adder.addBindValue(operation.categoryid().data());
                 adder.addBindValue((quint64)operation.time());
 
                 if(operation.has_chargerid())
-                    adder.addBindValue((quint64)operation.chargerid());
+                    adder.addBindValue(operation.chargerid().data());
                 else
-                    adder.addBindValue(QVariant(QVariant::LongLong)); // no charger
+                    adder.addBindValue(QVariant(QVariant::String)); // no charger
 
                 if(operation.has_beneficiarid())
-                    adder.addBindValue((quint64)operation.beneficiarid());
+                    adder.addBindValue(operation.beneficiarid().data());
                 else
-                    adder.addBindValue(QVariant(QVariant::LongLong)); // no beneficiar
+                    adder.addBindValue(QVariant(QVariant::String)); // no beneficiar
 
                 if(operation.has_convertingrate())
                     adder.addBindValue(operation.convertingrate());
@@ -492,7 +492,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
                 else
                     modifier.addBindValue(QVariant(QVariant::Int));
                 modifier.addBindValue(userId);
-                modifier.addBindValue((quint64) acc.id());
+                modifier.addBindValue(acc.id().data());
                 break;
             }
             case SENT_CATEGORIES:
@@ -509,25 +509,25 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
                     modifier.addBindValue(QVariant(QVariant::String));
 
                 modifier.addBindValue(operation.amount().data());
-                modifier.addBindValue((quint64)operation.categoryid());
+                modifier.addBindValue(operation.categoryid().data());
                 modifier.addBindValue((quint64)operation.time());
                 if(operation.has_chargerid())
-                    modifier.addBindValue((quint64)operation.chargerid());
+                    modifier.addBindValue(operation.chargerid().data());
                 else
-                    modifier.addBindValue(QVariant(QVariant::LongLong));
+                    modifier.addBindValue(QVariant(QVariant::String));
 
                 if(operation.has_beneficiarid())
-                    modifier.addBindValue((quint64)operation.beneficiarid());
+                    modifier.addBindValue(operation.beneficiarid().data());
                 else
-                    modifier.addBindValue(QVariant(QVariant::LongLong));
+                    modifier.addBindValue(QVariant(QVariant::String));
 
                 if(operation.has_convertingrate())
                     modifier.addBindValue(operation.convertingrate());
                 else
-                    modifier.addBindValue(QVariant(QVariant::LongLong));
+                    modifier.addBindValue(QVariant(QVariant::String));
 
                 modifier.addBindValue(userId);
-                modifier.addBindValue((quint64) operation.id());
+                modifier.addBindValue(operation.id().data());
                 break;
             }
             default:
