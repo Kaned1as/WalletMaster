@@ -41,6 +41,7 @@ public class SyncDialogFragment extends WalletBaseDialogFragment implements View
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(dialog);
 
+        getWalletActivity().getSyncMachine().registerObserver(this);
         return builder.create();
     }
 
@@ -53,21 +54,25 @@ public class SyncDialogFragment extends WalletBaseDialogFragment implements View
                 .putBoolean(ACCOUNT_SYNC_KEY, mSyncType.getCheckedRadioButtonId() == R.id.already_have_radio)
             .commit();
 
-        getWalletActivity().getSyncMachine().registerSyncListener(this);
+
         getWalletActivity().startSync();
     }
 
     @Override
-    public void handleSyncMessage(int what, String errorMsg) {
-        final SyncStateMachine.State state = SyncStateMachine.State.values()[what];
-        switch (state) {
+    public void handleSyncMessage(SyncStateMachine.State what, String errorMsg) {
+        switch (what) {
             case AUTH_ACK:
-                getWalletActivity().getSyncMachine().unregisterSyncListener(this);
                 dismiss();
                 break;
             case AUTH_DENIED:
                 Toast.makeText(getActivity(), errorMsg, Toast.LENGTH_SHORT).show();
                 break;
         }
+    }
+
+    @Override
+    public void dismiss() {
+        super.dismiss();
+        getWalletActivity().getSyncMachine().unregisterObserver(this);
     }
 }

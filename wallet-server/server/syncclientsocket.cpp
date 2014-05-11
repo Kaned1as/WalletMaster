@@ -543,7 +543,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
     }
 
     QSqlQuery newTimeRetriever(*conn);
-    newTimeRetriever.exec("SELECT CURRENT_TIMESTAMP");
+    newTimeRetriever.exec("SELECT UNIX_TIMESTAMP()");
     if(newTimeRetriever.exec() && newTimeRetriever.next())
         ack.set_newservertimestamp(newTimeRetriever.value(0).toLongLong());
     else

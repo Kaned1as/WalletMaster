@@ -313,14 +313,20 @@ public class DatabaseDAO extends SQLiteOpenHelper
         boolean status = false;
         mDatabase.beginTransaction();
         transactionFlow: {
-            final ContentValues values = new ContentValues(5);
+            final ContentValues values = new ContentValues(3);
             values.put(ActionsFields.DATA_TYPE.toString(), entityType.ordinal());
             switch (type) {
                 case ADD: { // we're adding, only store ID to keep track of it
+                    // first, persist entity
                     final String persistedId = entity.persist(this); // result holds ID now
                     if (persistedId == null) // error
                         break transactionFlow;
                     entity.setId(persistedId); // we should track new ID of entity in action fields
+
+                    // second, do we have this data in any actions?
+                    final Cursor cursor = mDatabase.query(ACTIONS_TABLE_NAME, null, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {entity.getId(), String.valueOf(entityType.ordinal())}, null, null, null, null);
+                    if(cursor.moveToNext()) // we already have this entity deleted (reapplying operation), nothing to do
+                        break;
 
                     values.put(ActionsFields.DATA_ID.toString(), entity.getId());
                     values.put(ActionsFields.ORIGINAL_DATA.toString(), (byte[]) null);
@@ -346,14 +352,13 @@ public class DatabaseDAO extends SQLiteOpenHelper
                             throw new IllegalArgumentException("No such entity type!" + entity.getEntityType());
                     }
 
-
                     // second, update old row with new data
                     final long rowsUpdated = entity.update(this); // result holds updated entities count now
                     if (rowsUpdated != 1) // error
                         break transactionFlow;
 
                     // third, do we have original already?
-                    final Cursor cursor = mDatabase.query(ACTIONS_TABLE_NAME, null, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {String.valueOf(entity.getId()), String.valueOf(entityType.ordinal())}, null, null, null, null);
+                    final Cursor cursor = mDatabase.query(ACTIONS_TABLE_NAME, null, ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?", new String[] {entity.getId(), String.valueOf(entityType.ordinal())}, null, null, null, null);
                     if(cursor.moveToNext()) // we already have this entity stored (added or modified), nothing to do
                         break;
 

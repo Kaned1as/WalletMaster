@@ -1,6 +1,7 @@
 package com.adonai.wallet.sync;
 
 import android.content.SharedPreferences;
+import android.database.Observable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -20,7 +21,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.adonai.wallet.sync.SyncProtocol.SyncRequest;
@@ -60,7 +60,7 @@ import static com.adonai.wallet.sync.SyncProtocol.SyncResponse;
  *
  *
  */
-public class SyncStateMachine {
+public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> {
     public enum State {
         INIT,
         REGISTER(true),
@@ -102,39 +102,34 @@ public class SyncStateMachine {
     }
 
     public interface SyncListener {
-        void handleSyncMessage(int what, String errorMsg);
+        void handleSyncMessage(State state, String errorMsg);
     }
 
     private State state;
     private final Looper mLooper;
     private final Handler mHandler;
     private Socket mSocket;
-    private final List<SyncListener> mListeners = new ArrayList<>(2);
+
     private final WalletBaseActivity mContext;
     private final SharedPreferences mPreferences;
 
+
     public SyncStateMachine(WalletBaseActivity context) {
-        HandlerThread thr = new HandlerThread("ServiceThread");
+        final HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
         mLooper = thr.getLooper();
         mHandler = new Handler(mLooper, new SocketCallback());
 
-        mListeners.add(context);
+        mObservers.add(context);
         mContext = context;
         mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    public synchronized void  registerSyncListener(SyncListener listener) {
-        mListeners.add(listener);
-    }
-
-    public synchronized void unregisterSyncListener(SyncListener listener) {
-        mListeners.remove(listener);
-    }
-
-    public synchronized void notifyListeners(int what, String errorString) {
-        for(final SyncListener lsnr : mListeners)
-            lsnr.handleSyncMessage(what, errorString);
+    @SuppressWarnings("unchecked")
+    public void notifyListeners(State state, String errorString) {
+        final List<SyncListener> shadow = (List<SyncListener>) mObservers.clone();
+        for(final SyncListener lsnr : shadow)
+            lsnr.handleSyncMessage(state, errorString);
     }
 
     public void shutdown() {
@@ -152,7 +147,7 @@ public class SyncStateMachine {
         if(state.isActionNeeded()) // state is for internal handling, not for notifying
             mHandler.sendEmptyMessage(state.ordinal());
         else
-            notifyListeners(state.ordinal(), null);
+            notifyListeners(state, null);
     }
 
     public void setState(State state, String errorMsg) {
@@ -160,7 +155,7 @@ public class SyncStateMachine {
         if(state.isActionNeeded())
             mHandler.sendEmptyMessage(state.ordinal());
         else
-            notifyListeners(state.ordinal(), errorMsg);
+            notifyListeners(state, errorMsg);
     }
 
     public State getState() {
@@ -309,8 +304,7 @@ public class SyncStateMachine {
                         final SyncProtocol.EntityAck ack = SyncProtocol.EntityAck.parseDelimitedFrom(is);
                         mContext.getEntityDAO().clearActions();
                         mPreferences.edit().putLong(WalletConstants.ACCOUNT_LAST_SYNC, ack.getNewServerTimestamp()).commit();
-                        setState(State.INIT);
-
+                        setState(State.INIT, mContext.getString(R.string.sync_completed));
                         break;
                     }
                 }

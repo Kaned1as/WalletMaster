@@ -59,8 +59,8 @@ public class WalletBaseActivity extends ActionBarActivity implements SyncStateMa
     }
 
     @Override
-    public void handleSyncMessage(int what, String errorMsg) {
-        mHandler.sendMessage(mHandler.obtainMessage(what, errorMsg));
+    public void handleSyncMessage(SyncStateMachine.State what, String errorMsg) {
+        mHandler.sendMessage(mHandler.obtainMessage(what.ordinal(), errorMsg));
     }
 
     private class SyncCallback implements Handler.Callback {
