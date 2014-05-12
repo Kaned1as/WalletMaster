@@ -575,6 +575,12 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return allSucceeded;
     }
 
+    /**
+     * Call this in need of explicitly selecting operation from DB to have up-to-date values such when
+     * reapplying operation
+     * @param id id of operation to revert
+     * @return success or failure
+     */
     public boolean revertOperation(String id) {
         return revertOperation(Operation.getFromDB(this, id));
     }

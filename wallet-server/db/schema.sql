@@ -51,7 +51,7 @@ CREATE TABLE `operations` (
   `sync_account` int(11) NOT NULL,
   `description` varchar(45) DEFAULT NULL,
   `amount` varchar(45) NOT NULL,
-  `category_id` int(11) NOT NULL,
+  `category_id` varchar(45) NOT NULL,
   `time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `charger_id` varchar(45) DEFAULT NULL,
   `beneficiar_id` varchar(45) DEFAULT NULL,
@@ -89,4 +89,4 @@ CREATE TABLE `sync_accounts` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-05-12  8:30:17
+-- Dump completed on 2014-05-13  0:01:07

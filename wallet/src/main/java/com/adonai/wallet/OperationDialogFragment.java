@@ -338,8 +338,16 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                 try {
                     if (mOperation != null) { // operation is already applied, need to revert it and re-apply again
                         fillOperationFields(db);
-                        if (db.revertOperation(mOperation.getId()) && db.applyOperation(mOperation)) // revert original one and apply ours
+                        if (db.revertOperation(mOperation.getId())) { // revert original one and apply ours
                             dismiss();
+                            // update operation fields in case accounts were affected when reverting
+                            // ugly hack (lack of managed/non-managed entity difference)
+                            if(mOperation.getCharger() != null)
+                                mOperation.setCharger(Account.getFromDB(db, mOperation.getCharger().getId()));
+                            if(mOperation.getBeneficiar() != null)
+                                mOperation.setBeneficiar(Account.getFromDB(db, mOperation.getBeneficiar().getId()));
+                            db.applyOperation(mOperation);
+                        }
                          else
                             throw new IllegalStateException("Cannot reapply operation!"); // should never happen!!
                     } else { // create new operation with data from fields specified

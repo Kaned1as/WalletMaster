@@ -510,7 +510,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
 
                 modifier.addBindValue(operation.amount().data());
                 modifier.addBindValue(operation.categoryid().data());
-                modifier.addBindValue((quint64)operation.time());
+                modifier.addBindValue(QDateTime::fromMSecsSinceEpoch(operation.time()));
                 if(operation.has_chargerid())
                     modifier.addBindValue(operation.chargerid().data());
                 else
