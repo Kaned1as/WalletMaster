@@ -1,12 +1,12 @@
 package com.adonai.wallet;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
 import android.widget.Toast;
 
 import com.adonai.wallet.sync.SyncStateMachine;
@@ -14,7 +14,7 @@ import com.adonai.wallet.sync.SyncStateMachine;
 /**
  * @author adonai
  */
-public class WalletBaseActivity extends ActionBarActivity implements SyncStateMachine.SyncListener {
+public class WalletBaseActivity extends Activity implements SyncStateMachine.SyncListener {
 
     protected DatabaseDAO mEntityDAO;
     protected SyncStateMachine mSyncMachine;

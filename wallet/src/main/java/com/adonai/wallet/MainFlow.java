@@ -1,16 +1,16 @@
 package com.adonai.wallet;
 
+import android.app.ActionBar;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.adonai.wallet.WalletConstants.*;
+import static com.adonai.wallet.WalletConstants.ACCOUNT_SYNC_KEY;
 
 public class MainFlow extends WalletBaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -31,11 +31,11 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_flow);
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
-        mParts.add((WalletBaseFragment) getSupportFragmentManager().findFragmentById(R.id.accounts_fragment));
-        mParts.add((WalletBaseFragment) getSupportFragmentManager().findFragmentById(R.id.operations_fragment));
+        mParts.add((WalletBaseFragment) getFragmentManager().findFragmentById(R.id.accounts_fragment));
+        mParts.add((WalletBaseFragment) getFragmentManager().findFragmentById(R.id.operations_fragment));
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
@@ -44,7 +44,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
-        final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        final FragmentTransaction transaction = getFragmentManager().beginTransaction();
         for(WalletBaseFragment fragment : mParts)
             transaction.hide(fragment);
         switch (position) {
@@ -64,7 +64,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     }
 
     public void restoreActionBar() {
-        final ActionBar actionBar = getSupportActionBar();
+        final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
@@ -97,7 +97,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
                 if(mPreferences.contains(ACCOUNT_SYNC_KEY)) // have already configured sync account previously...
                     startSync();
                 else // need to configure now!
-                    new SyncDialogFragment().show(getSupportFragmentManager(), "syncAcc");
+                    new SyncDialogFragment().show(getFragmentManager(), "syncAcc");
             }
         }
         return super.onOptionsItemSelected(item);

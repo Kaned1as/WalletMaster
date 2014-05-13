@@ -1,6 +1,7 @@
 package com.adonai.wallet;
 
-import android.support.v4.app.Fragment;
+
+import android.app.Fragment;
 
 /**
  * @author adonai
