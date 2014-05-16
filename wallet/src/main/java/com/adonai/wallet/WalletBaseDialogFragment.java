@@ -2,8 +2,11 @@ package com.adonai.wallet;
 
 import android.app.DialogFragment;
 
+
 /**
- * Created by adonai on 10.03.14.
+ * All wallet master dialog fragments must extend this class
+ *
+ * @author adonai
  */
 public class WalletBaseDialogFragment extends DialogFragment {
 

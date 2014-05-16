@@ -18,6 +18,8 @@ import static com.adonai.wallet.WalletConstants.ACCOUNT_PASSWORD_KEY;
 import static com.adonai.wallet.WalletConstants.ACCOUNT_SYNC_KEY;
 
 /**
+ * Dialog fragment for authorizing/registering account for the sync
+ *
  * @author adonai
  */
 public class SyncDialogFragment extends WalletBaseDialogFragment implements View.OnClickListener, SyncStateMachine.SyncListener {

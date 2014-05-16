@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -29,12 +28,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
 /**
- * Database always contains current working copy
+ * Database helper instance
+ *
+ * Database entity tables always contains current working copy
  * Actions contain original data
  */
 public class DatabaseDAO extends SQLiteOpenHelper
@@ -229,6 +229,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         // fill
 
         // test accounts
+        /*
         final Random rand = new Random();
         for(int i = 0; i < 100; ++i) {
             final ContentValues values = new ContentValues(5);
@@ -252,6 +253,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
             sqLiteDatabase.insert(EntityType.OPERATIONS.toString(), null, values);
         }
+        */
     }
 
     @Override

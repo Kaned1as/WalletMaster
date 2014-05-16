@@ -11,6 +11,8 @@ import java.util.EnumSet;
 import java.util.Iterator;
 
 /**
+ * Additional class used for global methods and constants
+ *
  * @author adonai
  */
 public class Utils {

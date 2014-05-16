@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.util.Log;
 
 import com.adonai.wallet.DatabaseDAO;
+import com.adonai.wallet.sync.SyncProtocol;
 
 import java.util.UUID;
 
@@ -102,4 +103,26 @@ public class Category extends Entity {
         return null;
     }
 
+    public static Category fromProtoCategory(SyncProtocol.Category category, DatabaseDAO dao) {
+        final Category tempCategory = new Category();
+        tempCategory.setId(category.getID());
+        tempCategory.setName(category.getName());
+        tempCategory.setType(category.getType());
+        if(category.hasPreferredAccount())
+            tempCategory.setPreferredAccount(Account.getFromDB(dao, category.getPreferredAccount()));
+
+        return tempCategory;
+    }
+
+    public static SyncProtocol.Category toProtoCategory(Category category) {
+        final SyncProtocol.Category.Builder builder = SyncProtocol.Category.newBuilder()
+                .setID(category.getId())
+                .setName(category.getName())
+                .setType(category.getType());
+
+        if(category.getPreferredAccount() != null)
+            builder.setPreferredAccount(category.getPreferredAccount().getId());
+
+        return builder.build();
+    }
 }

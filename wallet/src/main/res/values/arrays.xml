@@ -19,6 +19,7 @@
         <item name="black">#000000</item>
     </string-array>
     <string-array name="out_categories">
+        <item>Transport</item>
         <item>Clothes</item>
         <item>Accessories</item>
         <item>Cosmetics</item>
@@ -34,8 +35,8 @@
         <item>Internet</item>
         <item>Subscriptions</item>
         <item>Mobile network</item>
-        <item>Other</item>
         <item>Debt</item>
+        <item>Other</item>
     </string-array>
     <string-array name="inc_categories">
         <item>Salary/Wage</item>
@@ -43,7 +44,6 @@
         <item>Debt recover</item>
         <item>Gifts</item>
         <item>Unexpected</item>
-        <item>Other</item>
         <item>Business income</item>
         <item>Pension</item>
         <item>Rental Income</item>
@@ -54,5 +54,6 @@
         <item>Unemployment Compensation</item>
         <item>Trade</item>
         <item>Capital income</item>
+        <item>Other</item>
     </string-array>
 </resources>

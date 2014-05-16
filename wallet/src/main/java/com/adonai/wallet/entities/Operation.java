@@ -214,7 +214,7 @@ public class Operation extends Entity {
     }
 
     public static SyncProtocol.Operation toProtoOperation(Operation operation) {
-        SyncProtocol.Operation.Builder builder = SyncProtocol.Operation.newBuilder()
+        final SyncProtocol.Operation.Builder builder = SyncProtocol.Operation.newBuilder()
                 .setID(operation.getId())
                 .setDescription(operation.getDescription())
                 .setAmount(operation.getAmount().toPlainString())

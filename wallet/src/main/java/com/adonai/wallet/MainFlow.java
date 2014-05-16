@@ -12,6 +12,11 @@ import java.util.List;
 
 import static com.adonai.wallet.WalletConstants.ACCOUNT_SYNC_KEY;
 
+/**
+ * Main activity of wallet master
+ *
+ * @author Adonai
+ */
 public class MainFlow extends WalletBaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     /**

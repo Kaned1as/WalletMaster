@@ -40,6 +40,9 @@ import static com.adonai.wallet.Utils.convertPixelsToDp;
 import static com.adonai.wallet.entities.Operation.OperationType;
 
 /**
+ * Fragment that is responsible for showing operations list
+ * Uses async operation load for better interactivity
+ *
  * @author adonai
  */
 public class OperationsFragment extends WalletBaseFragment {

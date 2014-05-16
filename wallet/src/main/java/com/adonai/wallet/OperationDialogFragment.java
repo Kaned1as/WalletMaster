@@ -38,6 +38,8 @@ import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
 import static com.adonai.wallet.Utils.getValue;
 
 /**
+ * Dialog fragment for operation deleting/modifying/creating
+ *
  * @author adonai
  */
 public class OperationDialogFragment extends WalletBaseDialogFragment implements View.OnClickListener {
@@ -284,7 +286,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             mCursor.moveToPosition(position);
 
             if (convertView == null)
-                view = inflater.inflate(android.R.layout.simple_spinner_item, parent, false);
+                view = inflater.inflate(R.layout.category_list_item, parent, false);
             else
                 view = convertView;
 

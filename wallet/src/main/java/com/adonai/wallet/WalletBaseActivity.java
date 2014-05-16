@@ -12,6 +12,8 @@ import android.widget.Toast;
 import com.adonai.wallet.sync.SyncStateMachine;
 
 /**
+ * All wallet master activities must extend this class
+ *
  * @author adonai
  */
 public class WalletBaseActivity extends Activity implements SyncStateMachine.SyncListener {

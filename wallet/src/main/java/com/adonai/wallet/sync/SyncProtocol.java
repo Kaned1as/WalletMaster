@@ -7662,15 +7662,20 @@ public final class SyncProtocol {
      */
     int getType();
 
-    // optional uint64 preferredAccount = 4;
+    // optional string preferredAccount = 4;
     /**
-     * <code>optional uint64 preferredAccount = 4;</code>
+     * <code>optional string preferredAccount = 4;</code>
      */
     boolean hasPreferredAccount();
     /**
-     * <code>optional uint64 preferredAccount = 4;</code>
+     * <code>optional string preferredAccount = 4;</code>
      */
-    long getPreferredAccount();
+    java.lang.String getPreferredAccount();
+    /**
+     * <code>optional string preferredAccount = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getPreferredAccountBytes();
   }
   /**
    * Protobuf type {@code com.adonai.wallet.sync.Category}
@@ -7738,9 +7743,9 @@ public final class SyncProtocol {
               type_ = input.readUInt32();
               break;
             }
-            case 32: {
+            case 34: {
               bitField0_ |= 0x00000008;
-              preferredAccount_ = input.readUInt64();
+              preferredAccount_ = input.readBytes();
               break;
             }
           }
@@ -7885,27 +7890,54 @@ public final class SyncProtocol {
       return type_;
     }
 
-    // optional uint64 preferredAccount = 4;
+    // optional string preferredAccount = 4;
     public static final int PREFERREDACCOUNT_FIELD_NUMBER = 4;
-    private long preferredAccount_;
+    private java.lang.Object preferredAccount_;
     /**
-     * <code>optional uint64 preferredAccount = 4;</code>
+     * <code>optional string preferredAccount = 4;</code>
      */
     public boolean hasPreferredAccount() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional uint64 preferredAccount = 4;</code>
+     * <code>optional string preferredAccount = 4;</code>
      */
-    public long getPreferredAccount() {
-      return preferredAccount_;
+    public java.lang.String getPreferredAccount() {
+      java.lang.Object ref = preferredAccount_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          preferredAccount_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string preferredAccount = 4;</code>
+     */
+    public com.google.protobuf.ByteString
+        getPreferredAccountBytes() {
+      java.lang.Object ref = preferredAccount_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        preferredAccount_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     private void initFields() {
       iD_ = "";
       name_ = "";
       type_ = 0;
-      preferredAccount_ = 0L;
+      preferredAccount_ = "";
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -7941,7 +7973,7 @@ public final class SyncProtocol {
         output.writeUInt32(3, type_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeUInt64(4, preferredAccount_);
+        output.writeBytes(4, getPreferredAccountBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -7966,7 +7998,7 @@ public final class SyncProtocol {
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(4, preferredAccount_);
+          .computeBytesSize(4, getPreferredAccountBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -8090,7 +8122,7 @@ public final class SyncProtocol {
         bitField0_ = (bitField0_ & ~0x00000002);
         type_ = 0;
         bitField0_ = (bitField0_ & ~0x00000004);
-        preferredAccount_ = 0L;
+        preferredAccount_ = "";
         bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
@@ -8166,7 +8198,9 @@ public final class SyncProtocol {
           setType(other.getType());
         }
         if (other.hasPreferredAccount()) {
-          setPreferredAccount(other.getPreferredAccount());
+          bitField0_ |= 0x00000008;
+          preferredAccount_ = other.preferredAccount_;
+          onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -8388,35 +8422,76 @@ public final class SyncProtocol {
         return this;
       }
 
-      // optional uint64 preferredAccount = 4;
-      private long preferredAccount_ ;
+      // optional string preferredAccount = 4;
+      private java.lang.Object preferredAccount_ = "";
       /**
-       * <code>optional uint64 preferredAccount = 4;</code>
+       * <code>optional string preferredAccount = 4;</code>
        */
       public boolean hasPreferredAccount() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional uint64 preferredAccount = 4;</code>
+       * <code>optional string preferredAccount = 4;</code>
        */
-      public long getPreferredAccount() {
-        return preferredAccount_;
+      public java.lang.String getPreferredAccount() {
+        java.lang.Object ref = preferredAccount_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          preferredAccount_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>optional uint64 preferredAccount = 4;</code>
+       * <code>optional string preferredAccount = 4;</code>
        */
-      public Builder setPreferredAccount(long value) {
-        bitField0_ |= 0x00000008;
+      public com.google.protobuf.ByteString
+          getPreferredAccountBytes() {
+        java.lang.Object ref = preferredAccount_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          preferredAccount_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string preferredAccount = 4;</code>
+       */
+      public Builder setPreferredAccount(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
         preferredAccount_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional uint64 preferredAccount = 4;</code>
+       * <code>optional string preferredAccount = 4;</code>
        */
       public Builder clearPreferredAccount() {
         bitField0_ = (bitField0_ & ~0x00000008);
-        preferredAccount_ = 0L;
+        preferredAccount_ = getDefaultInstance().getPreferredAccount();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string preferredAccount = 4;</code>
+       */
+      public Builder setPreferredAccountBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+        preferredAccount_ = value;
         onChanged();
         return this;
       }
@@ -8514,7 +8589,7 @@ public final class SyncProtocol {
       "\006amount\030\006 \002(\t\022\026\n\016convertingRate\030\007 \001(\001\022\022\n" +
       "\ncategoryId\030\010 \002(\t\"L\n\010Category\022\n\n\002ID\030\001 \002(" +
       "\t\022\014\n\004name\030\002 \002(\t\022\014\n\004type\030\003 \002(\r\022\030\n\020preferr" +
-      "edAccount\030\004 \001(\004"
+      "edAccount\030\004 \001(\t"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
