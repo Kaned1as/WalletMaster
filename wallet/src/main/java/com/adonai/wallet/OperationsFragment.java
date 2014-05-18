@@ -41,6 +41,7 @@ import static com.adonai.wallet.entities.Operation.OperationType;
 
 /**
  * Fragment that is responsible for showing operations list
+ * and their context actions
  * Uses async operation load for better interactivity
  *
  * @author adonai

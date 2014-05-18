@@ -30,16 +30,16 @@ import java.util.UUID;
 import static com.adonai.wallet.Utils.convertDpToPixel;
 
 /**
- * A placeholder fragment containing a simple view.
+ * Fragment responsible for showing accounts list
+ * and their context actions
+ *
+ * @author Adonai
  */
 public class AccountsFragment extends WalletBaseFragment {
 
     private ListView mAccountList;
     private AccountsAdapter mAccountsAdapter;
     private TextView budgetSum;
-
-    private boolean mLoadOnStart = false;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

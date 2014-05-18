@@ -65,4 +65,6 @@
     <string name="sync_completed">Sync is completed!</string>
     <string name="modify">Modify</string>
     <string name="create_new_operation">Create new operation</string>
+    <string name="categories">Categories</string>
+    <string name="expense">Expense</string>
 </resources>
