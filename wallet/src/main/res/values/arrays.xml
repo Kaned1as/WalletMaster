@@ -56,4 +56,9 @@
         <item>Capital income</item>
         <item>Other</item>
     </string-array>
+    <string-array name="transfer_categories">
+        <item>Transfer</item>
+        <item>Cash in</item>
+        <item>Cash withdrawal</item>
+    </string-array>
 </resources>

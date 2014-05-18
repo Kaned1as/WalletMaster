@@ -57,7 +57,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private RadioGroup mTypeSwitch;
 
     private final List<TableRow> conversionRows = new ArrayList<>();
-    private TableRow mCategoryRow;
     private TableRow mBeneficiarRow;
     private TableRow mChargerRow;
 
@@ -67,6 +66,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
     private CategoriesAdapter mInCategoriesAdapter;
     private CategoriesAdapter mOutCategoriesAdapter;
+    private CategoriesAdapter mTransferCategoriesAdapter;
 
     private Operation mOperation;
     private Account mCharger;
@@ -102,6 +102,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
         mInCategoriesAdapter = new CategoriesAdapter(Category.INCOME);
         mOutCategoriesAdapter = new CategoriesAdapter(Category.EXPENSE);
+        mTransferCategoriesAdapter = new CategoriesAdapter(Category.TRANSFER);
         mCategorySelector = (Spinner) dialog.findViewById(R.id.category_spinner);
         mCategorySelector.setOnItemSelectedListener(new CategorySelectListener());
 
@@ -115,7 +116,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         mBeneficiarRow = (TableRow) dialog.findViewById(R.id.operation_beneficiar_row);
         conversionRows.add((TableRow) dialog.findViewById(R.id.beneficiar_conversion));
         conversionRows.add((TableRow) dialog.findViewById(R.id.beneficiar_amount));
-        mCategoryRow = (TableRow) dialog.findViewById(R.id.operation_category_row);
 
         mBeneficiarAccountSelector = (Spinner) dialog.findViewById(R.id.beneficiar_account_spinner);
         mBeneficiarAccountSelector.setAdapter(mAccountAdapter);
@@ -315,8 +315,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     mBeneficiarRow.setVisibility(View.VISIBLE);
                     mChargerRow.setVisibility(View.VISIBLE);
 
-                    mCategoryRow.setVisibility(View.GONE);
                     mAmount.setTextColor(Color.parseColor("#0000AA"));
+                    mCategorySelector.setAdapter(mTransferCategoriesAdapter);
 
                     updateTransferConversionVisibility();
                     break;
@@ -324,7 +324,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     mBeneficiarRow.setVisibility(View.VISIBLE);
                     mChargerRow.setVisibility(View.GONE);
 
-                    mCategoryRow.setVisibility(View.VISIBLE);
                     mCategorySelector.setAdapter(mInCategoriesAdapter);
 
                     mAmount.setTextColor(Color.parseColor("#00AA00"));
@@ -333,7 +332,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     mBeneficiarRow.setVisibility(View.GONE);
                     mChargerRow.setVisibility(View.VISIBLE);
 
-                    mCategoryRow.setVisibility(View.VISIBLE);
                     mCategorySelector.setAdapter(mOutCategoriesAdapter);
 
                     mAmount.setTextColor(Color.parseColor("#AA0000"));

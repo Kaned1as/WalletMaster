@@ -13,6 +13,7 @@ import java.util.UUID;
 public class Category extends Entity {
     final public static int EXPENSE = 0;
     final public static int INCOME = 1;
+    final public static int TRANSFER = 2;
 
     private String name;
     private int type;

@@ -186,18 +186,26 @@ public class DatabaseDAO extends SQLiteOpenHelper
         // fill Categories
         final String[] defaultOutcomeCategories = mContext.getResources().getStringArray(R.array.out_categories);
         final String[] defaultIncomeCategories = mContext.getResources().getStringArray(R.array.inc_categories);
+        final String[] defaultTransCategories = mContext.getResources().getStringArray(R.array.transfer_categories);
         for(final String outCategory : defaultOutcomeCategories) {
-            final ContentValues values = new ContentValues(2);
+            final ContentValues values = new ContentValues(3);
             values.put(CategoriesFields._id.toString(), UUID.randomUUID().toString());
             values.put(CategoriesFields.NAME.toString(), outCategory);
             values.put(CategoriesFields.TYPE.toString(), Category.EXPENSE);
             sqLiteDatabase.insert(EntityType.CATEGORIES.toString(), null, values);
         }
         for(final String inCategory : defaultIncomeCategories) {
-            final ContentValues values = new ContentValues(2);
+            final ContentValues values = new ContentValues(3);
             values.put(CategoriesFields._id.toString(), UUID.randomUUID().toString());
             values.put(CategoriesFields.NAME.toString(), inCategory);
             values.put(CategoriesFields.TYPE.toString(), Category.INCOME);
+            sqLiteDatabase.insert(EntityType.CATEGORIES.toString(), null, values);
+        }
+        for(final String inCategory : defaultTransCategories) {
+            final ContentValues values = new ContentValues(3);
+            values.put(CategoriesFields._id.toString(), UUID.randomUUID().toString());
+            values.put(CategoriesFields.NAME.toString(), inCategory);
+            values.put(CategoriesFields.TYPE.toString(), Category.TRANSFER);
             sqLiteDatabase.insert(EntityType.CATEGORIES.toString(), null, values);
         }
 
