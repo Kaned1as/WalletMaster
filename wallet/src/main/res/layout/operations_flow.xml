@@ -31,5 +31,6 @@
         android:layout_height="match_parent"
         android:id="@+id/operations_list"
         android:divider="@null"
-        android:drawSelectorOnTop="false" />
+        android:drawSelectorOnTop="false"
+        android:requiresFadingEdge="vertical" />
 </LinearLayout>

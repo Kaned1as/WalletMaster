@@ -42,10 +42,9 @@ import static com.adonai.wallet.Utils.getValue;
  *
  * @author adonai
  */
-public class OperationDialogFragment extends WalletBaseDialogFragment implements View.OnClickListener {
+public class OperationDialogFragment extends WalletBaseDialogFragment implements View.OnClickListener, DialogInterface.OnClickListener {
 
     private EditText mDescription;
-    private Button mCreateOperation;
 
     private final Calendar mNow = Calendar.getInstance();
     private Button mDatePicker;
@@ -94,8 +93,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         assert dialog != null;
 
         mDescription = (EditText) dialog.findViewById(R.id.description_edit);
-        mCreateOperation = (Button) dialog.findViewById(R.id.create_modify_operation_button);
-        mCreateOperation.setOnClickListener(this);
         mDatePicker = (Button) dialog.findViewById(R.id.date_picker_button);
         mDatePicker.setOnClickListener(this);
 
@@ -134,6 +131,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
         // if we are modifying existing operation
         if(mOperation != null) {
+            builder.setPositiveButton(R.string.modify, this);
+            builder.setTitle(R.string.edit_operation);
             mDescription.setText(mOperation.getDescription());
             mAmount.setText(mOperation.getAmount().toPlainString());
             mNow.setTime(mOperation.getTime().getTime());
@@ -158,6 +157,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     break;
             }
         } else { // this is new operation
+            builder.setPositiveButton(R.string.create, this);
+            builder.setTitle(R.string.create_new_operation);
             mTypeSwitch.check(R.id.expense_radio);
             mDatePicker.setText(VIEW_DATE_FORMAT.format(mNow.getTime())); // current time
             if(mCharger != null)
@@ -280,14 +281,23 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         }
 
         @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            return newView(position, convertView, parent, R.layout.category_list_item);
+        }
+
+        @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            return newView(position, convertView, parent, android.R.layout.simple_spinner_item);
+        }
+
+        public View newView(int position, View convertView, ViewGroup parent, int resId) {
             final View view;
-            final LayoutInflater inflater = LayoutInflater.from(mContext);
             mCursor.moveToPosition(position);
 
-            if (convertView == null)
-                view = inflater.inflate(R.layout.category_list_item, parent, false);
-            else
+            if (convertView == null) {
+                final LayoutInflater inflater = LayoutInflater.from(mContext);
+                view = inflater.inflate(resId, parent, false);
+            } else
                 view = convertView;
 
             final TextView name = (TextView) view.findViewById(android.R.id.text1);
@@ -335,36 +345,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.create_modify_operation_button: {
-                final DatabaseDAO db = getWalletActivity().getEntityDAO();
-                try {
-                    if (mOperation != null) { // operation is already applied, need to revert it and re-apply again
-                        fillOperationFields(db);
-                        if (db.revertOperation(mOperation.getId())) { // revert original one and apply ours
-                            dismiss();
-                            // update operation fields in case accounts were affected when reverting
-                            // ugly hack (lack of managed/non-managed entity difference)
-                            if(mOperation.getCharger() != null)
-                                mOperation.setCharger(Account.getFromDB(db, mOperation.getCharger().getId()));
-                            if(mOperation.getBeneficiar() != null)
-                                mOperation.setBeneficiar(Account.getFromDB(db, mOperation.getBeneficiar().getId()));
-                            db.applyOperation(mOperation);
-                        }
-                         else
-                            throw new IllegalStateException("Cannot reapply operation!"); // should never happen!!
-                    } else { // create new operation with data from fields specified
-                        mOperation = new Operation();
-                        fillOperationFields(db);
-                        if (db.applyOperation(mOperation)) // all succeeded
-                            dismiss();
-                        else
-                            throw new IllegalStateException("Cannot apply operation!"); // should never happen!!
-                    }
-                } catch (IllegalArgumentException ex) {
-                    Toast.makeText(getWalletActivity(), ex.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-                break;
-            }
             case R.id.date_picker_button: {
                 DatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
                     @Override
@@ -375,6 +355,38 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                 };
                 new DatePickerDialog(getActivity(), listener, mNow.get(Calendar.YEAR), mNow.get(Calendar.MONTH), mNow.get(Calendar.DAY_OF_MONTH)).show();
             }
+        }
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        final DatabaseDAO db = getWalletActivity().getEntityDAO();
+        try {
+            if (mOperation != null) { // operation is already applied, need to revert it and re-apply again
+                fillOperationFields(db);
+                if (db.revertOperation(mOperation.getId())) { // revert original one and apply ours
+                    dismiss();
+                    // update operation fields in case accounts were affected when reverting
+                    // ugly hack (lack of managed/non-managed entity difference)
+                    if(mOperation.getCharger() != null)
+                        mOperation.setCharger(Account.getFromDB(db, mOperation.getCharger().getId()));
+                    if(mOperation.getBeneficiar() != null)
+                        mOperation.setBeneficiar(Account.getFromDB(db, mOperation.getBeneficiar().getId()));
+                    db.applyOperation(mOperation);
+                }
+                else
+                    throw new IllegalStateException("Cannot reapply operation!"); // should never happen!!
+            } else { // create new operation with data from fields specified
+                mOperation = new Operation();
+                fillOperationFields(db);
+                if (db.applyOperation(mOperation)) // all succeeded
+                    dismiss();
+                else
+                    throw new IllegalStateException("Cannot apply operation!"); // should never happen!!
+            }
+        } catch (IllegalArgumentException ex) {
+            Toast.makeText(getWalletActivity(), ex.getMessage(), Toast.LENGTH_SHORT).show();
+            mOperation = null;
         }
     }
 

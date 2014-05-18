@@ -32,7 +32,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/date_picker_button"
                 android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp" />
+                android:layout_marginRight="30dp"
+                style="@android:style/Widget.DatePicker" />
 
 
         </TableRow>
@@ -228,21 +229,6 @@
                 android:editable="false"
                 android:gravity="right" />
 
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/operation_confirm_row"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="10dp">
-
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/create"
-                android:id="@+id/create_modify_operation_button"
-                android:layout_span="2" />
         </TableRow>
 
     </TableLayout>

@@ -222,7 +222,7 @@ public class OperationsFragment extends WalletBaseFragment {
     }
 
     private Map<OperationType, Drawable> fillDrawableMap() {
-        Map<OperationType, Drawable> result = new EnumMap<>(OperationType.class);
+        final Map<OperationType, Drawable> result = new EnumMap<>(OperationType.class);
         // EXPENSE
         final Path expensePath = new Path();
         expensePath.moveTo(0, 50);

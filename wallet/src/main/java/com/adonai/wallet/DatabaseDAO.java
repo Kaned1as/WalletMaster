@@ -569,9 +569,6 @@ public class DatabaseDAO extends SQLiteOpenHelper
             }
             mDatabase.setTransactionSuccessful();
             allSucceeded = true;
-
-            notifyListeners(EntityType.OPERATIONS.toString());
-            notifyListeners(EntityType.ACCOUNTS.toString());
         }
         mDatabase.endTransaction();
         return allSucceeded;

@@ -3,6 +3,7 @@ package com.adonai.wallet;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -11,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -26,8 +26,7 @@ import java.math.BigDecimal;
 /**
  * @author adonai
  */
-public class AccountDialogFragment extends WalletBaseDialogFragment implements View.OnClickListener {
-    private Button mCreateAccount;
+public class AccountDialogFragment extends WalletBaseDialogFragment implements DialogInterface.OnClickListener {
     private EditText mAccountName;
     private EditText mAccountDescription;
     private Spinner mCurrencySelector;
@@ -54,18 +53,16 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
         mCurrencySelector = (Spinner) dialog.findViewById(R.id.currency_spinner);
         mColorSelector = (Spinner) dialog.findViewById(R.id.color_spinner);
         mInitialAmount = (EditText) dialog.findViewById(R.id.initial_amount_edit);
-        mCreateAccount = (Button) dialog.findViewById(R.id.create_modify_account_button);
 
-        CurrencyAdapter adapter = new CurrencyAdapter();
+        final CurrencyAdapter adapter = new CurrencyAdapter();
         mCurrencySelector.setAdapter(adapter);
-        mCreateAccount.setOnClickListener(this);
         ColorSpinnerAdapter colorAdapter = new ColorSpinnerAdapter(getResources().getStringArray(R.array.colors));
         mColorSelector.setAdapter(colorAdapter);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // if we are modifying existing account
         if(mAccount != null) {
-            mCreateAccount.setText(R.string.confirm);
+            builder.setPositiveButton(R.string.confirm, this);
             builder.setTitle(R.string.edit_account).setView(dialog);
 
             mAccountName.setText(mAccount.getName());
@@ -74,38 +71,12 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
             mColorSelector.setSelection(colorAdapter.getPosition(String.format("#%06X", (0xFFFFFF & mAccount.getColor()))));
             mInitialAmount.setText(mAccount.getAmount().toPlainString());
         } else {
+            builder.setPositiveButton(R.string.create, this);
             builder.setTitle(R.string.create_new_account).setView(dialog);
             mCurrencySelector.setSelection(adapter.getPosition("RUB"));
         }
 
         return builder.create();
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.create_modify_account_button: {
-                if(mAccountName.getText() == null || mAccountName.getText().toString().equals("")) {
-                    Toast.makeText(getActivity(), R.string.account_name_invalid, Toast.LENGTH_SHORT).show();
-                    break;
-                }
-                if(mAccount != null)  { // modifying existing account
-                    fillAccountFields();
-                    if(getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.MODIFY, mAccount))
-                        dismiss();
-                    else
-                        Toast.makeText(getActivity(), R.string.account_not_found, Toast.LENGTH_SHORT).show();
-                } else {  // creating new account
-                    mAccount = new Account();
-                    fillAccountFields();
-                    if(getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.ADD, mAccount))
-                        dismiss();
-                    else
-                        Toast.makeText(getActivity(), R.string.account_already_exist, Toast.LENGTH_SHORT).show();
-                }
-                break;
-            }
-        }
     }
 
     private void fillAccountFields() {
@@ -114,6 +85,30 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements V
         mAccount.setCurrency((Currency) mCurrencySelector.getSelectedItem());
         mAccount.setAmount(Utils.getValue(mInitialAmount.getText().toString(), BigDecimal.ZERO));
         mAccount.setColor(Color.parseColor((String) mColorSelector.getSelectedItem()));
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        if(mAccountName.getText() == null || mAccountName.getText().toString().equals("")) {
+            Toast.makeText(getActivity(), R.string.account_name_invalid, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(mAccount != null)  { // modifying existing account
+            fillAccountFields();
+            if(getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.MODIFY, mAccount))
+                dismiss();
+            else
+                Toast.makeText(getActivity(), R.string.account_not_found, Toast.LENGTH_SHORT).show();
+        } else {  // creating new account
+            mAccount = new Account();
+            fillAccountFields();
+            if(getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.ADD, mAccount))
+                dismiss();
+            else {
+                Toast.makeText(getActivity(), R.string.account_already_exist, Toast.LENGTH_SHORT).show();
+                mAccount = null;
+            }
+        }
     }
 
     public class ColorSpinnerAdapter extends ArrayAdapter<String> implements SpinnerAdapter {

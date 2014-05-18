@@ -63,4 +63,6 @@
     <string name="account_request_sent">Sent account request…</string>
     <string name="account_response_received">Got account acknowledge…</string>
     <string name="sync_completed">Sync is completed!</string>
+    <string name="modify">Modify</string>
+    <string name="create_new_operation">Create new operation</string>
 </resources>
