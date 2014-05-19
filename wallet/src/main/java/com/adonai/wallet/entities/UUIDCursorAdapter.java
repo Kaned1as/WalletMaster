@@ -71,13 +71,23 @@ public abstract class UUIDCursorAdapter extends BaseAdapter {
             return 0;
     }
 
-    public UUID getItemUUID(int position) {
+    public String getItemUUID(int position) {
         if (mCursor != null) {
             if (mCursor.moveToPosition(position))
-                return UUID.fromString(mCursor.getString(UUID_COLUMN));
+                return mCursor.getString(UUID_COLUMN);
             else
                 return null;
         } else
             return null;
+    }
+
+    public int getPosition(String id) {
+        mCursor.moveToFirst();
+        do {
+            if(mCursor.getString(UUID_COLUMN).equals(id))
+                return mCursor.getPosition();
+        } while(mCursor.moveToNext());
+
+        return -1;
     }
 }

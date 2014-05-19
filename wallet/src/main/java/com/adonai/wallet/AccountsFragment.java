@@ -25,7 +25,6 @@ import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.daniel.lupianez.casares.PopoverView;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 import static com.adonai.wallet.Utils.convertDpToPixel;
 
@@ -149,8 +148,8 @@ public class AccountsFragment extends WalletBaseFragment {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    final UUID accountID = mAccountsAdapter.getItemUUID(position);
-                                    getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.DELETE, Account.getFromDB(getWalletActivity().getEntityDAO(), accountID.toString()));
+                                    final String accountID = mAccountsAdapter.getItemUUID(position);
+                                    getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.DELETE, Account.getFromDB(getWalletActivity().getEntityDAO(), accountID));
                                 }
                             }).create().show();
 
@@ -162,9 +161,9 @@ public class AccountsFragment extends WalletBaseFragment {
             edit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final UUID accountID = mAccountsAdapter.getItemUUID(position);
-                    final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), accountID.toString());
-                    new AccountDialogFragment(managed).show(getFragmentManager(), "accModify");
+                    final String accountID = mAccountsAdapter.getItemUUID(position);
+                    final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), accountID);
+                    AccountDialogFragment.forAccount(managed.getId()).show(getFragmentManager(), "accModify");
                     popover.dismissPopover(true);
                 }
             });
@@ -184,8 +183,8 @@ public class AccountsFragment extends WalletBaseFragment {
     private class AccountClickListener implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            final UUID accountID = mAccountsAdapter.getItemUUID(position);
-            final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), accountID.toString());
+            final String accountID = mAccountsAdapter.getItemUUID(position);
+            final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), accountID);
             new OperationDialogFragment(managed).show(getFragmentManager(), "opModify");
         }
     }

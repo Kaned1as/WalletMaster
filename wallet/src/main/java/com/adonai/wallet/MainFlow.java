@@ -24,7 +24,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
      */
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
-    private List<WalletBaseFragment> mParts = new ArrayList<>(3);
+    private List<WalletBaseFragment> mParts = new ArrayList<>(4);
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -50,27 +50,22 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
-        final ActionBar actBar = getActionBar();
         final FragmentTransaction transaction = getFragmentManager().beginTransaction();
         for(WalletBaseFragment fragment : mParts)
             transaction.hide(fragment);
         switch (position) {
             case 0:
                 mTitle = getString(R.string.title_accounts);
-                actBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
                 transaction.show(mParts.get(position));
                 break;
             case 1:
                 mTitle = getString(R.string.title_operations);
                 transaction.show(mParts.get(position));
                 break;
-            case 2: {
+            case 2:
                 mTitle = getString(R.string.categories);
-                final CategoriesFragment fragment = (CategoriesFragment) mParts.get(position);
-                actBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-                actBar.setListNavigationCallbacks(fragment.getActionBarAdapter(), fragment.getNavigationListener());
-                transaction.show(fragment);
-            }
+                transaction.show(mParts.get(position));
+                break;
             case 3:
                 mTitle = getString(R.string.title_budget);
                 break;

@@ -194,8 +194,8 @@ public class OperationsFragment extends WalletBaseFragment {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     final DatabaseDAO db = getWalletActivity().getEntityDAO();
-                                    final UUID opID = mOpAdapter.getItemUUID(position);
-                                    final Operation op = Operation.getFromDB(db, opID.toString());
+                                    final String opID = mOpAdapter.getItemUUID(position);
+                                    final Operation op = Operation.getFromDB(db, opID);
                                     if (op != null) {
                                         if (!db.revertOperation(op))
                                             throw new IllegalStateException("Cannot delete operation!"); // should never happen!!
@@ -210,8 +210,8 @@ public class OperationsFragment extends WalletBaseFragment {
             edit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final UUID opID = mOpAdapter.getItemUUID(position);
-                    final Operation operation = Operation.getFromDB(getWalletActivity().getEntityDAO(), opID.toString());
+                    final String opID = mOpAdapter.getItemUUID(position);
+                    final Operation operation = Operation.getFromDB(getWalletActivity().getEntityDAO(), opID);
                     new OperationDialogFragment(operation).show(getFragmentManager(), "opModify");
                     popover.dismissPopover(true);
                 }

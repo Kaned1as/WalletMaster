@@ -30,19 +30,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/account_name_edit"
-        android:hint="@string/account_name" />
+        android:hint="@string/account_name"
+        android:layout_margin="10dp" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPassword"
         android:id="@+id/account_password_edit"
-        android:hint="@string/password" />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/confirm"
-        android:id="@+id/account_confirm_button" />
+        android:hint="@string/password"
+        android:layout_margin="10dp" />
 
 </LinearLayout>

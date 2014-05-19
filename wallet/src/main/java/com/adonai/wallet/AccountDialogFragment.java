@@ -27,6 +27,8 @@ import java.math.BigDecimal;
  * @author adonai
  */
 public class AccountDialogFragment extends WalletBaseDialogFragment implements DialogInterface.OnClickListener {
+    private final static String ACCOUNT_REFERENCE = "account.reference";
+
     private EditText mAccountName;
     private EditText mAccountDescription;
     private Spinner mCurrencySelector;
@@ -39,8 +41,12 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
         //super();
     }
 
-    public AccountDialogFragment(Account toModify) {
-        mAccount = toModify;
+    public static AccountDialogFragment forAccount(String accountId) {
+        final AccountDialogFragment fragment = new AccountDialogFragment();
+        final Bundle args = new Bundle();
+        args.putString(ACCOUNT_REFERENCE, accountId);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -61,7 +67,9 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // if we are modifying existing account
-        if(mAccount != null) {
+        if(getArguments() != null && getArguments().containsKey(ACCOUNT_REFERENCE)) {
+            mAccount = Account.getFromDB(getWalletActivity().getEntityDAO(), getArguments().getString(ACCOUNT_REFERENCE));
+
             builder.setPositiveButton(R.string.confirm, this);
             builder.setTitle(R.string.edit_account).setView(dialog);
 

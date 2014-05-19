@@ -2,11 +2,11 @@ package com.adonai.wallet;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -22,9 +22,8 @@ import static com.adonai.wallet.WalletConstants.ACCOUNT_SYNC_KEY;
  *
  * @author adonai
  */
-public class SyncDialogFragment extends WalletBaseDialogFragment implements View.OnClickListener, SyncStateMachine.SyncListener {
+public class SyncDialogFragment extends WalletBaseDialogFragment implements DialogInterface.OnClickListener, SyncStateMachine.SyncListener {
 
-    private Button mConfirm;
     private RadioGroup mSyncType;
     private EditText mAccountName;
     private EditText mAccountPassword;
@@ -37,27 +36,13 @@ public class SyncDialogFragment extends WalletBaseDialogFragment implements View
         mSyncType = (RadioGroup) dialog.findViewById(R.id.sync_type_switch);
         mAccountName = (EditText) dialog.findViewById(R.id.account_name_edit);
         mAccountPassword = (EditText) dialog.findViewById(R.id.account_password_edit);
-        mConfirm = (Button) dialog.findViewById(R.id.account_confirm_button);
-        mConfirm.setOnClickListener(this);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(dialog);
+        builder.setPositiveButton(R.string.confirm, this);
 
         getWalletActivity().getSyncMachine().registerObserver(this);
         return builder.create();
-    }
-
-    @Override
-    public void onClick(View v) {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        prefs.edit()
-                .putString(ACCOUNT_NAME_KEY, mAccountName.getText().toString())
-                .putString(ACCOUNT_PASSWORD_KEY, mAccountPassword.getText().toString())
-                .putBoolean(ACCOUNT_SYNC_KEY, mSyncType.getCheckedRadioButtonId() == R.id.already_have_radio)
-            .commit();
-
-
-        getWalletActivity().startSync();
     }
 
     @Override
@@ -76,5 +61,18 @@ public class SyncDialogFragment extends WalletBaseDialogFragment implements View
     public void dismiss() {
         super.dismiss();
         getWalletActivity().getSyncMachine().unregisterObserver(this);
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        prefs.edit()
+            .putString(ACCOUNT_NAME_KEY, mAccountName.getText().toString())
+            .putString(ACCOUNT_PASSWORD_KEY, mAccountPassword.getText().toString())
+            .putBoolean(ACCOUNT_SYNC_KEY, mSyncType.getCheckedRadioButtonId() == R.id.already_have_radio)
+            .commit();
+
+
+        getWalletActivity().startSync();
     }
 }
