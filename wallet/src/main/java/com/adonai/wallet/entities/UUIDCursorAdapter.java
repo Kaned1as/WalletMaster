@@ -45,7 +45,7 @@ public abstract class UUIDCursorAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        if ( mCursor != null)
+        if (mCursor != null)
             return mCursor.getCount();
         else
             return 0;

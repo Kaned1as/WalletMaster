@@ -163,6 +163,8 @@ public class Operation extends Entity {
         values.put(DatabaseDAO.OperationsFields.CHARGER.toString(), getCharger().getId());
         if(getBeneficiar() != null)
             values.put(DatabaseDAO.OperationsFields.RECEIVER.toString(), getBeneficiar().getId());
+        else
+            values.put(DatabaseDAO.OperationsFields.RECEIVER.toString(), (String) null);
         values.put(DatabaseDAO.OperationsFields.AMOUNT.toString(), getAmount().toPlainString());
         values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), getConvertingRate());
 

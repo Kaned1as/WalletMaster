@@ -81,6 +81,8 @@ public class Category extends Entity {
         values.put(DatabaseDAO.CategoriesFields.TYPE.toString(), getType());
         if(getPreferredAccount() != null)
             values.put(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.toString(), getPreferredAccount().getId());
+        else
+            values.put(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.toString(), (String) null);
 
         return dao.update(values, entityType.toString());
     }

@@ -8,16 +8,12 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,13 +22,13 @@ import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Operation;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
+import com.adonai.wallet.entities.UUIDSpinnerAdapter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
 
 import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
 import static com.adonai.wallet.Utils.getValue;
@@ -47,11 +43,11 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private EditText mDescription;
 
     private final Calendar mNow = Calendar.getInstance();
-    private Button mDatePicker;
+    private EditText mDatePicker;
 
     private Spinner mChargeAccountSelector;
     private Spinner mCategorySelector;
-    private AccountsAdapter mAccountAdapter;
+    private UUIDSpinnerAdapter mAccountAdapter;
     private EditText mAmount;
 
     private RadioGroup mTypeSwitch;
@@ -64,9 +60,9 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private EditText mBeneficiarConversionRate;
     private TextView mBeneficiarAmountDelivered;
 
-    private CategoriesAdapter mInCategoriesAdapter;
-    private CategoriesAdapter mOutCategoriesAdapter;
-    private CategoriesAdapter mTransferCategoriesAdapter;
+    private UUIDSpinnerAdapter mInCategoriesAdapter;
+    private UUIDSpinnerAdapter mOutCategoriesAdapter;
+    private UUIDSpinnerAdapter mTransferCategoriesAdapter;
 
     private Operation mOperation;
     private Account mCharger;
@@ -85,7 +81,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mAccountAdapter = new AccountsAdapter();
+        mAccountAdapter = new UUIDSpinnerAdapter(getActivity(), getWalletActivity().getEntityDAO().getAccountCursor());
         final AccountSelectListener accountSelectListener = new AccountSelectListener();
         final CountChangedWatcher textWatcher = new CountChangedWatcher();
 
@@ -93,16 +89,16 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         assert dialog != null;
 
         mDescription = (EditText) dialog.findViewById(R.id.description_edit);
-        mDatePicker = (Button) dialog.findViewById(R.id.date_picker_button);
+        mDatePicker = (EditText) dialog.findViewById(R.id.date_picker_edit);
         mDatePicker.setOnClickListener(this);
 
         mChargeAccountSelector = (Spinner) dialog.findViewById(R.id.charge_account_spinner);
         mChargeAccountSelector.setAdapter(mAccountAdapter);
         mChargeAccountSelector.setOnItemSelectedListener(accountSelectListener);
 
-        mInCategoriesAdapter = new CategoriesAdapter(Category.INCOME);
-        mOutCategoriesAdapter = new CategoriesAdapter(Category.EXPENSE);
-        mTransferCategoriesAdapter = new CategoriesAdapter(Category.TRANSFER);
+        mInCategoriesAdapter = new UUIDSpinnerAdapter(getActivity(), getWalletActivity().getEntityDAO().getCategoryCursor(Category.INCOME));
+        mOutCategoriesAdapter = new UUIDSpinnerAdapter(getActivity(), getWalletActivity().getEntityDAO().getCategoryCursor(Category.EXPENSE));
+        mTransferCategoriesAdapter = new UUIDSpinnerAdapter(getActivity(), getWalletActivity().getEntityDAO().getCategoryCursor(Category.TRANSFER));
         mCategorySelector = (Spinner) dialog.findViewById(R.id.category_spinner);
         mCategorySelector.setOnItemSelectedListener(new CategorySelectListener());
 
@@ -171,7 +167,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private class CategorySelectListener implements AdapterView.OnItemSelectedListener {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            final String categoryID = ((CategoriesAdapter) mCategorySelector.getAdapter()).getItemUUID(position);
+            final String categoryID = ((UUIDCursorAdapter) mCategorySelector.getAdapter()).getItemUUID(position);
             final Category cat = Category.getFromDB(getWalletActivity().getEntityDAO(), categoryID);
             if (cat.getPreferredAccount() != null)  { // selected category has preferred account
                 final String accId = cat.getPreferredAccount().getId();
@@ -203,6 +199,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
     // show conversion rows on transfer when currencies are different
     private void updateTransferConversionVisibility() {
+        // TODO: rewrite all getSelectedItemPosition with getItem.getString(1)
         final String chargerID = mAccountAdapter.getItemUUID(mChargeAccountSelector.getSelectedItemPosition());
         final String beneficiarID = mAccountAdapter.getItemUUID(mBeneficiarAccountSelector.getSelectedItemPosition());
         final Account chargeAcc = Account.getFromDB(getWalletActivity().getEntityDAO(), chargerID);
@@ -222,69 +219,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         final Double rate = getValue(mBeneficiarConversionRate.getText().toString(), 1d);
         final BigDecimal beneficiarAmount = amount.divide(BigDecimal.valueOf(rate), 2, RoundingMode.HALF_UP);
         mBeneficiarAmountDelivered.setText(beneficiarAmount.toPlainString());
-    }
-
-    private class AccountsAdapter extends UUIDCursorAdapter implements SpinnerAdapter {
-        public AccountsAdapter() {
-            super(getActivity(), getWalletActivity().getEntityDAO().getAccountCursor());
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            final View view;
-            final LayoutInflater inflater = LayoutInflater.from(mContext);
-            mCursor.moveToPosition(position);
-
-            if (convertView == null)
-                view = inflater.inflate(android.R.layout.simple_spinner_item, parent, false);
-            else
-                view = convertView;
-
-            final TextView name = (TextView) view.findViewById(android.R.id.text1);
-            name.setText(mCursor.getString(1));
-
-            return view;
-        }
-    }
-
-    private class CategoriesAdapter extends UUIDCursorAdapter implements SpinnerAdapter, DatabaseDAO.DatabaseListener {
-        private final int mCategoryType;
-
-        public CategoriesAdapter(int categoryType) {
-            super(getActivity(), getWalletActivity().getEntityDAO().getCategoryCursor(categoryType));
-            mCategoryType = categoryType;
-        }
-
-        @Override
-        public void handleUpdate() {
-            changeCursor(getWalletActivity().getEntityDAO().getCategoryCursor(mCategoryType));
-        }
-
-        @Override
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            return newView(position, convertView, parent, R.layout.category_list_item);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            return newView(position, convertView, parent, android.R.layout.simple_spinner_item);
-        }
-
-        public View newView(int position, View convertView, ViewGroup parent, int resId) {
-            final View view;
-            mCursor.moveToPosition(position);
-
-            if (convertView == null) {
-                final LayoutInflater inflater = LayoutInflater.from(mContext);
-                view = inflater.inflate(resId, parent, false);
-            } else
-                view = convertView;
-
-            final TextView name = (TextView) view.findViewById(android.R.id.text1);
-            name.setText(mCursor.getString(1));
-
-            return view;
-        }
     }
 
     private class TypeSelector implements RadioGroup.OnCheckedChangeListener {
@@ -323,7 +257,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.date_picker_button: {
+            case R.id.date_picker_edit: {
                 DatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
@@ -374,7 +308,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         if (amount.equals(BigDecimal.ZERO))
             throw new IllegalArgumentException(getString(R.string.operation_needs_amount));
 
-        final String opCategoryID = ((CategoriesAdapter) mCategorySelector.getAdapter()).getItemUUID(mCategorySelector.getSelectedItemPosition());
+        final String opCategoryID = ((UUIDCursorAdapter) mCategorySelector.getAdapter()).getItemUUID(mCategorySelector.getSelectedItemPosition());
         final Category opCategory = Category.getFromDB(db, opCategoryID);
         if (opCategory == null)
             throw new IllegalArgumentException(getString(R.string.operation_needs_category));

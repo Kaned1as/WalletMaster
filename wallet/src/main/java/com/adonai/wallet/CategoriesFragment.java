@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SpinnerAdapter;
@@ -24,7 +25,7 @@ import org.thirdparty.contrib.SwipeDismissListViewTouchListener;
  */
 public class CategoriesFragment extends WalletBaseFragment {
 
-    private SpinnerAdapter mSpinnerAdapter;
+    private SpinnerAdapter mCategoryTypeAdapter;
     private CategoriesAdapter mCategoriesAdapter;
     private ActionBar.OnNavigationListener mNavListener;
 
@@ -38,13 +39,14 @@ public class CategoriesFragment extends WalletBaseFragment {
         assert rootView != null;
 
         final String[] categoryTypes = new String[] {getString(R.string.expense), getString(R.string.income), getString(R.string.transfer)};
-        mSpinnerAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, categoryTypes);
+        mCategoryTypeAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, categoryTypes);
         mNavListener = new CategoryNavigator();
 
         mCategoryList = (ListView) rootView.findViewById(R.id.categories_list);
         final View footer = LayoutInflater.from(getActivity()).inflate(R.layout.listview_add_footer, mCategoryList, false);
         footer.setOnClickListener(new CategoryAddListener());
         mCategoryList.addFooterView(footer);
+        mCategoryList.setOnItemLongClickListener(new CategoryEditListener());
 
         mCategoriesAdapter = new CategoriesAdapter(Category.EXPENSE);
         mCategoryList.setAdapter(mCategoriesAdapter);
@@ -60,7 +62,7 @@ public class CategoriesFragment extends WalletBaseFragment {
         super.onPrepareOptionsMenu(menu);
         final ActionBar actBar = getActivity().getActionBar();
         actBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        actBar.setListNavigationCallbacks(mSpinnerAdapter, mNavListener);
+        actBar.setListNavigationCallbacks(mCategoryTypeAdapter, mNavListener);
     }
 
     private class CategoryNavigator implements ActionBar.OnNavigationListener {
@@ -83,7 +85,13 @@ public class CategoriesFragment extends WalletBaseFragment {
 
         @Override
         public void handleUpdate() {
-            changeCursor(getWalletActivity().getEntityDAO().getCategoryCursor(mCategoryType));
+            getWalletActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    changeCursor(getWalletActivity().getEntityDAO().getCategoryCursor(mCategoryType));
+                }
+            });
+
         }
 
         @Override
@@ -121,7 +129,7 @@ public class CategoriesFragment extends WalletBaseFragment {
 
         @Override
         public void onClick(View v) {
-            final CategoryDialogFragment fragment = new CategoryDialogFragment();
+            final CategoryDialogFragment fragment = CategoryDialogFragment.newInstance(mCategoriesAdapter.getCategoryType());
             fragment.show(getFragmentManager(), "categoryCreate");
         }
     }
@@ -140,6 +148,17 @@ public class CategoriesFragment extends WalletBaseFragment {
                 final String categoryId = mCategoriesAdapter.getItemUUID(catPos);
                 Category.getFromDB(db, categoryId).delete(db);
             }
+        }
+    }
+
+    private class CategoryEditListener implements AdapterView.OnItemLongClickListener {
+
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            final String categoryID = mCategoriesAdapter.getItemUUID(position);
+            final CategoryDialogFragment fragment = CategoryDialogFragment.forCategory(categoryID);
+            fragment.show(getFragmentManager(), "categoryCreate");
+            return true;
         }
     }
 }
