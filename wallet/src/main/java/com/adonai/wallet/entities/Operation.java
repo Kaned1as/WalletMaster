@@ -133,12 +133,11 @@ public class Operation extends Entity {
         else
             values.put(DatabaseDAO.OperationsFields._id.toString(), UUID.randomUUID().toString());
 
-        values.put(DatabaseDAO.OperationsFields.DESCRIPTION.toString(), getDescription()); // mandatory
-        values.put(DatabaseDAO.OperationsFields.CATEGORY.toString(), getCategory().getId()); // mandatory
-        values.put(DatabaseDAO.OperationsFields.AMOUNT.toString(), getAmount().toPlainString()); // mandatory
+        values.put(DatabaseDAO.OperationsFields.DESCRIPTION.toString(), getDescription());
+        values.put(DatabaseDAO.OperationsFields.CATEGORY.toString(), getCategory().getId());        // mandatory
+        values.put(DatabaseDAO.OperationsFields.AMOUNT.toString(), getAmount().toPlainString());    // mandatory
+        values.put(DatabaseDAO.OperationsFields.TIME.toString(), getTimeString());                  // mandatory
 
-        if(getTime() != null)
-            values.put(DatabaseDAO.OperationsFields.TIME.toString(), getTimeString());
         if(getCharger() != null)
             values.put(DatabaseDAO.OperationsFields.CHARGER.toString(), getCharger().getId());
         if(getBeneficiar() != null)
@@ -158,15 +157,24 @@ public class Operation extends Entity {
         // 2. create ContentValues to add key "column"/value
         final ContentValues values = new ContentValues();
         values.put(DatabaseDAO.OperationsFields.DESCRIPTION.toString(), getDescription());
-        if(getTime() != null)
-            values.put(DatabaseDAO.OperationsFields.TIME.toString(), getTimeString());
-        values.put(DatabaseDAO.OperationsFields.CHARGER.toString(), getCharger().getId());
+        values.put(DatabaseDAO.OperationsFields.TIME.toString(), getTimeString());                  // mandatory
+        values.put(DatabaseDAO.OperationsFields.AMOUNT.toString(), getAmount().toPlainString());    // mandatory
+        values.put(DatabaseDAO.OperationsFields.CATEGORY.toString(), getCategory().getId());        // mandatory
+
+
+        if(getCharger() != null)
+            values.put(DatabaseDAO.OperationsFields.CHARGER.toString(), getCharger().getId());
+        else
+            values.put(DatabaseDAO.OperationsFields.CHARGER.toString(), (String) null);
         if(getBeneficiar() != null)
             values.put(DatabaseDAO.OperationsFields.RECEIVER.toString(), getBeneficiar().getId());
         else
             values.put(DatabaseDAO.OperationsFields.RECEIVER.toString(), (String) null);
-        values.put(DatabaseDAO.OperationsFields.AMOUNT.toString(), getAmount().toPlainString());
-        values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), getConvertingRate());
+
+        if(getConvertingRate() != null)
+            values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), getConvertingRate());
+        else
+            values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), (String) null);
 
         return dao.update(values, entityType.toString());
     }
