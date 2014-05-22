@@ -11,36 +11,26 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/textView"
-        android:text="11111"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/operation_category_label"
         android:layout_centerHorizontal="true" />
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:id="@+id/operation_description_label"
         android:maxLines="1"
-        android:layout_weight="1"
-        android:text="11111"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="30dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="10dp" />
+        android:gravity="center_horizontal"
+        android:layout_alignParentLeft="true" />
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:id="@+id/operation_time_label"
-        android:layout_weight="1"
         android:gravity="right"
-        android:text="11111"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="30dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="433dp" />
+        android:layout_alignParentRight="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -48,24 +38,16 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/charge_account_label"
         android:maxLines="1"
-        android:text="11111"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="30dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="856dp" />
+        android:layout_below="@+id/operation_description_label" />
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/charge_amount_label"
         android:maxLines="1"
         android:textColor="@color/red_amount"
-        android:text="11111"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="30dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="899dp" />
+        android:layout_below="@+id/charge_account_label" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -74,11 +56,8 @@
         android:id="@+id/beneficiar_account_label"
         android:maxLines="1"
         android:visibility="visible"
-        android:text="11111"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="30dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="942dp" />
+        android:layout_below="@+id/operation_time_label"
+        android:layout_alignParentRight="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -89,10 +68,9 @@
         android:maxLines="1"
         android:visibility="visible"
         android:textColor="@color/green_amount"
-        android:text="11111"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="30dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="985dp" />
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentTop="false"
+        android:layout_below="@+id/beneficiar_account_label"
+        android:layout_alignParentRight="true" />
 
 </RelativeLayout>

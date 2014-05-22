@@ -22,7 +22,6 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -32,7 +31,6 @@ import com.daniel.lupianez.casares.PopoverView;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.UUID;
 
 import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
 import static com.adonai.wallet.Utils.convertDpToPixel;
@@ -129,8 +127,6 @@ public class OperationsFragment extends WalletBaseFragment {
                 @Override
                 public void onFinishLoad(Operation op) {
                     view.setBackgroundDrawable(mDrawableMap.get(op.getOperationType()));
-                    final LinearLayout chargeLayout = (LinearLayout) view.findViewById(R.id.charger_layout);
-                    final LinearLayout beneficiarLayout = (LinearLayout) view.findViewById(R.id.beneficiar_layout);
 
                     final TextView chargeAcc = (TextView) view.findViewById(R.id.charge_account_label);
                     final TextView benefAcc = (TextView) view.findViewById(R.id.beneficiar_account_label);
@@ -138,30 +134,29 @@ public class OperationsFragment extends WalletBaseFragment {
                     final TextView chargeAmount = (TextView) view.findViewById(R.id.charge_amount_label);
                     final TextView description = (TextView) view.findViewById(R.id.operation_description_label);
                     final TextView operationTime = (TextView) view.findViewById(R.id.operation_time_label);
+                    final TextView operationCategory = (TextView) view.findViewById(R.id.operation_category_label);
 
                     description.setText(op.getDescription());
                     operationTime.setText(VIEW_DATE_FORMAT.format(op.getTime().getTime()));
+                    operationCategory.setText(op.getCategory().getName());
 
                     switch (op.getOperationType()) {
                         case TRANSFER:
-                            chargeLayout.setVisibility(View.VISIBLE);
-                            beneficiarLayout.setVisibility(View.VISIBLE);
-
                             chargeAcc.setText(op.getCharger().getName());
                             benefAcc.setText(op.getBeneficiar().getName());
                             chargeAmount.setText(op.getAmount().toPlainString());
                             benefAmount.setText(op.getAmountDelivered().toPlainString());
                             break;
                         case INCOME:
-                            chargeLayout.setVisibility(View.GONE);
-                            beneficiarLayout.setVisibility(View.VISIBLE);
+                            chargeAcc.setText("");
+                            chargeAmount.setText("");
 
                             benefAcc.setText(op.getBeneficiar().getName());
                             benefAmount.setText(op.getAmountDelivered().toPlainString());
                             break;
                         case EXPENSE:
-                            chargeLayout.setVisibility(View.VISIBLE);
-                            beneficiarLayout.setVisibility(View.GONE);
+                            benefAcc.setText("");
+                            benefAmount.setText("");
 
                             chargeAcc.setText(op.getCharger().getName());
                             chargeAmount.setText(op.getAmount().toPlainString());
