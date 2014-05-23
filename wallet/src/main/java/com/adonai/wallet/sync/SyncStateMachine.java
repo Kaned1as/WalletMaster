@@ -171,10 +171,8 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                 switch (state) {
                     case AUTH: { // at this state, account should be already configured and accessible from preferences!
                         if (!mPreferences.contains(WalletConstants.ACCOUNT_NAME_KEY))
-                            throw new RuntimeException("No account configured! Can't sync!");
-
-                        mSocket = new Socket(); // creating socket here!
-                        mSocket.connect(new InetSocketAddress("10.0.2.2", 17001));
+                            throw new RuntimeException("No account configured! Can't sync!"); // shouldn't happen
+                        start();
 
                         final InputStream is = mSocket.getInputStream();
                         final OutputStream os = mSocket.getOutputStream();
@@ -296,7 +294,6 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         serverUpdate.build().writeDelimitedTo(os);
 
                         final SyncProtocol.EntityAck ack = SyncProtocol.EntityAck.parseDelimitedFrom(is);
-
                         setState(State.OP_REQ);
                         break;
                     }
@@ -354,20 +351,39 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         serverUpdate.build().writeDelimitedTo(os);
 
                         final SyncProtocol.EntityAck ack = SyncProtocol.EntityAck.parseDelimitedFrom(is);
-                        mContext.getEntityDAO().clearActions();
                         mPreferences.edit().putLong(WalletConstants.ACCOUNT_LAST_SYNC, ack.getNewServerTimestamp()).commit();
-                        setState(State.INIT, mContext.getString(R.string.sync_completed));
+                        finish();
                         break;
                     }
                 }
             } catch (IOException io) {
                 setState(State.INIT, io.getMessage());
+                mContext.getEntityDAO().endTransaction();
                 if(!mSocket.isClosed())
                     try {
                         mSocket.close();
                     } catch (IOException e) { throw new RuntimeException(e); } // should not happen
             }
             return true;
+        }
+
+        private void start() throws IOException {
+            mContext.getEntityDAO().beginTransaction();
+            mSocket = new Socket(); // creating socket here!
+            mSocket.setSoTimeout(10000);
+            mSocket.connect(new InetSocketAddress("10.0.2.2", 17001));
+        }
+
+        private void finish() throws IOException {
+            mContext.getEntityDAO().clearActions();
+            mContext.getEntityDAO().setTransactionSuccessful();
+            mContext.getEntityDAO().endTransaction();
+            mSocket.close();
+            setState(State.INIT, mContext.getString(R.string.sync_completed));
+        }
+
+        private void interrupt() {
+            mContext.getEntityDAO().endTransaction();
         }
 
         private void sendKnownEntities(OutputStream os, Class<? extends Entity> clazz) throws IOException {
@@ -389,11 +405,13 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                     mPreferences.edit().putBoolean(WalletConstants.ACCOUNT_SYNC_KEY, true).commit(); // save auth
                     break;
                 case AUTH_WRONG:
+                    interrupt();
                     setState(State.INIT, mContext.getString(R.string.auth_invalid));
                     clearAccountInfo();
                     mSocket.close();
                     break;
                 case ACCOUNT_EXISTS:
+                    interrupt();
                     setState(State.INIT, mContext.getString(R.string.account_already_exist));
                     clearAccountInfo();
                     mSocket.close();
