@@ -17,7 +17,6 @@ import java.util.Iterator;
  */
 public class Utils {
     public final static SimpleDateFormat VIEW_DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
-    public final static SimpleDateFormat SQLITE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @SuppressWarnings("unchecked") // we know what we want
     public static <T> T getValue(String value, T defaultValue) {

@@ -5,13 +5,10 @@ import android.database.Cursor;
 import android.util.Log;
 
 import com.adonai.wallet.DatabaseDAO;
-import com.adonai.wallet.Utils;
 import com.adonai.wallet.sync.SyncProtocol;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
@@ -25,7 +22,7 @@ public class Operation extends Entity {
     }
 
     private String description;
-    private Calendar time;
+    private Date time;
     private Account charger;
     private Account beneficiar;
     private BigDecimal amount;
@@ -88,22 +85,12 @@ public class Operation extends Entity {
         this.description = description;
     }
 
-    public Calendar getTime() {
+    public Date getTime() {
         return time;
     }
 
-    public void setTime(Calendar time) {
-        this.time = time;
-    }
-
     public void setTime(Date time) {
-        if(this.time == null)
-            this.time = Calendar.getInstance();
-        this.time.setTime(time);
-    }
-
-    public String getTimeString() {
-        return Utils.SQLITE_DATE_FORMAT.format(this.time.getTime());
+        this.time = time;
     }
 
     public OperationType getOperationType() {
@@ -136,7 +123,7 @@ public class Operation extends Entity {
         values.put(DatabaseDAO.OperationsFields.DESCRIPTION.toString(), getDescription());
         values.put(DatabaseDAO.OperationsFields.CATEGORY.toString(), getCategory().getId());        // mandatory
         values.put(DatabaseDAO.OperationsFields.AMOUNT.toString(), getAmount().toPlainString());    // mandatory
-        values.put(DatabaseDAO.OperationsFields.TIME.toString(), getTimeString());                  // mandatory
+        values.put(DatabaseDAO.OperationsFields.TIME.toString(), getTime().getTime());      // mandatory
 
         if(getCharger() != null)
             values.put(DatabaseDAO.OperationsFields.CHARGER.toString(), getCharger().getId());
@@ -157,7 +144,7 @@ public class Operation extends Entity {
         // 2. create ContentValues to add key "column"/value
         final ContentValues values = new ContentValues();
         values.put(DatabaseDAO.OperationsFields.DESCRIPTION.toString(), getDescription());
-        values.put(DatabaseDAO.OperationsFields.TIME.toString(), getTimeString());                  // mandatory
+        values.put(DatabaseDAO.OperationsFields.TIME.toString(), getTime().getTime());                  // mandatory
         values.put(DatabaseDAO.OperationsFields.AMOUNT.toString(), getAmount().toPlainString());    // mandatory
         values.put(DatabaseDAO.OperationsFields.CATEGORY.toString(), getCategory().getId());        // mandatory
 
@@ -182,12 +169,12 @@ public class Operation extends Entity {
     public static Operation getFromDB(DatabaseDAO dao, String id) {
         final Long preciseTime = System.currentTimeMillis();
         final Cursor cursor = dao.get(DatabaseDAO.EntityType.OPERATIONS, id);
-        if (cursor.moveToFirst()) try {
+        if (cursor.moveToFirst()) {
             final Operation op = new Operation();
             op.setId(cursor.getString(DatabaseDAO.OperationsFields._id.ordinal()));
             op.setDescription(cursor.getString(DatabaseDAO.OperationsFields.DESCRIPTION.ordinal()));
             op.setCategory(Category.getFromDB(dao, cursor.getString(DatabaseDAO.OperationsFields.CATEGORY.ordinal())));
-            op.setTime(Utils.SQLITE_DATE_FORMAT.parse(cursor.getString(DatabaseDAO.OperationsFields.TIME.ordinal())));
+            op.setTime(new Date(cursor.getLong(DatabaseDAO.OperationsFields.TIME.ordinal())));
             if(!cursor.isNull(DatabaseDAO.OperationsFields.CHARGER.ordinal()))
                 op.setCharger(Account.getFromDB(dao, cursor.getString(DatabaseDAO.OperationsFields.CHARGER.ordinal())));
             if(!cursor.isNull(DatabaseDAO.OperationsFields.RECEIVER.ordinal()))
@@ -199,8 +186,6 @@ public class Operation extends Entity {
 
             Log.d(String.format("getOperation(%s), took %d ms", id, System.currentTimeMillis() - preciseTime), op.getAmount().toPlainString());
             return op;
-        } catch (ParseException ex) {
-            throw new RuntimeException(ex); // should never happen
         }
 
         cursor.close();
@@ -228,7 +213,7 @@ public class Operation extends Entity {
                 .setID(operation.getId())
                 .setDescription(operation.getDescription())
                 .setAmount(operation.getAmount().toPlainString())
-                .setTime(operation.getTime().getTimeInMillis())
+                .setTime(operation.getTime().getTime())
                 .setCategoryId(operation.getCategory().getId());
         if(operation.getCharger() != null)
             builder.setChargerId(operation.getCharger().getId());

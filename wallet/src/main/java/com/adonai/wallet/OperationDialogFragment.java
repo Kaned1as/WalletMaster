@@ -131,7 +131,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             builder.setTitle(R.string.edit_operation);
             mDescription.setText(mOperation.getDescription());
             mAmount.setText(mOperation.getAmount().toPlainString());
-            mNow.setTime(mOperation.getTime().getTime());
+            mNow.setTime(mOperation.getTime());
             mDatePicker.setText(VIEW_DATE_FORMAT.format(mNow.getTime()));
             switch (mOperation.getOperationType()) {
                 case TRANSFER:
