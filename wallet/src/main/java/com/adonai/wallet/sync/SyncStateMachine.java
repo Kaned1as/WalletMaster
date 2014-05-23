@@ -13,6 +13,7 @@ import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.WalletConstants;
 import com.adonai.wallet.entities.Account;
+import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Entity;
 import com.adonai.wallet.entities.Operation;
 
@@ -77,13 +78,13 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
         ACC_REQ_SENT,
         ACC_REQ_ACK,
 
-        OP_REQ(true),
-        OP_REQ_SENT,
-        OP_REQ_ACK,
-
         CAT_REQ(true),
         CAT_REQ_SENT,
-        CAT_REQ_ACK;
+        CAT_REQ_ACK,
+
+        OP_REQ(true),
+        OP_REQ_SENT,
+        OP_REQ_ACK;
 
 
         private boolean needsAction;
@@ -238,14 +239,65 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         serverUpdate.build().writeDelimitedTo(os);
 
                         final SyncProtocol.EntityAck ack = SyncProtocol.EntityAck.parseDelimitedFrom(is);
-                        setState(State.OP_REQ);
+                        setState(State.CAT_REQ);
                         break;
                     }
                     case CAT_REQ: {
                         final InputStream is = mSocket.getInputStream();
                         final OutputStream os = mSocket.getOutputStream();
 
+                        sendKnownEntities(os, Category.class);
+                        setState(State.CAT_REQ_SENT);
 
+                        final SyncProtocol.EntityResponse serverSide = SyncProtocol.EntityResponse.parseDelimitedFrom(is);
+                        setState(State.CAT_REQ_ACK);
+
+                        final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
+                        final List<Category> addedLocally = mContext.getEntityDAO().getAdded(Category.class);
+                        final List<String> deletedLocally = mContext.getEntityDAO().getDeleted(Category.class);
+
+                        // handle modified entities - check if we updated them too...
+                        for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
+                            final Category remote = Category.fromProtoCategory(entity.getCategory(), mContext.getEntityDAO());
+                            final Category changed = Category.getFromDB(mContext.getEntityDAO(), remote.getId()); // should not be null
+                            final Category base = mContext.getEntityDAO().getBackedVersion(remote);
+                            if(base == null) // we have not modified this entity locally
+                                remote.update(mContext.getEntityDAO());
+                            else if (changed == null) // it's modified on server and deleted locally
+                                continue; // leave deleted
+                            else
+                                changed.update(mContext.getEntityDAO());
+                        }
+                        // add to modified list local modifications
+                        final List<Category> modifiedLocally = mContext.getEntityDAO().getModified(Category.class);
+                        for(final Category cat : modifiedLocally)
+                            serverUpdate.addModified(SyncProtocol.Entity.newBuilder().setCategory(Category.toProtoCategory(cat)).build());
+
+                        // handle added entities
+                        // need to delete all entities and replace it with ours...
+
+                        // add remote
+                        for(final SyncProtocol.Entity entity : serverSide.getAddedList()) {
+                            final Category remote = Category.fromProtoCategory(entity.getCategory(), mContext.getEntityDAO());
+                            remote.persist(mContext.getEntityDAO());
+                        }
+                        // readd locals + add to add-list
+                        for(final Category cat : addedLocally)
+                            serverUpdate.addAdded(SyncProtocol.Entity.newBuilder().setCategory(Category.toProtoCategory(cat)).build());
+
+
+                        // handle deleted
+                        for(final String deletedID : serverSide.getDeletedIDList())
+                            mContext.getEntityDAO().delete(deletedID, DatabaseDAO.EntityType.CATEGORIES.toString());
+                        // + add to delete list entities that we deleted locally
+                        for(final String deletedLocal : deletedLocally)
+                            serverUpdate.addDeletedID(deletedLocal);
+
+                        serverUpdate.build().writeDelimitedTo(os);
+
+                        final SyncProtocol.EntityAck ack = SyncProtocol.EntityAck.parseDelimitedFrom(is);
+
+                        setState(State.OP_REQ);
                         break;
                     }
                     case OP_REQ: {
