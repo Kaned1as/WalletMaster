@@ -47,7 +47,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
     private Spinner mChargeAccountSelector;
     private Spinner mCategorySelector;
-    private UUIDSpinnerAdapter mAccountAdapter;
     private EditText mAmount;
 
     private RadioGroup mTypeSwitch;
@@ -63,6 +62,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private UUIDSpinnerAdapter mInCategoriesAdapter;
     private UUIDSpinnerAdapter mOutCategoriesAdapter;
     private UUIDSpinnerAdapter mTransferCategoriesAdapter;
+    private UUIDSpinnerAdapter mAccountAdapter;
 
     private Operation mOperation;
     private Account mCharger;
@@ -380,5 +380,14 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
             updateConversionAmount();
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mInCategoriesAdapter.changeCursor(null);
+        mOutCategoriesAdapter.changeCursor(null);
+        mTransferCategoriesAdapter.changeCursor(null);
+        mAccountAdapter.changeCursor(null);
     }
 }

@@ -166,4 +166,10 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
                 return parent;
         }
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mAccountAdapter.changeCursor(null); // close opened cursor
+    }
 }

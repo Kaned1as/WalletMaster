@@ -35,6 +35,8 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
     private Spinner mColorSelector;
     private EditText mInitialAmount;
 
+    private CurrencyAdapter mCurrAdapter;
+
     private Account mAccount;
 
     public AccountDialogFragment() {
@@ -60,10 +62,10 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
         mColorSelector = (Spinner) dialog.findViewById(R.id.color_spinner);
         mInitialAmount = (EditText) dialog.findViewById(R.id.initial_amount_edit);
 
-        final CurrencyAdapter adapter = new CurrencyAdapter();
-        mCurrencySelector.setAdapter(adapter);
-        ColorSpinnerAdapter colorAdapter = new ColorSpinnerAdapter(getResources().getStringArray(R.array.colors));
-        mColorSelector.setAdapter(colorAdapter);
+        mCurrAdapter = new CurrencyAdapter();
+        mCurrencySelector.setAdapter(mCurrAdapter);
+        final ColorSpinnerAdapter mColorAdapter = new ColorSpinnerAdapter(getResources().getStringArray(R.array.colors));
+        mColorSelector.setAdapter(mColorAdapter);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // if we are modifying existing account
@@ -75,13 +77,13 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
 
             mAccountName.setText(mAccount.getName());
             mAccountDescription.setText(mAccount.getDescription());
-            mCurrencySelector.setSelection(adapter.getPosition(mAccount.getCurrency().getCode()));
-            mColorSelector.setSelection(colorAdapter.getPosition(String.format("#%06X", (0xFFFFFF & mAccount.getColor()))));
+            mCurrencySelector.setSelection(mCurrAdapter.getPosition(mAccount.getCurrency().getCode()));
+            mColorSelector.setSelection(mColorAdapter.getPosition(String.format("#%06X", (0xFFFFFF & mAccount.getColor()))));
             mInitialAmount.setText(mAccount.getAmount().toPlainString());
         } else {
             builder.setPositiveButton(R.string.create, this);
             builder.setTitle(R.string.create_new_account).setView(dialog);
-            mCurrencySelector.setSelection(adapter.getPosition("RUB"));
+            mCurrencySelector.setSelection(mCurrAdapter.getPosition("RUB"));
         }
 
         return builder.create();
@@ -224,5 +226,15 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
 
             return -1;
         }
+
+        public void closeCursor() {
+            mCursor.close();
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mCurrAdapter.closeCursor();
     }
 }

@@ -69,7 +69,6 @@ public class OperationsFragment extends WalletBaseFragment {
         mOperationsList.setAdapter(mOpAdapter);
         mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.OPERATIONS.toString(), mOpAdapter);
-
         return rootView;
     }
 

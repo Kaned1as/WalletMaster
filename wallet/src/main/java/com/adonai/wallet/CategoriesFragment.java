@@ -49,6 +49,7 @@ public class CategoriesFragment extends WalletBaseFragment {
         mCategoryList.setOnItemLongClickListener(new CategoryEditListener());
 
         mCategoriesAdapter = new CategoriesAdapter(Category.EXPENSE);
+        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
         mCategoryList.setAdapter(mCategoriesAdapter);
 
         final SwipeDismissListViewTouchListener listener = new SwipeDismissListViewTouchListener(mCategoryList, new CategoryDeleteListener());
@@ -79,7 +80,6 @@ public class CategoriesFragment extends WalletBaseFragment {
 
         public CategoriesAdapter(int categoryType) {
             super(getActivity(), getWalletActivity().getEntityDAO().getCategoryCursor(categoryType));
-            getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), this);
             mCategoryType = categoryType;
         }
 
@@ -146,7 +146,7 @@ public class CategoriesFragment extends WalletBaseFragment {
             final DatabaseDAO db = getWalletActivity().getEntityDAO();
             for(int catPos : reverseSortedPositions) {
                 final String categoryId = mCategoriesAdapter.getItemUUID(catPos);
-                Category.getFromDB(db, categoryId).delete(db);
+                db.makeAction(DatabaseDAO.ActionType.DELETE, Category.getFromDB(db, categoryId));
             }
         }
     }
@@ -160,5 +160,12 @@ public class CategoriesFragment extends WalletBaseFragment {
             fragment.show(getFragmentManager(), "categoryCreate");
             return true;
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
+        mCategoriesAdapter.changeCursor(null);
     }
 }
