@@ -26,6 +26,8 @@ SyncClientSocket::SyncState SyncClientSocket::getState() const
 void SyncClientSocket::setState(const SyncState &value)
 {
     state = value;
+    if (state == FINISHED)
+        disconnect();
 }
 
 void SyncClientSocket::initDbConnection()
@@ -118,8 +120,7 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
         case SENT_ACCOUNTS: // wait response
         {
             handleGeneric<sync::EntityResponse, sync::EntityAck>(incomingData);
-            //setState(WAITING_CATEGORIES); // TODO
-            setState(WAITING_OPERATIONS);
+            setState(WAITING_CATEGORIES);
             break;
         }
         case WAITING_CATEGORIES: // wait categories
@@ -128,9 +129,11 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
             setState(SENT_CATEGORIES);
             break;
         }
-        case SENT_CATEGORIES:
+        case SENT_CATEGORIES: // sent response
         {
-            break; // TODO
+            handleGeneric<sync::EntityResponse, sync::EntityAck>(incomingData);
+            setState(WAITING_OPERATIONS);
+            break;
         }
         case WAITING_OPERATIONS:
         {
@@ -142,11 +145,6 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
         {
             handleGeneric<sync::EntityResponse, sync::EntityAck>(incomingData);
             setState(FINISHED);
-            break;
-        }
-        case FINISHED:
-        {
-            disconnect();
             break;
         }
         default:
@@ -248,6 +246,7 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
             selectSyncedEntities.prepare("SELECT id, name, description, currency, amount, color, last_modified FROM accounts WHERE sync_account = :userId");
             break;
         case WAITING_CATEGORIES:
+            selectSyncedEntities.prepare("SELECT id, name, type, preferred_account_id, last_modified FROM categories WHERE sync_account = :userId");
             break;
         case WAITING_OPERATIONS:
             selectSyncedEntities.prepare("SELECT id, description, amount, category_id, time, charger_id, beneficiar_id, converting_rate, last_modified FROM operations WHERE sync_account = :userId");
@@ -305,7 +304,14 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
             }
             case WAITING_CATEGORIES:
             {
-
+                sync::Category* const category = entityState == ADDED
+                        ? response.add_added()->mutable_category()
+                        : response.add_modified()->mutable_category();
+                category->set_id(selectSyncedEntities.value("id").toString().toStdString());
+                category->set_name(selectSyncedEntities.value("name").toString().toStdString());
+                category->set_type(selectSyncedEntities.value("type").toInt());
+                if(!selectSyncedEntities.value("preferred_account_id").isNull())
+                    category->set_preferredaccount(selectSyncedEntities.value("preferred_account_id").toString().toStdString());
                 break;
             }
             case WAITING_OPERATIONS:
@@ -371,7 +377,8 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             break;
         case SENT_CATEGORIES:
             deleter.prepare("DELETE FROM categories WHERE sync_account = :userId AND id = :id");
-            //adder.prepare("INSERT INTO accounts(sync_account, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?)");
+            adder.prepare("INSERT INTO categories(sync_account, name, type, preferred_account_id) VALUES(?, ?, ?, ?)");
+            modifier.prepare("UPDATE categories SET name = ?, type = ?, preferred_account_id = ? WHERE sync_account = ? AND id = ?");
             break;
         case SENT_OPERATIONS:
             deleter.prepare("DELETE FROM operations WHERE sync_account = :userId AND id = :id");
@@ -428,6 +435,13 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             case SENT_CATEGORIES:
             {
                 const sync::Category& category = entity.category();
+                adder.addBindValue(userId);
+                adder.addBindValue(category.name().data());
+                adder.addBindValue(category.type());
+                if(category.has_preferredaccount())
+                    adder.addBindValue(category.preferredaccount().data());
+                else
+                    adder.addBindValue(QVariant(QVariant::String));
                 break;
             }
             case SENT_OPERATIONS:
@@ -498,6 +512,14 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             case SENT_CATEGORIES:
             {
                 const sync::Category& category = entity.category();
+                modifier.addBindValue(category.name().data());
+                modifier.addBindValue(category.type());
+                if(category.has_preferredaccount())
+                    modifier.addBindValue(category.preferredaccount().data());
+                else
+                    modifier.addBindValue(QVariant(QVariant::String));
+                modifier.addBindValue(userId);
+                modifier.addBindValue(category.id().data());
                 break;
             }
             case SENT_OPERATIONS:

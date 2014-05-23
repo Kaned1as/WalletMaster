@@ -311,7 +311,7 @@ void protobuf_AddDesc_sync_5fprotocol_2eproto() {
     "\006amount\030\006 \002(\t\022\026\n\016convertingRate\030\007 \001(\001\022\022\n"
     "\ncategoryId\030\010 \002(\t\"L\n\010Category\022\n\n\002ID\030\001 \002("
     "\t\022\014\n\004name\030\002 \002(\t\022\014\n\004type\030\003 \002(\r\022\030\n\020preferr"
-    "edAccount\030\004 \001(\004", 1135);
+    "edAccount\030\004 \001(\t", 1135);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "sync_protocol.proto", &protobuf_RegisterTypes);
   SyncRequest::default_instance_ = new SyncRequest();
@@ -3120,7 +3120,7 @@ void Category::SharedCtor() {
   id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   type_ = 0u;
-  preferredaccount_ = GOOGLE_ULONGLONG(0);
+  preferredaccount_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -3134,6 +3134,9 @@ void Category::SharedDtor() {
   }
   if (name_ != &::google::protobuf::internal::kEmptyString) {
     delete name_;
+  }
+  if (preferredaccount_ != &::google::protobuf::internal::kEmptyString) {
+    delete preferredaccount_;
   }
   if (this != default_instance_) {
   }
@@ -3173,7 +3176,11 @@ void Category::Clear() {
       }
     }
     type_ = 0u;
-    preferredaccount_ = GOOGLE_ULONGLONG(0);
+    if (has_preferredaccount()) {
+      if (preferredaccount_ != &::google::protobuf::internal::kEmptyString) {
+        preferredaccount_->clear();
+      }
+    }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -3230,19 +3237,20 @@ bool Category::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(32)) goto parse_preferredAccount;
+        if (input->ExpectTag(34)) goto parse_preferredAccount;
         break;
       }
 
-      // optional uint64 preferredAccount = 4;
+      // optional string preferredAccount = 4;
       case 4: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_preferredAccount:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &preferredaccount_)));
-          set_has_preferredaccount();
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_preferredaccount()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->preferredaccount().data(), this->preferredaccount().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
         } else {
           goto handle_uninterpreted;
         }
@@ -3291,9 +3299,13 @@ void Category::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->type(), output);
   }
 
-  // optional uint64 preferredAccount = 4;
+  // optional string preferredAccount = 4;
   if (has_preferredaccount()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->preferredaccount(), output);
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->preferredaccount().data(), this->preferredaccount().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      4, this->preferredaccount(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -3329,9 +3341,14 @@ void Category::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->type(), target);
   }
 
-  // optional uint64 preferredAccount = 4;
+  // optional string preferredAccount = 4;
   if (has_preferredaccount()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->preferredaccount(), target);
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->preferredaccount().data(), this->preferredaccount().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        4, this->preferredaccount(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -3366,10 +3383,10 @@ int Category::ByteSize() const {
           this->type());
     }
 
-    // optional uint64 preferredAccount = 4;
+    // optional string preferredAccount = 4;
     if (has_preferredaccount()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+        ::google::protobuf::internal::WireFormatLite::StringSize(
           this->preferredaccount());
     }
 

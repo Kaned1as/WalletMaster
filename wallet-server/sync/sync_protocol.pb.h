@@ -1163,12 +1163,17 @@ class Category : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 type() const;
   inline void set_type(::google::protobuf::uint32 value);
 
-  // optional uint64 preferredAccount = 4;
+  // optional string preferredAccount = 4;
   inline bool has_preferredaccount() const;
   inline void clear_preferredaccount();
   static const int kPreferredAccountFieldNumber = 4;
-  inline ::google::protobuf::uint64 preferredaccount() const;
-  inline void set_preferredaccount(::google::protobuf::uint64 value);
+  inline const ::std::string& preferredaccount() const;
+  inline void set_preferredaccount(const ::std::string& value);
+  inline void set_preferredaccount(const char* value);
+  inline void set_preferredaccount(const char* value, size_t size);
+  inline ::std::string* mutable_preferredaccount();
+  inline ::std::string* release_preferredaccount();
+  inline void set_allocated_preferredaccount(::std::string* preferredaccount);
 
   // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.Category)
  private:
@@ -1185,7 +1190,7 @@ class Category : public ::google::protobuf::Message {
 
   ::std::string* id_;
   ::std::string* name_;
-  ::google::protobuf::uint64 preferredaccount_;
+  ::std::string* preferredaccount_;
   ::google::protobuf::uint32 type_;
 
   mutable int _cached_size_;
@@ -2717,7 +2722,7 @@ inline void Category::set_type(::google::protobuf::uint32 value) {
   type_ = value;
 }
 
-// optional uint64 preferredAccount = 4;
+// optional string preferredAccount = 4;
 inline bool Category::has_preferredaccount() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
@@ -2728,15 +2733,63 @@ inline void Category::clear_has_preferredaccount() {
   _has_bits_[0] &= ~0x00000008u;
 }
 inline void Category::clear_preferredaccount() {
-  preferredaccount_ = GOOGLE_ULONGLONG(0);
+  if (preferredaccount_ != &::google::protobuf::internal::kEmptyString) {
+    preferredaccount_->clear();
+  }
   clear_has_preferredaccount();
 }
-inline ::google::protobuf::uint64 Category::preferredaccount() const {
+inline const ::std::string& Category::preferredaccount() const {
+  return *preferredaccount_;
+}
+inline void Category::set_preferredaccount(const ::std::string& value) {
+  set_has_preferredaccount();
+  if (preferredaccount_ == &::google::protobuf::internal::kEmptyString) {
+    preferredaccount_ = new ::std::string;
+  }
+  preferredaccount_->assign(value);
+}
+inline void Category::set_preferredaccount(const char* value) {
+  set_has_preferredaccount();
+  if (preferredaccount_ == &::google::protobuf::internal::kEmptyString) {
+    preferredaccount_ = new ::std::string;
+  }
+  preferredaccount_->assign(value);
+}
+inline void Category::set_preferredaccount(const char* value, size_t size) {
+  set_has_preferredaccount();
+  if (preferredaccount_ == &::google::protobuf::internal::kEmptyString) {
+    preferredaccount_ = new ::std::string;
+  }
+  preferredaccount_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Category::mutable_preferredaccount() {
+  set_has_preferredaccount();
+  if (preferredaccount_ == &::google::protobuf::internal::kEmptyString) {
+    preferredaccount_ = new ::std::string;
+  }
   return preferredaccount_;
 }
-inline void Category::set_preferredaccount(::google::protobuf::uint64 value) {
-  set_has_preferredaccount();
-  preferredaccount_ = value;
+inline ::std::string* Category::release_preferredaccount() {
+  clear_has_preferredaccount();
+  if (preferredaccount_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = preferredaccount_;
+    preferredaccount_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void Category::set_allocated_preferredaccount(::std::string* preferredaccount) {
+  if (preferredaccount_ != &::google::protobuf::internal::kEmptyString) {
+    delete preferredaccount_;
+  }
+  if (preferredaccount) {
+    set_has_preferredaccount();
+    preferredaccount_ = preferredaccount;
+  } else {
+    clear_has_preferredaccount();
+    preferredaccount_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
 }
 
 
