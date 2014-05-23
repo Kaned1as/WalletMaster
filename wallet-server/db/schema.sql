@@ -1,10 +1,10 @@
 CREATE DATABASE  IF NOT EXISTS `wallet` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `wallet`;
--- MySQL dump 10.13  Distrib 5.5.37, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.14  Distrib 5.5.37-MariaDB, for Linux (x86_64)
 --
--- Host: 127.0.0.1    Database: wallet
+-- Host: localhost    Database: wallet
 -- ------------------------------------------------------
--- Server version	5.5.37-1
+-- Server version	5.5.37-MariaDB-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -36,6 +36,26 @@ CREATE TABLE `accounts` (
   PRIMARY KEY (`id`,`sync_account`),
   KEY `account_idx` (`sync_account`),
   CONSTRAINT `account` FOREIGN KEY (`sync_account`) REFERENCES `sync_accounts` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `categories`
+--
+
+DROP TABLE IF EXISTS `categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `categories` (
+  `id` varchar(45) NOT NULL,
+  `sync_account` int(11) NOT NULL,
+  `name` varchar(45) NOT NULL,
+  `type` int(11) NOT NULL,
+  `preferred_account_id` varchar(45) DEFAULT NULL,
+  `last_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`,`sync_account`),
+  KEY `preferred_account_fk_idx` (`preferred_account_id`),
+  CONSTRAINT `preferred_account_fk` FOREIGN KEY (`preferred_account_id`) REFERENCES `accounts` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -89,4 +109,4 @@ CREATE TABLE `sync_accounts` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-05-13  0:01:07
+-- Dump completed on 2014-05-23 22:32:21

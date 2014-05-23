@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 
 /**
@@ -189,24 +188,22 @@ public class DatabaseDAO extends SQLiteOpenHelper
         final String[] defaultTransCategories = mContext.getResources().getStringArray(R.array.transfer_categories);
         for(final String outCategory : defaultOutcomeCategories) {
             final ContentValues values = new ContentValues(3);
-            values.put(CategoriesFields._id.toString(), UUID.randomUUID().toString());
-            values.put(CategoriesFields.NAME.toString(), outCategory);
-            values.put(CategoriesFields.TYPE.toString(), Category.EXPENSE);
-            sqLiteDatabase.insert(EntityType.CATEGORIES.toString(), null, values);
+            final Category toAdd = new Category();
+            toAdd.setName(outCategory);
+            toAdd.setType(Category.EXPENSE);
+            makeAction(ActionType.ADD, toAdd);
         }
         for(final String inCategory : defaultIncomeCategories) {
-            final ContentValues values = new ContentValues(3);
-            values.put(CategoriesFields._id.toString(), UUID.randomUUID().toString());
-            values.put(CategoriesFields.NAME.toString(), inCategory);
-            values.put(CategoriesFields.TYPE.toString(), Category.INCOME);
-            sqLiteDatabase.insert(EntityType.CATEGORIES.toString(), null, values);
+            final Category toAdd = new Category();
+            toAdd.setName(inCategory);
+            toAdd.setType(Category.INCOME);
+            makeAction(ActionType.ADD, toAdd);
         }
-        for(final String inCategory : defaultTransCategories) {
-            final ContentValues values = new ContentValues(3);
-            values.put(CategoriesFields._id.toString(), UUID.randomUUID().toString());
-            values.put(CategoriesFields.NAME.toString(), inCategory);
-            values.put(CategoriesFields.TYPE.toString(), Category.TRANSFER);
-            sqLiteDatabase.insert(EntityType.CATEGORIES.toString(), null, values);
+        for(final String transCategory : defaultTransCategories) {
+            final Category toAdd = new Category();
+            toAdd.setName(transCategory);
+            toAdd.setType(Category.TRANSFER);
+            makeAction(ActionType.ADD, toAdd);
         }
 
         //fill Currencies

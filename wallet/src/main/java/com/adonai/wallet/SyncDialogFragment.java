@@ -59,8 +59,8 @@ public class SyncDialogFragment extends WalletBaseDialogFragment implements Dial
 
     @Override
     public void dismiss() {
-        super.dismiss();
         getWalletActivity().getSyncMachine().unregisterObserver(this);
+        super.dismiss();
     }
 
     @Override

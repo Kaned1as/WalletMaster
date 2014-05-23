@@ -377,7 +377,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             break;
         case SENT_CATEGORIES:
             deleter.prepare("DELETE FROM categories WHERE sync_account = :userId AND id = :id");
-            adder.prepare("INSERT INTO categories(sync_account, name, type, preferred_account_id) VALUES(?, ?, ?, ?)");
+            adder.prepare("INSERT INTO categories(sync_account, id, name, type, preferred_account_id) VALUES(?, ?, ?, ?, ?)");
             modifier.prepare("UPDATE categories SET name = ?, type = ?, preferred_account_id = ? WHERE sync_account = ? AND id = ?");
             break;
         case SENT_OPERATIONS:
@@ -436,6 +436,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             {
                 const sync::Category& category = entity.category();
                 adder.addBindValue(userId);
+                adder.addBindValue(category.id().data());
                 adder.addBindValue(category.name().data());
                 adder.addBindValue(category.type());
                 if(category.has_preferredaccount())
