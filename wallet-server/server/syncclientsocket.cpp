@@ -36,7 +36,7 @@ void SyncClientSocket::initDbConnection()
     conn->setHostName("localhost");
     conn->setDatabaseName("wallet");
     conn->setUserName("root");
-    conn->setPassword("root");
+    conn->setPassword("root"); // i know it's hacky but it's localhost only
     if(!conn->open())
         qDebug() << tr("Cannot connect to database! Error: %1").arg(conn->lastError().text());
 }

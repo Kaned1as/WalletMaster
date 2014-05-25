@@ -2,7 +2,9 @@ package com.adonai.wallet;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,6 +28,8 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private List<WalletBaseFragment> mParts = new ArrayList<>(4);
 
+    private boolean isPreferenceEditing;
+
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
@@ -34,6 +38,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         setContentView(R.layout.activity_main_flow);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -51,7 +56,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         final FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        for(WalletBaseFragment fragment : mParts)
+        for(final WalletBaseFragment fragment : mParts)
             transaction.hide(fragment);
         switch (position) {
             case 0:
@@ -101,13 +106,16 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
         // as you specify a parent activity in AndroidManifest.xml.
         switch(item.getItemId()) {
             case R.id.action_settings: {
-                return true;
+                final Intent pref = new Intent(this, PreferenceFlow.class);
+                startActivity(pref);
+                break;
             }
             case R.id.action_sync: {
                 if(mPreferences.contains(ACCOUNT_SYNC_KEY)) // have already configured sync account previously...
                     startSync();
                 else // need to configure now!
                     new SyncDialogFragment().show(getFragmentManager(), "syncAcc");
+                break;
             }
         }
         return super.onOptionsItemSelected(item);

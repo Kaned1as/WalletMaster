@@ -75,4 +75,11 @@
     <string name="category_not_found">Category not found!</string>
     <string name="category_exists">Category with that name and type already exists!</string>
     <string name="none">None</string>
+    <string name="sync_settings">Sync settings</string>
+    <string name="sync_server">Sync server</string>
+    <string name="sync_server_summary">Server used for sync with other devices. May be your private server as well (see FAQ)</string>
+    <string name="usability_settings">Usability settings</string>
+    <string name="ask_for_delete">Confirm removals</string>
+    <string name="ask_for_delete_summary">Show confirm dialog on account/operation delete</string>
+    <string name="preferences">Preferences</string>
 </resources>
