@@ -172,33 +172,47 @@ public class OperationsFragment extends WalletBaseFragment {
 
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, final long id) {
+            final DatabaseDAO db = getWalletActivity().getEntityDAO();
             final View newView = LayoutInflater.from(getActivity()).inflate(R.layout.account_list_item_menu, null, false);
             final PopoverView popover = new PopoverView(getActivity(), newView);
             popover.setContentSizeForViewInPopover(new Point((int) convertDpToPixel(100, getActivity()), (int) convertDpToPixel(50, getActivity())));
 
             final ImageButton delete = (ImageButton) newView.findViewById(R.id.delete_button);
-            delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    new AlertDialog.Builder(getActivity())
-                            .setTitle(R.string.confirm_action)
-                            .setMessage(R.string.really_delete_operation)
-                            .setNegativeButton(android.R.string.cancel, null)
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    final DatabaseDAO db = getWalletActivity().getEntityDAO();
-                                    final String opID = mOpAdapter.getItemUUID(position);
-                                    final Operation op = Operation.getFromDB(db, opID);
-                                    if (op != null) {
+            if (getWalletActivity().getPreferences().getBoolean("ask.for.delete", true)) {
+                delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle(R.string.confirm_action)
+                                .setMessage(R.string.really_delete_operation)
+                                .setNegativeButton(android.R.string.cancel, null)
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        final String opID = mOpAdapter.getItemUUID(position);
+                                        final Operation op = Operation.getFromDB(db, opID);
+                                        assert op != null;
                                         if (!db.revertOperation(op))
                                             throw new IllegalStateException("Cannot delete operation!"); // should never happen!!
                                     }
-                                }
-                            }).create().show();
-                    popover.dismissPopover(true);
-                }
-            });
+                                }).create().show();
+                        popover.dismissPopover(true);
+                    }
+                });
+            } else { // just delete without confirm
+                delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final String opID = mOpAdapter.getItemUUID(position);
+                        final Operation op = Operation.getFromDB(db, opID);
+                        assert op != null;
+                        if (!db.revertOperation(op))
+                            throw new IllegalStateException("Cannot delete operation!"); // should never happen!!
+
+                        popover.dismissPopover(true);
+                    }
+                });
+            }
 
             final ImageButton edit = (ImageButton) newView.findViewById(R.id.edit_button);
             edit.setOnClickListener(new View.OnClickListener() {

@@ -358,7 +358,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                 }
             } catch (IOException io) {
                 setState(State.INIT, io.getMessage());
-                mContext.getEntityDAO().endTransaction();
+                interrupt();
                 if(!mSocket.isClosed())
                     try {
                         mSocket.close();
@@ -371,7 +371,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
             mContext.getEntityDAO().beginTransaction();
             mSocket = new Socket(); // creating socket here!
             mSocket.setSoTimeout(10000);
-            mSocket.connect(new InetSocketAddress("10.0.2.2", 17001));
+            mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "anticitizen.dhis.org"), 17001));
         }
 
         private void finish() throws IOException {

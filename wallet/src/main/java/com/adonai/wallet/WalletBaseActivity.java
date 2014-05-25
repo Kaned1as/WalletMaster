@@ -87,8 +87,24 @@ public class WalletBaseActivity extends Activity implements SyncStateMachine.Syn
                 case ACC_REQ_ACK:
                     mProgressDialog.setMessage(getString(R.string.account_response_received));
                     return true;
+                case CAT_REQ_SENT:
+                    mProgressDialog.setMessage(getString(R.string.category_request_sent));
+                    return true;
+                case CAT_REQ_ACK:
+                    mProgressDialog.setMessage(getString(R.string.category_response_received));
+                    return true;
+                case OP_REQ_SENT:
+                    mProgressDialog.setMessage(getString(R.string.operation_request_sent));
+                    return true;
+                case OP_REQ_ACK:
+                    mProgressDialog.setMessage(getString(R.string.operation_response_received));
+                    return true;
             }
             return false;
         }
+    }
+
+    public SharedPreferences getPreferences() {
+        return mPreferences;
     }
 }

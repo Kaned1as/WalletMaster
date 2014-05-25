@@ -82,4 +82,8 @@
     <string name="ask_for_delete">Confirm removals</string>
     <string name="ask_for_delete_summary">Show confirm dialog on account/operation delete</string>
     <string name="preferences">Preferences</string>
+    <string name="category_request_sent">Sent category  request…</string>
+    <string name="category_response_received">Got category acknowledge…</string>
+    <string name="operation_request_sent">Sent operation request…</string>
+    <string name="operation_response_received">Got operation acknowledge…</string>
 </resources>

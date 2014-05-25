@@ -4,7 +4,10 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
 /**
- * Created by adonai on 25.05.14.
+ * Preference activity responsible for user settings handling
+ * For now just loads single preference fragment
+ *
+ * @author Adonai
  */
 public class PreferenceFlow extends PreferenceActivity {
 

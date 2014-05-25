@@ -138,24 +138,36 @@ public class AccountsFragment extends WalletBaseFragment {
             popover.setContentSizeForViewInPopover(new Point((int) convertDpToPixel(100, getActivity()), (int) convertDpToPixel(50, getActivity())));
 
             final ImageButton delete = (ImageButton) newView.findViewById(R.id.delete_button);
-            delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    new AlertDialog.Builder(getActivity())
-                            .setTitle(R.string.confirm_action)
-                            .setMessage(R.string.really_delete_account)
-                            .setNegativeButton(android.R.string.cancel, null)
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    final String accountID = mAccountsAdapter.getItemUUID(position);
-                                    getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.DELETE, Account.getFromDB(getWalletActivity().getEntityDAO(), accountID));
-                                }
-                            }).create().show();
+            if (getWalletActivity().getPreferences().getBoolean("ask.for.delete", true)) {
+                delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle(R.string.confirm_action)
+                                .setMessage(R.string.really_delete_account)
+                                .setNegativeButton(android.R.string.cancel, null)
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        final String accountID = mAccountsAdapter.getItemUUID(position);
+                                        getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.DELETE, Account.getFromDB(getWalletActivity().getEntityDAO(), accountID));
+                                    }
+                                }).create().show();
 
-                    popover.dismissPopover(true);
-                }
-            });
+                        popover.dismissPopover(true);
+                    }
+                });
+            } else { // just delete without confirm
+                delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final String accountID = mAccountsAdapter.getItemUUID(position);
+                        getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.DELETE, Account.getFromDB(getWalletActivity().getEntityDAO(), accountID));
+
+                        popover.dismissPopover(true);
+                    }
+                });
+            }
 
             final ImageButton edit = (ImageButton) newView.findViewById(R.id.edit_button);
             edit.setOnClickListener(new View.OnClickListener() {

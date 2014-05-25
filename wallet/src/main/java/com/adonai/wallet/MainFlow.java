@@ -28,8 +28,6 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private List<WalletBaseFragment> mParts = new ArrayList<>(4);
 
-    private boolean isPreferenceEditing;
-
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
