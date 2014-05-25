@@ -357,12 +357,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                     }
                 }
             } catch (IOException io) {
-                setState(State.INIT, io.getMessage());
-                interrupt();
-                if(!mSocket.isClosed())
-                    try {
-                        mSocket.close();
-                    } catch (IOException e) { throw new RuntimeException(e); } // should not happen
+                interrupt(io.getMessage());
             }
             return true;
         }
@@ -382,8 +377,13 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
             setState(State.INIT, mContext.getString(R.string.sync_completed));
         }
 
-        private void interrupt() {
+        private void interrupt(String error) {
             mContext.getEntityDAO().endTransaction();
+            setState(State.INIT, error);
+            if(!mSocket.isClosed())
+                try {
+                    mSocket.close();
+                } catch (IOException e) { throw new RuntimeException(e); } // should not happen
         }
 
         private void sendKnownEntities(OutputStream os, Class<? extends Entity> clazz) throws IOException {
@@ -405,16 +405,12 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                     mPreferences.edit().putBoolean(WalletConstants.ACCOUNT_SYNC_KEY, true).commit(); // save auth
                     break;
                 case AUTH_WRONG:
-                    interrupt();
-                    setState(State.INIT, mContext.getString(R.string.auth_invalid));
+                    interrupt(mContext.getString(R.string.auth_invalid));
                     clearAccountInfo();
-                    mSocket.close();
                     break;
                 case ACCOUNT_EXISTS:
-                    interrupt();
-                    setState(State.INIT, mContext.getString(R.string.account_already_exist));
+                    interrupt(mContext.getString(R.string.account_already_exist));
                     clearAccountInfo();
-                    mSocket.close();
                     break;
             }
         }
