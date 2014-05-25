@@ -428,14 +428,6 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
             request.build().writeDelimitedTo(os); // actual sending of request
             os.flush();
         }
-
-        private void clearAccountInfo() {
-            mPreferences.edit()
-                    .remove(WalletConstants.ACCOUNT_SYNC_KEY)
-                    .remove(WalletConstants.ACCOUNT_NAME_KEY)
-                    .remove(WalletConstants.ACCOUNT_PASSWORD_KEY)
-                    .commit();
-        }
     }
 
     private Account mergeAccounts(Account remote, Account local, Account base) {
@@ -470,4 +462,11 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
         return result;
     }
 
+    private void clearAccountInfo() {
+        mPreferences.edit()
+                .remove(WalletConstants.ACCOUNT_SYNC_KEY)
+                .remove(WalletConstants.ACCOUNT_NAME_KEY)
+                .remove(WalletConstants.ACCOUNT_PASSWORD_KEY)
+                .commit();
+    }
 }

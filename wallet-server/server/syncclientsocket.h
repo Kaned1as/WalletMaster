@@ -62,7 +62,7 @@ public:
         SENT_CATEGORIES,
         WAITING_OPERATIONS,
         SENT_OPERATIONS,
-        FINISHED
+        ERROR
     };
 
     enum EntityState
@@ -83,6 +83,8 @@ public slots:
 private:
     explicit SyncClientSocket(QObject *parent = 0); // only sync tcp server can create this!
     void initDbConnection();
+    void interruptProcessing();
+    void finishProcessing();
 
     void readClientData();
     bool readMessageSize(quint32 * const out);

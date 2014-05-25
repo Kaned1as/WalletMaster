@@ -26,8 +26,6 @@ SyncClientSocket::SyncState SyncClientSocket::getState() const
 void SyncClientSocket::setState(const SyncState &value)
 {
     state = value;
-    if (state == FINISHED)
-        disconnect();
 }
 
 void SyncClientSocket::initDbConnection()
@@ -38,7 +36,28 @@ void SyncClientSocket::initDbConnection()
     conn->setUserName("root");
     conn->setPassword("root"); // i know it's hacky but it's localhost only
     if(!conn->open())
+    {
         qDebug() << tr("Cannot connect to database! Error: %1").arg(conn->lastError().text());
+        disconnectFromHost();
+    }
+    if(!conn->transaction())
+    {
+        qDebug() << tr("Cannot start database transaction! Error: %1").arg(conn->lastError().text());
+        disconnectFromHost();
+    }
+}
+
+void SyncClientSocket::finishProcessing()
+{
+    conn->commit();
+    disconnectFromHost();
+}
+
+void SyncClientSocket::interruptProcessing()
+{
+    if(!conn->rollback())
+        qDebug() << tr("Cannot rollback transaction! Error: %1").arg(conn->lastError().text()); // should never happen!
+    setState(ERROR);
 }
 
 // each sync message has prepended size as implemented in protobuf delimited read/write
@@ -86,6 +105,12 @@ bool SyncClientSocket::readMessageSize(quint32 * const out)
 // for sending response
 bool SyncClientSocket::writeDelimited(const google::protobuf::Message& message)
 {
+    if(state == ERROR) // no need to send, disconnect
+    {
+        disconnectFromHost();
+        return true;
+    }
+
     const int messageSize = message.ByteSize();
     const int packetSize = pbuf::io::CodedOutputStream::VarintSize32(messageSize) + messageSize; // assure we have size+message bytes
     char* const bytes = new char[packetSize];
@@ -109,6 +134,8 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
         case NOT_IDENTIFIED: // wait register/auth
         {
             handleGeneric<sync::SyncRequest, sync::SyncResponse>(incomingData);
+            if(state == NOT_IDENTIFIED) // auth error
+                interruptProcessing();
             break;
         }
         case WAITING_ACCOUNTS:     // wait accounts
@@ -135,16 +162,16 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
             setState(WAITING_OPERATIONS);
             break;
         }
-        case WAITING_OPERATIONS:
+        case WAITING_OPERATIONS: // wait operations
         {
             handleGeneric<sync::EntityRequest, sync::EntityResponse>(incomingData);
             setState(SENT_OPERATIONS);
             break;
         }
-        case SENT_OPERATIONS:
+        case SENT_OPERATIONS: // sent response
         {
             handleGeneric<sync::EntityResponse, sync::EntityAck>(incomingData);
-            setState(FINISHED);
+            finishProcessing();
             break;
         }
         default:
@@ -168,7 +195,7 @@ sync::SyncResponse SyncClientSocket::handle(const sync::SyncRequest& request)
         {
             QSqlQuery checkExists(*conn);
             checkExists.prepare("SELECT login FROM sync_accounts WHERE login = :check");
-            checkExists.bindValue(":check", request.account().c_str());
+            checkExists.bindValue(":check", request.account().data());
             if(!checkExists.exec())
             {
                 qDebug() << tr("cannot check login, db error %1").arg(checkExists.lastError().text());
@@ -253,13 +280,15 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
             break;
         default:
             qDebug() << tr("Unknown entity type processing!");
-            break;
+            interruptProcessing();
+            return response;
     }
     selectSyncedEntities.bindValue(":userId", userId);
 
     if(!selectSyncedEntities.exec())
     {
         qDebug() << tr("cannot retrieve nonsynced entities, db error %1").arg(selectSyncedEntities.lastError().text());
+        interruptProcessing();
         return response; // empty response
     }
 
@@ -336,7 +365,8 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
             }
             default:
                 qDebug() << tr("Unknown entity type processing!");
-                break;
+                interruptProcessing();
+                return response;
         }
     }
 
@@ -387,7 +417,8 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             break;
         default:
             qDebug() << tr("Unknown entity type processing!");
-            break;
+            interruptProcessing();
+            return ack;
     }
 
     /// delete entities
@@ -405,7 +436,8 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
     if(!deleter.execBatch())
     {
         qDebug() << tr("Cannot delete entities from server! Error %1").arg(deleter.lastError().text());
-        //ack.clear_deletedguid();
+        interruptProcessing();
+        return ack;
     }
 
     /// add entities
@@ -476,13 +508,16 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             }
             default:
                 qDebug() << tr("Unknown entity type processing!");
-                break;
+                interruptProcessing();
+                return ack;
         }
 
         if(!adder.exec())
-            //ack.add_writtenguid(adder.lastInsertId().toLongLong());
-        //else
+        {
             qDebug() << tr("Cannot add entities from device! Error: %1").arg(adder.lastError().text());
+            interruptProcessing();
+            return ack;
+        }
 
         adder.finish();
     }
@@ -555,13 +590,17 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             }
             default:
                 qDebug() << tr("Unknown entity type processing!");
-                break;
+                interruptProcessing();
+                return ack;
         }
 
         if(!modifier.exec())
-            //ack.add_writtenguid(adder.lastInsertId().toLongLong());
-        //else
+        {
             qDebug() << tr("Cannot modify entities from device! Error %1").arg(modifier.lastError().text());
+            interruptProcessing();
+            return ack;
+        }
+
         modifier.finish();
     }
 
@@ -570,7 +609,10 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
     if(newTimeRetriever.exec() && newTimeRetriever.next())
         ack.set_newservertimestamp(newTimeRetriever.value(0).toLongLong());
     else
+    {
         qDebug() << tr("Cannot send new time to device! Error %1").arg(newTimeRetriever.lastError().text());
+        interruptProcessing();
+    }
 
     return ack;
 }
@@ -584,6 +626,7 @@ template<typename REQ, typename RESP> void SyncClientSocket::handleGeneric(const
 
     // handle
     RESP response = handle(request);
+    if(isOpen())
 
     // send response
     if(!writeDelimited(response))
