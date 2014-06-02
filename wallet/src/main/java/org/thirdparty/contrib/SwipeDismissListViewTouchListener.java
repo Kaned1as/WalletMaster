@@ -114,7 +114,6 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
         mListView = listView;
         mCallbacks = callbacks;
 
-        listView.setOnTouchListener(this);
         listView.setOnScrollListener(makeScrollListener());
     }
 

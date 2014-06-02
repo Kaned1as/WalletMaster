@@ -1,10 +1,7 @@
 package com.adonai.wallet;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
-import android.graphics.Point;
 import android.graphics.Shader;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
@@ -16,13 +13,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
-import com.daniel.lupianez.casares.PopoverView;
+
+import org.thirdparty.contrib.SwipeDismissListViewTouchListener;
 
 import java.util.Arrays;
 
@@ -39,6 +36,7 @@ public class AccountsFragment extends WalletBaseFragment {
     private ListView mAccountList;
     private AccountsAdapter mAccountsAdapter;
     private TextView budgetSum;
+    private EntityDeleteListener mAccountDeleter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -51,11 +49,15 @@ public class AccountsFragment extends WalletBaseFragment {
         budgetSum = (TextView) rootView.findViewById(R.id.account_sum);
 
         mAccountsAdapter = new AccountsAdapter();
+        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mAccountsAdapter);
+        mAccountDeleter = new EntityDeleteListener<>(mAccountsAdapter, Account.class, R.string.really_delete_account);
 
         mAccountList.setAdapter(mAccountsAdapter);
-        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mAccountsAdapter);
         mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
         mAccountList.setOnItemClickListener(new AccountClickListener());
+
+        final SwipeDismissListViewTouchListener listener = new SwipeDismissListViewTouchListener(mAccountList, mAccountDeleter);
+        mAccountList.setOnTouchListener(listener);
 
         return rootView;
     }
@@ -133,54 +135,9 @@ public class AccountsFragment extends WalletBaseFragment {
 
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, final long id) {
-            final View newView = LayoutInflater.from(getActivity()).inflate(R.layout.account_list_item_menu, null, false);
-            final PopoverView popover = new PopoverView(getActivity(), newView);
-            popover.setContentSizeForViewInPopover(new Point((int) convertDpToPixel(100, getActivity()), (int) convertDpToPixel(50, getActivity())));
-
-            final ImageButton delete = (ImageButton) newView.findViewById(R.id.delete_button);
-            if (getWalletActivity().getPreferences().getBoolean("ask.for.delete", true)) {
-                delete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        new AlertDialog.Builder(getActivity())
-                                .setTitle(R.string.confirm_action)
-                                .setMessage(R.string.really_delete_account)
-                                .setNegativeButton(android.R.string.cancel, null)
-                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        final String accountID = mAccountsAdapter.getItemUUID(position);
-                                        getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.DELETE, Account.getFromDB(getWalletActivity().getEntityDAO(), accountID));
-                                    }
-                                }).create().show();
-
-                        popover.dismissPopover(true);
-                    }
-                });
-            } else { // just delete without confirm
-                delete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final String accountID = mAccountsAdapter.getItemUUID(position);
-                        getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.DELETE, Account.getFromDB(getWalletActivity().getEntityDAO(), accountID));
-
-                        popover.dismissPopover(true);
-                    }
-                });
-            }
-
-            final ImageButton edit = (ImageButton) newView.findViewById(R.id.edit_button);
-            edit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final String accountID = mAccountsAdapter.getItemUUID(position);
-                    final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), accountID);
-                    AccountDialogFragment.forAccount(managed.getId()).show(getFragmentManager(), "accModify");
-                    popover.dismissPopover(true);
-                }
-            });
-
-            popover.showPopoverFromRectInViewGroup((ViewGroup) parent.getRootView(), PopoverView.getFrameForView(view), PopoverView.PopoverArrowDirectionAny, true);
+            final String accountID = mAccountsAdapter.getItemUUID(position);
+            final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), accountID);
+            AccountDialogFragment.forAccount(managed.getId()).show(getFragmentManager(), "accModify");
             return true;
         }
     }

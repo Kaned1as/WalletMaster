@@ -1,12 +1,9 @@
 package com.adonai.wallet;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Path;
-import android.graphics.Point;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -21,19 +18,18 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.FilterQueryProvider;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.adonai.wallet.entities.Operation;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
-import com.daniel.lupianez.casares.PopoverView;
+
+import org.thirdparty.contrib.SwipeDismissListViewTouchListener;
 
 import java.util.EnumMap;
 import java.util.Map;
 
 import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
-import static com.adonai.wallet.Utils.convertDpToPixel;
 import static com.adonai.wallet.Utils.convertPixelsToDp;
 import static com.adonai.wallet.entities.Operation.OperationType;
 
@@ -50,11 +46,14 @@ public class OperationsFragment extends WalletBaseFragment {
     private OperationsAdapter mOpAdapter;
     private Map<Operation.OperationType, Drawable> mDrawableMap;
     private EditText mSearchBox;
+    private EntityDeleteListener mOperationDeleter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         mOpAdapter = new OperationsAdapter();
+        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.OPERATIONS.toString(), mOpAdapter);
+        mOperationDeleter = new EntityDeleteListener<>(mOpAdapter, Operation.class, R.string.really_delete_operation);
         //mOpAdapter.setFilterQueryProvider(new OperationFilterQueryProvider());
         mDrawableMap = fillDrawableMap();
 
@@ -68,7 +67,9 @@ public class OperationsFragment extends WalletBaseFragment {
 
         mOperationsList.setAdapter(mOpAdapter);
         mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
-        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.OPERATIONS.toString(), mOpAdapter);
+
+        final SwipeDismissListViewTouchListener listener = new SwipeDismissListViewTouchListener(mOperationsList, mOperationDeleter);
+        mOperationsList.setOnTouchListener(listener);
         return rootView;
     }
 
@@ -172,60 +173,9 @@ public class OperationsFragment extends WalletBaseFragment {
 
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, final long id) {
-            final DatabaseDAO db = getWalletActivity().getEntityDAO();
-            final View newView = LayoutInflater.from(getActivity()).inflate(R.layout.account_list_item_menu, null, false);
-            final PopoverView popover = new PopoverView(getActivity(), newView);
-            popover.setContentSizeForViewInPopover(new Point((int) convertDpToPixel(100, getActivity()), (int) convertDpToPixel(50, getActivity())));
-
-            final ImageButton delete = (ImageButton) newView.findViewById(R.id.delete_button);
-            if (getWalletActivity().getPreferences().getBoolean("ask.for.delete", true)) {
-                delete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        new AlertDialog.Builder(getActivity())
-                                .setTitle(R.string.confirm_action)
-                                .setMessage(R.string.really_delete_operation)
-                                .setNegativeButton(android.R.string.cancel, null)
-                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        final String opID = mOpAdapter.getItemUUID(position);
-                                        final Operation op = Operation.getFromDB(db, opID);
-                                        assert op != null;
-                                        if (!db.revertOperation(op))
-                                            throw new IllegalStateException("Cannot delete operation!"); // should never happen!!
-                                    }
-                                }).create().show();
-                        popover.dismissPopover(true);
-                    }
-                });
-            } else { // just delete without confirm
-                delete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final String opID = mOpAdapter.getItemUUID(position);
-                        final Operation op = Operation.getFromDB(db, opID);
-                        assert op != null;
-                        if (!db.revertOperation(op))
-                            throw new IllegalStateException("Cannot delete operation!"); // should never happen!!
-
-                        popover.dismissPopover(true);
-                    }
-                });
-            }
-
-            final ImageButton edit = (ImageButton) newView.findViewById(R.id.edit_button);
-            edit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final String opID = mOpAdapter.getItemUUID(position);
-                    final Operation operation = Operation.getFromDB(getWalletActivity().getEntityDAO(), opID);
-                    new OperationDialogFragment(operation).show(getFragmentManager(), "opModify");
-                    popover.dismissPopover(true);
-                }
-            });
-
-            popover.showPopoverFromRectInViewGroup((ViewGroup) parent.getRootView(), PopoverView.getFrameForView(view), PopoverView.PopoverArrowDirectionAny, true);
+            final String opID = mOpAdapter.getItemUUID(position);
+            final Operation operation = Operation.getFromDB(getWalletActivity().getEntityDAO(), opID);
+            new OperationDialogFragment(operation).show(getFragmentManager(), "opModify");
             return true;
         }
     }

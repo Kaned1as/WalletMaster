@@ -53,7 +53,7 @@ public class CategoriesFragment extends WalletBaseFragment {
         mCategoryList.setAdapter(mCategoriesAdapter);
 
         final SwipeDismissListViewTouchListener listener = new SwipeDismissListViewTouchListener(mCategoryList, new CategoryDeleteListener());
-
+        mCategoryList.setOnTouchListener(listener);
 
         return rootView;
     }
