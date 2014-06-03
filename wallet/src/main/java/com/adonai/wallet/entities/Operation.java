@@ -12,6 +12,28 @@ import java.math.RoundingMode;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * Entity representing an operation. Operations show money flow
+ * across accounts and more
+ * <p>
+ * Required fields:
+ * <ol>
+ *     <li>category</li>
+ *     <li>time</li>
+ *     <li>amount</li>
+ * </ol>
+ * </p>
+ * <p>
+ * Optional fields:
+ * <ol>
+ *     <li>description</li>
+ *     <li>charge account-----| choose one</li>
+ *     <li>beneficiar account-| required</li>
+ *     <li>conversion rate</li>
+ * </ol>
+ * </p>
+ * @author adonai
+ */
 @EntityDescriptor(type = DatabaseDAO.EntityType.OPERATIONS)
 public class Operation extends Entity {
 

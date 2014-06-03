@@ -36,23 +36,22 @@ import static com.adonai.wallet.sync.SyncProtocol.SyncResponse;
  *|                                                                                                              |
  *| Client sends account request containing all known to him synced account ID --------------------------------->|
  *|                                                                                                              |
- *| *** Server parses account request and makes a list of added/removed IDs on server based on its data          |
+ *| *** Server parses request and makes a list of added/removed/modified IDs on server based on its data         |
  *| *** Added accounts are transferred fully and contain GUIDs if present, removed accounts contain only GUIDs   |
  *|                                                                                                              |
  *| <--------------------------------- Server replies with account response containing added/removed accounts    |
  *|                                                                                                              |
  *| *** Client adds and removes mentioned accounts locally. Thus on client we are up-to-date with server         |
- *| *** Client makes his own account response of data that was added/removed locally                             |
+ *| *** Client makes his own account response of data that was added/removed/modified locally                    |
  *|                                                                                                              |
- *| Client sends account response containing locally deleted/added accounts ------------------------------------>|
+ *| Client sends account response containing locally deleted/added/modified accounts --------------------------->|
  *|                                                                                                              |
  *| *** Server adds or removes the client data to/from server database. Thus we are now almost synced            |
- *| *** At te end we must send to the client data about GUIDs of newly added accounts                            |
  *| *** Server expects no more data about current entities                                                       |
  *|                                                                                                              |
- *| <-------------------------------- Server replies with account acknowledge containing GUIDs of added accounts.|
+ *| <-------------------------------- Server replies with account acknowledge containing new timestamp-----------|
  *|                                                                                                              |
- *| *** Client updates its accounts with the data from last packet.                                              |
+ *| *** Client updates its last sync date                                                                        |
  *| *** Client also purges contents of table that tracks deletions of synced entities                            |
  *|                                                                                                              |
  * *** Now we are synced

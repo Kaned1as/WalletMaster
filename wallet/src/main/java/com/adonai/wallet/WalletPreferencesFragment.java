@@ -5,7 +5,9 @@ import android.preference.PreferenceFragment;
 import android.widget.CompoundButton;
 
 /**
- * Created by adonai on 24.05.14.
+ * Dialog fragment showing preferences editing form
+ *
+ * @author adonai
  */
 public class WalletPreferencesFragment extends PreferenceFragment {
 

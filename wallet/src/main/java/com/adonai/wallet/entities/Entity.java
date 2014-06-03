@@ -4,6 +4,8 @@ import com.adonai.wallet.DatabaseDAO;
 
 /**
  * Abstract type for all entities in DB
+ *
+ * @author Adonai
  */
 public abstract class Entity {
     protected String id;

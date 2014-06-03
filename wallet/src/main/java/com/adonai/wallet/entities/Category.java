@@ -9,6 +9,24 @@ import com.adonai.wallet.sync.SyncProtocol;
 
 import java.util.UUID;
 
+/**
+ * Entity representing a category that is used for operations splitting, budget and so on.
+ * <p>
+ * Required fields:
+ * <ol>
+ *     <li>name</li>
+ *     <li>type</li>
+ * </ol>
+ * </p>
+ * <p>
+ * Optional fields:
+ * <ol>
+ *     <li>preferred account</li>
+ * </ol>
+ * </p>
+ *
+ * @author Adonai
+ */
 @EntityDescriptor(type = DatabaseDAO.EntityType.CATEGORIES)
 public class Category extends Entity {
     final public static int EXPENSE = 0;

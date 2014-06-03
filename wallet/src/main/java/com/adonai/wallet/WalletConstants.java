@@ -1,7 +1,9 @@
 package com.adonai.wallet;
 
 /**
- * Created by adonai on 30.03.14.
+ * Global constants used in preferences, handlers, etc.
+ *
+ * @author adonai
  */
 public class WalletConstants {
     public static final String ACCOUNT_NAME_KEY = "account.name";

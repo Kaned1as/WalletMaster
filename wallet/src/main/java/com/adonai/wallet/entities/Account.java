@@ -11,7 +11,23 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
- * @author adonai
+ * Entity representing an account
+ * <p>
+ * Required fields:
+ * <ol>
+ *     <li>name</li>
+ *     <li>currency</li>
+ *     <li>amount</li>
+ * </ol>
+ * </p>
+ * <p>
+ * Optional fields:
+ * <ol>
+ *     <li>description</li>
+ *     <li>color</li>
+ * </ol>
+ * </p>
+ * @author Adonai
  */
 @EntityDescriptor(type = DatabaseDAO.EntityType.ACCOUNTS)
 public class Account extends Entity {

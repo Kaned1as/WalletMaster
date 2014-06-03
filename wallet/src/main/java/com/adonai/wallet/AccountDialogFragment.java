@@ -24,6 +24,8 @@ import com.adonai.wallet.entities.Currency;
 import java.math.BigDecimal;
 
 /**
+ * Dialog fragment showing window for account modifying/adding
+ *
  * @author adonai
  */
 public class AccountDialogFragment extends WalletBaseDialogFragment implements DialogInterface.OnClickListener {

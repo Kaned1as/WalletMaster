@@ -9,6 +9,10 @@ import java.util.UUID;
 /**
  * Base class for all entity adapters
  * Makes its structure to be suitable for list views
+ *
+ * Implements methods to handle string ID columns
+ *
+ * @author Adonai
  */
 public abstract class UUIDCursorAdapter extends BaseAdapter {
 

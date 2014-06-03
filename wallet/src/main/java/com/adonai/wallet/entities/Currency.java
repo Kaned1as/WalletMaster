@@ -1,7 +1,17 @@
 package com.adonai.wallet.entities;
 
 /**
- * @author adonai
+ * Service class needed for conversions and account splitting
+ * Note: this is not an entity. Currency tables are local for now
+ * and are being filled from assets .csv file
+ * <p>
+ * Fields:
+ * <ol>
+ *     <li>code - code of currency</li>
+ *     <li>description - full name</li>
+ *     <li>usedIn - sample countries</li>
+ * </ol>
+ * @author Adonai
  */
 public class Currency {
     public static final String TABLE_NAME = "currencies";
