@@ -36,8 +36,8 @@
     <string name="category">Категория</string>
     <string name="date">Дата</string>
     <string name="select_date">Пожалуйста, выберите дату</string>
-    <string name="income">Доход</string>
-    <string name="outcome">Расход</string>
+    <string name="income">Доходы</string>
+    <string name="outcome">Расходы</string>
     <string name="optional">Опционально</string>
     <string name="accounts_identical">Аккаунты отправителя и получателя совпадают!</string>
     <string name="cannot_apply_op">Невозможно применить операцию! Пожалуйста, перепроверьте данные.</string>
