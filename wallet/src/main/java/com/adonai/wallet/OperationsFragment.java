@@ -16,11 +16,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.adonai.wallet.entities.Entity;
 import com.adonai.wallet.entities.Operation;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 
@@ -45,7 +45,6 @@ public class OperationsFragment extends WalletBaseFragment {
     private ListView mOperationsList;
     private OperationsAdapter mOpAdapter;
     private Map<Operation.OperationType, Drawable> mDrawableMap;
-    private EditText mSearchBox;
     private EntityDeleteListener mOperationDeleter;
 
     @Override
@@ -53,7 +52,7 @@ public class OperationsFragment extends WalletBaseFragment {
         setHasOptionsMenu(true);
         mOpAdapter = new OperationsAdapter();
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.OPERATIONS.toString(), mOpAdapter);
-        mOperationDeleter = new EntityDeleteListener<>(mOpAdapter, Operation.class, R.string.really_delete_operation);
+        mOperationDeleter = new OperationDeleteListener<>(mOpAdapter, Operation.class, R.string.really_delete_operation);
         //mOpAdapter.setFilterQueryProvider(new OperationFilterQueryProvider());
         mDrawableMap = fillDrawableMap();
 
@@ -61,7 +60,6 @@ public class OperationsFragment extends WalletBaseFragment {
         assert rootView != null;
 
         mOperationsList = (ListView) rootView.findViewById(R.id.operations_list);
-        mSearchBox = (EditText) rootView.findViewById(R.id.operations_filter_edit);
 
         //mSearchBox.setOnEditorActionListener(new OperationsFilterListener());
 
@@ -86,9 +84,6 @@ public class OperationsFragment extends WalletBaseFragment {
                 final OperationDialogFragment opCreate = new OperationDialogFragment();
                 opCreate.show(getFragmentManager(), "opCreate");
                 break;
-            case R.id.operation_quick_filter:
-                mSearchBox.setVisibility(View.VISIBLE);
-                mSearchBox.requestFocus();
             default:
                 break;
         }
@@ -245,6 +240,24 @@ public class OperationsFragment extends WalletBaseFragment {
         @Override
         public Cursor runQuery(CharSequence constraint) { // constraint is just text
             return getWalletActivity().getEntityDAO().getOperationsCursor(constraint.toString());
+        }
+    }
+
+    private class OperationDeleteListener<T extends Entity> extends EntityDeleteListener<T> {
+
+        public OperationDeleteListener(UUIDCursorAdapter adapter, Class<T> clazz, int deleteMessageResource) {
+            super(adapter, clazz, deleteMessageResource);
+        }
+
+        @Override
+        protected void deleteItems(DatabaseDAO db, int[] items) {
+            for (int position : items) {
+                final String opUUID = mAdapter.getItemUUID(position);
+                final Operation op = Operation.getFromDB(db, opUUID);
+                assert op != null;
+                if (!db.revertOperation(op))
+                    throw new IllegalStateException("Cannot delete operation!"); // should never happen!!
+            }
         }
     }
 /*

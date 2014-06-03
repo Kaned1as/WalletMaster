@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.adonai.wallet.MainFlow" >
     <item android:id="@+id/action_add_account"
+        android:icon="@android:drawable/ic_menu_add"
         android:title="@string/action_add_account"
-        android:showAsAction="withText|ifRoom" />
+        android:showAsAction="ifRoom" />
 </menu>

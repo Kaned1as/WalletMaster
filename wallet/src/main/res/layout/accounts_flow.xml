@@ -12,7 +12,6 @@
         android:id="@+id/account_list"
         android:layout_weight="1"
         android:background="@drawable/account_listview_bg"
-        android:scrollbars="none"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         android:divider="@null"

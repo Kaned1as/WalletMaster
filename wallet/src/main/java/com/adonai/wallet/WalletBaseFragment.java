@@ -32,7 +32,7 @@ public abstract class WalletBaseFragment extends Fragment {
     protected class EntityDeleteListener<T extends Entity> implements SwipeDismissListViewTouchListener.DismissCallbacks {
 
         private final int mMessageId;
-        private final UUIDCursorAdapter mAdapter;
+        protected final UUIDCursorAdapter mAdapter;
         private final Class<T> mEntityClass;
 
         public EntityDeleteListener(UUIDCursorAdapter adapter, Class<T> clazz, int deleteMessageResource) {
@@ -69,7 +69,7 @@ public abstract class WalletBaseFragment extends Fragment {
         }
 
         @SuppressWarnings("unchecked")
-        private void deleteItems(DatabaseDAO db, int[] items) {
+        protected void deleteItems(DatabaseDAO db, int[] items) {
             try {
                 final Method filler = mEntityClass.getDeclaredMethod("getFromDB", DatabaseDAO.class, String.class);
 
