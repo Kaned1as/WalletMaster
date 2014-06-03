@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="out_categories">
+        <item>Транспорт</item>
+        <item>Одежда</item>
+        <item>Аксессуары</item>
+        <item>Косметика</item>
+        <item>Еда</item>
+        <item>Мебель</item>
+        <item>Техника</item>
+        <item>Подарки</item>
+        <item>Топливо</item>
+        <item>Внезапное</item>
+        <item>Детские вещи</item>
+        <item>Квартплата</item>
+        <item>Кредиты</item>
+        <item>Интернет</item>
+        <item>Подписки</item>
+        <item>Мобильная связь</item>
+        <item>Долги</item>
+        <item>Иное</item>
+    </string-array>
+    <string-array name="inc_categories">
+        <item>Зарплата</item>
+        <item>Дивиденды</item>
+        <item>Долги</item>
+        <item>Подарки</item>
+        <item>Внезапное</item>
+        <item>Доходы от бизнеса</item>
+        <item>Пенсия</item>
+        <item>Съём жилья</item>
+        <item>Социальные</item>
+        <item>Донат</item>
+        <item>Биржа</item>
+        <item>Гранты</item>
+        <item>Страховые выплаты</item>
+        <item>Торговля</item>
+        <item>Проценты</item>
+        <item>Иное</item>
+    </string-array>
+    <string-array name="transfer_categories">
+        <item>Перевод</item>
+        <item>Внесение денег</item>
+        <item>Съём денег</item>
+    </string-array>
+</resources>

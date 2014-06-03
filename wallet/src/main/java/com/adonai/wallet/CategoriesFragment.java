@@ -38,7 +38,7 @@ public class CategoriesFragment extends WalletBaseFragment {
         final View rootView = inflater.inflate(R.layout.categories_flow, container, false);
         assert rootView != null;
 
-        final String[] categoryTypes = new String[] {getString(R.string.expense), getString(R.string.income), getString(R.string.transfer)};
+        final String[] categoryTypes = new String[] {getString(R.string.outcome), getString(R.string.income), getString(R.string.transfer)};
         mCategoryTypeAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, categoryTypes);
         mNavListener = new CategoryNavigator();
 

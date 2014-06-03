@@ -104,7 +104,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/initial_amount"
+            android:text="@string/amount"
             android:id="@+id/initial_amount_label" />
 
         <EditText
