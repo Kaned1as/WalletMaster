@@ -43,6 +43,7 @@ public class WalletBaseActivity extends Activity implements SyncStateMachine.Syn
         super.onDestroy();
         mEntityDAO.close();
         mSyncMachine.shutdown();
+        mProgressDialog.dismiss();
     }
 
     public DatabaseDAO getEntityDAO() {

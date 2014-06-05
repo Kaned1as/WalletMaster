@@ -305,7 +305,7 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
         if(knownIds.contains(currentId)) // we have this entity on device already, should detect, if entity was modified
         {
             knownIds.removeOne(currentId); // we have it on server and client, remove it
-            const quint64 serverLastModified = selectSyncedEntities.value("last_modified").toLongLong();
+            const quint64 serverLastModified = selectSyncedEntities.value("last_modified").toDateTime().toMSecsSinceEpoch() / 1000;
             if(request.lastknownservertimestamp() > serverLastModified)
                 continue;
             else
