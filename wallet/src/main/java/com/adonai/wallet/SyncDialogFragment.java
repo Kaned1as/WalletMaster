@@ -22,7 +22,7 @@ import static com.adonai.wallet.WalletConstants.ACCOUNT_SYNC_KEY;
  *
  * @author adonai
  */
-public class SyncDialogFragment extends WalletBaseDialogFragment implements DialogInterface.OnClickListener, SyncStateMachine.SyncListener {
+public class SyncDialogFragment extends WalletBaseDialogFragment implements View.OnClickListener, SyncStateMachine.SyncListener {
 
     private RadioGroup mSyncType;
     private EditText mAccountName;
@@ -39,10 +39,17 @@ public class SyncDialogFragment extends WalletBaseDialogFragment implements Dial
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(dialog);
-        builder.setPositiveButton(R.string.confirm, this);
+        builder.setPositiveButton(R.string.confirm, null);
 
         getWalletActivity().getSyncMachine().registerObserver(this);
         return builder.create();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        final AlertDialog dialog = (AlertDialog) getDialog();
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(this);
     }
 
     @Override
@@ -58,13 +65,13 @@ public class SyncDialogFragment extends WalletBaseDialogFragment implements Dial
     }
 
     @Override
-    public void dismiss() {
+    public void onDestroyView() {
         getWalletActivity().getSyncMachine().unregisterObserver(this);
-        super.dismiss();
+        super.onDestroyView();
     }
 
     @Override
-    public void onClick(DialogInterface dialog, int which) {
+    public void onClick(View button) {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         prefs.edit()
             .putString(ACCOUNT_NAME_KEY, mAccountName.getText().toString())

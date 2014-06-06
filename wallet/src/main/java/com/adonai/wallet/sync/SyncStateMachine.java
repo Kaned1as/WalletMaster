@@ -355,7 +355,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         break;
                     }
                 }
-            } catch (IOException io) {
+            } catch (Exception io) {
                 interrupt(io.getMessage());
             }
             return true;

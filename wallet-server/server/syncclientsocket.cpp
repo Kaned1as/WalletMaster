@@ -305,7 +305,7 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
         if(knownIds.contains(currentId)) // we have this entity on device already, should detect, if entity was modified
         {
             knownIds.removeOne(currentId); // we have it on server and client, remove it
-            const quint64 serverLastModified = selectSyncedEntities.value("last_modified").toDateTime().toMSecsSinceEpoch() / 1000;
+            const quint64 serverLastModified = selectSyncedEntities.value("last_modified").toDateTime().toMSecsSinceEpoch();
             if(request.lastknownservertimestamp() > serverLastModified)
                 continue;
             else
@@ -352,7 +352,7 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
                 if(!selectSyncedEntities.value("description").isNull())
                     operation->set_description(selectSyncedEntities.value("description").toString().toStdString());
                 operation->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
-                operation->set_time(selectSyncedEntities.value("time").toLongLong());
+                operation->set_time(selectSyncedEntities.value("time").toDateTime().toMSecsSinceEpoch());
                 operation->set_categoryid(selectSyncedEntities.value("category_id").toString().toStdString());
                 if(!selectSyncedEntities.value("charger_id").isNull())
                     operation->set_chargerid(selectSyncedEntities.value("charger_id").toString().toStdString());
@@ -488,7 +488,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
                     adder.addBindValue(QVariant(QVariant::String)); // no desc
                 adder.addBindValue(operation.amount().data());
                 adder.addBindValue(operation.categoryid().data());
-                adder.addBindValue((quint64)operation.time());
+                adder.addBindValue(QDateTime::fromMSecsSinceEpoch(operation.time()));
 
                 if(operation.has_chargerid())
                     adder.addBindValue(operation.chargerid().data());
@@ -605,9 +605,9 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
     }
 
     QSqlQuery newTimeRetriever(*conn);
-    newTimeRetriever.exec("SELECT UNIX_TIMESTAMP()");
+    newTimeRetriever.exec("SELECT CURRENT_TIMESTAMP()");
     if(newTimeRetriever.exec() && newTimeRetriever.next())
-        ack.set_newservertimestamp(newTimeRetriever.value(0).toLongLong());
+        ack.set_newservertimestamp(newTimeRetriever.value(0).toDateTime().toMSecsSinceEpoch());
     else
     {
         qDebug() << tr("Cannot send new time to device! Error %1").arg(newTimeRetriever.lastError().text());
