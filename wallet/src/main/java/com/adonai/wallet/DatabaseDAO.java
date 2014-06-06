@@ -266,7 +266,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public long insert(ContentValues cv, String tableName) {
-        long result = mDatabase.insert(tableName, null, cv);
+        long result = mDatabase.insertWithOnConflict(tableName, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
         if(result != -1)
             notifyListeners(tableName);
         return result;
@@ -702,9 +702,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
             try {
                 final Method filler = clazz.getDeclaredMethod("getFromDB", DatabaseDAO.class, String.class);
                 final T newEntity = (T) filler.invoke(null, this, selections.getString(0));
-                result.add(newEntity);
+                if(newEntity != null)
+                    result.add(newEntity);
             } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException ignored) {
-                throw new IllegalArgumentException("No such public static method in child entity class!");
+                throw new IllegalArgumentException("No public static getFromDB method in child entity class!");
             }
 
         selections.close();
@@ -729,9 +730,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
             try {
                 final Method filler = clazz.getDeclaredMethod("getFromDB", DatabaseDAO.class, String.class);
                 final T newEntity = (T) filler.invoke(null, this, selections.getString(0));
-                result.add(newEntity);
+                if(newEntity != null)
+                    result.add(newEntity);
             } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException ignored) {
-                throw new IllegalArgumentException("No such public static method in child entity class!");
+                throw new IllegalArgumentException("No public static getFromDB method in child entity class!");
             }
         selections.close();
         return result;
