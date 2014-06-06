@@ -59,7 +59,7 @@
     <string name="authenticating">Аутентификация…</string>
     <string name="getting_accounts">Получение аккаунтов с сервера…</string>
     <string name="account_request_sent">Отправлен запрос на аккаунты…</string>
-    <string name="account_response_received">Поулчено подтверждение запроса на аккаунты…</string>
+    <string name="account_response_received">Получено подтверждение запроса на аккаунты…</string>
     <string name="sync_completed">Синхронизация завершена!</string>
     <string name="modify">Редактировать</string>
     <string name="create_new_operation">Создать новую операцию</string>
