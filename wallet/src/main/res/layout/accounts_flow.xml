@@ -14,8 +14,11 @@
         android:background="@drawable/account_listview_bg"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
-        android:divider="@null"
-        android:requiresFadingEdge="vertical" />
+        android:divider="@color/list_gray_divider"
+        android:requiresFadingEdge="vertical"
+        android:fastScrollEnabled="true"
+        android:dividerHeight="7dp"
+        android:drawSelectorOnTop="false" />
 
     <TextView
         android:layout_width="wrap_content"

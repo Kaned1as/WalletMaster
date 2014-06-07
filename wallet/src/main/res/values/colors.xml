@@ -4,4 +4,5 @@
     <color name="account_list_border">#E0E0E0</color>
     <color name="green_amount">#ff13ac00</color>
     <color name="red_amount">#ffa00300</color>
+    <color name="list_gray_divider">#35ffffff</color>
 </resources>
