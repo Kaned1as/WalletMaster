@@ -114,7 +114,7 @@ public class CategoriesFragment extends WalletBaseFragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            return newView(position, convertView, parent, R.layout.category_list_item_large);
+            return newView(position, convertView, parent, R.layout.category_list_item);
         }
 
         public View newView(int position, View convertView, ViewGroup parent, int resId) {

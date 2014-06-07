@@ -121,7 +121,7 @@ public class OperationsFragment extends WalletBaseFragment {
             db.getAsyncOperation(mCursor.getString(DatabaseDAO.OperationsFields._id.ordinal()), new DatabaseDAO.AsyncDbQuery.Listener<Operation>() {
                 @Override
                 public void onFinishLoad(Operation op) {
-                    view.setBackgroundDrawable(mDrawableMap.get(op.getOperationType()));
+                    view.findViewById(R.id.main_content_layout).setBackgroundDrawable(mDrawableMap.get(op.getOperationType()));
 
                     final TextView chargeAcc = (TextView) view.findViewById(R.id.charge_account_label);
                     final TextView benefAcc = (TextView) view.findViewById(R.id.beneficiar_account_label);

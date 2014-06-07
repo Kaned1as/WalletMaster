@@ -116,7 +116,7 @@ public class AccountsFragment extends WalletBaseFragment {
             mDrawable.getPaint().setShader(new LinearGradient(0, 0, mContext.getResources().getDisplayMetrics().widthPixels, 0,
                     Color.argb(50, Color.red(accColor), Color.green(accColor), Color.blue(accColor)),
                     Color.argb(0, Color.red(accColor), Color.green(accColor), Color.blue(accColor)), Shader.TileMode.CLAMP));
-            view.setBackgroundDrawable(mDrawable);
+            view.findViewById(R.id.main_content_layout).setBackgroundDrawable(mDrawable);
 
             final TextView name = (TextView) view.findViewById(R.id.account_name_label);
             name.setText(mCursor.getString(1));

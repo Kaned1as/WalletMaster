@@ -8,8 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/operations_list"
-        android:divider="@null"
         android:requiresFadingEdge="vertical"
-        android:dividerHeight="7dp"
-        android:fastScrollEnabled="true" />
+        android:fastScrollEnabled="true"
+        android:divider="@null" />
 </LinearLayout>
