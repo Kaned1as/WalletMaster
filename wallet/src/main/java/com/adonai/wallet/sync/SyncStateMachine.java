@@ -191,7 +191,6 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         setState(State.ACC_REQ_ACK);
 
                         final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
-                        final List<Account> addedLocally = mContext.getEntityDAO().getAdded(Account.class);
                         final List<String> deletedLocally = mContext.getEntityDAO().getDeleted(Account.class);
 
                         // handle modified entities - check if we updated them too...
@@ -222,6 +221,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                             remote.persist(mContext.getEntityDAO());
                         }
                         // readd locals + add to add-list
+                        final List<Account> addedLocally = mContext.getEntityDAO().getAdded(Account.class);
                         for(final Account acc : addedLocally)
                             serverUpdate.addAdded(SyncProtocol.Entity.newBuilder().setAccount(Account.toProtoAccount(acc)).build());
 
@@ -250,7 +250,6 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         setState(State.CAT_REQ_ACK);
 
                         final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
-                        final List<Category> addedLocally = mContext.getEntityDAO().getAdded(Category.class);
                         final List<String> deletedLocally = mContext.getEntityDAO().getDeleted(Category.class);
 
                         // handle modified entities - check if we updated them too...
@@ -279,6 +278,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                             remote.persist(mContext.getEntityDAO());
                         }
                         // readd locals + add to add-list
+                        final List<Category> addedLocally = mContext.getEntityDAO().getAdded(Category.class);
                         for(final Category cat : addedLocally)
                             serverUpdate.addAdded(SyncProtocol.Entity.newBuilder().setCategory(Category.toProtoCategory(cat)).build());
 
@@ -307,7 +307,6 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         setState(State.OP_REQ_ACK);
 
                         final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
-                        final List<Operation> addedLocally = mContext.getEntityDAO().getAdded(Operation.class);
                         final List<String> deletedLocally = mContext.getEntityDAO().getDeleted(Operation.class);
 
                         // handle modified entities - check if we updated them too...
@@ -337,6 +336,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                             remote.persist(mContext.getEntityDAO());
                         }
                         // readd locals + add to add-list
+                        final List<Operation> addedLocally = mContext.getEntityDAO().getAdded(Operation.class);
                         for(final Operation op : addedLocally)
                             serverUpdate.addAdded(SyncProtocol.Entity.newBuilder().setOperation(Operation.toProtoOperation(op)).build());
 

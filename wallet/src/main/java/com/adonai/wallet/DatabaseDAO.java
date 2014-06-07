@@ -153,7 +153,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 OperationsFields.RECEIVER + " TEXT DEFAULT NULL, " +
                 OperationsFields.AMOUNT + " TEXT DEFAULT '0' NOT NULL, " +
                 OperationsFields.CONVERT_RATE + " REAL DEFAULT NULL, " +
-                " FOREIGN KEY (" + OperationsFields.CATEGORY + ") REFERENCES " + EntityType.CATEGORIES + " (" + CategoriesFields._id + ") ON DELETE SET NULL ON UPDATE CASCADE," +
+                " FOREIGN KEY (" + OperationsFields.CATEGORY + ") REFERENCES " + EntityType.CATEGORIES + " (" + CategoriesFields._id + ") ON DELETE CASCADE ON UPDATE CASCADE," +
                 " FOREIGN KEY (" + OperationsFields.CHARGER + ") REFERENCES " + EntityType.ACCOUNTS + " (" + AccountFields._id + ") ON DELETE CASCADE ON UPDATE CASCADE," + // delete associated transactions
                 " FOREIGN KEY (" + OperationsFields.RECEIVER + ") REFERENCES " + EntityType.ACCOUNTS + " (" + AccountFields._id + ") ON DELETE CASCADE ON UPDATE CASCADE" + // delete associated transactions
                 ")");

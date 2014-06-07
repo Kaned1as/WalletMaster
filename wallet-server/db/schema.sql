@@ -53,7 +53,7 @@ CREATE TABLE `categories` (
   `last_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`,`sync_account`),
   KEY `preferred_account_fk_idx` (`preferred_account_id`),
-  CONSTRAINT `preferred_account_fk` FOREIGN KEY (`preferred_account_id`) REFERENCES `accounts` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `preferred_account_fk` FOREIGN KEY (`preferred_account_id`) REFERENCES `accounts` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -79,9 +79,9 @@ CREATE TABLE `operations` (
   KEY `charger_idx` (`charger_id`),
   KEY `beneficiar_idx` (`beneficiar_id`),
   KEY `categories_fk_idx` (`category_id`),
-  CONSTRAINT `categories_fk` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `beneficiar_fk` FOREIGN KEY (`beneficiar_id`) REFERENCES `accounts` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `charger_fk` FOREIGN KEY (`charger_id`) REFERENCES `accounts` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `categories_fk` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `beneficiar_fk` FOREIGN KEY (`beneficiar_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `charger_fk` FOREIGN KEY (`charger_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -109,4 +109,4 @@ CREATE TABLE `sync_accounts` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-06-07 12:09:07
+-- Dump completed on 2014-06-07 12:51:07
