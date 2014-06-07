@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `wallet` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `wallet`;
 -- MySQL dump 10.14  Distrib 5.5.37-MariaDB, for Linux (x86_64)
 --
 -- Host: localhost    Database: wallet
@@ -80,6 +78,8 @@ CREATE TABLE `operations` (
   PRIMARY KEY (`id`,`sync_account`),
   KEY `charger_idx` (`charger_id`),
   KEY `beneficiar_idx` (`beneficiar_id`),
+  KEY `categories_fk_idx` (`category_id`),
+  CONSTRAINT `categories_fk` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `beneficiar_fk` FOREIGN KEY (`beneficiar_id`) REFERENCES `accounts` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `charger_fk` FOREIGN KEY (`charger_id`) REFERENCES `accounts` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -97,7 +97,7 @@ CREATE TABLE `sync_accounts` (
   `login` varchar(45) NOT NULL,
   `password` varchar(45) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -109,4 +109,4 @@ CREATE TABLE `sync_accounts` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-05-23 22:32:21
+-- Dump completed on 2014-06-07 12:09:07
