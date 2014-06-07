@@ -84,4 +84,5 @@
     <string name="operation_request_sent">Sent operation request…</string>
     <string name="operation_response_received">Got operation acknowledge…</string>
     <string name="dont_show_again">Do not show again</string>
+    <string name="action_add_category">Add category</string>
 </resources>

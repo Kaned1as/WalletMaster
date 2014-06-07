@@ -84,4 +84,5 @@
     <string name="operation_request_sent">Отправлен запрос на операции…</string>
     <string name="operation_response_received">Получен ответ на запрос операций…</string>
     <string name="dont_show_again">Не показывать снова</string>
+    <string name="action_add_category">Добавить категорию</string>
 </resources>

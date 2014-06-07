@@ -10,5 +10,6 @@
         android:id="@+id/operations_list"
         android:divider="@null"
         android:requiresFadingEdge="vertical"
-        android:dividerHeight="7dp" />
+        android:dividerHeight="7dp"
+        android:fastScrollEnabled="true" />
 </LinearLayout>
