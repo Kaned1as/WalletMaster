@@ -112,7 +112,9 @@
             <Spinner
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/category_spinner" />
+                android:id="@+id/category_spinner"
+                android:spinnerMode="dialog"
+                android:prompt="@string/select_preferred_acc" />
         </TableRow>
 
         <TableRow
@@ -132,7 +134,9 @@
             <Spinner
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/charge_account_spinner" />
+                android:id="@+id/charge_account_spinner"
+                android:spinnerMode="dialog"
+                android:prompt="@string/select_charger" />
 
         </TableRow>
 
@@ -154,7 +158,9 @@
             <Spinner
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/beneficiar_account_spinner" />
+                android:id="@+id/beneficiar_account_spinner"
+                android:spinnerMode="dialog"
+                android:prompt="@string/select_beneficiar" />
 
         </TableRow>
 

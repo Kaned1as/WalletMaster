@@ -85,4 +85,10 @@
     <string name="operation_response_received">Got operation acknowledge…</string>
     <string name="dont_show_again">Do not show again</string>
     <string name="action_add_category">Add category</string>
+    <string name="select_beneficiar">Select beneficiar account</string>
+    <string name="select_charger">Select charger account</string>
+    <string name="select_category">Select category</string>
+    <string name="select_color">Select color</string>
+    <string name="select_currency">Select currency</string>
+    <string name="select_preferred_acc">Select preferred account</string>
 </resources>

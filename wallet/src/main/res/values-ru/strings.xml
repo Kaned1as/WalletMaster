@@ -85,4 +85,10 @@
     <string name="operation_response_received">Получен ответ на запрос операций…</string>
     <string name="dont_show_again">Не показывать снова</string>
     <string name="action_add_category">Добавить категорию</string>
+    <string name="select_beneficiar">Выберите получателя</string>
+    <string name="select_charger">Выберите отправителя</string>
+    <string name="select_category">Выберите категорию</string>
+    <string name="select_color">Выберите цвет</string>
+    <string name="select_currency">Выберите валюту</string>
+    <string name="select_preferred_acc">Выберите предпочитаемый аккаунт</string>
 </resources>
