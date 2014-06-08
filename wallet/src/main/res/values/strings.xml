@@ -91,4 +91,6 @@
     <string name="select_color">Select color</string>
     <string name="select_currency">Select currency</string>
     <string name="select_preferred_acc">Select preferred account</string>
+    <string name="delete">Delete</string>
+    <string name="cancel_operation">Cancel operation</string>
 </resources>

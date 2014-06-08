@@ -1,6 +1,8 @@
 package com.adonai.wallet;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -50,9 +52,6 @@ public class CategoriesFragment extends WalletBaseFragment {
         mCategoriesAdapter = new CategoriesAdapter(Category.EXPENSE);
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
         mCategoryList.setAdapter(mCategoriesAdapter);
-
-        final SwipeDismissListViewTouchListener listener = new SwipeDismissListViewTouchListener(mCategoryList, new CategoryDeleteListener());
-        mCategoryList.setOnTouchListener(listener);
 
         return rootView;
     }
@@ -164,6 +163,9 @@ public class CategoriesFragment extends WalletBaseFragment {
 
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+            alertDialog.setItems(R.array.entity_choice_common, ).create().show();
+
             final String categoryID = mCategoriesAdapter.getItemUUID(position);
             final CategoryDialogFragment fragment = CategoryDialogFragment.forCategory(categoryID);
             fragment.show(getFragmentManager(), "categoryCreate");
@@ -176,5 +178,16 @@ public class CategoriesFragment extends WalletBaseFragment {
         super.onDestroyView();
         getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
         mCategoriesAdapter.changeCursor(null);
+    }
+
+    private class CategoryChoice implements DialogInterface.OnClickListener {
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case 0: // modify
+
+            }
+        }
     }
 }

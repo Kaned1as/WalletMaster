@@ -91,4 +91,6 @@
     <string name="select_color">Выберите цвет</string>
     <string name="select_currency">Выберите валюту</string>
     <string name="select_preferred_acc">Выберите предпочитаемый аккаунт</string>
+    <string name="delete">Delete</string>
+    <string name="cancel_operation">Cancel operation</string>
 </resources>

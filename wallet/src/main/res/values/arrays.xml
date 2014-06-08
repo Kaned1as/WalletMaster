@@ -61,4 +61,13 @@
         <item>Cash in</item>
         <item>Cash withdrawal</item>
     </string-array>
+    <string-array name="entity_choice_common">
+        <item>@string/modify</item>
+        <item>@string/delete</item>
+    </string-array>
+    <string-array name="entity_choice_operation">
+        <item>@string/modify</item>
+        <item>@string/delete</item>
+        <item>@string/cancel_operation</item>
+    </string-array>
 </resources>
