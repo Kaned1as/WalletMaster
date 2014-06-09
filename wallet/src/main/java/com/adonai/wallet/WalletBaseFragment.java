@@ -6,15 +6,8 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.widget.CheckBox;
-import android.widget.ListView;
 
 import com.adonai.wallet.entities.Entity;
-import com.adonai.wallet.entities.UUIDCursorAdapter;
-
-import org.thirdparty.contrib.SwipeDismissListViewTouchListener;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import static com.adonai.wallet.WalletPreferencesFragment.ASK_FOR_DELETE;
 
@@ -29,25 +22,15 @@ public abstract class WalletBaseFragment extends Fragment {
         return (WalletBaseActivity) getActivity();
     }
 
-    protected class EntityDeleteListener<T extends Entity> implements SwipeDismissListViewTouchListener.DismissCallbacks {
+    protected class EntityDeleteListener {
 
         private final int mMessageId;
-        protected final UUIDCursorAdapter mAdapter;
-        private final Class<T> mEntityClass;
 
-        public EntityDeleteListener(UUIDCursorAdapter adapter, Class<T> clazz, int deleteMessageResource) {
+        public EntityDeleteListener(int deleteMessageResource) {
             mMessageId = deleteMessageResource;
-            mAdapter = adapter;
-            mEntityClass = clazz;
         }
 
-        @Override
-        public boolean canDismiss(int position) {
-            return true;
-        }
-
-        @Override
-        public void onDismiss(ListView listView, final int[] reverseSortedPositions) {
+        public void handleRemoveAttempt(final Entity entity) {
             final LayoutInflater inflater = LayoutInflater.from(getActivity());
             final DatabaseDAO db = getWalletActivity().getEntityDAO();
             if (getWalletActivity().getPreferences().getBoolean(ASK_FOR_DELETE, true)) { // check to assure we want to delete entity
@@ -61,26 +44,25 @@ public abstract class WalletBaseFragment extends Fragment {
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                deleteItems(db, reverseSortedPositions);
+                                deleteItem(db, entity);
                             }
                         }).create().show();
             } else // just delete without confirm
-                deleteItems(db, reverseSortedPositions);
+                deleteItem(db, entity);
         }
 
         @SuppressWarnings("unchecked")
-        protected void deleteItems(DatabaseDAO db, int[] items) {
-            try {
-                final Method filler = mEntityClass.getDeclaredMethod("getFromDB", DatabaseDAO.class, String.class);
+        protected void deleteItem(DatabaseDAO db, Entity entity) {
+                db.makeAction(DatabaseDAO.ActionType.DELETE, entity);
+        }
+    }
 
-                for (int position : items) {
-                    final String itemUUID = mAdapter.getItemUUID(position);
-                    final T newEntity = (T) filler.invoke(null, db, itemUUID);
-                    db.makeAction(DatabaseDAO.ActionType.DELETE, newEntity);
-                }
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException("No db getter method in entity class!");
-            }
+    protected abstract class EntityChoice implements DialogInterface.OnClickListener {
+
+        protected final int mItemPosition;
+
+        public EntityChoice(int mItemPosition) {
+            this.mItemPosition = mItemPosition;
         }
     }
 }

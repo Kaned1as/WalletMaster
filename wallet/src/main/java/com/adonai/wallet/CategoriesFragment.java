@@ -19,8 +19,6 @@ import android.widget.TextView;
 import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 
-import org.thirdparty.contrib.SwipeDismissListViewTouchListener;
-
 /**
  * Fragment that is responsible for showing categories list
  * and their context actions
@@ -54,6 +52,13 @@ public class CategoriesFragment extends WalletBaseFragment {
         mCategoryList.setAdapter(mCategoriesAdapter);
 
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
+        mCategoriesAdapter.changeCursor(null);
     }
 
     @Override
@@ -142,51 +147,35 @@ public class CategoriesFragment extends WalletBaseFragment {
         }
     }
 
-    private class CategoryDeleteListener implements SwipeDismissListViewTouchListener.DismissCallbacks {
-
-        @Override
-        public boolean canDismiss(int position) {
-            return true;
-        }
-
-        @Override
-        public void onDismiss(ListView listView, int[] reverseSortedPositions) {
-            final DatabaseDAO db = getWalletActivity().getEntityDAO();
-            for(int catPos : reverseSortedPositions) {
-                final String categoryId = mCategoriesAdapter.getItemUUID(catPos);
-                db.makeAction(DatabaseDAO.ActionType.DELETE, Category.getFromDB(db, categoryId));
-            }
-        }
-    }
-
     private class CategoryEditListener implements AdapterView.OnItemLongClickListener {
 
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
             final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
-            alertDialog.setItems(R.array.entity_choice_common, ).create().show();
-
-            final String categoryID = mCategoriesAdapter.getItemUUID(position);
-            final CategoryDialogFragment fragment = CategoryDialogFragment.forCategory(categoryID);
-            fragment.show(getFragmentManager(), "categoryCreate");
+            alertDialog.setItems(R.array.entity_choice_common, new CategoryChoice(position)).setTitle(R.string.select_action).create().show();
             return true;
         }
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
-        mCategoriesAdapter.changeCursor(null);
-    }
+    private class CategoryChoice extends EntityChoice {
 
-    private class CategoryChoice implements DialogInterface.OnClickListener {
+        public CategoryChoice(int mItemPosition) {
+            super(mItemPosition);
+        }
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case 0: // modify
-
+                    final String categoryID = mCategoriesAdapter.getItemUUID(mItemPosition);
+                    final CategoryDialogFragment fragment = CategoryDialogFragment.forCategory(categoryID);
+                    fragment.show(getFragmentManager(), "categoryCreate");
+                    break;
+                case 1: // delete
+                    final DatabaseDAO db = getWalletActivity().getEntityDAO();
+                    final String categoryId = mCategoriesAdapter.getItemUUID(mItemPosition);
+                    db.makeAction(DatabaseDAO.ActionType.DELETE, Category.getFromDB(db, categoryId));
+                    break;
             }
         }
     }

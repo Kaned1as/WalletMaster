@@ -1,5 +1,7 @@
 package com.adonai.wallet;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
@@ -20,11 +22,8 @@ import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.adonai.wallet.entities.Entity;
 import com.adonai.wallet.entities.Operation;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
-
-import org.thirdparty.contrib.SwipeDismissListViewTouchListener;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -45,14 +44,13 @@ public class OperationsFragment extends WalletBaseFragment {
     private ListView mOperationsList;
     private OperationsAdapter mOpAdapter;
     private Map<Operation.OperationType, Drawable> mDrawableMap;
-    private EntityDeleteListener mOperationDeleter;
+    private final EntityDeleteListener mOperationDeleter = new EntityDeleteListener(R.string.really_delete_operation);
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         mOpAdapter = new OperationsAdapter();
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.OPERATIONS.toString(), mOpAdapter);
-        mOperationDeleter = new OperationDeleteListener<>(mOpAdapter, Operation.class, R.string.really_delete_operation);
         //mOpAdapter.setFilterQueryProvider(new OperationFilterQueryProvider());
         mDrawableMap = fillDrawableMap();
 
@@ -66,8 +64,6 @@ public class OperationsFragment extends WalletBaseFragment {
         mOperationsList.setAdapter(mOpAdapter);
         mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
 
-        final SwipeDismissListViewTouchListener listener = new SwipeDismissListViewTouchListener(mOperationsList, mOperationDeleter);
-        mOperationsList.setOnTouchListener(listener);
         return rootView;
     }
 
@@ -168,9 +164,8 @@ public class OperationsFragment extends WalletBaseFragment {
 
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, final long id) {
-            final String opID = mOpAdapter.getItemUUID(position);
-            final Operation operation = Operation.getFromDB(getWalletActivity().getEntityDAO(), opID);
-            new OperationDialogFragment(operation).show(getFragmentManager(), "opModify");
+            final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+            alertDialog.setItems(R.array.entity_choice_operation, new OperationChoice(position)).setTitle(R.string.select_action).create().show();
             return true;
         }
     }
@@ -243,23 +238,6 @@ public class OperationsFragment extends WalletBaseFragment {
         }
     }
 
-    private class OperationDeleteListener<T extends Entity> extends EntityDeleteListener<T> {
-
-        public OperationDeleteListener(UUIDCursorAdapter adapter, Class<T> clazz, int deleteMessageResource) {
-            super(adapter, clazz, deleteMessageResource);
-        }
-
-        @Override
-        protected void deleteItems(DatabaseDAO db, int[] items) {
-            for (int position : items) {
-                final String opUUID = mAdapter.getItemUUID(position);
-                final Operation op = Operation.getFromDB(db, opUUID);
-                assert op != null;
-                if (!db.revertOperation(op))
-                    throw new IllegalStateException("Cannot delete operation!"); // should never happen!!
-            }
-        }
-    }
 /*
     private class OperationsFilterListener implements TextView.OnEditorActionListener {
         @Override
@@ -270,4 +248,28 @@ public class OperationsFragment extends WalletBaseFragment {
         }
     }
 */
+    private class OperationChoice extends EntityChoice {
+
+        public OperationChoice(int mItemPosition) {
+            super(mItemPosition);
+        }
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            final DatabaseDAO db = getWalletActivity().getEntityDAO();
+            final String opID = mOpAdapter.getItemUUID(mItemPosition);
+            final Operation operation = Operation.getFromDB(db, opID);
+            switch (which) {
+                case 0: // modify
+                    new OperationDialogFragment(operation).show(getFragmentManager(), "opModify");
+                    break;
+                case 1: // delete
+                    mOperationDeleter.handleRemoveAttempt(operation);
+                    break;
+                case 2: // cancel operation
+                    db.revertOperation(operation);
+                    break;
+            }
+        }
+    }
 }

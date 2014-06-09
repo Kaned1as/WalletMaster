@@ -47,7 +47,7 @@
     <string name="operation_needs_category">Для завершения операции необходима категория</string>
     <string name="confirm_action">Подтвердить действие</string>
     <string name="really_delete_account">Вы действительно хотите удалить этот аккаунт? Все связанные операции также будут удалены!</string>
-    <string name="really_delete_operation">Вы действительно хотите удалить эту операцию? Все изменённые значения счетов аккаунтов будут восстановлены!</string>
+    <string name="really_delete_operation">Вы действительно хотите удалить эту операцию? Суммы на аккаунтах не изменятся!</string>
     <string name="quick_filter">Быстрый фильтр</string>
     <string name="synchronize">Синхронизировать</string>
     <string name="already_have">Уже имеется</string>
@@ -91,6 +91,7 @@
     <string name="select_color">Выберите цвет</string>
     <string name="select_currency">Выберите валюту</string>
     <string name="select_preferred_acc">Выберите предпочитаемый аккаунт</string>
-    <string name="delete">Delete</string>
-    <string name="cancel_operation">Cancel operation</string>
+    <string name="delete">Удалить</string>
+    <string name="cancel_operation">Отменить операцию</string>
+    <string name="select_action">Выберите действие</string>
 </resources>

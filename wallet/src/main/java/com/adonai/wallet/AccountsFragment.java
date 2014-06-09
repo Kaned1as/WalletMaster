@@ -1,5 +1,7 @@
 package com.adonai.wallet;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
@@ -19,8 +21,6 @@ import android.widget.TextView;
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 
-import org.thirdparty.contrib.SwipeDismissListViewTouchListener;
-
 import java.util.Arrays;
 
 import static com.adonai.wallet.Utils.convertDpToPixel;
@@ -36,7 +36,7 @@ public class AccountsFragment extends WalletBaseFragment {
     private ListView mAccountList;
     private AccountsAdapter mAccountsAdapter;
     private TextView budgetSum;
-    private EntityDeleteListener mAccountDeleter;
+    private final EntityDeleteListener mAccountDeleter = new EntityDeleteListener(R.string.really_delete_account);
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -50,14 +50,10 @@ public class AccountsFragment extends WalletBaseFragment {
 
         mAccountsAdapter = new AccountsAdapter();
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mAccountsAdapter);
-        mAccountDeleter = new EntityDeleteListener<>(mAccountsAdapter, Account.class, R.string.really_delete_account);
 
         mAccountList.setAdapter(mAccountsAdapter);
         mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
         mAccountList.setOnItemClickListener(new AccountClickListener());
-
-        final SwipeDismissListViewTouchListener listener = new SwipeDismissListViewTouchListener(mAccountList, mAccountDeleter);
-        mAccountList.setOnTouchListener(listener);
 
         return rootView;
     }
@@ -135,9 +131,8 @@ public class AccountsFragment extends WalletBaseFragment {
 
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, final long id) {
-            final String accountID = mAccountsAdapter.getItemUUID(position);
-            final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), accountID);
-            AccountDialogFragment.forAccount(managed.getId()).show(getFragmentManager(), "accModify");
+            final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+            alertDialog.setItems(R.array.entity_choice_common, new AccountChoice(position)).setTitle(R.string.select_action).create().show();
             return true;
         }
     }
@@ -155,6 +150,28 @@ public class AccountsFragment extends WalletBaseFragment {
             final String accountID = mAccountsAdapter.getItemUUID(position);
             final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), accountID);
             new OperationDialogFragment(managed).show(getFragmentManager(), "opModify");
+        }
+    }
+
+    private class AccountChoice extends EntityChoice {
+
+        public AccountChoice(int mItemPosition) {
+            super(mItemPosition);
+        }
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            final DatabaseDAO db = getWalletActivity().getEntityDAO();
+            final String accID = mAccountsAdapter.getItemUUID(mItemPosition);
+            final Account acc = Account.getFromDB(db, accID);
+            switch (which) {
+                case 0: // modify
+                    AccountDialogFragment.forAccount(acc.getId()).show(getFragmentManager(), "accModify");
+                    break;
+                case 1: // delete
+                    mAccountDeleter.handleRemoveAttempt(acc);
+                    break;
+            }
         }
     }
 }
