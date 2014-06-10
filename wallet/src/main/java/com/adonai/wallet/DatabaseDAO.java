@@ -459,12 +459,12 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     public Cursor getCategoryCursor() {
         Log.d("Query", "getCategoryCursor");
-        return mDatabase.query(EntityType.CATEGORIES.toString(), null, null, null, null, null, null, null);
+        return mDatabase.query(EntityType.CATEGORIES.toString(), null, null, null, null, null, CategoriesFields.NAME + " ASC", null);
     }
 
     public Cursor getCategoryCursor(int type) {
         Log.d("Query", "getCategoryCursorWithType");
-        return mDatabase.query(EntityType.CATEGORIES.toString(), null, CategoriesFields.TYPE + " = ?", new String[]{String.valueOf(type)}, null, null, null, null);
+        return mDatabase.query(EntityType.CATEGORIES.toString(), null, CategoriesFields.TYPE + " = ?", new String[]{String.valueOf(type)}, null, null, CategoriesFields.NAME + " ASC", null);
     }
 
     public void notifyListeners(String table) {

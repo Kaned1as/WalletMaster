@@ -51,6 +51,8 @@ public class OperationsFragment extends WalletBaseFragment {
         setHasOptionsMenu(true);
         mOpAdapter = new OperationsAdapter();
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.OPERATIONS.toString(), mOpAdapter);
+        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
+        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
         //mOpAdapter.setFilterQueryProvider(new OperationFilterQueryProvider());
         mDrawableMap = fillDrawableMap();
 
@@ -65,6 +67,15 @@ public class OperationsFragment extends WalletBaseFragment {
         mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
 
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.OPERATIONS.toString(), mOpAdapter);
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mOpAdapter);
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mOpAdapter);
+        mOpAdapter.changeCursor(null); // close opened cursor
     }
 
     @Override
@@ -222,13 +233,6 @@ public class OperationsFragment extends WalletBaseFragment {
         result.put(OperationType.TRANSFER, transferDrawable);
 
         return result;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.OPERATIONS.toString(), mOpAdapter);
-        mOpAdapter.changeCursor(null); // close opened cursor
     }
 
     private class OperationFilterQueryProvider implements FilterQueryProvider {

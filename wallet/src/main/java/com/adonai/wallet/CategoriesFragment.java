@@ -49,6 +49,7 @@ public class CategoriesFragment extends WalletBaseFragment {
 
         mCategoriesAdapter = new CategoriesAdapter(Category.EXPENSE);
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
+        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mCategoriesAdapter); // foreign keys
         mCategoryList.setAdapter(mCategoriesAdapter);
 
         return rootView;
@@ -58,6 +59,7 @@ public class CategoriesFragment extends WalletBaseFragment {
     public void onDestroyView() {
         super.onDestroyView();
         getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mCategoriesAdapter);
         mCategoriesAdapter.changeCursor(null);
     }
 
