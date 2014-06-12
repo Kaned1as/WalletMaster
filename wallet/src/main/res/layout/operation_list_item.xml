@@ -3,8 +3,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp">
+    android:paddingTop="3dp"
+    android:paddingBottom="3dp">
 
     <RelativeLayout
         android:id="@id/main_content_layout"
@@ -18,14 +18,13 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@+id/operation_category_label"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"
+            android:textSize="16sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
             android:id="@+id/operation_description_label"
             android:maxLines="1"
             android:gravity="center_horizontal"
@@ -34,15 +33,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
             android:id="@+id/operation_time_label"
-            android:gravity="right"
-            android:layout_alignParentRight="true" />
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/operation_category_label"
+            android:textSize="12sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@+id/charge_account_label"
             android:maxLines="1"
             android:layout_below="@+id/operation_description_label" />
@@ -50,26 +48,25 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@+id/charge_amount_label"
             android:maxLines="1"
             android:textColor="@color/red_amount"
-            android:layout_below="@+id/charge_account_label" />
+            android:layout_below="@+id/charge_account_label"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@+id/beneficiar_account_label"
             android:maxLines="1"
             android:visibility="visible"
-            android:layout_below="@+id/operation_time_label"
+            android:layout_below="@+id/operation_category_label"
             android:layout_alignParentRight="true" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@+id/beneficiar_amount_label"
             android:gravity="center_vertical|right"
             android:maxLines="1"
@@ -78,7 +75,9 @@
             android:layout_alignParentLeft="false"
             android:layout_alignParentTop="false"
             android:layout_below="@+id/beneficiar_account_label"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentRight="true"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
     </RelativeLayout>
 

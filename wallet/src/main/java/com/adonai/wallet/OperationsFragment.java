@@ -3,13 +3,6 @@ package com.adonai.wallet;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.LinearGradient;
-import android.graphics.Path;
-import android.graphics.Shader;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.PathShape;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,17 +13,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.FilterQueryProvider;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.adonai.wallet.entities.Operation;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
-
-import java.util.EnumMap;
-import java.util.Map;
-
-import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
-import static com.adonai.wallet.Utils.convertPixelsToDp;
-import static com.adonai.wallet.entities.Operation.OperationType;
+import com.adonai.wallet.view.OperationView;
 
 /**
  * Fragment that is responsible for showing operations list
@@ -43,7 +29,6 @@ public class OperationsFragment extends WalletBaseFragment {
 
     private ListView mOperationsList;
     private OperationsAdapter mOpAdapter;
-    private Map<Operation.OperationType, Drawable> mDrawableMap;
     private final EntityDeleteListener mOperationDeleter = new EntityDeleteListener(R.string.really_delete_operation);
 
     @Override
@@ -54,7 +39,6 @@ public class OperationsFragment extends WalletBaseFragment {
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
         //mOpAdapter.setFilterQueryProvider(new OperationFilterQueryProvider());
-        mDrawableMap = fillDrawableMap();
 
         final View rootView = inflater.inflate(R.layout.operations_flow, container, false);
         assert rootView != null;
@@ -115,55 +99,19 @@ public class OperationsFragment extends WalletBaseFragment {
         @Override
         @SuppressWarnings("deprecation") // for compat with older APIs
         public View getView(int position, View convertView, ViewGroup parent) {
-            final View view;
-            final LayoutInflater inflater = LayoutInflater.from(mContext);
+            final OperationView view;
             final DatabaseDAO db = getWalletActivity().getEntityDAO();
             mCursor.moveToPosition(position);
 
             if (convertView == null)
-                view = inflater.inflate(R.layout.operation_list_item, parent, false);
+                view = new OperationView(mContext);
             else
-                view = convertView;
+                view = (OperationView) convertView;
 
             db.getAsyncOperation(mCursor.getString(DatabaseDAO.OperationsFields._id.ordinal()), new DatabaseDAO.AsyncDbQuery.Listener<Operation>() {
                 @Override
                 public void onFinishLoad(Operation op) {
-                    view.findViewById(R.id.main_content_layout).setBackgroundDrawable(mDrawableMap.get(op.getOperationType()));
-
-                    final TextView chargeAcc = (TextView) view.findViewById(R.id.charge_account_label);
-                    final TextView benefAcc = (TextView) view.findViewById(R.id.beneficiar_account_label);
-                    final TextView benefAmount = (TextView) view.findViewById(R.id.beneficiar_amount_label);
-                    final TextView chargeAmount = (TextView) view.findViewById(R.id.charge_amount_label);
-                    final TextView description = (TextView) view.findViewById(R.id.operation_description_label);
-                    final TextView operationTime = (TextView) view.findViewById(R.id.operation_time_label);
-                    final TextView operationCategory = (TextView) view.findViewById(R.id.operation_category_label);
-
-                    description.setText(op.getDescription());
-                    operationTime.setText(VIEW_DATE_FORMAT.format(op.getTime().getTime()));
-                    operationCategory.setText(op.getCategory().getName());
-
-                    switch (op.getOperationType()) {
-                        case TRANSFER:
-                            chargeAcc.setText(op.getCharger().getName());
-                            benefAcc.setText(op.getBeneficiar().getName());
-                            chargeAmount.setText(op.getAmount().toPlainString());
-                            benefAmount.setText(op.getAmountDelivered().toPlainString());
-                            break;
-                        case INCOME:
-                            chargeAcc.setText("");
-                            chargeAmount.setText("");
-
-                            benefAcc.setText(op.getBeneficiar().getName());
-                            benefAmount.setText(op.getAmountDelivered().toPlainString());
-                            break;
-                        case EXPENSE:
-                            benefAcc.setText("");
-                            benefAmount.setText("");
-
-                            chargeAcc.setText(op.getCharger().getName());
-                            chargeAmount.setText(op.getAmount().toPlainString());
-                            break;
-                    }
+                    view.setOperation(op);
                 }
             });
 
@@ -179,60 +127,6 @@ public class OperationsFragment extends WalletBaseFragment {
             alertDialog.setItems(R.array.entity_choice_operation, new OperationChoice(position)).setTitle(R.string.select_action).create().show();
             return true;
         }
-    }
-
-    private Map<OperationType, Drawable> fillDrawableMap() {
-        final Map<OperationType, Drawable> result = new EnumMap<>(OperationType.class);
-        // EXPENSE
-        final Path expensePath = new Path();
-        expensePath.moveTo(0, 50);
-        expensePath.lineTo(15, 100);
-        expensePath.lineTo(400, 100);
-        expensePath.lineTo(400, 0);
-        expensePath.lineTo(15, 0);
-        //path.lineTo(0, 50);
-        expensePath.close();
-
-        final ShapeDrawable expenseDrawable = new ShapeDrawable(new PathShape(expensePath, 400, 100));
-        expenseDrawable.getPaint().setShader(new LinearGradient(0, 0, convertPixelsToDp(getActivity().getResources().getDisplayMetrics().widthPixels, getActivity()), 0,
-                Color.argb(50, 255, 0, 0), Color.argb(0, 255, 0, 0), Shader.TileMode.CLAMP)); // RED
-
-        result.put(OperationType.EXPENSE, expenseDrawable);
-
-        // INCOME
-        final Path incomePath = new Path();
-        incomePath.moveTo(0, 0);
-        incomePath.lineTo(0, 100);
-        incomePath.lineTo(385, 100);
-        incomePath.lineTo(400, 50);
-        incomePath.lineTo(385, 0);
-        //path.lineTo(0, 0);
-        incomePath.close();
-
-        final ShapeDrawable incomeDrawable = new ShapeDrawable(new PathShape(incomePath, 400, 100));
-        incomeDrawable.getPaint().setShader(new LinearGradient(0, 0, convertPixelsToDp(getActivity().getResources().getDisplayMetrics().widthPixels, getActivity()), 0,
-                Color.argb(0, 0, 255, 0), Color.argb(50, 0, 255, 0), Shader.TileMode.CLAMP)); // GREEN
-
-        result.put(OperationType.INCOME, incomeDrawable);
-
-        // TRANSFER
-        final Path transferPath = new Path();
-        transferPath.moveTo(0, 50);
-        transferPath.lineTo(15, 100);
-        transferPath.lineTo(385, 100);
-        transferPath.lineTo(400, 50);
-        transferPath.lineTo(385, 0);
-        transferPath.lineTo(15, 0);
-        //path.lineTo(0, 50);
-        transferPath.close();
-
-        final ShapeDrawable transferDrawable = new ShapeDrawable(new PathShape(transferPath, 400, 100));
-        transferDrawable.getPaint().setShader(new LinearGradient(0, 0, convertPixelsToDp(getActivity().getResources().getDisplayMetrics().widthPixels, getActivity()), 0,
-                Color.argb(50, 255, 0, 0), Color.argb(50, 0, 255, 0), Shader.TileMode.CLAMP)); // RED -> GREEN
-
-        result.put(OperationType.TRANSFER, transferDrawable);
-
-        return result;
     }
 
     private class OperationFilterQueryProvider implements FilterQueryProvider {
