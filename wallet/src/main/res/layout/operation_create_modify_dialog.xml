@@ -92,7 +92,9 @@
                 android:hint="@string/optional"
                 android:id="@+id/description_edit"
                 android:inputType="text"
-                android:imeOptions="actionNext" />
+                android:imeOptions="actionNext" >
+                <requestFocus/>
+            </EditText>
         </TableRow>
 
         <TableRow

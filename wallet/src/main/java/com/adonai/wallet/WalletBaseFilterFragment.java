@@ -57,6 +57,7 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
         mFiltersRoot = (LinearLayout) dialog.findViewById(R.id.filters_layout);
         mAddFilterButton = (ImageButton) dialog.findViewById(R.id.add_filter_button);
         mAddFilterButton.setOnClickListener(this);
+        addRow();
 
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

@@ -1,7 +1,6 @@
 package com.adonai.wallet;
 
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -10,7 +9,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioGroup;
@@ -28,7 +26,6 @@ import com.adonai.wallet.entities.UUIDSpinnerAdapter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
@@ -43,8 +40,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
     private EditText mDescription;
 
-    private final Calendar mNow = Calendar.getInstance();
     private EditText mDatePicker;
+    private DatePickerListener mDateHolder;
     private ImageButton mCategoryAddButton;
 
     private Spinner mChargeAccountSelector;
@@ -90,7 +87,9 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
         mDescription = (EditText) dialog.findViewById(R.id.description_edit);
         mDatePicker = (EditText) dialog.findViewById(R.id.date_picker_edit);
-        mDatePicker.setOnClickListener(this);
+        mDateHolder = new DatePickerListener(mDatePicker);
+        mDatePicker.setOnClickListener(mDateHolder);
+        mDatePicker.setOnFocusChangeListener(mDateHolder);
 
         mChargeAccountSelector = (Spinner) dialog.findViewById(R.id.charge_account_spinner);
         mChargeAccountSelector.setAdapter(mAccountAdapter);
@@ -134,8 +133,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             builder.setTitle(R.string.edit_operation);
             mDescription.setText(mOperation.getDescription());
             mAmount.setText(mOperation.getAmount().toPlainString());
-            mNow.setTime(mOperation.getTime());
-            mDatePicker.setText(VIEW_DATE_FORMAT.format(mNow.getTime()));
+            mDateHolder.setCalendar(mOperation.getTime());
+            mDatePicker.setText(VIEW_DATE_FORMAT.format(mDateHolder.getCalendar().getTime()));
             switch (mOperation.getOperationType()) {
                 case TRANSFER:
                     mTypeSwitch.check(R.id.transfer_radio);
@@ -160,7 +159,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             builder.setPositiveButton(R.string.create, this);
             builder.setTitle(R.string.create_new_operation);
             mTypeSwitch.check(R.id.expense_radio);
-            mDatePicker.setText(VIEW_DATE_FORMAT.format(mNow.getTime())); // current time
+            mDatePicker.setText(VIEW_DATE_FORMAT.format(mDateHolder.getCalendar().getTime())); // current time
             if(mCharger != null)
                 mChargeAccountSelector.setSelection(mAccountAdapter.getPosition(mCharger.getId()));
         }
@@ -261,17 +260,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.date_picker_edit: {
-                DatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        mNow.set(year, monthOfYear, dayOfMonth);
-                        mDatePicker.setText(VIEW_DATE_FORMAT.format(mNow.getTime()));
-                    }
-                };
-                new DatePickerDialog(getActivity(), listener, mNow.get(Calendar.YEAR), mNow.get(Calendar.MONTH), mNow.get(Calendar.DAY_OF_MONTH)).show();
-                break;
-            }
             case R.id.category_add_button: {
                 final CategoryDialogFragment fragment = CategoryDialogFragment.newInstance(mCategoriesAdapter.getCategoryType());
                 fragment.setOnCategoryCreateListener(new CategoryDialogFragment.OnCategoryCreateListener() {
@@ -331,7 +319,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         // fill operation fields
         mOperation.setAmount(amount);
         mOperation.setCategory(opCategory);
-        mOperation.setTime(mNow.getTime());
+        mOperation.setTime(mDateHolder.getCalendar().getTime());
         mOperation.setDescription(mDescription.getText().toString());
         switch (mTypeSwitch.getCheckedRadioButtonId()) { // prepare operation depending on type
             case R.id.transfer_radio: { // transfer op, we need 2 accounts
