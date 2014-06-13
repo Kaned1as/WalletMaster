@@ -1,5 +1,6 @@
 package com.adonai.wallet.view;
 
+import android.animation.LayoutTransition;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
@@ -40,6 +41,7 @@ public class OperationView extends FrameLayout {
 
     public OperationView(Context context) {
         super(context);
+        setLayoutTransition(new LayoutTransition());
         final LayoutInflater inflater = LayoutInflater.from(context);
         mCollapsedView = inflater.inflate(R.layout.operation_list_item, this, true);
         synchronized (mDrawableMap) {
@@ -150,7 +152,6 @@ public class OperationView extends FrameLayout {
     }
 
     public void expand() {
-        // first we need to
         removeView(mCollapsedView);
     }
 }

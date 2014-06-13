@@ -33,6 +33,15 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
     private int mCategoryType;
 
     private Category mCategory;
+    private OnCategoryCreateListener mListener;
+
+    public interface OnCategoryCreateListener {
+        void handleCategoryCreate(String categoryId);
+    }
+
+    public void setOnCategoryCreateListener(OnCategoryCreateListener mListener) {
+        this.mListener = mListener;
+    }
 
     public static CategoryDialogFragment forCategory(String categoryId) {
         final CategoryDialogFragment fragment = new CategoryDialogFragment();
@@ -103,8 +112,11 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
             final Category tempCat = new Category(mCategoryName.getText().toString(), mCategoryType);
             if(mPreferredAccSpinner.getSelectedItem() != null)
                 tempCat.setPreferredAccount(Account.getFromDB(getWalletActivity().getEntityDAO(), mAccountAdapter.getItemUUID(mPreferredAccSpinner.getSelectedItemPosition())));
-            if(getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.ADD, tempCat))
+            if(getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.ADD, tempCat)) {
+                if(mListener != null)
+                    mListener.handleCategoryCreate(tempCat.getId()); // we have it set at this moment
                 dismiss();
+            }
             else
                 Toast.makeText(getActivity(), R.string.category_exists, Toast.LENGTH_SHORT).show();
         }

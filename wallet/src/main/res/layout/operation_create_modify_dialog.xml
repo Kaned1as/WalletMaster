@@ -109,12 +109,28 @@
                 android:text="@string/category"
                 android:id="@+id/category_label" />
 
-            <Spinner
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/category_spinner"
-                android:spinnerMode="dialog"
-                android:prompt="@string/select_preferred_acc" />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <Spinner
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/category_spinner"
+                    android:spinnerMode="dialog"
+                    android:prompt="@string/select_preferred_acc"
+                    android:layout_weight="1" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/category_add_button"
+                    android:background="@android:drawable/ic_menu_add"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/action_add_category" />
+            </LinearLayout>
+
         </TableRow>
 
         <TableRow

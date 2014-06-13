@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TableRow;
@@ -44,6 +45,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
     private final Calendar mNow = Calendar.getInstance();
     private EditText mDatePicker;
+    private ImageButton mCategoryAddButton;
 
     private Spinner mChargeAccountSelector;
     private Spinner mCategorySelector;
@@ -59,9 +61,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private EditText mBeneficiarConversionRate;
     private TextView mBeneficiarAmountDelivered;
 
-    private UUIDSpinnerAdapter mInCategoriesAdapter;
-    private UUIDSpinnerAdapter mOutCategoriesAdapter;
-    private UUIDSpinnerAdapter mTransferCategoriesAdapter;
+    private CategoriesAdapter mCategoriesAdapter;
     private UUIDSpinnerAdapter mAccountAdapter;
 
     private Operation mOperation;
@@ -96,11 +96,14 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         mChargeAccountSelector.setAdapter(mAccountAdapter);
         mChargeAccountSelector.setOnItemSelectedListener(accountSelectListener);
 
-        mInCategoriesAdapter = new UUIDSpinnerAdapter(getActivity(), getWalletActivity().getEntityDAO().getCategoryCursor(Category.INCOME));
-        mOutCategoriesAdapter = new UUIDSpinnerAdapter(getActivity(), getWalletActivity().getEntityDAO().getCategoryCursor(Category.EXPENSE));
-        mTransferCategoriesAdapter = new UUIDSpinnerAdapter(getActivity(), getWalletActivity().getEntityDAO().getCategoryCursor(Category.TRANSFER));
+        mCategoriesAdapter = new CategoriesAdapter(Category.EXPENSE);
+        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
+
         mCategorySelector = (Spinner) dialog.findViewById(R.id.category_spinner);
         mCategorySelector.setOnItemSelectedListener(new CategorySelectListener());
+        mCategorySelector.setAdapter(mCategoriesAdapter);
+        mCategoryAddButton = (ImageButton) dialog.findViewById(R.id.category_add_button);
+        mCategoryAddButton.setOnClickListener(this);
 
         mAmount = (EditText) dialog.findViewById(R.id.amount_edit);
         mAmount.addTextChangedListener(textWatcher);
@@ -138,18 +141,19 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     mTypeSwitch.check(R.id.transfer_radio);
                     mChargeAccountSelector.setSelection(mAccountAdapter.getPosition(mOperation.getCharger().getId()));
                     mBeneficiarAccountSelector.setSelection(mAccountAdapter.getPosition(mOperation.getBeneficiar().getId()));
+                    mCategorySelector.setSelection(mCategoriesAdapter.getPosition(mOperation.getCategory().getId()));
                     if(mOperation.getConvertingRate() != null)
                         mBeneficiarConversionRate.setText(mOperation.getConvertingRate().toString());
                     break;
                 case EXPENSE:
                     mTypeSwitch.check(R.id.expense_radio);
                     mChargeAccountSelector.setSelection(mAccountAdapter.getPosition(mOperation.getCharger().getId()));
-                    mCategorySelector.setSelection(mOutCategoriesAdapter.getPosition(mOperation.getCategory().getId()));
+                    mCategorySelector.setSelection(mCategoriesAdapter.getPosition(mOperation.getCategory().getId()));
                     break;
                 case INCOME:
                     mTypeSwitch.check(R.id.income_radio);
                     mBeneficiarAccountSelector.setSelection(mAccountAdapter.getPosition(mOperation.getBeneficiar().getId()));
-                    mCategorySelector.setSelection(mInCategoriesAdapter.getPosition(mOperation.getCategory().getId()));
+                    mCategorySelector.setSelection(mCategoriesAdapter.getPosition(mOperation.getCategory().getId()));
                     break;
             }
         } else { // this is new operation
@@ -230,7 +234,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     mChargerRow.setVisibility(View.VISIBLE);
 
                     mAmount.setTextColor(Color.parseColor("#0000AA"));
-                    mCategorySelector.setAdapter(mTransferCategoriesAdapter);
+                    mCategoriesAdapter.setCategoryType(Category.TRANSFER);
 
                     updateTransferConversionVisibility();
                     break;
@@ -238,7 +242,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     mBeneficiarRow.setVisibility(View.VISIBLE);
                     mChargerRow.setVisibility(View.GONE);
 
-                    mCategorySelector.setAdapter(mInCategoriesAdapter);
+                    mCategoriesAdapter.setCategoryType(Category.INCOME);
 
                     mAmount.setTextColor(Color.parseColor("#00AA00"));
                     break;
@@ -246,7 +250,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     mBeneficiarRow.setVisibility(View.GONE);
                     mChargerRow.setVisibility(View.VISIBLE);
 
-                    mCategorySelector.setAdapter(mOutCategoriesAdapter);
+                    mCategoriesAdapter.setCategoryType(Category.EXPENSE);
 
                     mAmount.setTextColor(Color.parseColor("#AA0000"));
                     break;
@@ -266,6 +270,18 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     }
                 };
                 new DatePickerDialog(getActivity(), listener, mNow.get(Calendar.YEAR), mNow.get(Calendar.MONTH), mNow.get(Calendar.DAY_OF_MONTH)).show();
+                break;
+            }
+            case R.id.category_add_button: {
+                final CategoryDialogFragment fragment = CategoryDialogFragment.newInstance(mCategoriesAdapter.getCategoryType());
+                fragment.setOnCategoryCreateListener(new CategoryDialogFragment.OnCategoryCreateListener() {
+                    @Override
+                    public void handleCategoryCreate(String categoryId) {
+                        mCategorySelector.setSelection(mCategoriesAdapter.getPosition(categoryId));
+                    }
+                });
+                fragment.show(getFragmentManager(), "categoryCreate");
+                break;
             }
         }
     }
@@ -354,12 +370,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         }
     }
 
-    @Override
-    public void onDismiss(DialogInterface dialog) {
-        super.onDismiss(dialog);
-        mAccountAdapter.changeCursor(null); // close old cursor
-    }
-
     private class CountChangedWatcher implements TextWatcher {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -385,9 +395,37 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mInCategoriesAdapter.changeCursor(null);
-        mOutCategoriesAdapter.changeCursor(null);
-        mTransferCategoriesAdapter.changeCursor(null);
+        mCategoriesAdapter.changeCursor(null);
         mAccountAdapter.changeCursor(null);
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
+    }
+
+    public class CategoriesAdapter extends UUIDSpinnerAdapter implements DatabaseDAO.DatabaseListener {
+        private int mCategoryType;
+
+        public CategoriesAdapter(int categoryType) {
+            super(getActivity(), getWalletActivity().getEntityDAO().getCategoryCursor(categoryType));
+            mCategoryType = categoryType;
+        }
+
+        @Override
+        public void handleUpdate() {
+            getWalletActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    changeCursor(getWalletActivity().getEntityDAO().getCategoryCursor(mCategoryType));
+                }
+            });
+
+        }
+
+        public void setCategoryType(int type) {
+            mCategoryType = type;
+            handleUpdate();
+        }
+
+        public int getCategoryType() {
+            return mCategoryType;
+        }
     }
 }
