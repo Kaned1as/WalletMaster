@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,6 +18,12 @@ import android.widget.ListView;
 import com.adonai.wallet.entities.Operation;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.adonai.wallet.view.OperationView;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.adonai.wallet.DatabaseDAO.OperationsFields;
+import static com.adonai.wallet.WalletBaseFilterFragment.FilterType;
 
 /**
  * Fragment that is responsible for showing operations list
@@ -75,6 +82,14 @@ public class OperationsFragment extends WalletBaseFragment {
                 final OperationDialogFragment opCreate = new OperationDialogFragment();
                 opCreate.show(getFragmentManager(), "opCreate");
                 break;
+            case R.id.operation_quick_filter:
+                final Map<String, Pair<FilterType, String>> allowedToFilter = new HashMap<>(3);
+                allowedToFilter.put(getString(R.string.description), new Pair<>(FilterType.TEXT, OperationsFields.DESCRIPTION.toString()));
+                allowedToFilter.put(getString(R.string.amount), new Pair<>(FilterType.AMOUNT, OperationsFields.AMOUNT.toString()));
+                allowedToFilter.put(getString(R.string.category), new Pair<>(FilterType.FOREIGN_ID, OperationsFields.CATEGORY.toString()));
+                allowedToFilter.put(getString(R.string.date), new Pair<>(FilterType.DATE, OperationsFields.TIME.toString()));
+                final WalletBaseFilterFragment opFilter = WalletBaseFilterFragment.newInstance(DatabaseDAO.EntityType.OPERATIONS.toString(), allowedToFilter);
+                opFilter.show(getFragmentManager(), "opFilter");
             default:
                 break;
         }
@@ -108,7 +123,7 @@ public class OperationsFragment extends WalletBaseFragment {
             else
                 view = (OperationView) convertView;
 
-            db.getAsyncOperation(mCursor.getString(DatabaseDAO.OperationsFields._id.ordinal()), new DatabaseDAO.AsyncDbQuery.Listener<Operation>() {
+            db.getAsyncOperation(mCursor.getString(OperationsFields._id.ordinal()), new DatabaseDAO.AsyncDbQuery.Listener<Operation>() {
                 @Override
                 public void onFinishLoad(Operation op) {
                     view.setOperation(op);
