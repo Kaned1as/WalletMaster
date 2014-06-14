@@ -95,6 +95,7 @@ public class OperationsFragment extends WalletBaseFragment {
                 allowedToFilter.put(getString(R.string.category), new Pair<FilterType, Object>(FilterType.FOREIGN_ID, foreignCursor));
                 allowedToFilter.put(getString(R.string.date), new Pair<FilterType, Object>(FilterType.DATE, OperationsFields.TIME.toString()));
                 final WalletBaseFilterFragment opFilter = WalletBaseFilterFragment.newInstance(OPERATIONS.toString(), allowedToFilter);
+                opFilter.setFilterCursorListener(mOpAdapter);
                 opFilter.show(getFragmentManager(), "opFilter");
             default:
                 break;
@@ -102,7 +103,7 @@ public class OperationsFragment extends WalletBaseFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private class OperationsAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener {
+    private class OperationsAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener, WalletBaseFilterFragment.FilterCursorListener {
         public OperationsAdapter() {
             super(getActivity(), getWalletActivity().getEntityDAO().getOperationsCursor());
         }
@@ -137,6 +138,11 @@ public class OperationsFragment extends WalletBaseFragment {
             });
 
             return view;
+        }
+
+        @Override
+        public void OnFilterCompleted(Cursor cursor) {
+            changeCursor(cursor);
         }
     }
 

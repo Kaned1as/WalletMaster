@@ -3,6 +3,7 @@ package com.adonai.wallet;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Pair;
@@ -19,7 +20,9 @@ import android.widget.TextView;
 
 import com.adonai.wallet.entities.UUIDSpinnerAdapter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,13 +30,19 @@ import java.util.Map;
  */
 public class WalletBaseFilterFragment extends WalletBaseDialogFragment implements View.OnClickListener {
 
-    private static final String FILTER_REFERENCE = "filter.map";
-
     public enum FilterType {
         AMOUNT,
         TEXT,
         DATE,
         FOREIGN_ID
+    }
+
+     public interface FilterCursorListener {
+         void OnFilterCompleted(Cursor cursor);
+     }
+
+    public void setFilterCursorListener(FilterCursorListener listener) {
+        this.listener = listener;
     }
 
     public static WalletBaseFilterFragment newInstance(String tableName, Map<String, Pair<FilterType, Object>> allowedToFilter) {
@@ -48,11 +57,16 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
     private String mTableName;
     private LinearLayout mFiltersRoot;
     private ImageButton mAddFilterButton;
+    private FilterCursorListener listener;
+
+    private ArrayAdapter<String> mTypeAdapter;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if(mAllowedToFilter == null)
             dismiss();
+
+        mTypeAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, mAllowedToFilter.keySet().toArray(new String[mAllowedToFilter.keySet().size()]));
 
         final View dialog = getActivity().getLayoutInflater().inflate(R.layout.entity_filter_dialog, null);
         assert dialog != null;
@@ -65,14 +79,23 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(dialog);
         builder.setNegativeButton(android.R.string.cancel, null);
-        builder.setPositiveButton(android.R.string.ok, null);
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(listener != null)
+                    listener.OnFilterCompleted(getFilterCursor());
+            }
+        });
 
         return builder.create();
     }
 
     @Override
-    public void onDismiss(DialogInterface dialog) {
-        super.onDismiss(dialog);
+    public void onDestroyView() {
+        super.onDestroyView();
+        for(final Pair<FilterType, Object> values : mAllowedToFilter.values())
+            if(values.first == FilterType.FOREIGN_ID)
+                ((Cursor)values.second).close();
     }
 
     @Override
@@ -95,15 +118,14 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
         final Spinner typeSelector = new Spinner(getActivity());
         typeSelector.setLayoutParams(forSelectors);
 
-        final ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, mAllowedToFilter.keySet().toArray(new String[mAllowedToFilter.keySet().size()]));
-        typeSelector.setAdapter(typeAdapter);
+        typeSelector.setAdapter(mTypeAdapter);
         typeSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 while (filterLayout.getChildCount() > 1) // remove old views
                     filterLayout.removeViewAt(1);
 
-                final Pair<FilterType, Object> filterType = mAllowedToFilter.get(typeAdapter.getItem(position));
+                final Pair<FilterType, Object> filterType = mAllowedToFilter.get(mTypeAdapter.getItem(position));
                 switch (filterType.first) {
                     case AMOUNT: {
                         final Spinner signSelector = new Spinner(getActivity());
@@ -131,14 +153,13 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                         break;
                     }
                     case DATE: {
-                        final TextView equalSign = new TextView(getActivity());
-                        equalSign.setText("=");
-                        equalSign.setGravity(Gravity.CENTER);
+                        final Spinner signSelector = new Spinner(getActivity());
+                        signSelector.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, new String[]{">", "<"}));
                         final EditText mDatePicker = new EditText(getActivity());
                         mDatePicker.setGravity(Gravity.CENTER);
-                        filterLayout.addView(equalSign);
+                        filterLayout.addView(signSelector);
                         filterLayout.addView(mDatePicker);
-                        equalSign.setLayoutParams(forSigns);
+                        signSelector.setLayoutParams(forSigns);
                         mDatePicker.setLayoutParams(forSelectors);
                         final DatePickerListener dialog = new DatePickerListener(mDatePicker);
                         mDatePicker.setOnFocusChangeListener(dialog);
@@ -168,5 +189,82 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
         });
         filterLayout.addView(typeSelector);
         mFiltersRoot.addView(filterLayout);
+    }
+
+    public Cursor getFilterCursor() {
+        final StringBuilder sb = new StringBuilder(100);
+        sb.append("SELECT * FROM ");
+        sb.append(mTableName);
+        sb.append(" WHERE ");
+
+        final List<String> args = new ArrayList<>();
+        boolean notFirst = false;
+        for(int i = 0; i < mFiltersRoot.getChildCount(); ++i) {
+            final String toAdd;
+            final LinearLayout filterLayout = (LinearLayout) mFiltersRoot.getChildAt(i);
+            final Spinner typeSelector = (Spinner) filterLayout.getChildAt(0);
+            final Pair<FilterType, Object> filter = mAllowedToFilter.get(typeSelector.getSelectedItem().toString());
+            switch (filter.first) {
+                case AMOUNT: {
+                    final Spinner signSelector = (Spinner) filterLayout.getChildAt(1);
+                    final EditText amountInput = (EditText) filterLayout.getChildAt(2);
+                    final String sign = signSelector.getSelectedItem().toString();
+                    final String column = (String) filter.second;
+                    final String amount = amountInput.getText().toString();
+                    if (!amount.isEmpty()) {
+                        toAdd = column + " " + sign + " ?";
+                        args.add(amount);
+                    } else
+                        toAdd = null;
+                    break;
+                }
+                case TEXT: {
+                    final EditText textInput = (EditText) filterLayout.getChildAt(2);
+                    final String column = (String) filter.second;
+                    final String text = textInput.getText().toString();
+                    if (!text.isEmpty()) {
+                        toAdd = column + " = ?";
+                        args.add(text);
+                    } else
+                        toAdd = null;
+                    break;
+                }
+                case DATE: {
+                    final Spinner signSelector = (Spinner) filterLayout.getChildAt(1);
+                    final EditText timeInput = (EditText) filterLayout.getChildAt(2);
+                    final DatePickerListener dateHolder = (DatePickerListener) timeInput.getOnFocusChangeListener();
+                    final String sign = signSelector.getSelectedItem().toString();
+                    final String column = (String) filter.second;
+                    if(timeInput.getText().length() > 0) {
+                        toAdd = column + " " + sign + " ?";
+                        args.add(String.valueOf(dateHolder.getCalendar().getTimeInMillis()));
+                    } else
+                        toAdd = null;
+                    break;
+                }
+                case FOREIGN_ID: {
+                    final Spinner idSelector = (Spinner) filterLayout.getChildAt(2);
+                    UUIDSpinnerAdapter cursorHolder = (UUIDSpinnerAdapter) idSelector.getAdapter();
+                    String uuid = cursorHolder.getItemUUID(idSelector.getSelectedItemPosition());
+                    final String column = ((Cursor) filter.second).getColumnName(0);
+                    toAdd = column + " = ?";
+                    args.add(uuid);
+                    break;
+                }
+                default:
+                    toAdd = null;
+                    break;
+
+            }
+            if(toAdd != null)
+                if (notFirst) {
+                    sb.append(" AND ");
+                    sb.append(toAdd);
+                } else {
+                    sb.append(toAdd);
+                    notFirst = true;
+                }
+        }
+        return getWalletActivity().getEntityDAO().select(sb.toString(), args.toArray(new String[args.size()]));
     }
 }
