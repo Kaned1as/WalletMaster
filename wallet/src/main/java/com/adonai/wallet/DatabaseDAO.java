@@ -436,6 +436,14 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return mDatabase.query(tableName, null, " _id = ?", new String[]{String.valueOf(id)}, null, null, null, null);
     }
 
+    public Cursor getForeignKeyCursor(String tableName, String fkColumn, String targetTableName, String nameColumn) {
+        final SQLiteQueryBuilder filterBuilder = new SQLiteQueryBuilder();
+        filterBuilder.setDistinct(true);
+        filterBuilder.setTables(tableName + " AS t1" +
+                " LEFT JOIN " + targetTableName + " AS t2 ON t1." + fkColumn + " = t2._id");
+        return filterBuilder.query(mDatabase, new String[]{"t1." + fkColumn, "t2." + nameColumn}, null, null, null, null, null);
+    }
+
     public Cursor getOperationsCursor(String filter) {
         Log.d("Query", "getOperationsCursor with filter");
         final SQLiteQueryBuilder filterBuilder = new SQLiteQueryBuilder();
@@ -455,11 +463,6 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 " LEFT JOIN " + EntityType.ACCOUNTS + " AS benefic " + "ON op." + OperationsFields.CHARGER + " = " + "benefic." + AccountFields._id);
         return filterBuilder.query(mDatabase, new String[]{"op.*"}, null, new String[] {"%" + filter + "%"}, null, null, null);
         //mDatabase.query(tableName, null, sb.toString(), new String[]{"%" + filter + "%"}, null, null, null, null);
-    }
-
-    public Cursor getCategoryCursor() {
-        Log.d("Query", "getCategoryCursor");
-        return mDatabase.query(EntityType.CATEGORIES.toString(), null, null, null, null, null, CategoriesFields.NAME + " ASC", null);
     }
 
     public Cursor getCategoryCursor(int type) {

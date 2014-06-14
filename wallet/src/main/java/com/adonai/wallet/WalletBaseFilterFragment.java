@@ -17,6 +17,8 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.adonai.wallet.entities.UUIDSpinnerAdapter;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +36,7 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
         FOREIGN_ID
     }
 
-    public static WalletBaseFilterFragment newInstance(String tableName, Map<String, Pair<FilterType, String>> allowedToFilter) {
+    public static WalletBaseFilterFragment newInstance(String tableName, Map<String, Pair<FilterType, Object>> allowedToFilter) {
         final WalletBaseFilterFragment fragment = new WalletBaseFilterFragment();
         fragment.mAllowedToFilter = allowedToFilter;
         fragment.mTableName = tableName;
@@ -42,7 +44,7 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
     }
 
                    /* caption,     filter    , column    */
-    private Map<String, Pair<FilterType, String>> mAllowedToFilter = new HashMap<>(10);
+    private Map<String, Pair<FilterType, Object>> mAllowedToFilter = new HashMap<>(10);
     private String mTableName;
     private LinearLayout mFiltersRoot;
     private ImageButton mAddFilterButton;
@@ -101,7 +103,7 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                 while (filterLayout.getChildCount() > 1) // remove old views
                     filterLayout.removeViewAt(1);
 
-                final Pair<FilterType, String> filterType = mAllowedToFilter.get(typeAdapter.getItem(position));
+                final Pair<FilterType, Object> filterType = mAllowedToFilter.get(typeAdapter.getItem(position));
                 switch (filterType.first) {
                     case AMOUNT: {
                         final Spinner signSelector = new Spinner(getActivity());
@@ -112,6 +114,7 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                         filterLayout.addView(numberInput);
                         signSelector.setLayoutParams(forSigns);
                         numberInput.setLayoutParams(forSelectors);
+                        numberInput.setTag(filterType.second);
                         break;
                     }
                     case TEXT: {
@@ -124,9 +127,10 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                         filterLayout.addView(numberInput);
                         equalSign.setLayoutParams(forSigns);
                         numberInput.setLayoutParams(forSelectors);
+                        numberInput.setTag(filterType.second);
                         break;
                     }
-                    case DATE:
+                    case DATE: {
                         final TextView equalSign = new TextView(getActivity());
                         equalSign.setText("=");
                         equalSign.setGravity(Gravity.CENTER);
@@ -139,9 +143,21 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                         final DatePickerListener dialog = new DatePickerListener(mDatePicker);
                         mDatePicker.setOnFocusChangeListener(dialog);
                         mDatePicker.setOnClickListener(dialog);
+                        mDatePicker.setTag(filterType.second);
                         break;
-                    case FOREIGN_ID:
+                    }
+                    case FOREIGN_ID: {
+                        final TextView equalSign = new TextView(getActivity());
+                        equalSign.setText("=");
+                        equalSign.setGravity(Gravity.CENTER);
+                        final Spinner entitySelector = new Spinner(getActivity());
+                        entitySelector.setAdapter(new UUIDSpinnerAdapter(getActivity(), (android.database.Cursor) filterType.second));
+                        filterLayout.addView(equalSign);
+                        filterLayout.addView(entitySelector);
+                        equalSign.setLayoutParams(forSigns);
+                        entitySelector.setLayoutParams(forSelectors);
                         break;
+                    }
                 }
             }
 

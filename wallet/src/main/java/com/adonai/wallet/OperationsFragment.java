@@ -22,6 +22,10 @@ import com.adonai.wallet.view.OperationView;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.adonai.wallet.DatabaseDAO.CategoriesFields;
+import static com.adonai.wallet.DatabaseDAO.EntityType;
+import static com.adonai.wallet.DatabaseDAO.EntityType.CATEGORIES;
+import static com.adonai.wallet.DatabaseDAO.EntityType.OPERATIONS;
 import static com.adonai.wallet.DatabaseDAO.OperationsFields;
 import static com.adonai.wallet.WalletBaseFilterFragment.FilterType;
 
@@ -42,9 +46,9 @@ public class OperationsFragment extends WalletBaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         mOpAdapter = new OperationsAdapter();
-        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.OPERATIONS.toString(), mOpAdapter);
-        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
-        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
+        getWalletActivity().getEntityDAO().registerDatabaseListener(OPERATIONS.toString(), mOpAdapter);
+        getWalletActivity().getEntityDAO().registerDatabaseListener(EntityType.ACCOUNTS.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
+        getWalletActivity().getEntityDAO().registerDatabaseListener(EntityType.CATEGORIES.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
         //mOpAdapter.setFilterQueryProvider(new OperationFilterQueryProvider());
 
         final View rootView = inflater.inflate(R.layout.operations_flow, container, false);
@@ -63,9 +67,9 @@ public class OperationsFragment extends WalletBaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.OPERATIONS.toString(), mOpAdapter);
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mOpAdapter);
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mOpAdapter);
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(OPERATIONS.toString(), mOpAdapter);
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(EntityType.ACCOUNTS.toString(), mOpAdapter);
+        getWalletActivity().getEntityDAO().unregisterDatabaseListener(EntityType.CATEGORIES.toString(), mOpAdapter);
         mOpAdapter.changeCursor(null); // close opened cursor
     }
 
@@ -83,12 +87,14 @@ public class OperationsFragment extends WalletBaseFragment {
                 opCreate.show(getFragmentManager(), "opCreate");
                 break;
             case R.id.operation_quick_filter:
-                final Map<String, Pair<FilterType, String>> allowedToFilter = new HashMap<>(3);
-                allowedToFilter.put(getString(R.string.description), new Pair<>(FilterType.TEXT, OperationsFields.DESCRIPTION.toString()));
-                allowedToFilter.put(getString(R.string.amount), new Pair<>(FilterType.AMOUNT, OperationsFields.AMOUNT.toString()));
-                allowedToFilter.put(getString(R.string.category), new Pair<>(FilterType.FOREIGN_ID, OperationsFields.CATEGORY.toString()));
-                allowedToFilter.put(getString(R.string.date), new Pair<>(FilterType.DATE, OperationsFields.TIME.toString()));
-                final WalletBaseFilterFragment opFilter = WalletBaseFilterFragment.newInstance(DatabaseDAO.EntityType.OPERATIONS.toString(), allowedToFilter);
+                // form filtering map
+                final Map<String, Pair<FilterType, Object>> allowedToFilter = new HashMap<>(3);
+                allowedToFilter.put(getString(R.string.description), new Pair<FilterType, Object>(FilterType.TEXT, OperationsFields.DESCRIPTION.toString()));
+                allowedToFilter.put(getString(R.string.amount), new Pair<FilterType, Object>(FilterType.AMOUNT, OperationsFields.AMOUNT.toString()));
+                final Cursor foreignCursor = getWalletActivity().getEntityDAO().getForeignKeyCursor(OPERATIONS.toString(), OperationsFields.CATEGORY.toString(), CATEGORIES.toString(), CategoriesFields.NAME.toString());
+                allowedToFilter.put(getString(R.string.category), new Pair<FilterType, Object>(FilterType.FOREIGN_ID, foreignCursor));
+                allowedToFilter.put(getString(R.string.date), new Pair<FilterType, Object>(FilterType.DATE, OperationsFields.TIME.toString()));
+                final WalletBaseFilterFragment opFilter = WalletBaseFilterFragment.newInstance(OPERATIONS.toString(), allowedToFilter);
                 opFilter.show(getFragmentManager(), "opFilter");
             default:
                 break;
