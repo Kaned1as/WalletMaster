@@ -95,4 +95,8 @@
     <string name="cancel_operation">Отменить операцию</string>
     <string name="select_action">Выберите действие</string>
     <string name="add_filter">Add filter</string>
+    <string name="app_theme">Theme</string>
+    <string name="app_theme_summary">Theme applies after application restart</string>
+    <string name="light_theme">Светлая</string>
+    <string name="dark_theme">Темная</string>
 </resources>

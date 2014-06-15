@@ -34,6 +34,9 @@ public class WalletBaseActivity extends Activity implements SyncStateMachine.Syn
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setIndeterminate(true);
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        final String theme = mPreferences.getString("app.theme", "dark");
+        setTheme(theme.equals("light") ? android.R.style.Theme_Holo_Light : android.R.style.Theme_Holo);
 
         mHandler = new Handler(new SyncCallback());
     }

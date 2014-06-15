@@ -8,6 +8,7 @@
 
     <PreferenceCategory android:title="@string/usability_settings">
         <CheckBoxPreference android:key="ask.for.delete" android:title="@string/ask_for_delete" android:summary="@string/ask_for_delete_summary" android:defaultValue="true" />
+        <ListPreference android:key="app.theme" android:title="@string/app_theme" android:summary="@string/app_theme_summary" android:entries="@array/preference_themes_titles" android:entryValues="@array/preference_themes_values" />
     </PreferenceCategory>
 
 </PreferenceScreen>

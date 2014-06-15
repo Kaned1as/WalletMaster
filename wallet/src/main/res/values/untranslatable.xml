@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="preference_themes_titles">
+        <item>@string/light_theme</item>
+        <item>@string/dark_theme</item>
+    </string-array>
+    <string-array name="preference_themes_values">
+        <item>light</item> <!--item>@android:style/Theme.Holo.Light</item-->
+        <item>dark</item> <!--item>@android:style/Theme.Holo</item-->
+    </string-array>
+    <string-array name="entity_choice_common">
+        <item>@string/modify</item>
+        <item>@string/delete</item>
+    </string-array>
+    <string-array name="entity_choice_operation">
+        <item>@string/modify</item>
+        <item>@string/delete</item>
+        <item>@string/cancel_operation</item>
+    </string-array>
+</resources>
