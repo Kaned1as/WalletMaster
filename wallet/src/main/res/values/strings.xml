@@ -99,4 +99,6 @@
     <string name="app_theme_summary">Theme applies after application restart</string>
     <string name="light_theme">Light</string>
     <string name="dark_theme">Dark</string>
+    <string name="reset_filter">Reset filter</string>
+    <string name="no_filter_specified">No valid filter specified!</string>
 </resources>

@@ -17,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.adonai.wallet.entities.UUIDSpinnerAdapter;
 
@@ -24,6 +25,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static android.view.WindowManager.LayoutParams;
 
 /**
  * Created by adonai on 12.06.14.
@@ -39,6 +42,7 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
 
      public interface FilterCursorListener {
          void OnFilterCompleted(Cursor cursor);
+         void resetFilter();
      }
 
     public void setFilterCursorListener(FilterCursorListener listener) {
@@ -78,16 +82,32 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(dialog);
-        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(listener != null)
+                    listener.resetFilter();
+            }
+        });
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(listener != null)
-                    listener.OnFilterCompleted(getFilterCursor());
+                    try {
+                        listener.OnFilterCompleted(getFilterCursor());
+                    } catch (FilterFormatException e) {
+                        Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
             }
         });
 
         return builder.create();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getDialog().getWindow().clearFlags(LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_ALT_FOCUSABLE_IM);
     }
 
     @Override
@@ -131,7 +151,7 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                         final Spinner signSelector = new Spinner(getActivity());
                         signSelector.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, new String[]{">", "=", "<"}));
                         final EditText numberInput = new EditText(getActivity());
-                        numberInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        numberInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
                         filterLayout.addView(signSelector);
                         filterLayout.addView(numberInput);
                         signSelector.setLayoutParams(forSigns);
@@ -143,13 +163,13 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                         final TextView equalSign = new TextView(getActivity());
                         equalSign.setText("=");
                         equalSign.setGravity(Gravity.CENTER);
-                        final EditText numberInput = new EditText(getActivity());
-                        numberInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        final EditText textInput = new EditText(getActivity());
+                        textInput.setInputType(InputType.TYPE_CLASS_TEXT);
                         filterLayout.addView(equalSign);
-                        filterLayout.addView(numberInput);
+                        filterLayout.addView(textInput);
                         equalSign.setLayoutParams(forSigns);
-                        numberInput.setLayoutParams(forSelectors);
-                        numberInput.setTag(filterType.second);
+                        textInput.setLayoutParams(forSelectors);
+                        textInput.setTag(filterType.second);
                         break;
                     }
                     case DATE: {
@@ -191,14 +211,13 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
         mFiltersRoot.addView(filterLayout);
     }
 
-    public Cursor getFilterCursor() {
+    public Cursor getFilterCursor() throws FilterFormatException {
         final StringBuilder sb = new StringBuilder(100);
         sb.append("SELECT * FROM ");
         sb.append(mTableName);
-        sb.append(" WHERE ");
 
         final List<String> args = new ArrayList<>();
-        boolean notFirst = false;
+        boolean firstPassed = false;
         for(int i = 0; i < mFiltersRoot.getChildCount(); ++i) {
             final String toAdd;
             final LinearLayout filterLayout = (LinearLayout) mFiltersRoot.getChildAt(i);
@@ -257,14 +276,24 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
 
             }
             if(toAdd != null)
-                if (notFirst) {
+                if (firstPassed) {
                     sb.append(" AND ");
                     sb.append(toAdd);
                 } else {
+                    sb.append(" WHERE ");
                     sb.append(toAdd);
-                    notFirst = true;
+                    firstPassed = true;
                 }
         }
+        if(!firstPassed) // we did at least one iteration
+            throw new FilterFormatException(getString(R.string.no_filter_specified));
+
         return getWalletActivity().getEntityDAO().select(sb.toString(), args.toArray(new String[args.size()]));
+    }
+
+    public static class FilterFormatException extends Exception {
+        public FilterFormatException(String detailMessage) {
+            super(detailMessage);
+        }
     }
 }

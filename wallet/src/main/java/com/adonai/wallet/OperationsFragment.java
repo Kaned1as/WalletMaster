@@ -41,6 +41,7 @@ public class OperationsFragment extends WalletBaseFragment {
     private ListView mOperationsList;
     private OperationsAdapter mOpAdapter;
     private final EntityDeleteListener mOperationDeleter = new EntityDeleteListener(R.string.really_delete_operation);
+    private boolean isListFiltered = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -80,6 +81,13 @@ public class OperationsFragment extends WalletBaseFragment {
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(R.id.operation_quick_filter).setVisible(!isListFiltered);
+        menu.findItem(R.id.operation_reset_filter).setVisible(isListFiltered);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add_operation:
@@ -97,6 +105,9 @@ public class OperationsFragment extends WalletBaseFragment {
                 final WalletBaseFilterFragment opFilter = WalletBaseFilterFragment.newInstance(OPERATIONS.toString(), allowedToFilter);
                 opFilter.setFilterCursorListener(mOpAdapter);
                 opFilter.show(getFragmentManager(), "opFilter");
+            case R.id.operation_reset_filter:
+                mOpAdapter.resetFilter();
+                break;
             default:
                 break;
         }
@@ -143,6 +154,15 @@ public class OperationsFragment extends WalletBaseFragment {
         @Override
         public void OnFilterCompleted(Cursor cursor) {
             changeCursor(cursor);
+            isListFiltered = true;
+            getActivity().invalidateOptionsMenu();
+        }
+
+        @Override
+        public void resetFilter() {
+            changeCursor(getWalletActivity().getEntityDAO().getOperationsCursor());
+            isListFiltered = false;
+            getActivity().invalidateOptionsMenu();
         }
     }
 

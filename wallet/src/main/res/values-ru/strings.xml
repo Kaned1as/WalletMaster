@@ -94,9 +94,11 @@
     <string name="delete">Удалить</string>
     <string name="cancel_operation">Отменить операцию</string>
     <string name="select_action">Выберите действие</string>
-    <string name="add_filter">Add filter</string>
-    <string name="app_theme">Theme</string>
-    <string name="app_theme_summary">Theme applies after application restart</string>
+    <string name="add_filter">Добавить фильтр</string>
+    <string name="app_theme">Тема оформления</string>
+    <string name="app_theme_summary">Тема применяется после рестарта приложения</string>
     <string name="light_theme">Светлая</string>
     <string name="dark_theme">Темная</string>
+    <string name="reset_filter">Сбросить фильтр</string>
+    <string name="no_filter_specified">Не выбрано ни одного фильтра!</string>
 </resources>
