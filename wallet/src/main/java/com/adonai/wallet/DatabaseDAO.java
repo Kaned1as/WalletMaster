@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -29,8 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 
 /**
@@ -245,6 +242,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         // fill
 
         // test accounts
+        /*
         sqLiteDatabase.beginTransaction(); // initial fill
         final Random rand = new Random();
         for(int i = 0; i < 100; ++i) {
@@ -271,8 +269,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         }
         sqLiteDatabase.setTransactionSuccessful(); // batch insert
         sqLiteDatabase.endTransaction();
-
-
+        */
     }
 
     @Override
@@ -466,7 +463,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         sb.append("LOWER(");
         sb.append("COALESCE(op.").append(OperationsFields.DESCRIPTION).append(", '')");
         sb.append(" || ' ' || op.").append(OperationsFields.AMOUNT);
-        sb.append(" || ' ' || strftime('%d.%m.%Y', op.").append(OperationsFields.TIME).append("/1000, 'unixepoch')");
+        sb.append(" || ' ' || strftime('%d.%m.%Y', op.").append(OperationsFields.TIME).append("/1000, 'unixepoch', 'localtime')");
         sb.append(" || ' ' || COALESCE(cats.").append(CategoriesFields.NAME).append(", '')");
         sb.append(" || ' ' || COALESCE(charger.").append(AccountFields.NAME).append(", '')");
         sb.append(" || ' ' || COALESCE(benefic.").append(AccountFields.NAME).append(", '')");
