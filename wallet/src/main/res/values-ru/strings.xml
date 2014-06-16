@@ -102,4 +102,5 @@
     <string name="reset_filter">Сбросить фильтр</string>
     <string name="no_filter_specified">Не выбрано ни одного фильтра!</string>
     <string name="filter">Фильтр</string>
+    <string name="app_name_summary">Менеджер расходов</string>
 </resources>

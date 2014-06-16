@@ -102,4 +102,5 @@
     <string name="reset_filter">Reset filter</string>
     <string name="no_filter_specified">No valid filter specified!</string>
     <string name="filter">Filter</string>
+    <string name="app_name_summary">Money management</string>
 </resources>

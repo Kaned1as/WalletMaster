@@ -151,7 +151,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 OperationsFields._id + " TEXT PRIMARY KEY, " +
                 OperationsFields.DESCRIPTION + " TEXT DEFAULT NULL, " +
                 OperationsFields.CATEGORY + " TEXT NOT NULL, " +
-                OperationsFields.TIME + " TIMESTAMP DEFAULT (STRFTIME('%s', 'now')) NOT NULL, " +
+                OperationsFields.TIME + " TIMESTAMP DEFAULT (STRFTIME('%s', 'now') * 1000) NOT NULL, " +
                 OperationsFields.CHARGER + " TEXT DEFAULT NULL, " +
                 OperationsFields.RECEIVER + " TEXT DEFAULT NULL, " +
                 OperationsFields.AMOUNT + " TEXT DEFAULT '0' NOT NULL, " +
@@ -465,14 +465,16 @@ public class DatabaseDAO extends SQLiteOpenHelper
         final StringBuilder sb = new StringBuilder(20);
         sb.append("LOWER(");
         sb.append("COALESCE(op.").append(OperationsFields.DESCRIPTION).append(", '')");
-        sb.append(" || op.").append(OperationsFields.AMOUNT);
-        sb.append(" || datetime(op.").append(OperationsFields.TIME).append("/1000, 'unixepoch')");
-        sb.append(" || COALESCE(charger.").append(AccountFields.NAME).append(", '')");
-        sb.append(" || COALESCE(benefic.").append(AccountFields.NAME).append(", '')");
+        sb.append(" || ' ' || op.").append(OperationsFields.AMOUNT);
+        sb.append(" || ' ' || strftime('%d.%m.%Y', op.").append(OperationsFields.TIME).append("/1000, 'unixepoch')");
+        sb.append(" || ' ' || COALESCE(cats.").append(CategoriesFields.NAME).append(", '')");
+        sb.append(" || ' ' || COALESCE(charger.").append(AccountFields.NAME).append(", '')");
+        sb.append(" || ' ' || COALESCE(benefic.").append(AccountFields.NAME).append(", '')");
 
         sb.append(") LIKE LOWER(?)");
         filterBuilder.appendWhere(sb.toString());
         filterBuilder.setTables(EntityType.OPERATIONS + " AS op" +
+                " LEFT JOIN " + EntityType.CATEGORIES + " AS cats " + "ON op." + OperationsFields.CATEGORY + " = " + "cats." + CategoriesFields._id +
                 " LEFT JOIN " + EntityType.ACCOUNTS + " AS charger " + "ON op." + OperationsFields.CHARGER + " = " + "charger." + AccountFields._id +
                 " LEFT JOIN " + EntityType.ACCOUNTS + " AS benefic " + "ON op." + OperationsFields.RECEIVER + " = " + "benefic." + AccountFields._id);
         return filterBuilder.query(mDatabase, new String[]{"op.*"}, null, new String[] {"%" + filter + "%"}, null, null, null);

@@ -85,9 +85,10 @@ public class OperationsFragment extends WalletBaseFragment {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.operations_flow, menu);
 
-        SearchManager manager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        final SearchManager manager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         mSearchItem = menu.findItem(R.id.operation_quick_filter);
         final SearchView search = (SearchView) mSearchItem.getActionView();
+        search.setQueryHint(getString(R.string.quick_filter));
         search.setSearchableInfo(manager.getSearchableInfo(getActivity().getComponentName()));
         search.setOnQueryTextListener(mQuickSearchHandler);
     }
@@ -96,6 +97,7 @@ public class OperationsFragment extends WalletBaseFragment {
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         menu.findItem(R.id.operation_filter).setVisible(!isListFiltered);
+        menu.findItem(R.id.operation_quick_filter).setVisible(!isListFiltered);
         menu.findItem(R.id.operation_reset_filter).setVisible(isListFiltered);
     }
 
@@ -233,11 +235,13 @@ public class OperationsFragment extends WalletBaseFragment {
     private class QuickSearchQueryHandler implements SearchView.OnQueryTextListener {
         @Override
         public boolean onQueryTextSubmit(String query) {
-            if(!query.isEmpty())
-            mOpAdapter.changeCursor(getWalletActivity().getEntityDAO().getOperationsCursor(query));
-            if(mSearchItem != null)
-                mSearchItem.collapseActionView();
-            isListFiltered = true;
+            if(!query.isEmpty()) {
+                mOpAdapter.changeCursor(getWalletActivity().getEntityDAO().getOperationsCursor(query));
+                if (mSearchItem != null)
+                    mSearchItem.collapseActionView(); // hide after submit
+                isListFiltered = true;
+                getActivity().invalidateOptionsMenu(); // update filter buttons visibility
+            }
 
             return true;
         }

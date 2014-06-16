@@ -13,7 +13,7 @@
 
     <item android:id="@+id/operation_quick_filter"
         android:title="@string/quick_filter"
-        android:icon="@drawable/filter_image"
+        android:icon="@android:drawable/ic_menu_search"
         android:actionViewClass="android.widget.SearchView"
         android:showAsAction="collapseActionView|ifRoom" />
 
