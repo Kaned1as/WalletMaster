@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,10 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+        final String theme = mPreferences.getString("app.theme", "light");
+
+        final View drawerContainer = findViewById(R.id.navigation_drawer);
+        drawerContainer.setBackgroundColor(getResources().getColor(theme.equals("light") ? R.color.light_drawer_bg : R.color.dark_drawer_bg));
     }
 
     @Override

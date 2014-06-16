@@ -5,4 +5,6 @@
     <color name="green_amount">#ff13ac00</color>
     <color name="red_amount">#ffa00300</color>
     <color name="list_gray_divider">#35ffffff</color>
+    <color name="light_drawer_bg">#dddd</color>
+    <color name="dark_drawer_bg">#d222</color>
 </resources>

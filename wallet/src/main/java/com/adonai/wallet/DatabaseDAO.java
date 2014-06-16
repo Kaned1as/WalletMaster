@@ -245,30 +245,33 @@ public class DatabaseDAO extends SQLiteOpenHelper
         // fill
 
         // test accounts
-
+        sqLiteDatabase.beginTransaction(); // initial fill
         final Random rand = new Random();
         for(int i = 0; i < 100; ++i) {
-            final ContentValues values = new ContentValues(5);
-            values.put(AccountFields._id.toString(), UUID.randomUUID().toString());
-            values.put(AccountFields.NAME.toString(), "Account" + i);
-            values.put(AccountFields.DESCRIPTION.toString(), "");
-            values.put(AccountFields.CURRENCY.toString(), "RUB");
-            values.put(AccountFields.AMOUNT.toString(), rand.nextInt(1000));
-            values.put(AccountFields.COLOR.toString(), Color.rgb(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)));
+            final ContentValues accValues = new ContentValues(5);
+            accValues.put(AccountFields._id.toString(), UUID.randomUUID().toString());
+            accValues.put(AccountFields.NAME.toString(), "Account" + i);
+            accValues.put(AccountFields.DESCRIPTION.toString(), "");
+            accValues.put(AccountFields.CURRENCY.toString(), "RUB");
+            accValues.put(AccountFields.AMOUNT.toString(), rand.nextInt(1000));
+            accValues.put(AccountFields.COLOR.toString(), Color.rgb(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)));
 
-            sqLiteDatabase.insert(EntityType.ACCOUNTS.toString(), null, values);
+            for(int j = 0; j < 100; ++j) {
+                final ContentValues opValues = new ContentValues(7);
+                opValues.put(OperationsFields._id.toString(), UUID.randomUUID().toString());
+                opValues.put(OperationsFields.DESCRIPTION.toString(), "operation" + j); // mandatory
+                opValues.put(OperationsFields.CATEGORY.toString(), outAdd.getId()); // mandatory
+                opValues.put(OperationsFields.AMOUNT.toString(), rand.nextInt(500)); // mandatory
+                opValues.put(OperationsFields.CHARGER.toString(), accValues.getAsString(AccountFields._id.toString()));
+
+                sqLiteDatabase.insert(EntityType.OPERATIONS.toString(), null, opValues);
+            }
+
+            sqLiteDatabase.insert(EntityType.ACCOUNTS.toString(), null, accValues);
         }
+        sqLiteDatabase.setTransactionSuccessful(); // batch insert
+        sqLiteDatabase.endTransaction();
 
-        for(int i = 0; i < 100000; ++i) {
-            final ContentValues values = new ContentValues(7);
-            values.put(OperationsFields._id.toString(), UUID.randomUUID().toString());
-            values.put(OperationsFields.DESCRIPTION.toString(), "operation" + i); // mandatory
-            values.put(OperationsFields.CATEGORY.toString(), rand.nextInt(2) % 2 == 0 ? outAdd.getId() : inAdd.getId()); // mandatory
-            values.put(OperationsFields.AMOUNT.toString(), rand.nextInt(500)); // mandatory
-            values.put(OperationsFields.CHARGER.toString(), 1+rand.nextInt(90));
-
-            sqLiteDatabase.insert(EntityType.OPERATIONS.toString(), null, values);
-        }
 
     }
 
