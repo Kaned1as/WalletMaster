@@ -101,4 +101,5 @@
     <string name="dark_theme">Темная</string>
     <string name="reset_filter">Сбросить фильтр</string>
     <string name="no_filter_specified">Не выбрано ни одного фильтра!</string>
+    <string name="filter">Фильтр</string>
 </resources>

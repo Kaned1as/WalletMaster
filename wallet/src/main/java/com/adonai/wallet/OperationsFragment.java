@@ -1,6 +1,8 @@
 package com.adonai.wallet;
 
 import android.app.AlertDialog;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.FilterQueryProvider;
 import android.widget.ListView;
+import android.widget.SearchView;
 
 import com.adonai.wallet.entities.Operation;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
@@ -39,8 +42,11 @@ import static com.adonai.wallet.WalletBaseFilterFragment.FilterType;
 public class OperationsFragment extends WalletBaseFragment {
 
     private ListView mOperationsList;
+    private MenuItem mSearchItem;
+
     private OperationsAdapter mOpAdapter;
     private final EntityDeleteListener mOperationDeleter = new EntityDeleteListener(R.string.really_delete_operation);
+    private final QuickSearchQueryHandler mQuickSearchHandler = new QuickSearchQueryHandler();
     private boolean isListFiltered = false;
 
     @Override
@@ -76,14 +82,20 @@ public class OperationsFragment extends WalletBaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.operations_flow, menu);
         super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.operations_flow, menu);
+
+        SearchManager manager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        mSearchItem = menu.findItem(R.id.operation_quick_filter);
+        final SearchView search = (SearchView) mSearchItem.getActionView();
+        search.setSearchableInfo(manager.getSearchableInfo(getActivity().getComponentName()));
+        search.setOnQueryTextListener(mQuickSearchHandler);
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.operation_quick_filter).setVisible(!isListFiltered);
+        menu.findItem(R.id.operation_filter).setVisible(!isListFiltered);
         menu.findItem(R.id.operation_reset_filter).setVisible(isListFiltered);
     }
 
@@ -94,7 +106,7 @@ public class OperationsFragment extends WalletBaseFragment {
                 final OperationDialogFragment opCreate = new OperationDialogFragment();
                 opCreate.show(getFragmentManager(), "opCreate");
                 break;
-            case R.id.operation_quick_filter:
+            case R.id.operation_filter:
                 // form filtering map
                 final Map<String, Pair<FilterType, Object>> allowedToFilter = new HashMap<>(3);
                 allowedToFilter.put(getString(R.string.description), new Pair<FilterType, Object>(FilterType.TEXT, OperationsFields.DESCRIPTION.toString()));
@@ -215,6 +227,24 @@ public class OperationsFragment extends WalletBaseFragment {
                     db.revertOperation(operation);
                     break;
             }
+        }
+    }
+
+    private class QuickSearchQueryHandler implements SearchView.OnQueryTextListener {
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            if(!query.isEmpty())
+            mOpAdapter.changeCursor(getWalletActivity().getEntityDAO().getOperationsCursor(query));
+            if(mSearchItem != null)
+                mSearchItem.collapseActionView();
+            isListFiltered = true;
+
+            return true;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            return false;
         }
     }
 }
