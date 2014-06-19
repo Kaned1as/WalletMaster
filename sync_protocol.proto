@@ -43,9 +43,10 @@ message Entity {
     optional Account account = 1;
     optional Operation operation = 2;
     optional Category category = 3;
+    optional Budget budget = 4;
 }
 
-message Account {
+message Account { // root, independent
     required string ID = 1;
     required string name = 2;
     optional string description = 3;
@@ -54,7 +55,7 @@ message Account {
     optional int32 color = 6;
 }
 
-message Operation {
+message Operation { // depends on accounts and categories
     required string ID = 1;
     optional string description = 2;
     required uint64 time = 3;
@@ -65,9 +66,26 @@ message Operation {
     required string categoryId = 8;
 }
 
-message Category {
+message Category { // depends on accounts
     required string ID = 1;
     required string name = 2;
     required uint32 type = 3;
     optional string preferredAccount = 4;
+}
+
+message Budget { // depends on accounts
+    required string ID = 1;
+    required string name = 2;
+    required uint64 from = 3; // start time
+    required string till = 4; // end time
+    optional string coveredAccountId = 5; // if no account is specified, count all
+    repeated BudgetItem content = 6; // array of items
+}
+
+message BudgetItem { // depends on budgets and categories
+    required string ID = 1;
+    required string parentBudgetId = 2;
+
+    required string categoryId = 3;
+    required uint64 maxAmount = 4; // ... to spend
 }

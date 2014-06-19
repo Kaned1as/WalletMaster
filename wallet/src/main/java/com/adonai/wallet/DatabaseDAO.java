@@ -93,6 +93,14 @@ public class DatabaseDAO extends SQLiteOpenHelper
         PREFERRED_ACCOUNT,
     }
 
+    public static enum BudgetFields {
+        _id,
+        NAME,
+        START_TIME,
+        END_TIME,
+        COVERED_ACCOUNT
+    }
+
     public static final String ACTIONS_TABLE_NAME = "actions";
     public static enum ActionsFields {
         DATA_ID,
@@ -103,7 +111,9 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public static enum EntityType {
         ACCOUNTS,
         CATEGORIES,
-        OPERATIONS
+        OPERATIONS,
+        BUDGETS,
+        BUDGET_ITEMS
     }
 
     public static enum ActionType {
