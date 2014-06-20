@@ -39,9 +39,8 @@ import static com.adonai.wallet.WalletBaseFilterFragment.FilterType;
  *
  * @author adonai
  */
-public class OperationsFragment extends WalletBaseFragment {
+public class OperationsFragment extends WalletBaseListFragment {
 
-    private ListView mOperationsList;
     private MenuItem mSearchItem;
 
     private OperationsAdapter mOpAdapter;
@@ -61,12 +60,12 @@ public class OperationsFragment extends WalletBaseFragment {
         final View rootView = inflater.inflate(R.layout.operations_flow, container, false);
         assert rootView != null;
 
-        mOperationsList = (ListView) rootView.findViewById(R.id.operations_list);
+        mEntityList = (ListView) rootView.findViewById(R.id.operations_list);
 
         //mSearchBox.setOnEditorActionListener(new OperationsFilterListener());
 
-        mOperationsList.setAdapter(mOpAdapter);
-        mOperationsList.setOnItemLongClickListener(new OperationLongClickListener());
+        mEntityList.setAdapter(mOpAdapter);
+        mEntityList.setOnItemLongClickListener(new OperationLongClickListener());
 
         return rootView;
     }

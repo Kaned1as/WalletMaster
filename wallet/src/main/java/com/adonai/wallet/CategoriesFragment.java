@@ -25,13 +25,11 @@ import com.adonai.wallet.entities.UUIDCursorAdapter;
  *
  * @author adonai
  */
-public class CategoriesFragment extends WalletBaseFragment {
+public class CategoriesFragment extends WalletBaseListFragment {
 
     private SpinnerAdapter mCategoryTypeAdapter;
     private CategoriesAdapter mCategoriesAdapter;
     private ActionBar.OnNavigationListener mNavListener;
-
-    private ListView mCategoryList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -44,13 +42,13 @@ public class CategoriesFragment extends WalletBaseFragment {
         mCategoryTypeAdapter = new ArrayAdapter<>(getActivity(), R.layout.tall_list_item, categoryTypes);
         mNavListener = new CategoryNavigator();
 
-        mCategoryList = (ListView) rootView.findViewById(R.id.categories_list);
-        mCategoryList.setOnItemLongClickListener(new CategoryEditListener());
+        mEntityList = (ListView) rootView.findViewById(R.id.categories_list);
+        mEntityList.setOnItemLongClickListener(new CategoryEditListener());
 
         mCategoriesAdapter = new CategoriesAdapter(Category.EXPENSE);
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mCategoriesAdapter); // foreign keys
-        mCategoryList.setAdapter(mCategoriesAdapter);
+        mEntityList.setAdapter(mCategoriesAdapter);
 
         return rootView;
     }

@@ -31,9 +31,8 @@ import static com.adonai.wallet.Utils.convertDpToPixel;
  *
  * @author Adonai
  */
-public class AccountsFragment extends WalletBaseFragment {
+public class AccountsFragment extends WalletBaseListFragment {
 
-    private ListView mAccountList;
     private AccountsAdapter mAccountsAdapter;
     private TextView budgetSum;
     private final EntityDeleteListener mAccountDeleter = new EntityDeleteListener(R.string.really_delete_account);
@@ -45,15 +44,15 @@ public class AccountsFragment extends WalletBaseFragment {
         final View rootView = inflater.inflate(R.layout.accounts_flow, container, false);
         assert rootView != null;
 
-        mAccountList = (ListView) rootView.findViewById(R.id.account_list);
+        mEntityList = (ListView) rootView.findViewById(R.id.account_list);
         budgetSum = (TextView) rootView.findViewById(R.id.account_sum);
 
         mAccountsAdapter = new AccountsAdapter();
         getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mAccountsAdapter);
 
-        mAccountList.setAdapter(mAccountsAdapter);
-        mAccountList.setOnItemLongClickListener(new AccountLongClickListener());
-        mAccountList.setOnItemClickListener(new AccountClickListener());
+        mEntityList.setAdapter(mAccountsAdapter);
+        mEntityList.setOnItemLongClickListener(new AccountLongClickListener());
+        mEntityList.setOnItemClickListener(new AccountClickListener());
 
         return rootView;
     }

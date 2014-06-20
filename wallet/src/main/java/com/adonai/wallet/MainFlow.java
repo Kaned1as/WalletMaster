@@ -26,7 +26,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
      */
 
     private NavigationDrawerFragment mNavigationDrawerFragment;
-    private List<WalletBaseFragment> mParts = new ArrayList<>(4);
+    private List<WalletBaseListFragment> mParts = new ArrayList<>(4);
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -41,9 +41,10 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
         mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
-        mParts.add((WalletBaseFragment) getFragmentManager().findFragmentById(R.id.accounts_fragment));
-        mParts.add((WalletBaseFragment) getFragmentManager().findFragmentById(R.id.operations_fragment));
-        mParts.add((WalletBaseFragment) getFragmentManager().findFragmentById(R.id.categories_fragment));
+        mParts.add((WalletBaseListFragment) getFragmentManager().findFragmentById(R.id.accounts_fragment));
+        mParts.add((WalletBaseListFragment) getFragmentManager().findFragmentById(R.id.operations_fragment));
+        mParts.add((WalletBaseListFragment) getFragmentManager().findFragmentById(R.id.categories_fragment));
+        mParts.add((WalletBaseListFragment) getFragmentManager().findFragmentById(R.id.budgets_fragment));
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
@@ -57,25 +58,23 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         final FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        for(final WalletBaseFragment fragment : mParts)
+        for(final WalletBaseListFragment fragment : mParts)
             transaction.hide(fragment);
         switch (position) {
             case 0:
                 mTitle = getString(R.string.title_accounts);
-                transaction.show(mParts.get(position));
                 break;
             case 1:
                 mTitle = getString(R.string.title_operations);
-                transaction.show(mParts.get(position));
                 break;
             case 2:
                 mTitle = getString(R.string.categories);
-                transaction.show(mParts.get(position));
                 break;
             case 3:
                 mTitle = getString(R.string.title_budget);
                 break;
         }
+        transaction.show(mParts.get(position));
         transaction.commit();
     }
 

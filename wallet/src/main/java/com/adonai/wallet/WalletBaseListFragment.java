@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.widget.CheckBox;
+import android.widget.ListView;
 
 import com.adonai.wallet.entities.Entity;
 
@@ -16,7 +17,9 @@ import static com.adonai.wallet.WalletPreferencesFragment.ASK_FOR_DELETE;
  *
  * @author adonai
  */
-public abstract class WalletBaseFragment extends Fragment {
+public abstract class WalletBaseListFragment extends Fragment {
+
+    protected ListView mEntityList;
 
     final public WalletBaseActivity getWalletActivity() {
         return (WalletBaseActivity) getActivity();

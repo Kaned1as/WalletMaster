@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.adonai.wallet.CategoriesFragment"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:id="@+id/budgets_list"
+        android:layout_weight="1"
+        android:background="@drawable/account_listview_bg"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:requiresFadingEdge="vertical"
+        android:fastScrollEnabled="true"
+        android:divider="@null" />
+</LinearLayout>
