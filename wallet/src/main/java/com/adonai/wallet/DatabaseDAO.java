@@ -480,6 +480,11 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return mDatabase.query(EntityType.OPERATIONS.toString(), null, null, null, null, null, OperationsFields.TIME + " ASC", null);
     }
 
+    public Cursor getBudgetsCursor() {
+        Log.d("Database query", "getBudgetsCursor");
+        return mDatabase.query(EntityType.BUDGETS.toString(), null, null, null, null, null, null, null);
+    }
+
     public Cursor getEntityCursor(EntityType tableName, long id) {
         Log.d("Database query", "getOperationsCursor");
         return mDatabase.query(tableName.toString(), null, " _id = ?", new String[]{String.valueOf(id)}, null, null, null, null);

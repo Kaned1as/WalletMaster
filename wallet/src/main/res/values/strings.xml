@@ -103,4 +103,7 @@
     <string name="no_filter_specified">No valid filter specified!</string>
     <string name="filter">Filter</string>
     <string name="app_name_summary">Money management</string>
+    <string name="action_add_budget">Create new budget</string>
+    <string name="really_delete_budget">Do you really want to delete this budget an all linked counters?</string>
+    <string name="all">All</string>
 </resources>

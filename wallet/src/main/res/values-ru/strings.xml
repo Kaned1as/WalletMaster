@@ -103,4 +103,7 @@
     <string name="no_filter_specified">Не выбрано ни одного фильтра!</string>
     <string name="filter">Фильтр</string>
     <string name="app_name_summary">Менеджер расходов</string>
+    <string name="action_add_budget">Создать новый бюджет</string>
+    <string name="really_delete_budget">Вы действительно хотите удалить этот бюджет и все его счётчики?</string>
+    <string name="all">Все</string>
 </resources>
