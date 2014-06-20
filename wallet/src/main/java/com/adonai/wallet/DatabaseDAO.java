@@ -196,6 +196,27 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 ")");
         sqLiteDatabase.execSQL("CREATE UNIQUE INDEX CATEGORY_UNIQUE_NAME_IDX ON " + EntityType.CATEGORIES + " (" +  CategoriesFields.NAME + "," + CategoriesFields.TYPE + ")");
 
+        sqLiteDatabase.execSQL("CREATE TABLE " + EntityType.BUDGETS + " (" +
+                BudgetFields._id + " TEXT PRIMARY KEY, " +
+                BudgetFields.NAME + " TEXT DEFAULT '' NOT NULL, " +
+                BudgetFields.START_TIME + " TIMESTAMP NOT NULL, " +
+                BudgetFields.END_TIME + " TIMESTAMP NOT NULL, " +
+                BudgetFields.COVERED_ACCOUNT + " TEXT DEFAULT NULL, " +
+                " FOREIGN KEY (" + BudgetFields.COVERED_ACCOUNT + ") REFERENCES " + EntityType.ACCOUNTS + " (" + AccountFields._id + ") ON DELETE SET NULL ON UPDATE CASCADE" +
+                ")");
+        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX BUDGET_UNIQUE_NAME_IDX ON " + EntityType.BUDGETS + " (" +  BudgetFields.NAME + ")");
+
+        sqLiteDatabase.execSQL("CREATE TABLE " + EntityType.BUDGET_ITEMS + " (" +
+                BudgetItemFields._id + " TEXT PRIMARY KEY, " +
+                BudgetItemFields.PARENT_BUDGET + " TEXT NOT NULL, " +
+                BudgetItemFields.CATEGORY + " TEXT NOT NULL, " +
+                BudgetItemFields.MAX_AMOUNT + " TEXT NOT NULL, " +
+                " FOREIGN KEY (" + BudgetItemFields.CATEGORY + ") REFERENCES " + EntityType.CATEGORIES + " (" + CategoriesFields._id + ") ON DELETE CASCADE ON UPDATE CASCADE" +
+                " FOREIGN KEY (" + BudgetItemFields.PARENT_BUDGET + ") REFERENCES " + EntityType.BUDGETS + " (" + BudgetFields._id + ") ON DELETE CASCADE ON UPDATE CASCADE" +
+                ")");
+        sqLiteDatabase.execSQL("CREATE UNIQUE INDEX BUDGET_ITEM_UNIQUE_CATEGORY_PARENT_IDX ON " + EntityType.BUDGET_ITEMS + " (" +  BudgetItemFields.PARENT_BUDGET + "," + BudgetItemFields.CATEGORY + ")");
+
+
         sqLiteDatabase.execSQL("CREATE TABLE " + ACTIONS_TABLE_NAME + " (" +
                 ActionsFields.DATA_ID + " TEXT NOT NULL, " +
                 ActionsFields.DATA_TYPE + " INTEGER NOT NULL, " +
@@ -459,17 +480,40 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return mDatabase.query(EntityType.OPERATIONS.toString(), null, null, null, null, null, OperationsFields.TIME + " ASC", null);
     }
 
-    public Cursor getEntityCursor(String tableName, long id) {
+    public Cursor getEntityCursor(EntityType tableName, long id) {
         Log.d("Database query", "getOperationsCursor");
-        return mDatabase.query(tableName, null, " _id = ?", new String[]{String.valueOf(id)}, null, null, null, null);
+        return mDatabase.query(tableName.toString(), null, " _id = ?", new String[]{String.valueOf(id)}, null, null, null, null);
     }
 
-    public Cursor getForeignKeyCursor(String tableName, String fkColumn, String targetTableName, String nameColumn) {
+    /**
+     * Helper method to retrieve dependent entities names
+     * Useful for spinner adapters
+     *
+     * @param tableName table to query foreign keys from
+     * @param fkColumn  foreign key column in source table
+     * @param targetTableName table name containing entities
+     * @param nameColumn column representing name (for GUI needs) in target table
+     * @return joined cursor with corresponding columns sourcetable.id <---> targettable.name
+     */
+    public Cursor getForeignNameCursor(EntityType tableName, String fkColumn, EntityType targetTableName, String nameColumn) {
         final SQLiteQueryBuilder filterBuilder = new SQLiteQueryBuilder();
         filterBuilder.setDistinct(true);
         filterBuilder.setTables(tableName + " AS t1" +
                 " LEFT JOIN " + targetTableName + " AS t2 ON t1." + fkColumn + " = t2._id");
         return filterBuilder.query(mDatabase, new String[]{"t1." + fkColumn, "t2." + nameColumn}, null, null, null, null, null);
+    }
+
+    /**
+     * Helper method to query entities by one column
+     * Useful for cases when foreign key is not present in source table
+     *
+     * @param tableName table name where IDs reside
+     * @param column column in table
+     * @param value value of selected column
+     * @return
+     */
+    public Cursor getCustomCursor(EntityType tableName, String column, String value) {
+        return mDatabase.query(tableName.toString(), null, column + " = ?", new String[]{value}, null, null, null);
     }
 
     public Cursor getOperationsCursor(String filter) {

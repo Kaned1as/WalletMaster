@@ -1,14 +1,21 @@
 package com.adonai.wallet.entities;
 
+import android.database.Cursor;
+import android.util.Log;
+
 import com.adonai.wallet.DatabaseDAO;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.adonai.wallet.DatabaseDAO.BudgetFields;
+import static com.adonai.wallet.DatabaseDAO.EntityType;
 
 /**
  * Created by adonai on 19.06.14.
  */
-@EntityDescriptor(type = DatabaseDAO.EntityType.BUDGETS)
+@EntityDescriptor(type = EntityType.BUDGETS)
 public class Budget extends Entity {
 
     private String name;
@@ -66,7 +73,30 @@ public class Budget extends Entity {
         return 0;
     }
 
-    public static Budget getFromDB(DatabaseDAO db, String id) {
+    public static Budget getFromDB(DatabaseDAO dao, String id) {
+        final Cursor cursor = dao.get(EntityType.BUDGETS, id);
+        if (cursor.moveToFirst()) {
+            final Budget budget = new Budget();
+            budget.setId(cursor.getString(BudgetFields._id.ordinal()));
+            budget.setName(cursor.getString(BudgetFields.NAME.ordinal()));
+            budget.setStartTime(new Date(cursor.getLong(BudgetFields.START_TIME.ordinal())));
+            budget.setEndTime(new Date(cursor.getLong(BudgetFields.END_TIME.ordinal())));
+            budget.setCoveredAccount(Account.getFromDB(dao, cursor.getString(BudgetFields.COVERED_ACCOUNT.ordinal())));
 
+            // interesting part - getting budget items
+            final Cursor budgetItems = dao.getCustomCursor(EntityType.BUDGET_ITEMS, DatabaseDAO.BudgetItemFields.PARENT_BUDGET.toString(), budget.getId());
+            final List<BudgetItem> dependentItems = new ArrayList<>(budgetItems.getCount());
+            while (cursor.moveToNext())
+                dependentItems.add(BudgetItem.getFromDB(dao, cursor.getString(DatabaseDAO.BudgetItemFields._id.ordinal())));
+            budget.setContent(dependentItems);
+            budgetItems.close();
+
+            Log.d("Entity Serialization", "getBudget(" + id + "), name: " + budget.getName());
+            cursor.close();
+            return budget;
+        }
+
+        cursor.close();
+        return null;
     }
 }

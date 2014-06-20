@@ -113,7 +113,7 @@ public class OperationsFragment extends WalletBaseFragment {
                 final Map<String, Pair<FilterType, Object>> allowedToFilter = new HashMap<>(3);
                 allowedToFilter.put(getString(R.string.description), new Pair<FilterType, Object>(FilterType.TEXT, OperationsFields.DESCRIPTION.toString()));
                 allowedToFilter.put(getString(R.string.amount), new Pair<FilterType, Object>(FilterType.AMOUNT, OperationsFields.AMOUNT.toString()));
-                final Cursor foreignCursor = getWalletActivity().getEntityDAO().getForeignKeyCursor(OPERATIONS.toString(), OperationsFields.CATEGORY.toString(), CATEGORIES.toString(), CategoriesFields.NAME.toString());
+                final Cursor foreignCursor = getWalletActivity().getEntityDAO().getForeignNameCursor(OPERATIONS, OperationsFields.CATEGORY.toString(), CATEGORIES, CategoriesFields.NAME.toString());
                 allowedToFilter.put(getString(R.string.category), new Pair<FilterType, Object>(FilterType.FOREIGN_ID, foreignCursor));
                 allowedToFilter.put(getString(R.string.date), new Pair<FilterType, Object>(FilterType.DATE, OperationsFields.TIME.toString()));
                 final WalletBaseFilterFragment opFilter = WalletBaseFilterFragment.newInstance(OPERATIONS.toString(), allowedToFilter);
