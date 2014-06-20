@@ -134,7 +134,7 @@ public class Operation extends Entity {
 
     @Override
     public String persist(DatabaseDAO dao) {
-        Log.d("addOperation", getAmount().toPlainString());
+        Log.d("Entity persist", "Operation, amount: " + getAmount().toPlainString());
 
         final ContentValues values = new ContentValues(8);
         if(getId() != null) // use with caution
@@ -206,7 +206,8 @@ public class Operation extends Entity {
                 op.setConvertingRate(cursor.getDouble(DatabaseDAO.OperationsFields.CONVERT_RATE.ordinal()));
             cursor.close();
 
-            Log.d(String.format("getOperation(%s), took %d ms", id, System.currentTimeMillis() - preciseTime), op.getAmount().toPlainString());
+            Log.d("Time measurement", String.format("getOperation(%s), took %d ms", id, System.currentTimeMillis() - preciseTime));
+            Log.d("Entity Serialization", "Operation, amount: " + op.getAmount().toPlainString());
             return op;
         }
 

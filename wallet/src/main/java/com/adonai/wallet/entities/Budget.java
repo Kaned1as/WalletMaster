@@ -66,7 +66,7 @@ public class Budget extends Entity {
         return 0;
     }
 
-    public static Budget getFromDB(DatabaseDAO db) {
+    public static Budget getFromDB(DatabaseDAO db, String id) {
 
     }
 }

@@ -101,6 +101,13 @@ public class DatabaseDAO extends SQLiteOpenHelper
         COVERED_ACCOUNT
     }
 
+    public static enum BudgetItemFields {
+        _id,
+        PARENT_BUDGET,
+        CATEGORY,
+        MAX_AMOUNT
+    }
+
     public static final String ACTIONS_TABLE_NAME = "actions";
     public static enum ActionsFields {
         DATA_ID,
@@ -438,22 +445,22 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public Cursor getAccountCursor() {
-        Log.d("Query", "getAccountCursor");
+        Log.d("Database query", "getAccountCursor");
         return mDatabase.query(EntityType.ACCOUNTS.toString(), null, null, null, null, null, null, null);
     }
 
     public Cursor getCurrencyCursor() {
-        Log.d("Query", "getCurrencyCursor");
+        Log.d("Database query", "getCurrencyCursor");
         return mDatabase.query(Currency.TABLE_NAME, null, null, null, null, null, null, null);
     }
 
     public Cursor getOperationsCursor() {
-        Log.d("Query", "getOperationsCursor");
+        Log.d("Database query", "getOperationsCursor");
         return mDatabase.query(EntityType.OPERATIONS.toString(), null, null, null, null, null, OperationsFields.TIME + " ASC", null);
     }
 
     public Cursor getEntityCursor(String tableName, long id) {
-        Log.d("Query", "getOperationsCursor");
+        Log.d("Database query", "getOperationsCursor");
         return mDatabase.query(tableName, null, " _id = ?", new String[]{String.valueOf(id)}, null, null, null, null);
     }
 
@@ -466,7 +473,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public Cursor getOperationsCursor(String filter) {
-        Log.d("Query", "getOperationsCursor with filter");
+        Log.d("Database filter query", "getOperationsCursor with filter");
         final SQLiteQueryBuilder filterBuilder = new SQLiteQueryBuilder();
 
         final StringBuilder sb = new StringBuilder(20);
@@ -488,7 +495,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public Cursor getCategoryCursor(int type) {
-        Log.d("Query", "getCategoryCursorWithType");
+        Log.d("Database query", "getCategoryCursorWithType");
         return mDatabase.query(EntityType.CATEGORIES.toString(), null, CategoriesFields.TYPE + " = ?", new String[]{String.valueOf(type)}, null, null, CategoriesFields.NAME + " ASC", null);
     }
 
@@ -499,7 +506,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public long addCurrency(Currency curr) {
-        Log.d("addCurrency", curr.toString());
+        Log.d("Currency special", "addCurrency: " + curr);
         final ContentValues values = new ContentValues(3);
         values.put(CurrenciesFields.CODE.toString(), curr.getDescription());
         if(curr.getDescription() != null)
@@ -511,7 +518,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public Currency getCurrency(String code) {
-        Log.d("getCurrency", code);
+        Log.d("Currency special", "getCurrency: " + code);
         final Cursor cursor = mDatabase.query(Currency.TABLE_NAME, null, CurrenciesFields.CODE + " = ?", new String[]{code}, null, null, null, null);
 
         if (cursor.moveToNext()) {

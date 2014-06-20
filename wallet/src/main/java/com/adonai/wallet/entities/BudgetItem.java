@@ -7,6 +7,8 @@ import com.adonai.wallet.DatabaseDAO;
 
 import java.math.BigDecimal;
 
+import static com.adonai.wallet.DatabaseDAO.BudgetItemFields;
+
 /**
  * Created by adonai on 19.06.14.
  */
@@ -55,14 +57,11 @@ public class BudgetItem extends Entity {
         final Cursor cursor = dao.get(DatabaseDAO.EntityType.BUDGET_ITEMS, id);
         if (cursor.moveToFirst()) {
             final BudgetItem bi = new BudgetItem();
-            bi.setId(cursor.getString(DatabaseDAO.AccountFields._id.ordinal()));
-            bi.setName(cursor.getString(DatabaseDAO.AccountFields.NAME.ordinal()));
-            bi.setDescription(cursor.getString(DatabaseDAO.AccountFields.DESCRIPTION.ordinal()));
-            bi.setCurrency(dao.getCurrency(cursor.getString(DatabaseDAO.AccountFields.CURRENCY.ordinal())));
-            bi.setAmount(new BigDecimal(cursor.getString(DatabaseDAO.AccountFields.AMOUNT.ordinal())));
-            bi.setColor(cursor.getInt(DatabaseDAO.AccountFields.COLOR.ordinal()));
-
-            Log.d("getAccount(" + id + ")", bi.getName());
+            bi.setId(cursor.getString(BudgetItemFields._id.ordinal()));
+            bi.setCategory(Category.getFromDB(dao, cursor.getString(BudgetItemFields.CATEGORY.ordinal())));
+            bi.setParentBudget(Budget.getFromDB(dao, cursor.getString(BudgetItemFields.PARENT_BUDGET.ordinal())));
+            bi.setMaxAmount(new BigDecimal(cursor.getString(BudgetItemFields.MAX_AMOUNT.ordinal())));
+            Log.d("Entity Serialization", "getBudgetItem(" + id + "), category name: " + bi.getCategory().getName());
             cursor.close();
             return bi;
         }

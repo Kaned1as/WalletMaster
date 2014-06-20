@@ -71,7 +71,7 @@ public class Category extends Entity {
 
     @Override
     public String persist(DatabaseDAO dao) {
-        Log.d("addCategory", getName());
+        Log.d("Entity persist", "Category name:" + getName());
 
         final ContentValues values = new ContentValues(3);
         if(getId() != null) // use with caution
@@ -116,7 +116,7 @@ public class Category extends Entity {
                 cat.setPreferredAccount(Account.getFromDB(dao, cursor.getString(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.ordinal())));
             cursor.close();
 
-            Log.d(String.format("getCategory(%s)", id), cat.getName());
+            Log.d("Entity Serialization", "Category, name: " + cat.getName());
             return cat;
         }
 

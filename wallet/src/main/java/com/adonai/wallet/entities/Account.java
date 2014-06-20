@@ -101,7 +101,7 @@ public class Account extends Entity {
 
     @Override
     public String persist(DatabaseDAO dao) {
-        Log.d("addAccount", getName());
+        Log.d("Entity persist", "Account name:" + getName());
 
         final ContentValues values = new ContentValues(5);
         if(getId() != null) // use with caution
@@ -146,7 +146,7 @@ public class Account extends Entity {
             acc.setAmount(new BigDecimal(cursor.getString(DatabaseDAO.AccountFields.AMOUNT.ordinal())));
             acc.setColor(cursor.getInt(DatabaseDAO.AccountFields.COLOR.ordinal()));
 
-            Log.d("getAccount(" + id + ")", acc.getName());
+            Log.d("Entity Serialization", "getAccount(" + id + "), name " + acc.getName());
             cursor.close();
             return acc;
         }
