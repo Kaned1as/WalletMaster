@@ -55,14 +55,11 @@ public class OperationsFragment extends WalletBaseListFragment {
         getWalletActivity().getEntityDAO().registerDatabaseListener(OPERATIONS.toString(), mOpAdapter);
         getWalletActivity().getEntityDAO().registerDatabaseListener(EntityType.ACCOUNTS.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
         getWalletActivity().getEntityDAO().registerDatabaseListener(EntityType.CATEGORIES.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
-        //mOpAdapter.setFilterQueryProvider(new OperationFilterQueryProvider());
 
         final View rootView = inflater.inflate(R.layout.operations_flow, container, false);
         assert rootView != null;
 
         mEntityList = (ListView) rootView.findViewById(R.id.operations_list);
-
-        //mSearchBox.setOnEditorActionListener(new OperationsFilterListener());
 
         mEntityList.setAdapter(mOpAdapter);
         mEntityList.setOnItemLongClickListener(new OperationLongClickListener());
@@ -189,23 +186,6 @@ public class OperationsFragment extends WalletBaseListFragment {
         }
     }
 
-    private class OperationFilterQueryProvider implements FilterQueryProvider {
-        @Override
-        public Cursor runQuery(CharSequence constraint) { // constraint is just text
-            return getWalletActivity().getEntityDAO().getOperationsCursor(constraint.toString());
-        }
-    }
-
-/*
-    private class OperationsFilterListener implements TextView.OnEditorActionListener {
-        @Override
-        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-            mOpAdapter.getFilter().filter(v.getText());
-            v.setVisibility(View.GONE);
-            return true;
-        }
-    }
-*/
     private class OperationChoice extends EntityChoice {
 
         public OperationChoice(int mItemPosition) {
