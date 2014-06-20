@@ -1,11 +1,13 @@
 package com.adonai.wallet.entities;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
 
 import com.adonai.wallet.DatabaseDAO;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static com.adonai.wallet.DatabaseDAO.BudgetItemFields;
 
@@ -45,12 +47,34 @@ public class BudgetItem extends Entity {
 
     @Override
     public String persist(DatabaseDAO dao) {
-        return null;
+        Log.d("Entity persist", "BudgetItem, parent " + getParentBudget().getName() + " category:" + getCategory().getName());
+
+        final ContentValues values = new ContentValues(5);
+        if(getId() != null) // use with caution
+            values.put(BudgetItemFields._id.toString(), getId());
+        else
+            values.put(BudgetItemFields._id.toString(), UUID.randomUUID().toString());
+
+        values.put(BudgetItemFields.PARENT_BUDGET.toString(), getParentBudget().getId());
+        values.put(BudgetItemFields.CATEGORY.toString(), getCategory().getId());
+        values.put(BudgetItemFields.MAX_AMOUNT.toString(), getMaxAmount().toPlainString());
+
+        long row = dao.insert(values, entityType.toString());
+        if(row > 0)
+            return values.getAsString(BudgetItemFields._id.toString());
+        else
+            throw new IllegalStateException("Cannot persist Budget Item!");
     }
 
     @Override
     public int update(DatabaseDAO dao) {
-        return 0;
+        final ContentValues values = new ContentValues(4);
+        values.put(BudgetItemFields._id.toString(), getId());
+        values.put(BudgetItemFields.PARENT_BUDGET.toString(), getParentBudget().getId());
+        values.put(BudgetItemFields.CATEGORY.toString(), getCategory().getId());
+        values.put(BudgetItemFields.MAX_AMOUNT.toString(), getMaxAmount().toPlainString());
+
+        return dao.update(values, entityType.toString());
     }
 
     public static BudgetItem getFromDB(DatabaseDAO dao, String id) {

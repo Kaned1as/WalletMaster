@@ -158,7 +158,7 @@ public class Operation extends Entity {
         if(row > 0)
             return values.getAsString(DatabaseDAO.OperationsFields._id.toString());
         else
-            return null;
+            throw new IllegalStateException("Cannot persist Budget!");
     }
 
     @Override

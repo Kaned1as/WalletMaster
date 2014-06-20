@@ -71,7 +71,7 @@ public class Category extends Entity {
 
     @Override
     public String persist(DatabaseDAO dao) {
-        Log.d("Entity persist", "Category name:" + getName());
+        Log.d("Entity persist", "Category, name:" + getName());
 
         final ContentValues values = new ContentValues(3);
         if(getId() != null) // use with caution
@@ -88,7 +88,7 @@ public class Category extends Entity {
         if(row > 0)
             return values.getAsString(DatabaseDAO.CategoriesFields._id.toString());
         else
-            return null;
+            throw new IllegalStateException("Cannot persist Budget!");
     }
 
     @Override

@@ -119,7 +119,7 @@ public class Account extends Entity {
         if(row > 0)
             return values.getAsString(DatabaseDAO.AccountFields._id.toString());
         else
-            return null;
+            throw new IllegalStateException("Cannot persist Budget!");
     }
 
     @Override

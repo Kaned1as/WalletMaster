@@ -1,5 +1,6 @@
 package com.adonai.wallet.entities;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
 
@@ -8,6 +9,7 @@ import com.adonai.wallet.DatabaseDAO;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import static com.adonai.wallet.DatabaseDAO.BudgetFields;
 import static com.adonai.wallet.DatabaseDAO.EntityType;
@@ -65,12 +67,41 @@ public class Budget extends Entity {
 
     @Override
     public String persist(DatabaseDAO dao) {
-        return null;
+        Log.d("Entity persist", "Budget, name: " + getName());
+
+        final ContentValues values = new ContentValues(5);
+        if(getId() != null) // use with caution
+            values.put(BudgetFields._id.toString(), getId());
+        else
+            values.put(BudgetFields._id.toString(), UUID.randomUUID().toString());
+
+        values.put(BudgetFields.NAME.toString(), getName());
+        values.put(BudgetFields.START_TIME.toString(), getStartTime().getTime());
+        values.put(BudgetFields.END_TIME.toString(), getEndTime().getTime());
+        if(getCoveredAccount() != null)
+            values.put(BudgetFields.COVERED_ACCOUNT.toString(), getCoveredAccount().getId());
+
+        long row = dao.insert(values, entityType.toString());
+        if(row > 0)
+            return values.getAsString(BudgetFields._id.toString());
+        else
+            throw new IllegalStateException("Cannot persist Budget!");
     }
 
     @Override
     public int update(DatabaseDAO dao) {
-        return 0;
+        final ContentValues values = new ContentValues(5);
+
+        values.put(DatabaseDAO.BudgetItemFields._id.toString(), getId());
+        values.put(BudgetFields.NAME.toString(), getName());
+        values.put(BudgetFields.START_TIME.toString(), getStartTime().getTime());
+        values.put(BudgetFields.END_TIME.toString(), getEndTime().getTime());
+        if(getCoveredAccount() != null)
+            values.put(BudgetFields.COVERED_ACCOUNT.toString(), getCoveredAccount().getId());
+        else
+            values.put(BudgetFields.COVERED_ACCOUNT.toString(), (String) null);
+
+        return dao.update(values, entityType.toString());
     }
 
     public static Budget getFromDB(DatabaseDAO dao, String id) {
@@ -83,6 +114,7 @@ public class Budget extends Entity {
             budget.setEndTime(new Date(cursor.getLong(BudgetFields.END_TIME.ordinal())));
             budget.setCoveredAccount(Account.getFromDB(dao, cursor.getString(BudgetFields.COVERED_ACCOUNT.ordinal())));
 
+            /*
             // interesting part - getting budget items
             final Cursor budgetItems = dao.getCustomCursor(EntityType.BUDGET_ITEMS, DatabaseDAO.BudgetItemFields.PARENT_BUDGET.toString(), budget.getId());
             final List<BudgetItem> dependentItems = new ArrayList<>(budgetItems.getCount());
@@ -90,6 +122,7 @@ public class Budget extends Entity {
                 dependentItems.add(BudgetItem.getFromDB(dao, cursor.getString(DatabaseDAO.BudgetItemFields._id.ordinal())));
             budget.setContent(dependentItems);
             budgetItems.close();
+            */
 
             Log.d("Entity Serialization", "getBudget(" + id + "), name: " + budget.getName());
             cursor.close();
