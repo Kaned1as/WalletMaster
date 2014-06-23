@@ -39,6 +39,15 @@ import java.util.concurrent.Callable;
 public class DatabaseDAO extends SQLiteOpenHelper
 {
     private final Context mContext;
+    private static DatabaseDAO mInstance;
+
+    public static void init(Context context) {
+        mInstance = new DatabaseDAO(context);
+    }
+
+    public static DatabaseDAO getInstance() {
+        return mInstance;
+    }
 
     public interface DatabaseListener {
         void handleUpdate();
@@ -132,7 +141,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     private final Map<String, List<DatabaseListener>> listenerMap = new HashMap<>();
     private SQLiteDatabase mDatabase;
 
-    public DatabaseDAO(Context context) {
+    private DatabaseDAO(Context context) {
         super(context, dbName, null, dbVersion);
         mContext = context;
         mDatabase = getWritableDatabase();
@@ -374,7 +383,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
             switch (type) {
                 case ADD: { // we're adding, only store ID to keep track of it
                     // first, persist entity
-                    final String persistedId = entity.persist(this); // result holds ID now
+                    final String persistedId = entity.persist(); // result holds ID now
                     if (persistedId == null) // error
                         break transactionFlow;
                     entity.setId(persistedId); // we should track new ID of entity in action fields
@@ -396,20 +405,20 @@ public class DatabaseDAO extends SQLiteOpenHelper
                     final Entity oldEntity;
                     switch (entity.getEntityType()) {
                         case ACCOUNTS:
-                            oldEntity = Account.getFromDB(this, entity.getId());
+                            oldEntity = Account.getFromDB(entity.getId());
                             break;
                         case CATEGORIES:
-                            oldEntity = Category.getFromDB(this, entity.getId());
+                            oldEntity = Category.getFromDB(entity.getId());
                             break;
                         case OPERATIONS:
-                            oldEntity = Operation.getFromDB(this, entity.getId());
+                            oldEntity = Operation.getFromDB(entity.getId());
                             break;
                         default:
                             throw new IllegalArgumentException("No such entity type!" + entity.getEntityType());
                     }
 
                     // second, update old row with new data
-                    final long rowsUpdated = entity.update(this); // result holds updated entities count now
+                    final long rowsUpdated = entity.update(); // result holds updated entities count now
                     if (rowsUpdated != 1) // error
                         break transactionFlow;
 
@@ -427,7 +436,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 }
                 case DELETE: { // we are deleting need to store all original data
                     // first delete entity from DB
-                    final long entitiesDeleted = entity.delete(this); // result holds updated entities count now
+                    final long entitiesDeleted = entity.delete(); // result holds updated entities count now
                     if (entitiesDeleted != 1) // error
                         break transactionFlow;
 
@@ -614,7 +623,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         new AsyncDbQuery<>(lst).execute(new Callable<Operation>() {
             @Override
             public Operation call() throws Exception {
-                return Operation.getFromDB(DatabaseDAO.this, id);
+                return Operation.getFromDB(id);
             }
         });
     }
@@ -667,7 +676,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
      * @return success or failure
      */
     public boolean revertOperation(String id) {
-        return revertOperation(Operation.getFromDB(this, id));
+        return revertOperation(Operation.getFromDB(id));
     }
 
     /**
@@ -781,7 +790,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         );
         while (selections.moveToNext())
             try {
-                final Method filler = clazz.getDeclaredMethod("getFromDB", DatabaseDAO.class, String.class);
+                final Method filler = clazz.getDeclaredMethod("getFromDB", String.class);
                 final T newEntity = (T) filler.invoke(null, this, selections.getString(0));
                 if(newEntity != null)
                     result.add(newEntity);
@@ -809,7 +818,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 , null);
         while (selections.moveToNext())
             try {
-                final Method filler = clazz.getDeclaredMethod("getFromDB", DatabaseDAO.class, String.class);
+                final Method filler = clazz.getDeclaredMethod("getFromDB", String.class);
                 final T newEntity = (T) filler.invoke(null, this, selections.getString(0));
                 if(newEntity != null)
                     result.add(newEntity);

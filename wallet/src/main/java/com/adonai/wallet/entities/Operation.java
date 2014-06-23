@@ -133,7 +133,7 @@ public class Operation extends Entity {
     }
 
     @Override
-    public String persist(DatabaseDAO dao) {
+    public String persist() {
         Log.d("Entity persist", "Operation, amount: " + getAmount().toPlainString());
 
         final ContentValues values = new ContentValues(8);
@@ -154,7 +154,7 @@ public class Operation extends Entity {
         if(getConvertingRate() != null)
             values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), getConvertingRate());
 
-        long row = dao.insert(values, entityType.toString());
+        long row = DatabaseDAO.getInstance().insert(values, entityType.toString());
         if(row > 0)
             return values.getAsString(DatabaseDAO.OperationsFields._id.toString());
         else
@@ -162,7 +162,7 @@ public class Operation extends Entity {
     }
 
     @Override
-    public int update(DatabaseDAO dao) {
+    public int update() {
         // 2. create ContentValues to add key "column"/value
         final ContentValues values = new ContentValues();
         values.put(DatabaseDAO.OperationsFields.DESCRIPTION.toString(), getDescription());
@@ -185,22 +185,23 @@ public class Operation extends Entity {
         else
             values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), (String) null);
 
-        return dao.update(values, entityType.toString());
+        return DatabaseDAO.getInstance().update(values, entityType.toString());
     }
 
-    public static Operation getFromDB(DatabaseDAO dao, String id) {
+    public static Operation getFromDB(String id) {
+        final DatabaseDAO dao = DatabaseDAO.getInstance();
         final Long preciseTime = System.currentTimeMillis();
         final Cursor cursor = dao.get(DatabaseDAO.EntityType.OPERATIONS, id);
         if (cursor.moveToFirst()) {
             final Operation op = new Operation();
             op.setId(cursor.getString(DatabaseDAO.OperationsFields._id.ordinal()));
             op.setDescription(cursor.getString(DatabaseDAO.OperationsFields.DESCRIPTION.ordinal()));
-            op.setCategory(Category.getFromDB(dao, cursor.getString(DatabaseDAO.OperationsFields.CATEGORY.ordinal())));
+            op.setCategory(Category.getFromDB(cursor.getString(DatabaseDAO.OperationsFields.CATEGORY.ordinal())));
             op.setTime(new Date(cursor.getLong(DatabaseDAO.OperationsFields.TIME.ordinal())));
             if(!cursor.isNull(DatabaseDAO.OperationsFields.CHARGER.ordinal()))
-                op.setCharger(Account.getFromDB(dao, cursor.getString(DatabaseDAO.OperationsFields.CHARGER.ordinal())));
+                op.setCharger(Account.getFromDB(cursor.getString(DatabaseDAO.OperationsFields.CHARGER.ordinal())));
             if(!cursor.isNull(DatabaseDAO.OperationsFields.RECEIVER.ordinal()))
-                op.setBeneficiar(Account.getFromDB(dao, cursor.getString(DatabaseDAO.OperationsFields.RECEIVER.ordinal())));
+                op.setBeneficiar(Account.getFromDB(cursor.getString(DatabaseDAO.OperationsFields.RECEIVER.ordinal())));
             op.setAmount(new BigDecimal(cursor.getString(DatabaseDAO.OperationsFields.AMOUNT.ordinal())));
             if(!cursor.isNull(DatabaseDAO.OperationsFields.CONVERT_RATE.ordinal()))
                 op.setConvertingRate(cursor.getDouble(DatabaseDAO.OperationsFields.CONVERT_RATE.ordinal()));
@@ -215,16 +216,16 @@ public class Operation extends Entity {
         return null;
     }
 
-    public static Operation fromProtoOperation(SyncProtocol.Operation operation, DatabaseDAO dao) {
+    public static Operation fromProtoOperation(SyncProtocol.Operation operation) {
         final Operation temp = new Operation();
         temp.setId(operation.getID());
         temp.setDescription(operation.getDescription());
-        temp.setCategory(Category.getFromDB(dao, operation.getCategoryId()));
+        temp.setCategory(Category.getFromDB(operation.getCategoryId()));
         temp.setTime(new Date(operation.getTime()));
         if(operation.hasChargerId())
-            temp.setCharger(Account.getFromDB(dao, operation.getChargerId()));
+            temp.setCharger(Account.getFromDB(operation.getChargerId()));
         if(operation.hasBeneficiarId())
-            temp.setBeneficiar(Account.getFromDB(dao, operation.getBeneficiarId()));
+            temp.setBeneficiar(Account.getFromDB(operation.getBeneficiarId()));
         temp.setAmount(new BigDecimal(operation.getAmount()));
         if(operation.hasConvertingRate())
             temp.setConvertingRate(operation.getConvertingRate());

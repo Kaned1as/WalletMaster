@@ -18,7 +18,6 @@ import com.adonai.wallet.sync.SyncStateMachine;
  */
 public class WalletBaseActivity extends Activity implements SyncStateMachine.SyncListener {
 
-    protected DatabaseDAO mEntityDAO;
     protected SyncStateMachine mSyncMachine;
     protected ProgressDialog mProgressDialog;
     protected SharedPreferences mPreferences;
@@ -27,9 +26,9 @@ public class WalletBaseActivity extends Activity implements SyncStateMachine.Syn
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DatabaseDAO.init(getApplicationContext());
 
         // add all the currencies that are stored within mEntityDAO
-        mEntityDAO = new DatabaseDAO(this);
         mSyncMachine = new SyncStateMachine(this);
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setIndeterminate(true);
@@ -44,13 +43,9 @@ public class WalletBaseActivity extends Activity implements SyncStateMachine.Syn
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mEntityDAO.close();
+        DatabaseDAO.getInstance().close();
         mSyncMachine.shutdown();
         mProgressDialog.dismiss();
-    }
-
-    public DatabaseDAO getEntityDAO() {
-        return mEntityDAO;
     }
 
     public SyncStateMachine getSyncMachine() {

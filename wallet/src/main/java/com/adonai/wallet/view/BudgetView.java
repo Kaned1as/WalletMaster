@@ -12,6 +12,7 @@ import android.graphics.drawable.shapes.PathShape;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.adonai.wallet.R;
@@ -27,7 +28,7 @@ import static com.adonai.wallet.Utils.convertPixelsToDp;
 /**
  * Created by adonai on 12.06.14.
  */
-public class BudgetView extends FrameLayout {
+public class BudgetView extends LinearLayout {
 
     private enum State {
         COLLAPSED,
@@ -68,6 +69,6 @@ public class BudgetView extends FrameLayout {
     }
 
     public void expand() {
-        removeView(mCollapsedView);
+        //removeView(mCollapsedView);
     }
 }

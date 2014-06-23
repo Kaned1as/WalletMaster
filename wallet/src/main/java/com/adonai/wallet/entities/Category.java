@@ -70,7 +70,7 @@ public class Category extends Entity {
     }
 
     @Override
-    public String persist(DatabaseDAO dao) {
+    public String persist() {
         Log.d("Entity persist", "Category, name:" + getName());
 
         final ContentValues values = new ContentValues(3);
@@ -84,7 +84,7 @@ public class Category extends Entity {
         if(getPreferredAccount() != null)
             values.put(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.toString(), getPreferredAccount().getId());
 
-        long row = dao.insert(values, entityType.toString());
+        long row = DatabaseDAO.getInstance().insert(values, entityType.toString());
         if(row > 0)
             return values.getAsString(DatabaseDAO.CategoriesFields._id.toString());
         else
@@ -92,7 +92,7 @@ public class Category extends Entity {
     }
 
     @Override
-    public int update(DatabaseDAO dao) {
+    public int update() {
         final ContentValues values = new ContentValues(3);
         values.put(DatabaseDAO.CategoriesFields._id.toString(), getId());
         values.put(DatabaseDAO.CategoriesFields.NAME.toString(), getName());
@@ -102,10 +102,11 @@ public class Category extends Entity {
         else
             values.put(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.toString(), (String) null);
 
-        return dao.update(values, entityType.toString());
+        return DatabaseDAO.getInstance().update(values, entityType.toString());
     }
 
-    public static Category getFromDB(DatabaseDAO dao, String id) {
+    public static Category getFromDB(String id) {
+        final DatabaseDAO dao = DatabaseDAO.getInstance();
         final Cursor cursor = dao.get(DatabaseDAO.EntityType.CATEGORIES, id);
         if (cursor.moveToFirst()) {
             final Category cat = new Category();
@@ -113,7 +114,7 @@ public class Category extends Entity {
             cat.setName(cursor.getString(DatabaseDAO.CategoriesFields.NAME.ordinal()));
             cat.setType(cursor.getInt(DatabaseDAO.CategoriesFields.TYPE.ordinal()));
             if(!cursor.isNull(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.ordinal()))
-                cat.setPreferredAccount(Account.getFromDB(dao, cursor.getString(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.ordinal())));
+                cat.setPreferredAccount(Account.getFromDB(cursor.getString(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.ordinal())));
             cursor.close();
 
             Log.d("Entity Serialization", "Category, name: " + cat.getName());
@@ -124,13 +125,13 @@ public class Category extends Entity {
         return null;
     }
 
-    public static Category fromProtoCategory(SyncProtocol.Category category, DatabaseDAO dao) {
+    public static Category fromProtoCategory(SyncProtocol.Category category) {
         final Category tempCategory = new Category();
         tempCategory.setId(category.getID());
         tempCategory.setName(category.getName());
         tempCategory.setType(category.getType());
         if(category.hasPreferredAccount())
-            tempCategory.setPreferredAccount(Account.getFromDB(dao, category.getPreferredAccount()));
+            tempCategory.setPreferredAccount(Account.getFromDB(category.getPreferredAccount()));
 
         return tempCategory;
     }

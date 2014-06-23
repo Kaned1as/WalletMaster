@@ -66,7 +66,7 @@ public class Budget extends Entity {
     }
 
     @Override
-    public String persist(DatabaseDAO dao) {
+    public String persist() {
         Log.d("Entity persist", "Budget, name: " + getName());
 
         final ContentValues values = new ContentValues(5);
@@ -81,7 +81,7 @@ public class Budget extends Entity {
         if(getCoveredAccount() != null)
             values.put(BudgetFields.COVERED_ACCOUNT.toString(), getCoveredAccount().getId());
 
-        long row = dao.insert(values, entityType.toString());
+        long row = DatabaseDAO.getInstance().insert(values, entityType.toString());
         if(row > 0)
             return values.getAsString(BudgetFields._id.toString());
         else
@@ -89,7 +89,7 @@ public class Budget extends Entity {
     }
 
     @Override
-    public int update(DatabaseDAO dao) {
+    public int update() {
         final ContentValues values = new ContentValues(5);
 
         values.put(DatabaseDAO.BudgetItemFields._id.toString(), getId());
@@ -101,10 +101,11 @@ public class Budget extends Entity {
         else
             values.put(BudgetFields.COVERED_ACCOUNT.toString(), (String) null);
 
-        return dao.update(values, entityType.toString());
+        return DatabaseDAO.getInstance().update(values, entityType.toString());
     }
 
-    public static Budget getFromDB(DatabaseDAO dao, String id) {
+    public static Budget getFromDB(String id) {
+        final DatabaseDAO dao = DatabaseDAO.getInstance();
         final Cursor cursor = dao.get(EntityType.BUDGETS, id);
         if (cursor.moveToFirst()) {
             final Budget budget = new Budget();
@@ -112,7 +113,7 @@ public class Budget extends Entity {
             budget.setName(cursor.getString(BudgetFields.NAME.ordinal()));
             budget.setStartTime(new Date(cursor.getLong(BudgetFields.START_TIME.ordinal())));
             budget.setEndTime(new Date(cursor.getLong(BudgetFields.END_TIME.ordinal())));
-            budget.setCoveredAccount(Account.getFromDB(dao, cursor.getString(BudgetFields.COVERED_ACCOUNT.ordinal())));
+            budget.setCoveredAccount(Account.getFromDB(cursor.getString(BudgetFields.COVERED_ACCOUNT.ordinal())));
 
             /*
             // interesting part - getting budget items

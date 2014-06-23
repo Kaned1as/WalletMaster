@@ -46,7 +46,7 @@ public class BudgetItem extends Entity {
     }
 
     @Override
-    public String persist(DatabaseDAO dao) {
+    public String persist() {
         Log.d("Entity persist", "BudgetItem, parent " + getParentBudget().getName() + " category:" + getCategory().getName());
 
         final ContentValues values = new ContentValues(5);
@@ -59,7 +59,7 @@ public class BudgetItem extends Entity {
         values.put(BudgetItemFields.CATEGORY.toString(), getCategory().getId());
         values.put(BudgetItemFields.MAX_AMOUNT.toString(), getMaxAmount().toPlainString());
 
-        long row = dao.insert(values, entityType.toString());
+        long row = DatabaseDAO.getInstance().insert(values, entityType.toString());
         if(row > 0)
             return values.getAsString(BudgetItemFields._id.toString());
         else
@@ -67,23 +67,24 @@ public class BudgetItem extends Entity {
     }
 
     @Override
-    public int update(DatabaseDAO dao) {
+    public int update() {
         final ContentValues values = new ContentValues(4);
         values.put(BudgetItemFields._id.toString(), getId());
         values.put(BudgetItemFields.PARENT_BUDGET.toString(), getParentBudget().getId());
         values.put(BudgetItemFields.CATEGORY.toString(), getCategory().getId());
         values.put(BudgetItemFields.MAX_AMOUNT.toString(), getMaxAmount().toPlainString());
 
-        return dao.update(values, entityType.toString());
+        return DatabaseDAO.getInstance().update(values, entityType.toString());
     }
 
-    public static BudgetItem getFromDB(DatabaseDAO dao, String id) {
+    public static BudgetItem getFromDB(String id) {
+        final DatabaseDAO dao = DatabaseDAO.getInstance();
         final Cursor cursor = dao.get(DatabaseDAO.EntityType.BUDGET_ITEMS, id);
         if (cursor.moveToFirst()) {
             final BudgetItem bi = new BudgetItem();
             bi.setId(cursor.getString(BudgetItemFields._id.ordinal()));
-            bi.setCategory(Category.getFromDB(dao, cursor.getString(BudgetItemFields.CATEGORY.ordinal())));
-            bi.setParentBudget(Budget.getFromDB(dao, cursor.getString(BudgetItemFields.PARENT_BUDGET.ordinal())));
+            bi.setCategory(Category.getFromDB(cursor.getString(BudgetItemFields.CATEGORY.ordinal())));
+            bi.setParentBudget(Budget.getFromDB(cursor.getString(BudgetItemFields.PARENT_BUDGET.ordinal())));
             bi.setMaxAmount(new BigDecimal(cursor.getString(BudgetItemFields.MAX_AMOUNT.ordinal())));
             Log.d("Entity Serialization", "getBudgetItem(" + id + "), category name: " + bi.getCategory().getName());
             cursor.close();

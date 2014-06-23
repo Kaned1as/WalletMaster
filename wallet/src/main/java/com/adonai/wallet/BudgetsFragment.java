@@ -35,8 +35,8 @@ public class BudgetsFragment extends WalletBaseListFragment {
         setHasOptionsMenu(true);
 
         mBudgetsAdapter = new BudgetsAdapter();
-        getWalletActivity().getEntityDAO().registerDatabaseListener(BUDGETS.toString(), mBudgetsAdapter);
-        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mBudgetsAdapter); // due to foreign key null setting
+        DatabaseDAO.getInstance().registerDatabaseListener(BUDGETS.toString(), mBudgetsAdapter);
+        DatabaseDAO.getInstance().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mBudgetsAdapter); // due to foreign key null setting
 
         final View rootView = inflater.inflate(R.layout.budgets_flow, container, false);
         assert rootView != null;
@@ -53,8 +53,8 @@ public class BudgetsFragment extends WalletBaseListFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(BUDGETS.toString(), mBudgetsAdapter);
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mBudgetsAdapter); // due to foreign key null setting
+        DatabaseDAO.getInstance().unregisterDatabaseListener(BUDGETS.toString(), mBudgetsAdapter);
+        DatabaseDAO.getInstance().unregisterDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mBudgetsAdapter); // due to foreign key null setting
         mBudgetsAdapter.changeCursor(null); // close opened cursor
     }
 
@@ -80,7 +80,7 @@ public class BudgetsFragment extends WalletBaseListFragment {
 
     private class BudgetsAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener {
         public BudgetsAdapter() {
-            super(getActivity(), getWalletActivity().getEntityDAO().getBudgetsCursor());
+            super(getActivity(), DatabaseDAO.getInstance().getBudgetsCursor());
         }
 
         @Override
@@ -88,7 +88,7 @@ public class BudgetsFragment extends WalletBaseListFragment {
             getWalletActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    changeCursor(getWalletActivity().getEntityDAO().getBudgetsCursor());
+                    changeCursor(DatabaseDAO.getInstance().getBudgetsCursor());
                 }
             });
         }
@@ -97,7 +97,6 @@ public class BudgetsFragment extends WalletBaseListFragment {
         @SuppressWarnings("deprecation") // for compat with older APIs
         public View getView(int position, View convertView, ViewGroup parent) {
             final BudgetView view;
-            final DatabaseDAO db = getWalletActivity().getEntityDAO();
             mCursor.moveToPosition(position);
 
             if (convertView == null)
@@ -105,7 +104,7 @@ public class BudgetsFragment extends WalletBaseListFragment {
             else
                 view = (BudgetView) convertView;
 
-            view.setBudget(Budget.getFromDB(db, mCursor.getString(DatabaseDAO.BudgetFields._id.ordinal())));
+            view.setBudget(Budget.getFromDB(mCursor.getString(DatabaseDAO.BudgetFields._id.ordinal())));
 
             return view;
         }
@@ -132,9 +131,8 @@ public class BudgetsFragment extends WalletBaseListFragment {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            final DatabaseDAO db = getWalletActivity().getEntityDAO();
             final String accID = mBudgetsAdapter.getItemUUID(mItemPosition);
-            final Account acc = Account.getFromDB(db, accID);
+            final Account acc = Account.getFromDB(accID);
             switch (which) {
                 case 0: // modify
                     AccountDialogFragment.forAccount(acc.getId()).show(getFragmentManager(), "accModify");

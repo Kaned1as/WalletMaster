@@ -72,7 +72,7 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // if we are modifying existing account
         if(getArguments() != null && getArguments().containsKey(ACCOUNT_REFERENCE)) {
-            mAccount = Account.getFromDB(getWalletActivity().getEntityDAO(), getArguments().getString(ACCOUNT_REFERENCE));
+            mAccount = Account.getFromDB(getArguments().getString(ACCOUNT_REFERENCE));
 
             builder.setPositiveButton(R.string.confirm, this);
             builder.setTitle(R.string.edit_account).setView(dialog);
@@ -107,14 +107,14 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
         }
         if(mAccount != null)  { // modifying existing account
             fillAccountFields();
-            if(getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.MODIFY, mAccount))
+            if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.MODIFY, mAccount))
                 dismiss();
             else
                 Toast.makeText(getActivity(), R.string.account_not_found, Toast.LENGTH_SHORT).show();
         } else {  // creating new account
             mAccount = new Account();
             fillAccountFields();
-            if(getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.ADD, mAccount))
+            if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.ADD, mAccount))
                 dismiss();
             else {
                 Toast.makeText(getActivity(), R.string.account_already_exist, Toast.LENGTH_SHORT).show();
@@ -162,7 +162,7 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
 
         public CurrencyAdapter() {
             mContext = getActivity();
-            mCursor = getWalletActivity().getEntityDAO().getCurrencyCursor();
+            mCursor = DatabaseDAO.getInstance().getCurrencyCursor();
         }
 
         @Override
@@ -211,7 +211,7 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
         @Override
         public Currency getItem(int position) {
             mCursor.moveToPosition(position);
-            return getWalletActivity().getEntityDAO().getCurrency(mCursor.getString(DatabaseDAO.CurrenciesFields.CODE.ordinal()));
+            return DatabaseDAO.getInstance().getCurrency(mCursor.getString(DatabaseDAO.CurrenciesFields.CODE.ordinal()));
         }
 
         @Override

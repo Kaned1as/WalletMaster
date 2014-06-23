@@ -52,9 +52,9 @@ public class OperationsFragment extends WalletBaseListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         mOpAdapter = new OperationsAdapter();
-        getWalletActivity().getEntityDAO().registerDatabaseListener(OPERATIONS.toString(), mOpAdapter);
-        getWalletActivity().getEntityDAO().registerDatabaseListener(EntityType.ACCOUNTS.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
-        getWalletActivity().getEntityDAO().registerDatabaseListener(EntityType.CATEGORIES.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
+        DatabaseDAO.getInstance().registerDatabaseListener(OPERATIONS.toString(), mOpAdapter);
+        DatabaseDAO.getInstance().registerDatabaseListener(EntityType.ACCOUNTS.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
+        DatabaseDAO.getInstance().registerDatabaseListener(EntityType.CATEGORIES.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
 
         final View rootView = inflater.inflate(R.layout.operations_flow, container, false);
         assert rootView != null;
@@ -70,9 +70,9 @@ public class OperationsFragment extends WalletBaseListFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(OPERATIONS.toString(), mOpAdapter);
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(EntityType.ACCOUNTS.toString(), mOpAdapter);
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(EntityType.CATEGORIES.toString(), mOpAdapter);
+        DatabaseDAO.getInstance().unregisterDatabaseListener(OPERATIONS.toString(), mOpAdapter);
+        DatabaseDAO.getInstance().unregisterDatabaseListener(EntityType.ACCOUNTS.toString(), mOpAdapter);
+        DatabaseDAO.getInstance().unregisterDatabaseListener(EntityType.CATEGORIES.toString(), mOpAdapter);
         mOpAdapter.changeCursor(null); // close opened cursor
     }
 
@@ -109,7 +109,7 @@ public class OperationsFragment extends WalletBaseListFragment {
                 final Map<String, Pair<FilterType, Object>> allowedToFilter = new HashMap<>(3);
                 allowedToFilter.put(getString(R.string.description), new Pair<FilterType, Object>(FilterType.TEXT, OperationsFields.DESCRIPTION.toString()));
                 allowedToFilter.put(getString(R.string.amount), new Pair<FilterType, Object>(FilterType.AMOUNT, OperationsFields.AMOUNT.toString()));
-                final Cursor foreignCursor = getWalletActivity().getEntityDAO().getForeignNameCursor(OPERATIONS, OperationsFields.CATEGORY.toString(), CATEGORIES, CategoriesFields.NAME.toString());
+                final Cursor foreignCursor = DatabaseDAO.getInstance().getForeignNameCursor(OPERATIONS, OperationsFields.CATEGORY.toString(), CATEGORIES, CategoriesFields.NAME.toString());
                 allowedToFilter.put(getString(R.string.category), new Pair<FilterType, Object>(FilterType.FOREIGN_ID, foreignCursor));
                 allowedToFilter.put(getString(R.string.date), new Pair<FilterType, Object>(FilterType.DATE, OperationsFields.TIME.toString()));
                 final WalletBaseFilterFragment opFilter = WalletBaseFilterFragment.newInstance(OPERATIONS.toString(), allowedToFilter);
@@ -126,7 +126,7 @@ public class OperationsFragment extends WalletBaseListFragment {
 
     private class OperationsAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener, WalletBaseFilterFragment.FilterCursorListener {
         public OperationsAdapter() {
-            super(getActivity(), getWalletActivity().getEntityDAO().getOperationsCursor());
+            super(getActivity(), DatabaseDAO.getInstance().getOperationsCursor());
         }
 
         @Override
@@ -134,7 +134,7 @@ public class OperationsFragment extends WalletBaseListFragment {
             getWalletActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    changeCursor(getWalletActivity().getEntityDAO().getOperationsCursor());
+                    changeCursor(DatabaseDAO.getInstance().getOperationsCursor());
                 }
             });
         }
@@ -143,7 +143,6 @@ public class OperationsFragment extends WalletBaseListFragment {
         @SuppressWarnings("deprecation") // for compat with older APIs
         public View getView(int position, View convertView, ViewGroup parent) {
             final OperationView view;
-            final DatabaseDAO db = getWalletActivity().getEntityDAO();
             mCursor.moveToPosition(position);
 
             if (convertView == null)
@@ -151,7 +150,7 @@ public class OperationsFragment extends WalletBaseListFragment {
             else
                 view = (OperationView) convertView;
 
-            db.getAsyncOperation(mCursor.getString(OperationsFields._id.ordinal()), new DatabaseDAO.AsyncDbQuery.Listener<Operation>() {
+            DatabaseDAO.getInstance().getAsyncOperation(mCursor.getString(OperationsFields._id.ordinal()), new DatabaseDAO.AsyncDbQuery.Listener<Operation>() {
                 @Override
                 public void onFinishLoad(Operation op) {
                     view.setOperation(op);
@@ -170,7 +169,7 @@ public class OperationsFragment extends WalletBaseListFragment {
 
         @Override
         public void resetFilter() {
-            changeCursor(getWalletActivity().getEntityDAO().getOperationsCursor());
+            changeCursor(DatabaseDAO.getInstance().getOperationsCursor());
             isListFiltered = false;
             getActivity().invalidateOptionsMenu();
         }
@@ -194,9 +193,9 @@ public class OperationsFragment extends WalletBaseListFragment {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            final DatabaseDAO db = getWalletActivity().getEntityDAO();
+            final DatabaseDAO db = DatabaseDAO.getInstance();
             final String opID = mOpAdapter.getItemUUID(mItemPosition);
-            final Operation operation = Operation.getFromDB(db, opID);
+            final Operation operation = Operation.getFromDB(opID);
             switch (which) {
                 case 0: // modify
                     new OperationDialogFragment(operation).show(getFragmentManager(), "opModify");
@@ -215,7 +214,7 @@ public class OperationsFragment extends WalletBaseListFragment {
         @Override
         public boolean onQueryTextSubmit(String query) {
             if(!query.isEmpty()) {
-                mOpAdapter.changeCursor(getWalletActivity().getEntityDAO().getOperationsCursor(query));
+                mOpAdapter.changeCursor(DatabaseDAO.getInstance().getOperationsCursor(query));
                 if (mSearchItem != null)
                     mSearchItem.collapseActionView(); // hide after submit
                 isListFiltered = true;

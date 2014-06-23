@@ -100,7 +100,7 @@ public class Account extends Entity {
     }
 
     @Override
-    public String persist(DatabaseDAO dao) {
+    public String persist() {
         Log.d("Entity persist", "Account name:" + getName());
 
         final ContentValues values = new ContentValues(5);
@@ -115,7 +115,7 @@ public class Account extends Entity {
         values.put(DatabaseDAO.AccountFields.AMOUNT.toString(), getAmount().toPlainString());
         values.put(DatabaseDAO.AccountFields.COLOR.toString(), getColor());
 
-        long row = dao.insert(values, entityType.toString());
+        long row = DatabaseDAO.getInstance().insert(values, entityType.toString());
         if(row > 0)
             return values.getAsString(DatabaseDAO.AccountFields._id.toString());
         else
@@ -123,7 +123,7 @@ public class Account extends Entity {
     }
 
     @Override
-    public int update(DatabaseDAO dao) {
+    public int update() {
         final ContentValues values = new ContentValues();
         values.put(DatabaseDAO.AccountFields._id.toString(), getId());
         values.put(DatabaseDAO.AccountFields.NAME.toString(), getName());
@@ -132,10 +132,11 @@ public class Account extends Entity {
         values.put(DatabaseDAO.AccountFields.AMOUNT.toString(), getAmount().toPlainString());
         values.put(DatabaseDAO.AccountFields.COLOR.toString(), getColor());
 
-        return dao.update(values, entityType.toString());
+        return DatabaseDAO.getInstance().update(values, entityType.toString());
     }
 
-    public static Account getFromDB(DatabaseDAO dao, String id) {
+    public static Account getFromDB(String id) {
+        final DatabaseDAO dao = DatabaseDAO.getInstance();
         final Cursor cursor = dao.get(DatabaseDAO.EntityType.ACCOUNTS, id);
         if (cursor.moveToFirst()) {
             final Account acc = new Account();
