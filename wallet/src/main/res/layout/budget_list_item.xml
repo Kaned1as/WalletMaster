@@ -18,66 +18,77 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/operation_category_label"
+            android:id="@+id/name_text"
             android:layout_centerHorizontal="true"
-            android:textSize="16sp" />
+            android:text="@string/placeholder_text"
+            android:textAppearance="@android:style/TextAppearance.Medium" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/operation_description_label"
-            android:maxLines="1"
-            android:gravity="center_horizontal"
-            android:layout_alignParentLeft="true" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/start_label"
+            android:text="@string/period"
+            android:layout_below="@+id/name_text"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="10dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/operation_time_label"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/operation_category_label"
-            android:textSize="12sp" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/start_time_text"
+            android:layout_toRightOf="@+id/start_label"
+            android:layout_marginLeft="10dp"
+            android:layout_alignBottom="@+id/start_label" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/charge_account_label"
-            android:maxLines="1"
-            android:layout_below="@+id/operation_description_label" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/hyphen_label"
+            android:layout_toRightOf="@+id/start_time_text"
+            android:layout_alignBottom="@+id/start_time_text"
+            android:layout_marginLeft="10dp"
+            android:text="@string/hyphen" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/charge_amount_label"
-            android:maxLines="1"
-            android:textColor="@color/red_amount"
-            android:layout_below="@+id/charge_account_label"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/end_time_text"
+            android:layout_toRightOf="@+id/hyphen_label"
+            android:layout_alignBottom="@+id/hyphen_label"
+            android:layout_marginLeft="10dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/beneficiar_account_label"
-            android:maxLines="1"
-            android:visibility="visible"
-            android:layout_below="@+id/operation_category_label"
-            android:layout_alignParentRight="true" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/covered_account"
+            android:id="@+id/covered_account_label"
+            android:layout_below="@+id/start_label"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/beneficiar_amount_label"
-            android:gravity="center_vertical|right"
-            android:maxLines="1"
-            android:visibility="visible"
-            android:textColor="@color/green_amount"
-            android:layout_alignParentLeft="false"
-            android:layout_alignParentTop="false"
-            android:layout_below="@+id/beneficiar_account_label"
-            android:layout_alignParentRight="true"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/covered_account_text"
+            android:layout_toRightOf="@+id/covered_account_label"
+            android:layout_alignBottom="@+id/covered_account_label"
+            android:layout_marginLeft="10dp" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/expand_view"
+            android:src="?attr/ExpandBudgetDrawable"
+            android:layout_below="@+id/covered_account_label"
+            android:layout_marginTop="10dp"
+            android:scaleType="fitCenter" />
 
     </RelativeLayout>
 

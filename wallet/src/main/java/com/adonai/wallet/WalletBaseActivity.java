@@ -36,7 +36,7 @@ public class WalletBaseActivity extends Activity implements SyncStateMachine.Syn
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         final String theme = mPreferences.getString("app.theme", "light");
-        setTheme(theme.equals("light") ? android.R.style.Theme_Holo_Light : android.R.style.Theme_Holo);
+        setTheme(theme.equals("light") ? R.style.Light : R.style.Dark);
 
         mHandler = new Handler(new SyncCallback());
     }

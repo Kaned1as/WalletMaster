@@ -45,13 +45,6 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
         mParts.add((WalletBaseListFragment) getFragmentManager().findFragmentById(R.id.operations_fragment));
         mParts.add((WalletBaseListFragment) getFragmentManager().findFragmentById(R.id.categories_fragment));
         mParts.add((WalletBaseListFragment) getFragmentManager().findFragmentById(R.id.budgets_fragment));
-
-        // Set up the drawer.
-        mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
-        final String theme = mPreferences.getString("app.theme", "light");
-
-        final View drawerContainer = findViewById(R.id.navigation_drawer);
-        drawerContainer.setBackgroundColor(getResources().getColor(theme.equals("light") ? R.color.light_drawer_bg : R.color.dark_drawer_bg));
     }
 
     @Override
