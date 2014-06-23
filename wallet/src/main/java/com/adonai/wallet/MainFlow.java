@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +44,9 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
         mParts.add((WalletBaseListFragment) getFragmentManager().findFragmentById(R.id.operations_fragment));
         mParts.add((WalletBaseListFragment) getFragmentManager().findFragmentById(R.id.categories_fragment));
         mParts.add((WalletBaseListFragment) getFragmentManager().findFragmentById(R.id.budgets_fragment));
+
+        // Set up the drawer.
+        mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
     }
 
     @Override
