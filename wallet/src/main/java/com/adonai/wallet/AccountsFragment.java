@@ -48,7 +48,7 @@ public class AccountsFragment extends WalletBaseListFragment {
         budgetSum = (TextView) rootView.findViewById(R.id.account_sum);
 
         mAccountsAdapter = new AccountsAdapter();
-        getWalletActivity().getEntityDAO().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mAccountsAdapter);
+        DatabaseDAO.getInstance().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mAccountsAdapter);
 
         mEntityList.setAdapter(mAccountsAdapter);
         mEntityList.setOnItemLongClickListener(new AccountLongClickListener());
@@ -78,7 +78,7 @@ public class AccountsFragment extends WalletBaseListFragment {
 
     private class AccountsAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener {
         public AccountsAdapter() {
-            super(getActivity(), getWalletActivity().getEntityDAO().getAccountCursor());
+            super(getActivity(), DatabaseDAO.getInstance().getAccountCursor());
         }
 
         @Override
@@ -86,7 +86,7 @@ public class AccountsFragment extends WalletBaseListFragment {
             getWalletActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    changeCursor(getWalletActivity().getEntityDAO().getAccountCursor());
+                    changeCursor(DatabaseDAO.getInstance().getAccountCursor());
                 }
             });
 
@@ -139,7 +139,7 @@ public class AccountsFragment extends WalletBaseListFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getWalletActivity().getEntityDAO().unregisterDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mAccountsAdapter);
+        DatabaseDAO.getInstance().unregisterDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mAccountsAdapter);
         mAccountsAdapter.changeCursor(null); // close opened cursor
     }
 
@@ -147,7 +147,7 @@ public class AccountsFragment extends WalletBaseListFragment {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             final String accountID = mAccountsAdapter.getItemUUID(position);
-            final Account managed = Account.getFromDB(getWalletActivity().getEntityDAO(), accountID);
+            final Account managed = Account.getFromDB(accountID);
             new OperationDialogFragment(managed).show(getFragmentManager(), "opModify");
         }
     }
@@ -160,9 +160,8 @@ public class AccountsFragment extends WalletBaseListFragment {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            final DatabaseDAO db = getWalletActivity().getEntityDAO();
             final String accID = mAccountsAdapter.getItemUUID(mItemPosition);
-            final Account acc = Account.getFromDB(db, accID);
+            final Account acc = Account.getFromDB(accID);
             switch (which) {
                 case 0: // modify
                     AccountDialogFragment.forAccount(acc.getId()).show(getFragmentManager(), "accModify");

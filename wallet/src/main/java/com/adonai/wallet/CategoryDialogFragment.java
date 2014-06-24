@@ -82,7 +82,7 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
             builder.setTitle(R.string.edit_category);
             builder.setPositiveButton(R.string.confirm, this);
 
-            mCategory = Category.getFromDB(getWalletActivity().getEntityDAO(), getArguments().getString(CATEGORY_REFERENCE));
+            mCategory = Category.getFromDB(getArguments().getString(CATEGORY_REFERENCE));
             mCategoryName.setText(mCategory.getName());
             if(mCategory.getPreferredAccount() != null) // optional
                 mPreferredAccSpinner.setSelection(mAccountAdapter.getPosition(mCategory.getPreferredAccount().getId()));
@@ -101,18 +101,18 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
         if(mCategory != null) { // modifying existing category
             mCategory.setName(mCategoryName.getText().toString());
             if(mPreferredAccSpinner.getSelectedItem() != null)
-                mCategory.setPreferredAccount(Account.getFromDB(getWalletActivity().getEntityDAO(), mAccountAdapter.getItemUUID(mPreferredAccSpinner.getSelectedItemPosition())));
+                mCategory.setPreferredAccount(Account.getFromDB(mAccountAdapter.getItemUUID(mPreferredAccSpinner.getSelectedItemPosition())));
             else if (mCategory.getPreferredAccount() != null)
                 mCategory.setPreferredAccount(null);
-            if(getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.MODIFY, mCategory))
+            if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.MODIFY, mCategory))
                 dismiss();
             else
                 Toast.makeText(getActivity(), R.string.category_not_found, Toast.LENGTH_SHORT).show();
         } else { // new category
             final Category tempCat = new Category(mCategoryName.getText().toString(), mCategoryType);
             if(mPreferredAccSpinner.getSelectedItem() != null)
-                tempCat.setPreferredAccount(Account.getFromDB(getWalletActivity().getEntityDAO(), mAccountAdapter.getItemUUID(mPreferredAccSpinner.getSelectedItemPosition())));
-            if(getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.ADD, tempCat)) {
+                tempCat.setPreferredAccount(Account.getFromDB(mAccountAdapter.getItemUUID(mPreferredAccSpinner.getSelectedItemPosition())));
+            if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.ADD, tempCat)) {
                 if(mListener != null)
                     mListener.handleCategoryCreate(tempCat.getId()); // we have it set at this moment
                 dismiss();

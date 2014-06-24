@@ -288,7 +288,7 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
         if(!firstPassed) // we did at least one iteration
             throw new FilterFormatException(getString(R.string.no_filter_specified));
 
-        return getWalletActivity().getEntityDAO().select(sb.toString(), args.toArray(new String[args.size()]));
+        return DatabaseDAO.getInstance().select(sb.toString(), args.toArray(new String[args.size()]));
     }
 
     public static class FilterFormatException extends Exception {

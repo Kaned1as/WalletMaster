@@ -53,7 +53,7 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // if we are modifying existing account
         if(getArguments() != null && getArguments().containsKey(BUDGET_REFERENCE)) {
-            mBudget = Budget.getFromDB(getWalletActivity().getEntityDAO(), getArguments().getString(BUDGET_REFERENCE));
+            mBudget = Budget.getFromDB(getArguments().getString(BUDGET_REFERENCE));
 
             builder.setPositiveButton(R.string.confirm, null);
             builder.setTitle(R.string.edit_budget).setView(dialog);
@@ -83,10 +83,10 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
         if(mBudget != null) { // modifying existing budget
             mBudget.setName(mBudgetName.getText().toString());
             if(mCoveredAccountSelector.getSelectedItem() != null)
-                mBudget.setCoveredAccount(Account.getFromDB(getWalletActivity().getEntityDAO(), mAccountAdapter.getItemUUID(mCoveredAccountSelector.getSelectedItemPosition())));
+                mBudget.setCoveredAccount(Account.getFromDB(mAccountAdapter.getItemUUID(mCoveredAccountSelector.getSelectedItemPosition())));
             else if (mBudget.getCoveredAccount() != null)
                 mBudget.setCoveredAccount(null);
-            if(getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.MODIFY, mBudget))
+            if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.MODIFY, mBudget))
                 dismiss();
             else
                 Toast.makeText(getActivity(), R.string.category_not_found, Toast.LENGTH_SHORT).show();
@@ -96,8 +96,8 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
             tempBudget.setStartTime(null);
             tempBudget.setEndTime(null);
             if(mCoveredAccountSelector.getSelectedItem() != null)
-                tempBudget.setCoveredAccount(Account.getFromDB(getWalletActivity().getEntityDAO(), mAccountAdapter.getItemUUID(mCoveredAccountSelector.getSelectedItemPosition())));
-            if(getWalletActivity().getEntityDAO().makeAction(DatabaseDAO.ActionType.ADD, tempBudget))
+                tempBudget.setCoveredAccount(Account.getFromDB(mAccountAdapter.getItemUUID(mCoveredAccountSelector.getSelectedItemPosition())));
+            if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.ADD, tempBudget))
                 dismiss();
             else
                 Toast.makeText(getActivity(), R.string.category_exists, Toast.LENGTH_SHORT).show();

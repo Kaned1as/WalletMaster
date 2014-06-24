@@ -35,7 +35,7 @@ public abstract class WalletBaseListFragment extends Fragment {
 
         public void handleRemoveAttempt(final Entity entity) {
             final LayoutInflater inflater = LayoutInflater.from(getActivity());
-            final DatabaseDAO db = getWalletActivity().getEntityDAO();
+            final DatabaseDAO db = DatabaseDAO.getInstance();
             if (getWalletActivity().getPreferences().getBoolean(ASK_FOR_DELETE, true)) { // check to assure we want to delete entity
                 final CheckBox dontShowAgain = (CheckBox) inflater.inflate(R.layout.remember_choice_checkbox, null, false);
                 dontShowAgain.setOnCheckedChangeListener(new WalletPreferencesFragment.DontAskForDelete(getWalletActivity()));

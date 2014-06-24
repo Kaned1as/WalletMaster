@@ -23,11 +23,11 @@ public abstract class Entity {
         return entityType;
     }
 
-    public abstract String persist(DatabaseDAO dao);
+    public abstract String persist();
 
-    public abstract int update(DatabaseDAO dao);
+    public abstract int update();
 
-    public int delete(DatabaseDAO dao) {
-        return dao.delete(getId(), entityType.toString());
+    public int delete() {
+        return DatabaseDAO.getInstance().delete(getId(), entityType.toString());
     }
 }

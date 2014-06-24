@@ -75,7 +75,7 @@ public class WalletBaseDialogFragment extends DialogFragment {
         private final int mNoneResId;
 
         public AccountsWithNoneAdapter(int noneTextResId) {
-            super(getActivity(), getWalletActivity().getEntityDAO().getAccountCursor());
+            super(getActivity(), DatabaseDAO.getInstance().getAccountCursor());
             this.mNoneResId = noneTextResId;
         }
 
