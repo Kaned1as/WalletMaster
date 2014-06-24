@@ -71,7 +71,7 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
         mPreferredAccSpinner = (Spinner) dialog.findViewById(R.id.preferred_account_spinner);
         mCategoryName = (EditText) dialog.findViewById(R.id.name_edit);
 
-        mAccountAdapter = new AccountsWithNoneAdapter();
+        mAccountAdapter = new AccountsWithNoneAdapter(R.string.none);
         mPreferredAccSpinner.setAdapter(mAccountAdapter);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -119,63 +119,6 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
             }
             else
                 Toast.makeText(getActivity(), R.string.category_exists, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private class AccountsWithNoneAdapter extends UUIDSpinnerAdapter {
-        public AccountsWithNoneAdapter() {
-            super(getActivity(), getWalletActivity().getEntityDAO().getAccountCursor());
-        }
-
-        @Override
-        public View newView(int position, View convertView, ViewGroup parent, int resId) {
-            final View view;
-
-            if (convertView == null) {
-                final LayoutInflater inflater = LayoutInflater.from(mContext);
-                view = inflater.inflate(resId, parent, false);
-            } else
-                view = convertView;
-
-            final TextView name = (TextView) view.findViewById(android.R.id.text1);
-            if(position == 0)
-                name.setText(R.string.none);
-            else {
-                mCursor.moveToPosition(position - 1);
-                name.setText(mCursor.getString(1));
-            }
-
-            return view;
-        }
-
-        @Override
-        public int getCount() {
-            return super.getCount() + 1;
-        }
-
-        @Override
-        public Cursor getItem(int position) {
-            if(position == 0)
-                return null;
-            else
-                return super.getItem(position - 1);
-        }
-
-        @Override
-        public String getItemUUID(int position) {
-            if(position == 0)
-                return "None";
-            else
-                return super.getItemUUID(position - 1);
-        }
-
-        @Override
-        public int getPosition(String id) {
-            int parent = super.getPosition(id);
-            if(parent >= 0)
-                return parent + 1;
-            else
-                return parent;
         }
     }
 

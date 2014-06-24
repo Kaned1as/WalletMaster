@@ -109,4 +109,9 @@
     <string name="period">Период:</string>
     <string name="hyphen">-</string>
     <string name="covered_account">Расчетный аккаунт:</string>
+    <string name="start_date">Начало</string>
+    <string name="end_date">Конец</string>
+    <string name="account">Счёт</string>
+    <string name="select_account">Выберите аккаунт</string>
+    <string name="edit_budget">Редактирование бюджета</string>
 </resources>

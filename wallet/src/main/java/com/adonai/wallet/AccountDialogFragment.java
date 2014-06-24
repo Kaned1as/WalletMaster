@@ -41,10 +41,6 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
 
     private Account mAccount;
 
-    public AccountDialogFragment() {
-        //super();
-    }
-
     public static AccountDialogFragment forAccount(String accountId) {
         final AccountDialogFragment fragment = new AccountDialogFragment();
         final Bundle args = new Bundle();
