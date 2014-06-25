@@ -29,15 +29,15 @@
             tools:layout="@layout/operations_flow" />
 
         <fragment
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:name="com.adonai.wallet.CategoriesFragment"
             android:id="@+id/categories_fragment"
             tools:layout="@layout/categories_flow" />
 
         <fragment
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:name="com.adonai.wallet.BudgetsFragment"
             android:id="@+id/budgets_fragment"
             tools:layout="@layout/budgets_flow" />

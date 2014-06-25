@@ -86,9 +86,16 @@
             android:layout_height="wrap_content"
             android:id="@+id/expand_view"
             android:src="?attr/ExpandBudgetDrawable"
-            android:layout_below="@+id/covered_account_label"
+            android:layout_below="@+id/budget_items_list"
             android:layout_marginTop="10dp"
             android:scaleType="fitCenter" />
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:id="@+id/budget_items_list"
+            android:layout_below="@+id/covered_account_label"
+            android:layout_marginTop="10dp" />
 
     </RelativeLayout>
 

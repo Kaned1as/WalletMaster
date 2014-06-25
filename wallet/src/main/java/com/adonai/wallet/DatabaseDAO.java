@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Budget;
+import com.adonai.wallet.entities.BudgetItem;
 import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Currency;
 import com.adonai.wallet.entities.Entity;
@@ -335,7 +336,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public int update(ContentValues cv, String tableName) {
-        final int result = mDatabase.update(tableName,  cv,  "_id = ?",  new String[] { cv.getAsString("_id") });
+        final int result = mDatabase.update(tableName, cv, "_id = ?", new String[]{cv.getAsString("_id")});
         if(result > 0)
             notifyListeners(tableName);
         return result;
@@ -416,6 +417,12 @@ public class DatabaseDAO extends SQLiteOpenHelper
                             break;
                         case OPERATIONS:
                             oldEntity = Operation.getFromDB(entity.getId());
+                            break;
+                        case BUDGETS:
+                            oldEntity = Budget.getFromDB(entity.getId());
+                            break;
+                        case BUDGET_ITEMS:
+                            oldEntity = BudgetItem.getFromDB(entity.getId());
                             break;
                         default:
                             throw new IllegalArgumentException("No such entity type!" + entity.getEntityType());
@@ -811,7 +818,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         while (selections.moveToNext())
             try {
                 final Method filler = clazz.getDeclaredMethod("getFromDB", String.class);
-                final T newEntity = (T) filler.invoke(null, this, selections.getString(0));
+                final T newEntity = (T) filler.invoke(null, selections.getString(0));
                 if(newEntity != null)
                     result.add(newEntity);
             } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException ignored) {
@@ -839,7 +846,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         while (selections.moveToNext())
             try {
                 final Method filler = clazz.getDeclaredMethod("getFromDB", String.class);
-                final T newEntity = (T) filler.invoke(null, this, selections.getString(0));
+                final T newEntity = (T) filler.invoke(null, selections.getString(0));
                 if(newEntity != null)
                     result.add(newEntity);
             } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException ignored) {

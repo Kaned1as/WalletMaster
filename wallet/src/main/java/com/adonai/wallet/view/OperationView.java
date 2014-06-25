@@ -28,13 +28,7 @@ import static com.adonai.wallet.Utils.convertPixelsToDp;
  */
 public class OperationView extends FrameLayout {
 
-    private enum State {
-        COLLAPSED,
-        EXPANDED
-    }
-
     private Operation mOperation;
-    private State mState = State.COLLAPSED;
     private final static Map<Operation.OperationType, Drawable> mDrawableMap = new HashMap<>(3);
 
     private View mCollapsedView;
@@ -149,9 +143,5 @@ public class OperationView extends FrameLayout {
         result.put(Operation.OperationType.TRANSFER, transferDrawable);
 
         return result;
-    }
-
-    public void expand() {
-        removeView(mCollapsedView);
     }
 }

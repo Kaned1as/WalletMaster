@@ -3,19 +3,9 @@ package com.adonai.wallet.view;
 import android.animation.LayoutTransition;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.LinearGradient;
-import android.graphics.Path;
-import android.graphics.Shader;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.PathShape;
-import android.graphics.drawable.shapes.RoundRectShape;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -27,19 +17,11 @@ import com.adonai.wallet.R;
 import com.adonai.wallet.Utils;
 import com.adonai.wallet.entities.Budget;
 import com.adonai.wallet.entities.BudgetItem;
-import com.adonai.wallet.entities.Operation;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import static com.adonai.wallet.DatabaseDAO.BudgetItemFields;
-import static com.adonai.wallet.DatabaseDAO.EntityType.*;
+import static com.adonai.wallet.DatabaseDAO.EntityType.BUDGET_ITEMS;
 import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
-import static com.adonai.wallet.Utils.convertDpToPixel;
-import static com.adonai.wallet.Utils.convertPixelsToDp;
 
 /**
  * Created by adonai on 12.06.14.
@@ -63,6 +45,7 @@ public class BudgetView extends LinearLayout {
         setLayoutTransition(new LayoutTransition());
         final LayoutInflater inflater = LayoutInflater.from(context);
         mCollapsedView = inflater.inflate(R.layout.budget_list_item, this, true);
+        mExpandedView = (ListView) mCollapsedView.findViewById(R.id.budget_items_list);
         mExpander = (ImageView) mCollapsedView.findViewById(R.id.expand_view);
         mExpander.setOnClickListener(new OnClickListener() {
             @Override
@@ -100,9 +83,7 @@ public class BudgetView extends LinearLayout {
         if(mBudget == null) // no budget - no expanding (should not happen)
             return;
 
-        if(mExpandedView == null) { // never expanded before
-            mExpandedView = new ListView(getContext());
-            mExpandedView.getLayoutParams().height = (int) Utils.convertDpToPixel(200f, getContext());
+        if(mExpandedView.getAdapter() == null) { // never expanded before
             mExpandedView.setAdapter(new BudgetItemCursorAdapter(getContext()));
 
             final View footer = View.inflate(getContext(), R.layout.listview_add_footer, null);
@@ -115,7 +96,8 @@ public class BudgetView extends LinearLayout {
             });
         }
 
-        addView(mExpandedView);
+        mExpandedView.getLayoutParams().height = (int) Utils.convertDpToPixel(200f, getContext());
+        mExpandedView.setLayoutParams(mExpandedView.getLayoutParams());
         mState = State.EXPANDED;
         updateExpanderDrawable();
     }
@@ -128,7 +110,8 @@ public class BudgetView extends LinearLayout {
     }
 
     public void collapse() {
-        removeView(mExpandedView);
+        mExpandedView.getLayoutParams().height = 0;
+        mExpandedView.setLayoutParams(mExpandedView.getLayoutParams());
         mState = State.COLLAPSED;
         updateExpanderDrawable();
     }
