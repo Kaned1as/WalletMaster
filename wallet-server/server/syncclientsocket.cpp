@@ -1,6 +1,6 @@
 #include "syncclientsocket.h"
 
-SyncClientSocket::SyncClientSocket(QObject *parent) : QTcpSocket(parent), state(NOT_IDENTIFIED), pendingMessageSize(0), conn(NULL)
+SyncClientSocket::SyncClientSocket(QObject *parent) : QTcpSocket(parent), state(NOT_IDENTIFIED), transactionOpened(false), pendingMessageSize(0), conn(NULL)
 {
     qDebug() << tr("Got new connection!");
     connect(this, &QTcpSocket::readyRead, this, &SyncClientSocket::readClientData); //we should handle this in socket's own thread
@@ -16,6 +16,14 @@ SyncClientSocket::~SyncClientSocket()
         QSqlDatabase::removeDatabase(name);
     }
     qDebug() << tr("Closing connection.");
+}
+
+void SyncClientSocket::disconnectFromHost()
+{
+    if(transactionOpened) // client disconnected and left sync in progress, need to close transaction
+        conn->rollback();
+
+    QAbstractSocket::disconnectFromHost();
 }
 
 SyncClientSocket::SyncState SyncClientSocket::getState() const
@@ -39,17 +47,20 @@ void SyncClientSocket::initDbConnection()
     {
         qDebug() << tr("Cannot connect to database! Error: %1").arg(conn->lastError().text());
         disconnectFromHost();
+        return;
     }
-    if(!conn->transaction())
+    if(!(transactionOpened = conn->transaction()))
     {
         qDebug() << tr("Cannot start database transaction! Error: %1").arg(conn->lastError().text());
         disconnectFromHost();
+        return;
     }
 }
 
 void SyncClientSocket::finishProcessing()
 {
     conn->commit();
+    transactionOpened = false;
     disconnectFromHost();
 }
 
@@ -57,6 +68,7 @@ void SyncClientSocket::interruptProcessing()
 {
     if(!conn->rollback())
         qDebug() << tr("Cannot rollback transaction! Error: %1").arg(conn->lastError().text()); // should never happen!
+    transactionOpened = false;
     setState(ERROR);
 }
 

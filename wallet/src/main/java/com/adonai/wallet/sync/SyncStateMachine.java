@@ -106,19 +106,18 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
     }
 
     private State state;
-    private final Looper mLooper;
-    private final Handler mHandler;
+    private Handler mHandler;
     private Socket mSocket;
 
     private final WalletBaseActivity mContext;
+    private final SocketCallback mCallback = new SocketCallback();
     private final SharedPreferences mPreferences;
 
 
     public SyncStateMachine(WalletBaseActivity context) {
         final HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
-        mLooper = thr.getLooper();
-        mHandler = new Handler(mLooper, new SocketCallback());
+        mHandler = new Handler(thr.getLooper(), mCallback);
 
         mObservers.add(context);
         mContext = context;
@@ -133,13 +132,13 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
     }
 
     public void shutdown() {
+        mHandler.getLooper().quit();
         if(mSocket != null)
             try {
                 mSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        mLooper.quit();
     }
 
     public void setState(State state) {
@@ -158,8 +157,8 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
             notifyListeners(state, errorMsg);
     }
 
-    public State getState() {
-        return state;
+    public boolean isSyncing() {
+        return state != State.INIT;
     }
 
     private class SocketCallback implements Handler.Callback {
@@ -221,7 +220,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                             final Account remote = Account.fromProtoAccount(entity.getAccount());
                             remote.persist();
                         }
-                        // readd locals + add to add-list
+                        // re-add locals + add to add-list
                         final List<Account> addedLocally = db.getAdded(Account.class);
                         for(final Account acc : addedLocally)
                             serverUpdate.addAdded(SyncProtocol.Entity.newBuilder().setAccount(Account.toProtoAccount(acc)).build());
@@ -278,7 +277,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                             final Category remote = Category.fromProtoCategory(entity.getCategory());
                             remote.persist();
                         }
-                        // readd locals + add to add-list
+                        // re-add locals + add to add-list
                         final List<Category> addedLocally = db.getAdded(Category.class);
                         for(final Category cat : addedLocally)
                             serverUpdate.addAdded(SyncProtocol.Entity.newBuilder().setCategory(Category.toProtoCategory(cat)).build());
@@ -336,7 +335,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                             final Operation remote = Operation.fromProtoOperation(entity.getOperation());
                             remote.persist();
                         }
-                        // readd locals + add to add-list
+                        // re-add locals + add to add-list
                         final List<Operation> addedLocally = db.getAdded(Operation.class);
                         for(final Operation op : addedLocally)
                             serverUpdate.addAdded(SyncProtocol.Entity.newBuilder().setOperation(Operation.toProtoOperation(op)).build());

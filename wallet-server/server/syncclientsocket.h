@@ -52,6 +52,7 @@ class SyncClientSocket : public QTcpSocket
     Q_OBJECT
 public:
     ~SyncClientSocket();
+    void disconnectFromHost();
 
     enum SyncState
     {
@@ -98,6 +99,7 @@ private:
     template<typename REQ, typename RESP> void handleGeneric(const QByteArray& incomingData);
 
     SyncState state;
+    bool transactionOpened;
     quint32 pendingMessageSize;
 
     QSqlDatabase* conn;

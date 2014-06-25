@@ -42,7 +42,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
     private static DatabaseDAO mInstance;
 
     public static void init(Context context) {
-        mInstance = new DatabaseDAO(context);
+        mInstance = new DatabaseDAO(context.getApplicationContext());
     }
 
     public static DatabaseDAO getInstance() {
@@ -56,8 +56,11 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public void registerDatabaseListener(final String table, final DatabaseListener listener) {
         if(listenerMap.containsKey(table))
             listenerMap.get(table).add(listener);
-        else
-            listenerMap.put(table, new ArrayList<DatabaseListener>() {{ add(listener); }});
+        else {
+            final ArrayList<DatabaseListener> newList = new ArrayList<>();
+            newList.add(listener);
+            listenerMap.put(table, newList);
+        }
     }
 
     public void unregisterDatabaseListener(final String table, final DatabaseListener listener) {
@@ -138,7 +141,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
         MODIFY
     }
 
-    private final Map<String, List<DatabaseListener>> listenerMap = new HashMap<>();
+    private final Map<String, ArrayList<DatabaseListener>> listenerMap = new HashMap<>();
     private SQLiteDatabase mDatabase;
 
     private DatabaseDAO(Context context) {
@@ -557,10 +560,13 @@ public class DatabaseDAO extends SQLiteOpenHelper
         return mDatabase.query(EntityType.CATEGORIES.toString(), null, CategoriesFields.TYPE + " = ?", new String[]{String.valueOf(type)}, null, null, CategoriesFields.NAME + " ASC", null);
     }
 
+    @SuppressWarnings("unchecked")
     public void notifyListeners(String table) {
-        if(listenerMap.containsKey(table))
-            for(final DatabaseListener listener : listenerMap.get(table))
+        if(listenerMap.containsKey(table)) {
+            final ArrayList<DatabaseListener> shadow = (ArrayList<DatabaseListener>) listenerMap.get(table).clone();
+            for (final DatabaseListener listener : shadow)
                 listener.handleUpdate();
+        }
     }
 
     public long addCurrency(Currency curr) {
