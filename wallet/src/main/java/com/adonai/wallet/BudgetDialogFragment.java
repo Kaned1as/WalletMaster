@@ -22,8 +22,8 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
     private final static String BUDGET_REFERENCE = "budget.reference";
 
     private EditText mBudgetName;
-    private EditText mStartDate;
-    private EditText mEndDate;
+    private DatePickerListener mStartDate;
+    private DatePickerListener mEndDate;
     private Spinner mCoveredAccountSelector;
 
     private AccountsWithNoneAdapter mAccountAdapter;
@@ -43,8 +43,10 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
         assert dialog != null;
 
         mBudgetName = (EditText) dialog.findViewById(R.id.name_edit);
-        mStartDate = (EditText) dialog.findViewById(R.id.start_date_picker_edit);
-        mEndDate = (EditText) dialog.findViewById(R.id.end_date_picker_edit);
+        final EditText startDate = (EditText) dialog.findViewById(R.id.start_date_picker_edit);
+        mStartDate = DatePickerListener.wrap(startDate);
+        final EditText endDate = (EditText) dialog.findViewById(R.id.end_date_picker_edit);
+        mEndDate = DatePickerListener.wrap(endDate);
 
         mAccountAdapter = new AccountsWithNoneAdapter(R.string.all);
         mCoveredAccountSelector = (Spinner) dialog.findViewById(R.id.covered_account_spinner);
@@ -59,8 +61,8 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
             builder.setTitle(R.string.edit_budget).setView(dialog);
 
             mBudgetName.setText(mBudget.getName());
-            mStartDate.setText(Utils.VIEW_DATE_FORMAT.format(mBudget.getStartTime()));
-            mEndDate.setText(Utils.VIEW_DATE_FORMAT.format(mBudget.getEndTime()));
+            mStartDate.setCalendar(mBudget.getStartTime());
+            mEndDate.setCalendar(mBudget.getEndTime());
             if(mBudget.getCoveredAccount() != null)
                 mCoveredAccountSelector.setSelection(mAccountAdapter.getPosition(mBudget.getCoveredAccount().getId()));
         } else {
@@ -82,6 +84,8 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
     public void onClick(View view) {
         if(mBudget != null) { // modifying existing budget
             mBudget.setName(mBudgetName.getText().toString());
+            mBudget.setStartTime(mStartDate.getCalendar().getTime());
+            mBudget.setEndTime(mEndDate.getCalendar().getTime());
             if(mCoveredAccountSelector.getSelectedItem() != null)
                 mBudget.setCoveredAccount(Account.getFromDB(mAccountAdapter.getItemUUID(mCoveredAccountSelector.getSelectedItemPosition())));
             else if (mBudget.getCoveredAccount() != null)
@@ -89,12 +93,12 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
             if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.MODIFY, mBudget))
                 dismiss();
             else
-                Toast.makeText(getActivity(), R.string.category_not_found, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), R.string.budget_not_found, Toast.LENGTH_SHORT).show();
         } else { // new category
             final Budget tempBudget = new Budget();
             tempBudget.setName(mBudgetName.getText().toString());
-            tempBudget.setStartTime(null);
-            tempBudget.setEndTime(null);
+            tempBudget.setStartTime(mStartDate.getCalendar().getTime());
+            tempBudget.setEndTime(mEndDate.getCalendar().getTime());
             if(mCoveredAccountSelector.getSelectedItem() != null)
                 tempBudget.setCoveredAccount(Account.getFromDB(mAccountAdapter.getItemUUID(mCoveredAccountSelector.getSelectedItemPosition())));
             if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.ADD, tempBudget))

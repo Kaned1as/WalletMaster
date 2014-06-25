@@ -114,4 +114,5 @@
     <string name="account">Account</string>
     <string name="select_account">Select account</string>
     <string name="edit_budget">Edit budget</string>
+    <string name="budget_not_found">Budget not found</string>
 </resources>

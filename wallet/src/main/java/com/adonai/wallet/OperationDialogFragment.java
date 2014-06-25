@@ -40,8 +40,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
     private EditText mDescription;
 
-    private EditText mDatePicker;
-    private DatePickerListener mDateHolder;
+    private DatePickerListener mDatePicker;
     private ImageButton mCategoryAddButton;
 
     private Spinner mChargeAccountSelector;
@@ -86,10 +85,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         assert dialog != null;
 
         mDescription = (EditText) dialog.findViewById(R.id.description_edit);
-        mDatePicker = (EditText) dialog.findViewById(R.id.date_picker_edit);
-        mDateHolder = new DatePickerListener(mDatePicker);
-        mDatePicker.setOnClickListener(mDateHolder);
-        mDatePicker.setOnFocusChangeListener(mDateHolder);
+        final EditText datePicker = (EditText) dialog.findViewById(R.id.date_picker_edit);
+        mDatePicker = DatePickerListener.wrap(datePicker);
 
         mChargeAccountSelector = (Spinner) dialog.findViewById(R.id.charge_account_spinner);
         mChargeAccountSelector.setAdapter(mAccountAdapter);
@@ -133,8 +130,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             builder.setTitle(R.string.edit_operation);
             mDescription.setText(mOperation.getDescription());
             mAmount.setText(mOperation.getAmount().toPlainString());
-            mDateHolder.setCalendar(mOperation.getTime());
-            mDatePicker.setText(VIEW_DATE_FORMAT.format(mDateHolder.getCalendar().getTime()));
+            mDatePicker.setCalendar(mOperation.getTime());
             switch (mOperation.getOperationType()) {
                 case TRANSFER:
                     mTypeSwitch.check(R.id.transfer_radio);
@@ -159,7 +155,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             builder.setPositiveButton(R.string.create, this);
             builder.setTitle(R.string.create_new_operation);
             mTypeSwitch.check(R.id.expense_radio);
-            mDatePicker.setText(VIEW_DATE_FORMAT.format(mDateHolder.getCalendar().getTime())); // current time
             if(mCharger != null)
                 mChargeAccountSelector.setSelection(mAccountAdapter.getPosition(mCharger.getId()));
         }
@@ -319,7 +314,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         // fill operation fields
         mOperation.setAmount(amount);
         mOperation.setCategory(opCategory);
-        mOperation.setTime(mDateHolder.getCalendar().getTime());
+        mOperation.setTime(mDatePicker.getCalendar().getTime());
         mOperation.setDescription(mDescription.getText().toString());
         switch (mTypeSwitch.getCheckedRadioButtonId()) { // prepare operation depending on type
             case R.id.transfer_radio: { // transfer op, we need 2 accounts

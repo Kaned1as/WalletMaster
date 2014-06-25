@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -63,20 +64,20 @@ public class BudgetsFragment extends WalletBaseListFragment {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.budgets_flow, menu);
     }
-/*
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add_budget:
-                final OperationDialogFragment opCreate = new OperationDialogFragment();
-                opCreate.show(getFragmentManager(), "opCreate");
+                final BudgetDialogFragment budgetCreate = new BudgetDialogFragment();
+                budgetCreate.show(getFragmentManager(), "budgetCreate");
                 break;
             default:
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
-*/
+
 
     private class BudgetsAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener {
         public BudgetsAdapter() {
@@ -121,8 +122,6 @@ public class BudgetsFragment extends WalletBaseListFragment {
         }
     }
 
-
-
     private class BudgetChoice extends EntityChoice {
 
         public BudgetChoice(int mItemPosition) {
@@ -131,14 +130,14 @@ public class BudgetsFragment extends WalletBaseListFragment {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            final String accID = mBudgetsAdapter.getItemUUID(mItemPosition);
-            final Account acc = Account.getFromDB(accID);
+            final String budgetID = mBudgetsAdapter.getItemUUID(mItemPosition);
+            final Budget budget = Budget.getFromDB(budgetID);
             switch (which) {
                 case 0: // modify
-                    AccountDialogFragment.forAccount(acc.getId()).show(getFragmentManager(), "accModify");
+                    BudgetDialogFragment.forBudget(budget.getId()).show(getFragmentManager(), "budgetModify");
                     break;
                 case 1: // delete
-                    mBudgetDeleter.handleRemoveAttempt(acc);
+                    mBudgetDeleter.handleRemoveAttempt(budget);
                     break;
             }
         }

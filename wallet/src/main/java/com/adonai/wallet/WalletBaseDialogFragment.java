@@ -29,13 +29,22 @@ public class WalletBaseDialogFragment extends DialogFragment {
         return (WalletBaseActivity) getActivity();
     }
 
-    protected class DatePickerListener implements View.OnClickListener, View.OnFocusChangeListener {
+    protected static class DatePickerListener implements View.OnClickListener, View.OnFocusChangeListener {
 
         private Calendar mSelectedTime = Calendar.getInstance();
         private final EditText mText;
 
-        public DatePickerListener(EditText text) {
+        public static DatePickerListener wrap(EditText text) {
+            DatePickerListener dpl = new DatePickerListener(text);
+            text.setOnFocusChangeListener(dpl);
+            text.setOnClickListener(dpl);
+
+            return dpl;
+        }
+
+        private DatePickerListener(EditText text) {
             mText = text;
+            mText.setText(VIEW_DATE_FORMAT.format(mSelectedTime.getTime())); // current time
         }
 
         @Override
@@ -59,7 +68,7 @@ public class WalletBaseDialogFragment extends DialogFragment {
                     mText.setText(VIEW_DATE_FORMAT.format(mSelectedTime.getTime()));
                 }
             };
-            new DatePickerDialog(getActivity(), listener, mSelectedTime.get(Calendar.YEAR), mSelectedTime.get(Calendar.MONTH), mSelectedTime.get(Calendar.DAY_OF_MONTH)).show();
+            new DatePickerDialog(mText.getContext(), listener, mSelectedTime.get(Calendar.YEAR), mSelectedTime.get(Calendar.MONTH), mSelectedTime.get(Calendar.DAY_OF_MONTH)).show();
         }
 
         public Calendar getCalendar() {
@@ -68,6 +77,7 @@ public class WalletBaseDialogFragment extends DialogFragment {
 
         public void setCalendar(Date mNow) {
             this.mSelectedTime.setTime(mNow);
+            mText.setText(VIEW_DATE_FORMAT.format(mSelectedTime.getTime()));
         }
     }
 

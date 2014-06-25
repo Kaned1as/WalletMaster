@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.adonai.wallet.entities.Account;
+import com.adonai.wallet.entities.Budget;
 import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Currency;
 import com.adonai.wallet.entities.Entity;
@@ -495,6 +496,19 @@ public class DatabaseDAO extends SQLiteOpenHelper
     public Cursor getBudgetsCursor() {
         Log.d("Database query", "getBudgetsCursor");
         return mDatabase.query(EntityType.BUDGETS.toString(), null, null, null, null, null, null, null);
+    }
+
+    public BigDecimal getAmountForBudget(Budget budget, Category category) {
+        final Cursor sumCounter;
+        if(budget.getCoveredAccount() == null) // all accounts
+            sumCounter = mDatabase.rawQuery("SELECT SUM(" + OperationsFields.AMOUNT + ") FROM " + EntityType.OPERATIONS + " WHERE " + OperationsFields.CATEGORY + " = ? AND " + OperationsFields.TIME + " BETWEEN ? AND ?", new String[]{category.getId(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime())});
+        else
+            sumCounter = mDatabase.rawQuery("SELECT SUM(" + OperationsFields.AMOUNT + ") FROM " + EntityType.OPERATIONS + " WHERE " + OperationsFields.CHARGER + " = ? AND " + OperationsFields.CATEGORY + " = ? AND " + OperationsFields.TIME + " BETWEEN ? AND ?", new String[]{budget.getCoveredAccount().getId(), category.getId(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime())});
+
+        if(sumCounter.moveToFirst())
+            return new BigDecimal(sumCounter.getString(0));
+
+        return BigDecimal.ZERO;
     }
 
     public Cursor getEntityCursor(EntityType tableName, long id) {

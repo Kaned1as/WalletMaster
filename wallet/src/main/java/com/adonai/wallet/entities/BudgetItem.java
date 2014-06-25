@@ -94,4 +94,12 @@ public class BudgetItem extends Entity {
         cursor.close();
         return null;
     }
+
+    public BigDecimal getProgress() {
+        final BigDecimal result = BigDecimal.ZERO;
+        if(parentBudget == null) // parent budget is not set, nothing to count
+            return result;
+
+        return DatabaseDAO.getInstance().getAmountForBudget(parentBudget, category);
+    }
 }

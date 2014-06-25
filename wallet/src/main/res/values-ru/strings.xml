@@ -114,4 +114,5 @@
     <string name="account">Счёт</string>
     <string name="select_account">Выберите аккаунт</string>
     <string name="edit_budget">Редактирование бюджета</string>
+    <string name="budget_not_found">Бюджет не найден</string>
 </resources>

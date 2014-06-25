@@ -181,9 +181,7 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                         filterLayout.addView(mDatePicker);
                         signSelector.setLayoutParams(forSigns);
                         mDatePicker.setLayoutParams(forSelectors);
-                        final DatePickerListener dialog = new DatePickerListener(mDatePicker);
-                        mDatePicker.setOnFocusChangeListener(dialog);
-                        mDatePicker.setOnClickListener(dialog);
+                        DatePickerListener.wrap(mDatePicker);
                         mDatePicker.setTag(filterType.second);
                         break;
                     }
