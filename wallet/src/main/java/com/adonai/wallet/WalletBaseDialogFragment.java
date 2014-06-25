@@ -140,4 +140,33 @@ public class WalletBaseDialogFragment extends DialogFragment {
                 return parent;
         }
     }
+
+    public class CategoriesAdapter extends UUIDSpinnerAdapter implements DatabaseDAO.DatabaseListener {
+        private int mCategoryType;
+
+        public CategoriesAdapter(int categoryType) {
+            super(getActivity(), DatabaseDAO.getInstance().getCategoryCursor(categoryType));
+            mCategoryType = categoryType;
+        }
+
+        @Override
+        public void handleUpdate() {
+            getWalletActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    changeCursor(DatabaseDAO.getInstance().getCategoryCursor(mCategoryType));
+                }
+            });
+
+        }
+
+        public void setCategoryType(int type) {
+            mCategoryType = type;
+            handleUpdate();
+        }
+
+        public int getCategoryType() {
+            return mCategoryType;
+        }
+    }
 }

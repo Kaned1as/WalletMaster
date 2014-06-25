@@ -115,4 +115,9 @@
     <string name="select_account">Выберите аккаунт</string>
     <string name="edit_budget">Редактирование бюджета</string>
     <string name="budget_not_found">Бюджет не найден</string>
+    <string name="create_new_budget_item">Создать новую категорию бюджета</string>
+    <string name="max_amount">Максимум трат</string>
+    <string name="edit_budget_item">Редактировать категорию бюджета</string>
+    <string name="budget_item_not_found">Категория бюджета не найдена</string>
+    <string name="budget_item_exists">Такая категория уже присутствует!</string>
 </resources>

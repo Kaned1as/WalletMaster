@@ -17,6 +17,14 @@ import static com.adonai.wallet.DatabaseDAO.BudgetItemFields;
 @EntityDescriptor(type = DatabaseDAO.EntityType.BUDGET_ITEMS)
 public class BudgetItem extends Entity {
 
+    public BudgetItem(Budget parentBudget) {
+        this.parentBudget = parentBudget;
+    }
+
+    private BudgetItem() {
+
+    }
+
     private Budget parentBudget;
     private Category category;
     private BigDecimal maxAmount;

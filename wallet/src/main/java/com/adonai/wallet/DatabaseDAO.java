@@ -513,7 +513,7 @@ public class DatabaseDAO extends SQLiteOpenHelper
             sumCounter = mDatabase.rawQuery("SELECT SUM(" + OperationsFields.AMOUNT + ") FROM " + EntityType.OPERATIONS + " WHERE " + OperationsFields.CHARGER + " = ? AND " + OperationsFields.CATEGORY + " = ? AND " + OperationsFields.TIME + " BETWEEN ? AND ?", new String[]{budget.getCoveredAccount().getId(), category.getId(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime())});
 
         if(sumCounter.moveToFirst())
-            return new BigDecimal(sumCounter.getString(0));
+            return new BigDecimal(sumCounter.getLong(0));
 
         return BigDecimal.ZERO;
     }

@@ -28,7 +28,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
 import static com.adonai.wallet.Utils.getValue;
 
 /**
@@ -381,34 +380,5 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         mCategoriesAdapter.changeCursor(null);
         mAccountAdapter.changeCursor(null);
         DatabaseDAO.getInstance().unregisterDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
-    }
-
-    public class CategoriesAdapter extends UUIDSpinnerAdapter implements DatabaseDAO.DatabaseListener {
-        private int mCategoryType;
-
-        public CategoriesAdapter(int categoryType) {
-            super(getActivity(), DatabaseDAO.getInstance().getCategoryCursor(categoryType));
-            mCategoryType = categoryType;
-        }
-
-        @Override
-        public void handleUpdate() {
-            getWalletActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    changeCursor(DatabaseDAO.getInstance().getCategoryCursor(mCategoryType));
-                }
-            });
-
-        }
-
-        public void setCategoryType(int type) {
-            mCategoryType = type;
-            handleUpdate();
-        }
-
-        public int getCategoryType() {
-            return mCategoryType;
-        }
     }
 }

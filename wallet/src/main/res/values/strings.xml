@@ -115,4 +115,9 @@
     <string name="select_account">Select account</string>
     <string name="edit_budget">Edit budget</string>
     <string name="budget_not_found">Budget not found</string>
+    <string name="create_new_budget_item">Create new budget item</string>
+    <string name="max_amount">Max amount</string>
+    <string name="edit_budget_item">Edit budget item</string>
+    <string name="budget_item_not_found">Budget item not found</string>
+    <string name="budget_item_exists">Budget item with that parent and category already exists!</string>
 </resources>

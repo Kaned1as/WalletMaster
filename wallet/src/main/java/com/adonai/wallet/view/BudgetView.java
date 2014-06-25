@@ -12,9 +12,11 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.adonai.wallet.BudgetItemDialogFragment;
 import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.R;
 import com.adonai.wallet.Utils;
+import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.entities.Budget;
 import com.adonai.wallet.entities.BudgetItem;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
@@ -91,7 +93,8 @@ public class BudgetView extends LinearLayout {
             footer.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //BudgetItemDialogFragment.newInstance();
+                    final BudgetItemDialogFragment budgetCreate = BudgetItemDialogFragment.forBudget(mBudget.getId());
+                    budgetCreate.show(((WalletBaseActivity) getContext()).getFragmentManager(), "budgetCreate");
                 }
             });
         }
