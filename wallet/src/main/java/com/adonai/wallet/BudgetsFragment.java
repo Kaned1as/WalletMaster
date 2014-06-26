@@ -12,13 +12,16 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Budget;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.adonai.wallet.view.BudgetView;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import static com.adonai.wallet.DatabaseDAO.EntityType.BUDGETS;
-import static com.adonai.wallet.DatabaseDAO.EntityType.OPERATIONS;
 
 /**
  * Fragment that is responsible for showing budget list
@@ -36,8 +39,7 @@ public class BudgetsFragment extends WalletBaseListFragment {
         setHasOptionsMenu(true);
 
         mBudgetsAdapter = new BudgetsAdapter();
-        DatabaseDAO.getInstance().registerDatabaseListener(BUDGETS.toString(), mBudgetsAdapter);
-        DatabaseDAO.getInstance().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mBudgetsAdapter); // due to foreign key null setting
+        DatabaseDAO.getInstance().registerDatabaseListener(mBudgetsAdapter, null);
 
         final View rootView = inflater.inflate(R.layout.budgets_flow, container, false);
         assert rootView != null;
@@ -52,10 +54,14 @@ public class BudgetsFragment extends WalletBaseListFragment {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void onDestroyView() {
         super.onDestroyView();
-        DatabaseDAO.getInstance().unregisterDatabaseListener(BUDGETS.toString(), mBudgetsAdapter);
-        DatabaseDAO.getInstance().unregisterDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mBudgetsAdapter); // due to foreign key null setting
+        final TreeSet<BudgetView> shadow = (TreeSet<BudgetView>) mBudgetsAdapter.mExpandedBudgets.clone();
+        for(BudgetView view : shadow)
+            view.collapse(); // close all child cursors
+
+        DatabaseDAO.getInstance().unregisterDatabaseListener(mBudgetsAdapter, null);
         mBudgetsAdapter.changeCursor(null); // close opened cursor
     }
 
@@ -79,7 +85,9 @@ public class BudgetsFragment extends WalletBaseListFragment {
     }
 
 
-    private class BudgetsAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener {
+    public class BudgetsAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener {
+        private final TreeSet<BudgetView> mExpandedBudgets = new TreeSet<>();
+
         public BudgetsAdapter() {
             super(getActivity(), DatabaseDAO.getInstance().getBudgetsCursor());
         }
@@ -101,13 +109,22 @@ public class BudgetsFragment extends WalletBaseListFragment {
             mCursor.moveToPosition(position);
 
             if (convertView == null)
-                view = new BudgetView(mContext);
+                view = new BudgetView(mContext, this);
             else
                 view = (BudgetView) convertView;
 
-            view.setBudget(Budget.getFromDB(mCursor.getString(DatabaseDAO.BudgetFields._id.ordinal())));
+            final Budget forView = Budget.getFromDB(mCursor.getString(DatabaseDAO.BudgetFields._id.ordinal()));
+            view.setBudget(forView);
 
             return view;
+        }
+
+        public void addExpandedView(BudgetView view) {
+            mExpandedBudgets.add(view);
+        }
+
+        public void removeExpandedView(BudgetView view) {
+            mExpandedBudgets.remove(view);
         }
     }
 

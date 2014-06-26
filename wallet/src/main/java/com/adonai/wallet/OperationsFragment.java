@@ -14,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 import android.widget.SearchView;
 
@@ -52,9 +51,7 @@ public class OperationsFragment extends WalletBaseListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         mOpAdapter = new OperationsAdapter();
-        DatabaseDAO.getInstance().registerDatabaseListener(OPERATIONS.toString(), mOpAdapter);
-        DatabaseDAO.getInstance().registerDatabaseListener(EntityType.ACCOUNTS.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
-        DatabaseDAO.getInstance().registerDatabaseListener(EntityType.CATEGORIES.toString(), mOpAdapter); // due to foreign key cascade deletion, for example
+        DatabaseDAO.getInstance().registerDatabaseListener(mOpAdapter, null);
 
         final View rootView = inflater.inflate(R.layout.operations_flow, container, false);
         assert rootView != null;
@@ -70,9 +67,7 @@ public class OperationsFragment extends WalletBaseListFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        DatabaseDAO.getInstance().unregisterDatabaseListener(OPERATIONS.toString(), mOpAdapter);
-        DatabaseDAO.getInstance().unregisterDatabaseListener(EntityType.ACCOUNTS.toString(), mOpAdapter);
-        DatabaseDAO.getInstance().unregisterDatabaseListener(EntityType.CATEGORIES.toString(), mOpAdapter);
+        DatabaseDAO.getInstance().unregisterDatabaseListener(mOpAdapter, null);
         mOpAdapter.changeCursor(null); // close opened cursor
     }
 

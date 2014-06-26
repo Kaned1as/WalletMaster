@@ -46,8 +46,8 @@ public class CategoriesFragment extends WalletBaseListFragment {
         mEntityList.setOnItemLongClickListener(new CategoryEditListener());
 
         mCategoriesAdapter = new CategoriesAdapter(Category.EXPENSE);
-        DatabaseDAO.getInstance().registerDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
-        DatabaseDAO.getInstance().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mCategoriesAdapter); // foreign keys
+        DatabaseDAO.getInstance().registerDatabaseListener(mCategoriesAdapter, DatabaseDAO.EntityType.CATEGORIES.toString());
+        DatabaseDAO.getInstance().registerDatabaseListener(mCategoriesAdapter, DatabaseDAO.EntityType.ACCOUNTS.toString()); // foreign keys
         mEntityList.setAdapter(mCategoriesAdapter);
 
         return rootView;
@@ -56,8 +56,8 @@ public class CategoriesFragment extends WalletBaseListFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        DatabaseDAO.getInstance().unregisterDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
-        DatabaseDAO.getInstance().unregisterDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mCategoriesAdapter);
+        DatabaseDAO.getInstance().unregisterDatabaseListener(mCategoriesAdapter, DatabaseDAO.EntityType.CATEGORIES.toString());
+        DatabaseDAO.getInstance().unregisterDatabaseListener(mCategoriesAdapter, DatabaseDAO.EntityType.ACCOUNTS.toString());
         mCategoriesAdapter.changeCursor(null);
     }
 

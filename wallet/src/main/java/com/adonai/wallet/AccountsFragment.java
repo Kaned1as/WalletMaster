@@ -48,7 +48,7 @@ public class AccountsFragment extends WalletBaseListFragment {
         budgetSum = (TextView) rootView.findViewById(R.id.account_sum);
 
         mAccountsAdapter = new AccountsAdapter();
-        DatabaseDAO.getInstance().registerDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mAccountsAdapter);
+        DatabaseDAO.getInstance().registerDatabaseListener(mAccountsAdapter, DatabaseDAO.EntityType.ACCOUNTS.toString());
 
         mEntityList.setAdapter(mAccountsAdapter);
         mEntityList.setOnItemLongClickListener(new AccountLongClickListener());
@@ -139,7 +139,7 @@ public class AccountsFragment extends WalletBaseListFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        DatabaseDAO.getInstance().unregisterDatabaseListener(DatabaseDAO.EntityType.ACCOUNTS.toString(), mAccountsAdapter);
+        DatabaseDAO.getInstance().unregisterDatabaseListener(mAccountsAdapter, DatabaseDAO.EntityType.ACCOUNTS.toString());
         mAccountsAdapter.changeCursor(null); // close opened cursor
     }
 

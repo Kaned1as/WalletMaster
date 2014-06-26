@@ -3,6 +3,7 @@ package com.adonai.wallet;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.Observable;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
@@ -52,10 +53,20 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     public interface DatabaseListener {
+        static final String ANY_TABLE = "*";
+
         void handleUpdate();
     }
 
-    public void registerDatabaseListener(final String table, final DatabaseListener listener) {
+    /**
+     * Register specified listener as database listener for changes.
+     * @param listener listener to be registered
+     * @param table table name to check or null if all table changes should be tracked
+     */
+    public void registerDatabaseListener(final DatabaseListener listener, final String table) {
+        if(table == null) // listen on all
+            registerDatabaseListener(listener, DatabaseListener.ANY_TABLE);
+
         if(listenerMap.containsKey(table))
             listenerMap.get(table).add(listener);
         else {
@@ -65,7 +76,15 @@ public class DatabaseDAO extends SQLiteOpenHelper
         }
     }
 
-    public void unregisterDatabaseListener(final String table, final DatabaseListener listener) {
+    /**
+     * Unregister specified listener
+     * @param listener listener to be unregistered
+     * @param table table name that listener checked or null if listener tracked any table
+     */
+    public void unregisterDatabaseListener(final DatabaseListener listener, final String table) {
+        if(table == null) // listen on all
+            unregisterDatabaseListener(listener, DatabaseListener.ANY_TABLE);
+
         if(listenerMap.containsKey(table))
             listenerMap.get(table).remove(listener);
     }
@@ -582,7 +601,14 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     @SuppressWarnings("unchecked")
-    public void notifyListeners(String table) {
+    private void notifyListeners(String table) {
+        // notify listeners that are subscribed to all events
+        if(listenerMap.containsKey(DatabaseListener.ANY_TABLE)) {
+            final ArrayList<DatabaseListener> shadow = (ArrayList<DatabaseListener>) listenerMap.get(DatabaseListener.ANY_TABLE).clone();
+            for (final DatabaseListener listener : shadow)
+                listener.handleUpdate();
+        }
+
         if(listenerMap.containsKey(table)) {
             final ArrayList<DatabaseListener> shadow = (ArrayList<DatabaseListener>) listenerMap.get(table).clone();
             for (final DatabaseListener listener : shadow)

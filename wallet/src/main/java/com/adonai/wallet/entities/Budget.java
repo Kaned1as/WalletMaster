@@ -133,4 +133,23 @@ public class Budget extends Entity {
         cursor.close();
         return null;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Budget)) return false;
+
+        final Budget budget = (Budget) o;
+
+        if (coveredAccount != null ? !coveredAccount.equals(budget.coveredAccount) : budget.coveredAccount != null)
+            return false;
+        if (!endTime.equals(budget.endTime))
+            return false;
+        if (!name.equals(budget.name))
+            return false;
+        if (!startTime.equals(budget.startTime))
+            return false;
+
+        return true;
+    }
 }

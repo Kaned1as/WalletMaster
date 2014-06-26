@@ -13,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.adonai.wallet.BudgetItemDialogFragment;
+import com.adonai.wallet.BudgetsFragment;
 import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.R;
 import com.adonai.wallet.Utils;
@@ -30,10 +31,12 @@ import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
  */
 public class BudgetView extends LinearLayout {
 
-    private enum State {
+    public enum State {
         COLLAPSED,
         EXPANDED
     }
+
+    private final BudgetsFragment.BudgetsAdapter mViewAdapter;
 
     private Budget mBudget;
     private State mState = State.COLLAPSED;
@@ -41,9 +44,12 @@ public class BudgetView extends LinearLayout {
     private View mCollapsedView;
     private ImageView mExpander;
     private ListView mExpandedView;
+    private BudgetItemCursorAdapter mBudgetItemCursorAdapter;
 
-    public BudgetView(Context context) {
+    public BudgetView(Context context, BudgetsFragment.BudgetsAdapter budgetsAdapter) {
         super(context);
+        mViewAdapter = budgetsAdapter;
+
         setLayoutTransition(new LayoutTransition());
         final LayoutInflater inflater = LayoutInflater.from(context);
         mCollapsedView = inflater.inflate(R.layout.budget_list_item, this, true);
@@ -60,9 +66,16 @@ public class BudgetView extends LinearLayout {
         });
     }
 
+    public State getState() {
+        return mState;
+    }
+
     public void setBudget(Budget budget) {
+        final Budget oldBudget = this.mBudget;
+
         this.mBudget = budget;
-        onBudgetChanged();
+        if(oldBudget == null || !oldBudget.equals(mBudget))
+            onBudgetChanged();
     }
 
     private void onBudgetChanged() {
@@ -79,6 +92,8 @@ public class BudgetView extends LinearLayout {
         else
             coveredAccount.setText(getResources().getString(R.string.all));
         name.setText(mBudget.getName());
+
+        collapse();
     }
 
     public void expand() {
@@ -86,7 +101,8 @@ public class BudgetView extends LinearLayout {
             return;
 
         if(mExpandedView.getAdapter() == null) { // never expanded before
-            mExpandedView.setAdapter(new BudgetItemCursorAdapter(getContext()));
+            mBudgetItemCursorAdapter = new BudgetItemCursorAdapter(getContext());
+            mExpandedView.setAdapter(mBudgetItemCursorAdapter);
 
             final View footer = View.inflate(getContext(), R.layout.listview_add_footer, null);
             mExpandedView.addFooterView(footer);
@@ -99,10 +115,30 @@ public class BudgetView extends LinearLayout {
             });
         }
 
+        DatabaseDAO.getInstance().registerDatabaseListener(mBudgetItemCursorAdapter, null);
+        mBudgetItemCursorAdapter.handleUpdate();
+
         mExpandedView.getLayoutParams().height = (int) Utils.convertDpToPixel(200f, getContext());
         mExpandedView.setLayoutParams(mExpandedView.getLayoutParams());
         mState = State.EXPANDED;
+        mViewAdapter.addExpandedView(this);
         updateExpanderDrawable();
+    }
+
+    public void collapse() {
+        if(mBudget == null) // no budget - no expanding (should not happen)
+            return;
+
+        if(mBudgetItemCursorAdapter != null) { // was expanded before, unregister
+            DatabaseDAO.getInstance().unregisterDatabaseListener(mBudgetItemCursorAdapter, null);
+            mBudgetItemCursorAdapter.changeCursor(null);
+
+            mExpandedView.getLayoutParams().height = 0;
+            mExpandedView.setLayoutParams(mExpandedView.getLayoutParams());
+            mState = State.COLLAPSED;
+            mViewAdapter.removeExpandedView(this);
+            updateExpanderDrawable();
+        }
     }
 
     private void updateExpanderDrawable() {
@@ -112,17 +148,10 @@ public class BudgetView extends LinearLayout {
         attr.recycle();
     }
 
-    public void collapse() {
-        mExpandedView.getLayoutParams().height = 0;
-        mExpandedView.setLayoutParams(mExpandedView.getLayoutParams());
-        mState = State.COLLAPSED;
-        updateExpanderDrawable();
-    }
-
-    public class BudgetItemCursorAdapter extends UUIDCursorAdapter {
+    public class BudgetItemCursorAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener {
 
         public BudgetItemCursorAdapter(Context context) {
-            super(context, DatabaseDAO.getInstance().getCustomCursor(BUDGET_ITEMS, BudgetItemFields.PARENT_BUDGET.toString(), mBudget.getId()));
+            super(context, null);
         }
 
         @Override
@@ -148,5 +177,17 @@ public class BudgetView extends LinearLayout {
 
             return view;
         }
+
+        @Override
+        public void handleUpdate() {
+            ((WalletBaseActivity) getContext()).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    changeCursor(DatabaseDAO.getInstance().getCustomCursor(BUDGET_ITEMS, BudgetItemFields.PARENT_BUDGET.toString(), mBudget.getId()));
+                }
+            });
+        }
     }
+
+
 }

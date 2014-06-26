@@ -92,7 +92,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         mChargeAccountSelector.setOnItemSelectedListener(accountSelectListener);
 
         mCategoriesAdapter = new CategoriesAdapter(Category.EXPENSE);
-        DatabaseDAO.getInstance().registerDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
+        DatabaseDAO.getInstance().registerDatabaseListener(mCategoriesAdapter, DatabaseDAO.EntityType.CATEGORIES.toString());
 
         mCategorySelector = (Spinner) dialog.findViewById(R.id.category_spinner);
         mCategorySelector.setOnItemSelectedListener(new CategorySelectListener());
@@ -379,6 +379,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         super.onDestroyView();
         mCategoriesAdapter.changeCursor(null);
         mAccountAdapter.changeCursor(null);
-        DatabaseDAO.getInstance().unregisterDatabaseListener(DatabaseDAO.EntityType.CATEGORIES.toString(), mCategoriesAdapter);
+        DatabaseDAO.getInstance().unregisterDatabaseListener(mCategoriesAdapter, DatabaseDAO.EntityType.CATEGORIES.toString());
     }
 }
