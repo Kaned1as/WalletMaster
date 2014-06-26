@@ -3,7 +3,6 @@ package com.adonai.wallet;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.Observable;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
@@ -64,8 +63,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
      * @param table table name to check or null if all table changes should be tracked
      */
     public void registerDatabaseListener(final DatabaseListener listener, final String table) {
-        if(table == null) // listen on all
+        if(table == null) { // listen on all
             registerDatabaseListener(listener, DatabaseListener.ANY_TABLE);
+            return;
+        }
 
         if(listenerMap.containsKey(table))
             listenerMap.get(table).add(listener);
@@ -82,8 +83,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
      * @param table table name that listener checked or null if listener tracked any table
      */
     public void unregisterDatabaseListener(final DatabaseListener listener, final String table) {
-        if(table == null) // listen on all
+        if(table == null) { // listen on all
             unregisterDatabaseListener(listener, DatabaseListener.ANY_TABLE);
+            return;
+        }
 
         if(listenerMap.containsKey(table))
             listenerMap.get(table).remove(listener);
@@ -526,15 +529,20 @@ public class DatabaseDAO extends SQLiteOpenHelper
 
     public BigDecimal getAmountForBudget(Budget budget, Category category) {
         final Cursor sumCounter;
+        final BigDecimal sum;
         if(budget.getCoveredAccount() == null) // all accounts
             sumCounter = mDatabase.rawQuery("SELECT SUM(" + OperationsFields.AMOUNT + ") FROM " + EntityType.OPERATIONS + " WHERE " + OperationsFields.CATEGORY + " = ? AND " + OperationsFields.TIME + " BETWEEN ? AND ?", new String[]{category.getId(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime())});
         else
             sumCounter = mDatabase.rawQuery("SELECT SUM(" + OperationsFields.AMOUNT + ") FROM " + EntityType.OPERATIONS + " WHERE " + OperationsFields.CHARGER + " = ? AND " + OperationsFields.CATEGORY + " = ? AND " + OperationsFields.TIME + " BETWEEN ? AND ?", new String[]{budget.getCoveredAccount().getId(), category.getId(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime())});
 
         if(sumCounter.moveToFirst())
-            return new BigDecimal(sumCounter.getLong(0));
+            sum = new BigDecimal(sumCounter.getLong(0));
+        else
+            sum = BigDecimal.ZERO;
 
-        return BigDecimal.ZERO;
+        sumCounter.close();
+
+        return sum;
     }
 
     public Cursor getEntityCursor(EntityType tableName, long id) {

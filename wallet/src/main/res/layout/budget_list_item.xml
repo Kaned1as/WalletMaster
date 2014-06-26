@@ -2,14 +2,14 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:paddingTop="3dp"
     android:paddingBottom="3dp">
 
     <RelativeLayout
         android:id="@id/main_content_layout"
         android:orientation="vertical" android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:paddingRight="15dp"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
@@ -90,12 +90,14 @@
             android:layout_marginTop="10dp"
             android:scaleType="fitCenter" />
 
-        <ListView
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:id="@+id/budget_items_list"
             android:layout_below="@+id/covered_account_label"
             android:layout_marginTop="10dp" />
+        <!-- android:animateLayoutChanges="true" --> <!-- BUGGY -->
 
     </RelativeLayout>
 

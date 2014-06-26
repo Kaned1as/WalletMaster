@@ -17,11 +17,6 @@ import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.adonai.wallet.view.BudgetView;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
-import static com.adonai.wallet.DatabaseDAO.EntityType.BUDGETS;
 
 /**
  * Fragment that is responsible for showing budget list
@@ -57,7 +52,7 @@ public class BudgetsFragment extends WalletBaseListFragment {
     @SuppressWarnings("unchecked")
     public void onDestroyView() {
         super.onDestroyView();
-        final TreeSet<BudgetView> shadow = (TreeSet<BudgetView>) mBudgetsAdapter.mExpandedBudgets.clone();
+        final ArrayList<BudgetView> shadow = (ArrayList<BudgetView>) mBudgetsAdapter.mExpandedBudgets.clone();
         for(BudgetView view : shadow)
             view.collapse(); // close all child cursors
 
@@ -86,7 +81,7 @@ public class BudgetsFragment extends WalletBaseListFragment {
 
 
     public class BudgetsAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener {
-        private final TreeSet<BudgetView> mExpandedBudgets = new TreeSet<>();
+        private final ArrayList<BudgetView> mExpandedBudgets = new ArrayList<>();
 
         public BudgetsAdapter() {
             super(getActivity(), DatabaseDAO.getInstance().getBudgetsCursor());
