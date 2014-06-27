@@ -27,7 +27,9 @@ import static com.adonai.wallet.DatabaseDAO.EntityType.BUDGET_ITEMS;
 import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
 
 /**
- * Created by adonai on 12.06.14.
+ * View designed for showing budget and its child views
+ *
+ * @author Adonai
  */
 public class BudgetView extends LinearLayout {
 
@@ -41,7 +43,7 @@ public class BudgetView extends LinearLayout {
     private Budget mBudget;
     private State mState = State.COLLAPSED;
 
-    private View mCollapsedView;
+    private View mHeaderView;
     private ImageView mExpander;
     private LinearLayout mExpandedView;
     private View mFooter;
@@ -52,9 +54,9 @@ public class BudgetView extends LinearLayout {
         mViewAdapter = budgetsAdapter;
 
         final LayoutInflater inflater = LayoutInflater.from(context);
-        mCollapsedView = inflater.inflate(R.layout.budget_list_item, this, true);
-        mExpandedView = (LinearLayout) mCollapsedView.findViewById(R.id.budget_items_list);
-        mExpander = (ImageView) mCollapsedView.findViewById(R.id.expand_view);
+        mHeaderView = inflater.inflate(R.layout.budget_list_item, this, true);
+        mExpandedView = (LinearLayout) mHeaderView.findViewById(R.id.budget_items_list);
+        mExpander = (ImageView) mHeaderView.findViewById(R.id.expand_view);
         mExpander.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -128,11 +130,11 @@ public class BudgetView extends LinearLayout {
         if(mBudgetItemCursorAdapter != null) { // was expanded before, unregister
             DatabaseDAO.getInstance().unregisterDatabaseListener(mBudgetItemCursorAdapter, null);
             mBudgetItemCursorAdapter.changeCursor(null);
-
-            mState = State.COLLAPSED;
-            mViewAdapter.removeExpandedView(this);
-            updateDrawables();
         }
+
+        mState = State.COLLAPSED;
+        mViewAdapter.removeExpandedView(this);
+        updateDrawables();
     }
 
     private void updateDrawables() {

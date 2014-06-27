@@ -24,7 +24,9 @@ import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
 import static com.adonai.wallet.Utils.convertPixelsToDp;
 
 /**
- * Created by adonai on 12.06.14.
+ * View designed for showing operations
+ *
+ * @author Adonai
  */
 public class OperationView extends FrameLayout {
 
