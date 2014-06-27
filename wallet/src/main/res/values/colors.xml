@@ -2,9 +2,12 @@
 <resources>
     <color name="account_list_bg">#11F0F0F0</color>
     <color name="account_list_border">#E0E0E0</color>
-    <color name="green_amount">#ff13ac00</color>
+    <color name="green_amount">#ff33cc00</color>
     <color name="red_amount">#ffa00300</color>
     <color name="list_gray_divider">#35ffffff</color>
+
     <color name="light_drawer_bg">#dddd</color>
     <color name="dark_drawer_bg">#d222</color>
+
+    <color name="expanded_budget_item_bg">#30888888</color>
 </resources>

@@ -120,4 +120,6 @@
     <string name="edit_budget_item">Edit budget item</string>
     <string name="budget_item_not_found">Budget item not found</string>
     <string name="budget_item_exists">Budget item with that parent and category already exists!</string>
+    <string name="budget_exists">Budget with this name already exists!</string>
+    <string name="end_date_must_be_after">End date must be after start date</string>
 </resources>

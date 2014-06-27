@@ -120,4 +120,6 @@
     <string name="edit_budget_item">Редактировать категорию бюджета</string>
     <string name="budget_item_not_found">Категория бюджета не найдена</string>
     <string name="budget_item_exists">Такая категория уже присутствует!</string>
+    <string name="budget_exists">Бюджет с таким именем уже существует!</string>
+    <string name="end_date_must_be_after">Конечная дата должна быть позже начальной!</string>
 </resources>

@@ -94,14 +94,14 @@ public class BudgetItemDialogFragment extends WalletBaseDialogFragment implement
     public void onClick(View view) {
         final BigDecimal amount = getValue(mMaxAmountEdit.getText().toString(), BigDecimal.ZERO);
 
-        if(mBudgetItem != null) { // modifying existing budget
+        if(mBudgetItem != null) { // modifying existing budget item
             mBudgetItem.setMaxAmount(amount);
             mBudgetItem.setCategory(Category.getFromDB(mCategoryAdapter.getItemUUID(mCategorySelector.getSelectedItemPosition())));
             if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.MODIFY, mBudgetItem))
                 dismiss();
             else
                 Toast.makeText(getActivity(), R.string.budget_item_not_found, Toast.LENGTH_SHORT).show();
-        } else { // new category
+        } else { // new budget item
             final BudgetItem tempBudget = new BudgetItem(mParent);
             tempBudget.setMaxAmount(amount);
             tempBudget.setCategory(Category.getFromDB(mCategoryAdapter.getItemUUID(mCategorySelector.getSelectedItemPosition())));

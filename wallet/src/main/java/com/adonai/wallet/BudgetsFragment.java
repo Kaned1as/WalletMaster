@@ -129,7 +129,7 @@ public class BudgetsFragment extends WalletBaseListFragment {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, final long id) {
             final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
-            alertDialog.setItems(R.array.entity_choice_operation, new BudgetChoice(position)).setTitle(R.string.select_action).create().show();
+            alertDialog.setItems(R.array.entity_choice_common, new BudgetChoice(position)).setTitle(R.string.select_action).create().show();
             return true;
         }
     }

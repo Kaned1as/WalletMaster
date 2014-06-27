@@ -82,29 +82,36 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
 
     @Override
     public void onClick(View view) {
-        if(mBudget != null) { // modifying existing budget
+        try {
             mBudget.setName(mBudgetName.getText().toString());
-            mBudget.setStartTime(mStartDate.getCalendar().getTime());
-            mBudget.setEndTime(mEndDate.getCalendar().getTime());
-            if(mCoveredAccountSelector.getSelectedItem() != null)
-                mBudget.setCoveredAccount(Account.getFromDB(mAccountAdapter.getItemUUID(mCoveredAccountSelector.getSelectedItemPosition())));
-            else if (mBudget.getCoveredAccount() != null)
-                mBudget.setCoveredAccount(null);
-            if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.MODIFY, mBudget))
-                dismiss();
-            else
-                Toast.makeText(getActivity(), R.string.budget_not_found, Toast.LENGTH_SHORT).show();
-        } else { // new category
-            final Budget tempBudget = new Budget();
-            tempBudget.setName(mBudgetName.getText().toString());
-            tempBudget.setStartTime(mStartDate.getCalendar().getTime());
-            tempBudget.setEndTime(mEndDate.getCalendar().getTime());
-            if(mCoveredAccountSelector.getSelectedItem() != null)
-                tempBudget.setCoveredAccount(Account.getFromDB(mAccountAdapter.getItemUUID(mCoveredAccountSelector.getSelectedItemPosition())));
-            if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.ADD, tempBudget))
-                dismiss();
-            else
-                Toast.makeText(getActivity(), R.string.category_exists, Toast.LENGTH_SHORT).show();
+            if (mStartDate.getCalendar().getTimeInMillis() >= mEndDate.getCalendar().getTimeInMillis())
+                throw new IllegalArgumentException(getString(R.string.end_date_must_be_after));
+
+            if (mBudget != null) { // modifying existing budget
+                mBudget.setStartTime(mStartDate.getCalendar().getTime());
+                mBudget.setEndTime(mEndDate.getCalendar().getTime());
+                if (mCoveredAccountSelector.getSelectedItem() != null)
+                    mBudget.setCoveredAccount(Account.getFromDB(mAccountAdapter.getItemUUID(mCoveredAccountSelector.getSelectedItemPosition())));
+                else if (mBudget.getCoveredAccount() != null)
+                    mBudget.setCoveredAccount(null);
+                if (DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.MODIFY, mBudget))
+                    dismiss();
+                else
+                    throw new IllegalArgumentException(getString(R.string.budget_not_found));
+            } else { // new budget
+                final Budget tempBudget = new Budget();
+                tempBudget.setName(mBudgetName.getText().toString());
+                tempBudget.setStartTime(mStartDate.getCalendar().getTime());
+                tempBudget.setEndTime(mEndDate.getCalendar().getTime());
+                if (mCoveredAccountSelector.getSelectedItem() != null)
+                    tempBudget.setCoveredAccount(Account.getFromDB(mAccountAdapter.getItemUUID(mCoveredAccountSelector.getSelectedItemPosition())));
+                if (DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.ADD, tempBudget))
+                    dismiss();
+                else
+                    throw new IllegalArgumentException(getString(R.string.budget_exists));
+            }
+        } catch (IllegalArgumentException iae) {
+            Toast.makeText(getWalletActivity(), iae.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 }

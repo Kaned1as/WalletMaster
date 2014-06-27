@@ -20,6 +20,8 @@ import com.adonai.wallet.entities.Budget;
 import com.adonai.wallet.entities.BudgetItem;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 
+import java.math.BigDecimal;
+
 import static com.adonai.wallet.DatabaseDAO.BudgetItemFields;
 import static com.adonai.wallet.DatabaseDAO.EntityType.BUDGET_ITEMS;
 import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
@@ -116,7 +118,7 @@ public class BudgetView extends LinearLayout {
 
         mState = State.EXPANDED;
         mViewAdapter.addExpandedView(this);
-        updateExpanderDrawable();
+        updateDrawables();
     }
 
     public void collapse() {
@@ -129,11 +131,13 @@ public class BudgetView extends LinearLayout {
 
             mState = State.COLLAPSED;
             mViewAdapter.removeExpandedView(this);
-            updateExpanderDrawable();
+            updateDrawables();
         }
     }
 
-    private void updateExpanderDrawable() {
+    private void updateDrawables() {
+        setBackgroundColor(getContext().getResources().getColor(mState == State.COLLAPSED ? android.R.color.transparent : R.color.expanded_budget_item_bg));
+
         TypedArray attr = getContext().getTheme().obtainStyledAttributes(new int[]{mState == State.COLLAPSED ? R.attr.ExpandBudgetDrawable : R.attr.CollapseBudgetDrawable});
         int attributeResourceId = attr.getResourceId(0, 0);
         mExpander.setImageResource(attributeResourceId);
@@ -163,9 +167,12 @@ public class BudgetView extends LinearLayout {
             categoryText.setText(bItem.getCategory().getName());
             final TextView maxAmountText = (TextView) view.findViewById(R.id.max_amount_label);
             maxAmountText.setText(bItem.getMaxAmount().toPlainString());
+            final BigDecimal currentProgress = bItem.getProgress(); // invokes DB operation, be careful!
+            final TextView currentAmountText = (TextView) view.findViewById(R.id.current_progress_label);
+            currentAmountText.setText(currentProgress.toPlainString());
             final ProgressBar progress = (ProgressBar) view.findViewById(R.id.deplete_progress);
             progress.setMax(bItem.getMaxAmount().intValue());
-            progress.setProgress(bItem.getProgress().intValue());
+            progress.setProgress(currentProgress.intValue());
 
             return view;
         }
