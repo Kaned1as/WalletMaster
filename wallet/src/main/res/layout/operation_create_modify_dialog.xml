@@ -154,7 +154,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/charge_account_spinner"
                 android:spinnerMode="dialog"
-                android:prompt="@string/select_charger" />
+                android:prompt="@string/select_charge_acc" />
 
         </TableRow>
 

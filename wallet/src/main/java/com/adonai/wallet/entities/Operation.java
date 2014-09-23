@@ -6,11 +6,15 @@ import android.util.Log;
 
 import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.sync.SyncProtocol;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
 import java.util.UUID;
+
+import static com.adonai.wallet.entities.Category.CategoryType;
 
 /**
  * Entity representing an operation. Operations show money flow
@@ -34,22 +38,32 @@ import java.util.UUID;
  * </p>
  * @author adonai
  */
-@EntityDescriptor(type = DatabaseDAO.EntityType.OPERATIONS)
-public class Operation extends Entity {
+@DatabaseTable
+public class Operation {
 
-    public enum OperationType {
-        EXPENSE,
-        INCOME,
-        TRANSFER
-    }
+    @DatabaseField(id = true)
+    private UUID id = UUID.randomUUID();
 
-    private String description;
+    @DatabaseField(canBeNull = false)
     private Date time;
-    private Account charger;
-    private Account beneficiar;
+
+    @DatabaseField(canBeNull = false)
     private BigDecimal amount;
-    private Double convertingRate;
+
+    @DatabaseField(canBeNull = false)
     private Category category;
+
+    @DatabaseField
+    private String description;
+
+    @DatabaseField(foreign = true)
+    private Account orderer;
+
+    @DatabaseField(foreign = true)
+    private Account beneficiar;
+
+    @DatabaseField
+    private BigDecimal convertingRate;
 
     public Operation() {
     }
@@ -59,12 +73,12 @@ public class Operation extends Entity {
         this.category = category;
     }
 
-    public Account getCharger() {
-        return charger;
+    public Account getOrderer() {
+        return orderer;
     }
 
-    public void setCharger(Account charger) {
-        this.charger = charger;
+    public void setOrderer(Account orderer) {
+        this.orderer = orderer;
     }
 
     public Account getBeneficiar() {
@@ -83,11 +97,11 @@ public class Operation extends Entity {
         this.amount = amount;
     }
 
-    public Double getConvertingRate() {
+    public BigDecimal getConvertingRate() {
         return convertingRate;
     }
 
-    public void setConvertingRate(Double convertingRate) {
+    public void setConvertingRate(BigDecimal convertingRate) {
         this.convertingRate = convertingRate;
     }
 
@@ -115,136 +129,50 @@ public class Operation extends Entity {
         this.time = time;
     }
 
-    public OperationType getOperationType() {
-        if(getBeneficiar() != null && getCharger() != null)
-            return OperationType.TRANSFER;
+    public UUID getId() {
+        return id;
+    }
 
-        if(getCategory().getType() == Category.EXPENSE)
-            return OperationType.EXPENSE;
-
-        return OperationType.INCOME;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public BigDecimal getAmountDelivered() {
         if(getConvertingRate() != null)
-           return getAmount().divide(BigDecimal.valueOf(getConvertingRate()), 2, RoundingMode.HALF_UP);
+           return getAmount().divide(getConvertingRate(), 2, RoundingMode.HALF_UP);
         else
             return getAmount();
     }
 
-    @Override
-    public String persist() {
-        Log.d("Entity persist", "Operation, amount: " + getAmount().toPlainString());
-
-        final ContentValues values = new ContentValues(8);
-        if(getId() != null) // use with caution
-            values.put(DatabaseDAO.OperationsFields._id.toString(), getId());
-        else
-            values.put(DatabaseDAO.OperationsFields._id.toString(), UUID.randomUUID().toString());
-
-        values.put(DatabaseDAO.OperationsFields.DESCRIPTION.toString(), getDescription());
-        values.put(DatabaseDAO.OperationsFields.CATEGORY.toString(), getCategory().getId());        // mandatory
-        values.put(DatabaseDAO.OperationsFields.AMOUNT.toString(), getAmount().toPlainString());    // mandatory
-        values.put(DatabaseDAO.OperationsFields.TIME.toString(), getTime().getTime());      // mandatory
-
-        if(getCharger() != null)
-            values.put(DatabaseDAO.OperationsFields.CHARGER.toString(), getCharger().getId());
-        if(getBeneficiar() != null)
-            values.put(DatabaseDAO.OperationsFields.RECEIVER.toString(), getBeneficiar().getId());
-        if(getConvertingRate() != null)
-            values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), getConvertingRate());
-
-        long row = DatabaseDAO.getInstance().insert(values, entityType.toString());
-        if(row > 0)
-            return values.getAsString(DatabaseDAO.OperationsFields._id.toString());
-        else
-            throw new IllegalStateException("Cannot persist Budget!");
-    }
-
-    @Override
-    public int update() {
-        // 2. create ContentValues to add key "column"/value
-        final ContentValues values = new ContentValues();
-        values.put(DatabaseDAO.OperationsFields.DESCRIPTION.toString(), getDescription());
-        values.put(DatabaseDAO.OperationsFields.TIME.toString(), getTime().getTime());                  // mandatory
-        values.put(DatabaseDAO.OperationsFields.AMOUNT.toString(), getAmount().toPlainString());    // mandatory
-        values.put(DatabaseDAO.OperationsFields.CATEGORY.toString(), getCategory().getId());        // mandatory
-
-
-        if(getCharger() != null)
-            values.put(DatabaseDAO.OperationsFields.CHARGER.toString(), getCharger().getId());
-        else
-            values.put(DatabaseDAO.OperationsFields.CHARGER.toString(), (String) null);
-        if(getBeneficiar() != null)
-            values.put(DatabaseDAO.OperationsFields.RECEIVER.toString(), getBeneficiar().getId());
-        else
-            values.put(DatabaseDAO.OperationsFields.RECEIVER.toString(), (String) null);
-
-        if(getConvertingRate() != null)
-            values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), getConvertingRate());
-        else
-            values.put(DatabaseDAO.OperationsFields.CONVERT_RATE.toString(), (String) null);
-
-        return DatabaseDAO.getInstance().update(values, entityType.toString());
-    }
-
-    public static Operation getFromDB(String id) {
-        final DatabaseDAO dao = DatabaseDAO.getInstance();
-        final Long preciseTime = System.currentTimeMillis();
-        final Cursor cursor = dao.get(DatabaseDAO.EntityType.OPERATIONS, id);
-        if (cursor.moveToFirst()) {
-            final Operation op = new Operation();
-            op.setId(cursor.getString(DatabaseDAO.OperationsFields._id.ordinal()));
-            op.setDescription(cursor.getString(DatabaseDAO.OperationsFields.DESCRIPTION.ordinal()));
-            op.setCategory(Category.getFromDB(cursor.getString(DatabaseDAO.OperationsFields.CATEGORY.ordinal())));
-            op.setTime(new Date(cursor.getLong(DatabaseDAO.OperationsFields.TIME.ordinal())));
-            if(!cursor.isNull(DatabaseDAO.OperationsFields.CHARGER.ordinal()))
-                op.setCharger(Account.getFromDB(cursor.getString(DatabaseDAO.OperationsFields.CHARGER.ordinal())));
-            if(!cursor.isNull(DatabaseDAO.OperationsFields.RECEIVER.ordinal()))
-                op.setBeneficiar(Account.getFromDB(cursor.getString(DatabaseDAO.OperationsFields.RECEIVER.ordinal())));
-            op.setAmount(new BigDecimal(cursor.getString(DatabaseDAO.OperationsFields.AMOUNT.ordinal())));
-            if(!cursor.isNull(DatabaseDAO.OperationsFields.CONVERT_RATE.ordinal()))
-                op.setConvertingRate(cursor.getDouble(DatabaseDAO.OperationsFields.CONVERT_RATE.ordinal()));
-            cursor.close();
-
-            Log.d("Time measurement", String.format("getOperation(%s), took %d ms", id, System.currentTimeMillis() - preciseTime));
-            Log.d("Entity Serialization", "Operation, amount: " + op.getAmount().toPlainString());
-            return op;
-        }
-
-        cursor.close();
-        return null;
-    }
-
     public static Operation fromProtoOperation(SyncProtocol.Operation operation) {
         final Operation temp = new Operation();
-        temp.setId(operation.getID());
+        temp.setId(UUID.fromString(operation.getID()));
         temp.setDescription(operation.getDescription());
         temp.setCategory(Category.getFromDB(operation.getCategoryId()));
         temp.setTime(new Date(operation.getTime()));
         if(operation.hasChargerId())
-            temp.setCharger(Account.getFromDB(operation.getChargerId()));
+            temp.setOrderer(Account.getFromDB(operation.getChargerId()));
         if(operation.hasBeneficiarId())
             temp.setBeneficiar(Account.getFromDB(operation.getBeneficiarId()));
         temp.setAmount(new BigDecimal(operation.getAmount()));
         if(operation.hasConvertingRate())
-            temp.setConvertingRate(operation.getConvertingRate());
+            temp.setConvertingRate(BigDecimal.valueOf(operation.getConvertingRate()));
         return temp;
     }
 
     public static SyncProtocol.Operation toProtoOperation(Operation operation) {
         final SyncProtocol.Operation.Builder builder = SyncProtocol.Operation.newBuilder()
-                .setID(operation.getId())
+                .setID(operation.getId().toString())
                 .setDescription(operation.getDescription())
                 .setAmount(operation.getAmount().toPlainString())
                 .setTime(operation.getTime().getTime())
-                .setCategoryId(operation.getCategory().getId());
-        if(operation.getCharger() != null)
-            builder.setChargerId(operation.getCharger().getId());
+                .setCategoryId(operation.getCategory().getId().toString());
+        if(operation.getOrderer() != null)
+            builder.setChargerId(operation.getOrderer().getId().toString());
         if(operation.getBeneficiar() != null)
-            builder.setBeneficiarId(operation.getBeneficiar().getId());
+            builder.setBeneficiarId(operation.getBeneficiar().getId().toString());
         if(operation.getConvertingRate() != null)
-            builder.setConvertingRate(operation.getConvertingRate());
+            builder.setConvertingRate(operation.getConvertingRate().doubleValue());
 
         return builder.build();
     }

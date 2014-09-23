@@ -133,7 +133,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             switch (mOperation.getOperationType()) {
                 case TRANSFER:
                     mTypeSwitch.check(R.id.transfer_radio);
-                    mChargeAccountSelector.setSelection(mAccountAdapter.getPosition(mOperation.getCharger().getId()));
+                    mChargeAccountSelector.setSelection(mAccountAdapter.getPosition(mOperation.getOrderer().getId()));
                     mBeneficiarAccountSelector.setSelection(mAccountAdapter.getPosition(mOperation.getBeneficiar().getId()));
                     mCategorySelector.setSelection(mCategoriesAdapter.getPosition(mOperation.getCategory().getId()));
                     if(mOperation.getConvertingRate() != null)
@@ -141,7 +141,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     break;
                 case EXPENSE:
                     mTypeSwitch.check(R.id.expense_radio);
-                    mChargeAccountSelector.setSelection(mAccountAdapter.getPosition(mOperation.getCharger().getId()));
+                    mChargeAccountSelector.setSelection(mAccountAdapter.getPosition(mOperation.getOrderer().getId()));
                     mCategorySelector.setSelection(mCategoriesAdapter.getPosition(mOperation.getCategory().getId()));
                     break;
                 case INCOME:
@@ -278,8 +278,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     dismiss();
                     // update operation fields in case accounts were affected when reverting
                     // ugly hack (lack of managed/non-managed entity difference)
-                    if(mOperation.getCharger() != null)
-                        mOperation.setCharger(Account.getFromDB(mOperation.getCharger().getId()));
+                    if(mOperation.getOrderer() != null)
+                        mOperation.setOrderer(Account.getFromDB(mOperation.getOrderer().getId()));
                     if(mOperation.getBeneficiar() != null)
                         mOperation.setBeneficiar(Account.getFromDB(mOperation.getBeneficiar().getId()));
                     db.applyOperation(mOperation);
@@ -325,9 +325,9 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     throw new IllegalArgumentException(getString(R.string.operation_needs_transfer_accs));
                 if (chargeAcc.getId().equals(benefAcc.getId())) // no transfer to self
                     throw new IllegalArgumentException(getString(R.string.accounts_identical));
-                mOperation.setCharger(chargeAcc);
+                mOperation.setOrderer(chargeAcc);
                 mOperation.setBeneficiar(benefAcc);
-                if (!mOperation.getBeneficiar().getCurrency().equals(mOperation.getCharger().getCurrency())) // different currencies
+                if (!mOperation.getBeneficiar().getCurrency().equals(mOperation.getOrderer().getCurrency())) // different currencies
                     mOperation.setConvertingRate(getValue(mBeneficiarConversionRate.getText().toString(), 1d));
                 break;
             }
@@ -337,7 +337,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                 if (benefAcc == null)
                     throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
                 mOperation.setBeneficiar(benefAcc);
-                mOperation.setCharger(null);
+                mOperation.setOrderer(null);
                 break;
             }
             case R.id.expense_radio: { // expense op, we need charger
@@ -345,7 +345,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                 final Account chargeAcc = Account.getFromDB(chargerID);
                 if (chargeAcc == null)
                     throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
-                mOperation.setCharger(chargeAcc);
+                mOperation.setOrderer(chargeAcc);
                 mOperation.setBeneficiar(null);
                 break;
             }

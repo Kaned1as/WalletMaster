@@ -6,6 +6,8 @@ import android.util.Log;
 
 import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.sync.SyncProtocol;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.UUID;
 
@@ -27,20 +29,31 @@ import java.util.UUID;
  *
  * @author Adonai
  */
-@EntityDescriptor(type = DatabaseDAO.EntityType.CATEGORIES)
-public class Category extends Entity {
-    final public static int EXPENSE = 0;
-    final public static int INCOME = 1;
-    final public static int TRANSFER = 2;
+@DatabaseTable
+public class Category {
 
+    public enum CategoryType {
+        EXPENSE,
+        INCOME,
+        TRANSFER
+    }
+
+    @DatabaseField(id = true)
+    private UUID id = UUID.randomUUID();
+
+    @DatabaseField(canBeNull = false)
     private String name;
-    private int type;
+
+    @DatabaseField(canBeNull = false)
+    private CategoryType type;
+
+    @DatabaseField(foreign = true)
     private Account preferredAccount;
 
     public Category() {
     }
 
-    public Category(String name, int type) {
+    public Category(String name, CategoryType type) {
         this.name = name;
         this.type = type;
     }
@@ -53,11 +66,11 @@ public class Category extends Entity {
         this.name = name;
     }
 
-    public int getType() {
+    public CategoryType getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(CategoryType type) {
         this.type = type;
     }
 
@@ -69,67 +82,19 @@ public class Category extends Entity {
         this.preferredAccount = preferredAccount;
     }
 
-    @Override
-    public String persist() {
-        Log.d("Entity persist", "Category, name:" + getName());
-
-        final ContentValues values = new ContentValues(3);
-        if(getId() != null) // use with caution
-            values.put(DatabaseDAO.CategoriesFields._id.toString(), getId());
-        else
-            values.put(DatabaseDAO.CategoriesFields._id.toString(), UUID.randomUUID().toString());
-
-        values.put(DatabaseDAO.CategoriesFields.NAME.toString(), getName());
-        values.put(DatabaseDAO.CategoriesFields.TYPE.toString(), getType());
-        if(getPreferredAccount() != null)
-            values.put(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.toString(), getPreferredAccount().getId());
-
-        long row = DatabaseDAO.getInstance().insert(values, entityType.toString());
-        if(row > 0)
-            return values.getAsString(DatabaseDAO.CategoriesFields._id.toString());
-        else
-            throw new IllegalStateException("Cannot persist Budget!");
+    public UUID getId() {
+        return id;
     }
 
-    @Override
-    public int update() {
-        final ContentValues values = new ContentValues(3);
-        values.put(DatabaseDAO.CategoriesFields._id.toString(), getId());
-        values.put(DatabaseDAO.CategoriesFields.NAME.toString(), getName());
-        values.put(DatabaseDAO.CategoriesFields.TYPE.toString(), getType());
-        if(getPreferredAccount() != null)
-            values.put(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.toString(), getPreferredAccount().getId());
-        else
-            values.put(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.toString(), (String) null);
-
-        return DatabaseDAO.getInstance().update(values, entityType.toString());
-    }
-
-    public static Category getFromDB(String id) {
-        final DatabaseDAO dao = DatabaseDAO.getInstance();
-        final Cursor cursor = dao.get(DatabaseDAO.EntityType.CATEGORIES, id);
-        if (cursor.moveToFirst()) {
-            final Category cat = new Category();
-            cat.setId(cursor.getString(DatabaseDAO.CategoriesFields._id.ordinal()));
-            cat.setName(cursor.getString(DatabaseDAO.CategoriesFields.NAME.ordinal()));
-            cat.setType(cursor.getInt(DatabaseDAO.CategoriesFields.TYPE.ordinal()));
-            if(!cursor.isNull(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.ordinal()))
-                cat.setPreferredAccount(Account.getFromDB(cursor.getString(DatabaseDAO.CategoriesFields.PREFERRED_ACCOUNT.ordinal())));
-            cursor.close();
-
-            Log.d("Entity Serialization", "Category, name: " + cat.getName());
-            return cat;
-        }
-
-        cursor.close();
-        return null;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public static Category fromProtoCategory(SyncProtocol.Category category) {
         final Category tempCategory = new Category();
-        tempCategory.setId(category.getID());
+        tempCategory.setId(UUID.fromString(category.getID()));
         tempCategory.setName(category.getName());
-        tempCategory.setType(category.getType());
+        tempCategory.setType(CategoryType.values()[category.getType()]);
         if(category.hasPreferredAccount())
             tempCategory.setPreferredAccount(Account.getFromDB(category.getPreferredAccount()));
 
@@ -138,12 +103,12 @@ public class Category extends Entity {
 
     public static SyncProtocol.Category toProtoCategory(Category category) {
         final SyncProtocol.Category.Builder builder = SyncProtocol.Category.newBuilder()
-                .setID(category.getId())
+                .setID(category.getId().toString())
                 .setName(category.getName())
-                .setType(category.getType());
+                .setType(category.getType().ordinal());
 
         if(category.getPreferredAccount() != null)
-            builder.setPreferredAccount(category.getPreferredAccount().getId());
+            builder.setPreferredAccount(category.getPreferredAccount().getId().toString());
 
         return builder.build();
     }

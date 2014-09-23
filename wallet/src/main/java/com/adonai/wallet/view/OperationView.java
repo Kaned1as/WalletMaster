@@ -72,7 +72,7 @@ public class OperationView extends FrameLayout {
 
         switch (mOperation.getOperationType()) {
             case TRANSFER:
-                chargeAcc.setText(mOperation.getCharger().getName());
+                chargeAcc.setText(mOperation.getOrderer().getName());
                 benefAcc.setText(mOperation.getBeneficiar().getName());
                 chargeAmount.setText(mOperation.getAmount().toPlainString());
                 benefAmount.setText(mOperation.getAmountDelivered().toPlainString());
@@ -88,7 +88,7 @@ public class OperationView extends FrameLayout {
                 benefAcc.setText("");
                 benefAmount.setText("");
 
-                chargeAcc.setText(mOperation.getCharger().getName());
+                chargeAcc.setText(mOperation.getOrderer().getName());
                 chargeAmount.setText(mOperation.getAmount().toPlainString());
                 break;
         }

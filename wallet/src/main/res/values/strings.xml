@@ -86,7 +86,7 @@
     <string name="dont_show_again">Do not show again</string>
     <string name="action_add_category">Add category</string>
     <string name="select_beneficiar">Select beneficiar account</string>
-    <string name="select_charger">Select charger account</string>
+    <string name="select_charge_acc">Select charge account</string>
     <string name="select_category">Select category</string>
     <string name="select_color">Select color</string>
     <string name="select_currency">Select currency</string>
@@ -122,4 +122,5 @@
     <string name="budget_item_exists">Budget item with that parent and category already exists!</string>
     <string name="budget_exists">Budget with this name already exists!</string>
     <string name="end_date_must_be_after">End date must be after start date</string>
+    <string name="database_error">Database error!</string>
 </resources>

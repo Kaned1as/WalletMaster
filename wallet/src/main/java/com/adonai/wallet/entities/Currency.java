@@ -1,5 +1,8 @@
 package com.adonai.wallet.entities;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
 /**
  * Service class needed for conversions and account splitting
  * Note: this is not an entity. Currency tables are local for now
@@ -13,6 +16,7 @@ package com.adonai.wallet.entities;
  * </ol>
  * @author Adonai
  */
+@DatabaseTable
 public class Currency {
     public static final String TABLE_NAME = "currencies";
 
@@ -30,9 +34,14 @@ public class Currency {
         this.code = code;
     }
 
+    @DatabaseField(id = true)
     private String code;
-    transient private String description;
-    transient private String usedIn;
+
+    @DatabaseField
+    private String description;
+
+    @DatabaseField
+    private String usedIn;
 
     public String getCode() {
         return code;

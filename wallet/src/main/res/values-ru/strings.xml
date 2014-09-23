@@ -86,7 +86,7 @@
     <string name="dont_show_again">Не показывать снова</string>
     <string name="action_add_category">Добавить категорию</string>
     <string name="select_beneficiar">Выберите получателя</string>
-    <string name="select_charger">Выберите отправителя</string>
+    <string name="select_charge_acc">Выберите отправителя</string>
     <string name="select_category">Выберите категорию</string>
     <string name="select_color">Выберите цвет</string>
     <string name="select_currency">Выберите валюту</string>

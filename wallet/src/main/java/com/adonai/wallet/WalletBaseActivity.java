@@ -26,7 +26,6 @@ public class WalletBaseActivity extends Activity implements SyncStateMachine.Syn
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DatabaseDAO.init(this);
 
         // add all the currencies that are stored within mEntityDAO
         mSyncMachine = new SyncStateMachine(this);
@@ -43,7 +42,6 @@ public class WalletBaseActivity extends Activity implements SyncStateMachine.Syn
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        DatabaseDAO.getInstance().close();
         mSyncMachine.shutdown();
         mProgressDialog.dismiss();
     }

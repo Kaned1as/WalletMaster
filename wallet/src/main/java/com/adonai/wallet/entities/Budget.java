@@ -1,29 +1,36 @@
 package com.adonai.wallet.entities;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.util.Log;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
 
-import com.adonai.wallet.DatabaseDAO;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static com.adonai.wallet.DatabaseDAO.BudgetFields;
-import static com.adonai.wallet.DatabaseDAO.EntityType;
-
 /**
  * Created by adonai on 19.06.14.
  */
-@EntityDescriptor(type = EntityType.BUDGETS)
-public class Budget extends Entity {
+@DatabaseTable
+public class Budget {
 
+    @DatabaseField(id = true)
+    private UUID id = UUID.randomUUID();
+
+    @DatabaseField(canBeNull = false)
     private String name;
+
+    @DatabaseField(foreign = true)
     private Account coveredAccount;
+
+    @ForeignCollectionField
     private List<BudgetItem> content;
-    private Date startTime, endTime;
+
+    @DatabaseField(canBeNull = false)
+    private Date startTime;
+
+    @DatabaseField(canBeNull = false)
+    private Date endTime;
 
     public String getName() {
         return name;
@@ -65,73 +72,12 @@ public class Budget extends Entity {
         this.endTime = endTime;
     }
 
-    @Override
-    public String persist() {
-        Log.d("Entity persist", "Budget, name: " + getName());
-
-        final ContentValues values = new ContentValues(5);
-        if(getId() != null) // use with caution
-            values.put(BudgetFields._id.toString(), getId());
-        else
-            values.put(BudgetFields._id.toString(), UUID.randomUUID().toString());
-
-        values.put(BudgetFields.NAME.toString(), getName());
-        values.put(BudgetFields.START_TIME.toString(), getStartTime().getTime());
-        values.put(BudgetFields.END_TIME.toString(), getEndTime().getTime());
-        if(getCoveredAccount() != null)
-            values.put(BudgetFields.COVERED_ACCOUNT.toString(), getCoveredAccount().getId());
-
-        long row = DatabaseDAO.getInstance().insert(values, entityType.toString());
-        if(row > 0)
-            return values.getAsString(BudgetFields._id.toString());
-        else
-            throw new IllegalStateException("Cannot persist Budget!");
+    public UUID getId() {
+        return id;
     }
 
-    @Override
-    public int update() {
-        final ContentValues values = new ContentValues(5);
-
-        values.put(DatabaseDAO.BudgetItemFields._id.toString(), getId());
-        values.put(BudgetFields.NAME.toString(), getName());
-        values.put(BudgetFields.START_TIME.toString(), getStartTime().getTime());
-        values.put(BudgetFields.END_TIME.toString(), getEndTime().getTime());
-        if(getCoveredAccount() != null)
-            values.put(BudgetFields.COVERED_ACCOUNT.toString(), getCoveredAccount().getId());
-        else
-            values.put(BudgetFields.COVERED_ACCOUNT.toString(), (String) null);
-
-        return DatabaseDAO.getInstance().update(values, entityType.toString());
-    }
-
-    public static Budget getFromDB(String id) {
-        final DatabaseDAO dao = DatabaseDAO.getInstance();
-        final Cursor cursor = dao.get(EntityType.BUDGETS, id);
-        if (cursor.moveToFirst()) {
-            final Budget budget = new Budget();
-            budget.setId(cursor.getString(BudgetFields._id.ordinal()));
-            budget.setName(cursor.getString(BudgetFields.NAME.ordinal()));
-            budget.setStartTime(new Date(cursor.getLong(BudgetFields.START_TIME.ordinal())));
-            budget.setEndTime(new Date(cursor.getLong(BudgetFields.END_TIME.ordinal())));
-            budget.setCoveredAccount(Account.getFromDB(cursor.getString(BudgetFields.COVERED_ACCOUNT.ordinal())));
-
-            /*
-            // interesting part - getting budget items
-            final Cursor budgetItems = dao.getCustomCursor(EntityType.BUDGET_ITEMS, DatabaseDAO.BudgetItemFields.PARENT_BUDGET.toString(), budget.getId());
-            final List<BudgetItem> dependentItems = new ArrayList<>(budgetItems.getCount());
-            while (cursor.moveToNext())
-                dependentItems.add(BudgetItem.getFromDB(dao, cursor.getString(DatabaseDAO.BudgetItemFields._id.ordinal())));
-            budget.setContent(dependentItems);
-            budgetItems.close();
-            */
-
-            Log.d("Entity Serialization", "getBudget(" + id + "), name: " + budget.getName());
-            cursor.close();
-            return budget;
-        }
-
-        cursor.close();
-        return null;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     @Override
