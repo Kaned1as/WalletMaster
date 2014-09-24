@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.sync.SyncProtocol;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -39,12 +40,9 @@ import static com.adonai.wallet.entities.Category.CategoryType;
  * @author adonai
  */
 @DatabaseTable
-public class Operation {
+public class Operation extends Entity {
 
-    @DatabaseField(id = true)
-    private UUID id = UUID.randomUUID();
-
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(canBeNull = false, dataType = DataType.DATE_LONG)
     private Date time;
 
     @DatabaseField(canBeNull = false)
@@ -127,14 +125,6 @@ public class Operation {
 
     public void setTime(Date time) {
         this.time = time;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public BigDecimal getAmountDelivered() {

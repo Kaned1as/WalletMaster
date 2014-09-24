@@ -30,16 +30,13 @@ import java.util.UUID;
  * @author Adonai
  */
 @DatabaseTable
-public class Category {
+public class Category extends Entity {
 
     public enum CategoryType {
         EXPENSE,
         INCOME,
         TRANSFER
     }
-
-    @DatabaseField(id = true)
-    private UUID id = UUID.randomUUID();
 
     @DatabaseField(canBeNull = false)
     private String name;
@@ -80,14 +77,6 @@ public class Category {
 
     public void setPreferredAccount(Account preferredAccount) {
         this.preferredAccount = preferredAccount;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public static Category fromProtoCategory(SyncProtocol.Category category) {

@@ -1,21 +1,18 @@
 package com.adonai.wallet.entities;
 
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by adonai on 19.06.14.
  */
 @DatabaseTable
-public class Budget {
-
-    @DatabaseField(id = true)
-    private UUID id = UUID.randomUUID();
+public class Budget extends Entity {
 
     @DatabaseField(canBeNull = false)
     private String name;
@@ -26,10 +23,10 @@ public class Budget {
     @ForeignCollectionField
     private List<BudgetItem> content;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(canBeNull = false, dataType = DataType.DATE_LONG)
     private Date startTime;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(canBeNull = false, dataType = DataType.DATE_LONG)
     private Date endTime;
 
     public String getName() {
@@ -70,14 +67,6 @@ public class Budget {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     @Override

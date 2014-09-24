@@ -27,10 +27,7 @@ import java.util.UUID;
  * @author Adonai
  */
 @DatabaseTable
-public class Account {
-
-    @DatabaseField(id = true)
-    private UUID id = UUID.randomUUID();
+public class Account extends Entity {
 
     @DatabaseField(canBeNull = false)
     private String name;
@@ -85,14 +82,6 @@ public class Account {
 
     public void setColor(Integer color) {
         this.color = color;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public static Account fromProtoAccount(SyncProtocol.Account account) {

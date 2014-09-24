@@ -5,20 +5,16 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 /**
  * Created by adonai on 19.06.14.
  */
 @DatabaseTable(tableName = "budget_item")
-public class BudgetItem {
+public class BudgetItem extends Entity {
 
     public BudgetItem(Budget parentBudget) {
         this.parentBudget = parentBudget;
     }
-
-    @DatabaseField(id = true)
-    private UUID id = UUID.randomUUID();
 
     @DatabaseField(canBeNull = false, foreign = true)
     private Budget parentBudget;
@@ -28,14 +24,6 @@ public class BudgetItem {
 
     @DatabaseField
     private BigDecimal maxAmount;
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
 
     public Budget getParentBudget() {
         return parentBudget;
