@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.util.Log;
 
 import com.adonai.wallet.DatabaseDAO;
+import com.adonai.wallet.database.EntityDao;
 import com.adonai.wallet.sync.SyncProtocol;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
@@ -39,7 +40,7 @@ import static com.adonai.wallet.entities.Category.CategoryType;
  * </p>
  * @author adonai
  */
-@DatabaseTable
+@DatabaseTable(daoClass = EntityDao.class)
 public class Operation extends Entity {
 
     @DatabaseField(canBeNull = false, dataType = DataType.DATE_LONG)

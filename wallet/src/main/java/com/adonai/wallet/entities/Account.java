@@ -1,5 +1,6 @@
 package com.adonai.wallet.entities;
 
+import com.adonai.wallet.database.EntityDao;
 import com.adonai.wallet.sync.SyncProtocol;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -26,7 +27,7 @@ import java.util.UUID;
  * </p>
  * @author Adonai
  */
-@DatabaseTable
+@DatabaseTable(daoClass = EntityDao.class)
 public class Account extends Entity {
 
     @DatabaseField(canBeNull = false)

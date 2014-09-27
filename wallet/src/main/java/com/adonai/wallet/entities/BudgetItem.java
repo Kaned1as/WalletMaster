@@ -1,6 +1,7 @@
 package com.adonai.wallet.entities;
 
 import com.adonai.wallet.DatabaseDAO;
+import com.adonai.wallet.database.EntityDao;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -9,7 +10,7 @@ import java.math.BigDecimal;
 /**
  * Created by adonai on 19.06.14.
  */
-@DatabaseTable(tableName = "budget_item")
+@DatabaseTable(tableName = "budget_item", daoClass = EntityDao.class)
 public class BudgetItem extends Entity {
 
     public BudgetItem(Budget parentBudget) {

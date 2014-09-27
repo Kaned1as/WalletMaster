@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.util.Log;
 
 import com.adonai.wallet.DatabaseDAO;
+import com.adonai.wallet.database.EntityDao;
 import com.adonai.wallet.sync.SyncProtocol;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -29,7 +30,7 @@ import java.util.UUID;
  *
  * @author Adonai
  */
-@DatabaseTable
+@DatabaseTable(daoClass = EntityDao.class)
 public class Category extends Entity {
 
     public enum CategoryType {

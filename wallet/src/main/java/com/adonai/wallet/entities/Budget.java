@@ -1,5 +1,6 @@
 package com.adonai.wallet.entities;
 
+import com.adonai.wallet.database.EntityDao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  * Created by adonai on 19.06.14.
  */
-@DatabaseTable
+@DatabaseTable(daoClass = EntityDao.class)
 public class Budget extends Entity {
 
     @DatabaseField(canBeNull = false)

@@ -4,10 +4,14 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
 
+import com.adonai.wallet.database.DatabaseFactory;
+import com.adonai.wallet.database.EntityDao;
 import com.google.gson.Gson;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+
+import java.sql.SQLException;
 
 /**
  * Created by adonai on 23.09.14.
@@ -70,12 +74,14 @@ public class Action {
      * @param entity optional entity (for deletion ID and entityType are needed)
      * @return result of inserting new operation
      */
-    public static boolean makeAction(ActionType type, Entity entity) {
+    @SuppressWarnings("unchecked")
+    public static <T extends Entity> boolean makeAction(ActionType type, T entity) throws SQLException {
         switch (type) {
             case ADD:
-
+                ((EntityDao) DatabaseFactory.getHelper().getDao(entity.getClass())).create(entity);
                 break;
             case MODIFY:
+
                 break;
             case DELETE:
                 break;

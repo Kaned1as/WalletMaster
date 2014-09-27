@@ -33,12 +33,12 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     //ссылки на DAO соответсвующие сущностям, хранимым в БД
-    private Dao<Account, UUID> accountDao = null;
-    private Dao<Budget, UUID> budgetDao = null;
-    private Dao<BudgetItem, UUID> budgetItemDao = null;
-    private Dao<Category, UUID> categoryDao = null;
+    private EntityDao<Account> accountDao = null;
+    private EntityDao<Budget> budgetDao = null;
+    private EntityDao<BudgetItem> budgetItemDao = null;
+    private EntityDao<Category> categoryDao = null;
     private Dao<Currency, String> currencyDao = null;
-    private Dao<Operation, UUID> operationDao = null;
+    private EntityDao<Operation> operationDao = null;
     private Dao<Action, UUID> actionDao = null;
     private final Context mContext;
 
