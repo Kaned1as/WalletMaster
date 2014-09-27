@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import com.adonai.wallet.database.DatabaseFactory;
 import com.adonai.wallet.entities.Account;
-import com.adonai.wallet.entities.Action;
 import com.adonai.wallet.entities.Currency;
 
 import java.math.BigDecimal;
@@ -42,8 +41,6 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
     private EditText mInitialAmount;
 
     private CurrencyAdapter mCurrAdapter;
-
-    private Account mAccount;
 
     public static AccountDialogFragment forAccount(String accountId) {
         final AccountDialogFragment fragment = new AccountDialogFragment();
@@ -73,16 +70,16 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
         // if we are modifying existing account
         if(getArguments() != null && getArguments().containsKey(ACCOUNT_REFERENCE)) {
             try {
-                mAccount = DatabaseFactory.getHelper().getAccountDao().queryForId(UUID.fromString(getArguments().getString(ACCOUNT_REFERENCE)));
+                Account modAcc = DatabaseFactory.getHelper().getAccountDao().queryForId(UUID.fromString(getArguments().getString(ACCOUNT_REFERENCE)));
 
                 builder.setPositiveButton(R.string.confirm, this);
                 builder.setTitle(R.string.edit_account).setView(dialog);
 
-                mAccountName.setText(mAccount.getName());
-                mAccountDescription.setText(mAccount.getDescription());
-                mCurrencySelector.setSelection(mCurrAdapter.getPosition(mAccount.getCurrency().getCode()));
-                mColorSelector.setSelection(mColorAdapter.getPosition(String.format("#%06X", (0xFFFFFF & mAccount.getColor()))));
-                mInitialAmount.setText(mAccount.getAmount().toPlainString());
+                mAccountName.setText(modAcc.getName());
+                mAccountDescription.setText(modAcc.getDescription());
+                mCurrencySelector.setSelection(mCurrAdapter.getPosition(modAcc.getCurrency().getCode()));
+                mColorSelector.setSelection(mColorAdapter.getPosition(String.format("#%06X", (0xFFFFFF & modAcc.getColor()))));
+                mInitialAmount.setText(modAcc.getAmount().toPlainString());
             } catch (SQLException e) {
                 Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 dismiss();
@@ -97,12 +94,12 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
         return builder.create();
     }
 
-    private void fillAccountFieldsFromGUI() {
-        mAccount.setName(mAccountName.getText().toString());
-        mAccount.setDescription(mAccountDescription.getText().toString());
-        mAccount.setCurrency((Currency) mCurrencySelector.getSelectedItem());
-        mAccount.setAmount(Utils.getValue(mInitialAmount.getText().toString(), BigDecimal.ZERO));
-        mAccount.setColor(Color.parseColor((String) mColorSelector.getSelectedItem()));
+    private void fillAccountFieldsFromGUI(Account acc) {
+        acc.setName(mAccountName.getText().toString());
+        acc.setDescription(mAccountDescription.getText().toString());
+        acc.setCurrency((Currency) mCurrencySelector.getSelectedItem());
+        acc.setAmount(Utils.getValue(mInitialAmount.getText().toString(), BigDecimal.ZERO));
+        acc.setColor(Color.parseColor((String) mColorSelector.getSelectedItem()));
     }
 
     @Override
@@ -111,21 +108,18 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
             Toast.makeText(getActivity(), R.string.account_name_invalid, Toast.LENGTH_SHORT).show();
             return;
         }
-        if(mAccount != null)  { // modifying existing account
-            fillAccountFieldsFromGUI();
-            if(Action.makeAction(Action.ActionType.MODIFY, mAccount))
-                dismiss();
-            else
-                Toast.makeText(getActivity(), R.string.account_not_found, Toast.LENGTH_SHORT).show();
-        } else {  // creating new account
-            mAccount = new Account();
-            fillAccountFieldsFromGUI();
-            if(Action.makeAction(Action.ActionType.ADD, mAccount))
-                dismiss();
-            else {
-                Toast.makeText(getActivity(), R.string.account_already_exist, Toast.LENGTH_SHORT).show();
-                mAccount = null;
-            }
+
+        try {
+            Account tmp;
+            if(getArguments() != null && getArguments().containsKey(ACCOUNT_REFERENCE))  { // modifying existing account
+                tmp = DatabaseFactory.getHelper().getAccountDao().queryForId(UUID.fromString(getArguments().getString(ACCOUNT_REFERENCE)));
+            } else // creating new
+                tmp = new Account();
+            fillAccountFieldsFromGUI(tmp);
+            DatabaseFactory.getHelper().getAccountDao().createOrUpdate(tmp);
+            dismiss();
+        } catch (SQLException e) {
+            Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 

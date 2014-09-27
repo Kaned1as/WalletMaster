@@ -1,15 +1,12 @@
 package com.adonai.wallet.entities;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.util.Log;
-
-import com.adonai.wallet.DatabaseDAO;
+import com.adonai.wallet.database.DatabaseFactory;
 import com.adonai.wallet.database.EntityDao;
 import com.adonai.wallet.sync.SyncProtocol;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.sql.SQLException;
 import java.util.UUID;
 
 /**
@@ -45,7 +42,7 @@ public class Category extends Entity {
     @DatabaseField(canBeNull = false)
     private CategoryType type;
 
-    @DatabaseField(foreign = true)
+    @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Account preferredAccount;
 
     public Category() {
@@ -80,13 +77,13 @@ public class Category extends Entity {
         this.preferredAccount = preferredAccount;
     }
 
-    public static Category fromProtoCategory(SyncProtocol.Category category) {
+    public static Category fromProtoCategory(SyncProtocol.Category category) throws SQLException {
         final Category tempCategory = new Category();
         tempCategory.setId(UUID.fromString(category.getID()));
         tempCategory.setName(category.getName());
         tempCategory.setType(CategoryType.values()[category.getType()]);
         if(category.hasPreferredAccount())
-            tempCategory.setPreferredAccount(Account.getFromDB(category.getPreferredAccount()));
+            tempCategory.setPreferredAccount(DatabaseFactory.getHelper().getAccountDao().queryForId(UUID.fromString(category.getPreferredAccount())));
 
         return tempCategory;
     }

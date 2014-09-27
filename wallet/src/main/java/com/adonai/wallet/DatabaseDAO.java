@@ -293,8 +293,10 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 switch (tokens.length) { // switch-case-no-break magic!
                     case 3:
                         values.put(CurrenciesFields.USED_IN.toString(), tokens[2]);
+                        /* falls through */
                     case 2:
                         values.put(CurrenciesFields.DESCRIPTION.toString(), tokens[1]);
+                        /* falls through */
                     case 1:
                         values.put(CurrenciesFields.CODE.toString(), tokens[0]);
                         break;

@@ -11,8 +11,8 @@ import java.util.UUID;
  */
 public class Entity {
 
-    @DatabaseField(id = true)
-    private UUID id = UUID.randomUUID();
+    @DatabaseField(generatedId = true)
+    private UUID id;
 
     @DatabaseField(canBeNull = true, dataType = DataType.DATE_LONG)
     private Date lastModified;

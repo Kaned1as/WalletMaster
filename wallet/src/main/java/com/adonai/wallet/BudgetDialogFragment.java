@@ -9,9 +9,11 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.adonai.wallet.entities.Account;
+import com.adonai.wallet.database.DatabaseFactory;
 import com.adonai.wallet.entities.Budget;
-import com.adonai.wallet.entities.Category;
+
+import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * Dialog fragment showing window for budget modifying/adding
@@ -27,7 +29,6 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
     private Spinner mCoveredAccountSelector;
 
     private AccountsWithNoneAdapter mAccountAdapter;
-    private Budget mBudget;
 
     public static BudgetDialogFragment forBudget(String budgetId) {
         final BudgetDialogFragment fragment = new BudgetDialogFragment();
@@ -55,16 +56,20 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // if we are modifying existing account
         if(getArguments() != null && getArguments().containsKey(BUDGET_REFERENCE)) {
-            mBudget = Budget.getFromDB(getArguments().getString(BUDGET_REFERENCE));
+            try {
+                Budget budget = DatabaseFactory.getHelper().getBudgetDao().queryForId(UUID.fromString(getArguments().getString(BUDGET_REFERENCE)));
 
-            builder.setPositiveButton(R.string.confirm, null);
-            builder.setTitle(R.string.edit_budget).setView(dialog);
+                builder.setPositiveButton(R.string.confirm, null);
+                builder.setTitle(R.string.edit_budget).setView(dialog);
 
-            mBudgetName.setText(mBudget.getName());
-            mStartDate.setCalendar(mBudget.getStartTime());
-            mEndDate.setCalendar(mBudget.getEndTime());
-            if(mBudget.getCoveredAccount() != null)
-                mCoveredAccountSelector.setSelection(mAccountAdapter.getPosition(mBudget.getCoveredAccount().getId()));
+                mBudgetName.setText(budget.getName());
+                mStartDate.setCalendar(budget.getStartTime());
+                mEndDate.setCalendar(budget.getEndTime());
+                if(budget.getCoveredAccount() != null)
+                    mCoveredAccountSelector.setSelection(mAccountAdapter.getPosition(budget.getCoveredAccount().getId()));
+            } catch (SQLException e) {
+                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
         } else {
             builder.setPositiveButton(R.string.create, null);
             builder.setTitle(R.string.create_new_account).setView(dialog);
@@ -83,33 +88,28 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
     @Override
     public void onClick(View view) {
         try {
-            mBudget.setName(mBudgetName.getText().toString());
+            Budget tmp;
+            if(getArguments() != null && getArguments().containsKey(BUDGET_REFERENCE)) {
+                tmp = DatabaseFactory.getHelper().getBudgetDao().queryForId(UUID.fromString(getArguments().getString(BUDGET_REFERENCE)));
+            } else
+                tmp = new Budget();
+
+            tmp.setName(mBudgetName.getText().toString());
             if (mStartDate.getCalendar().getTimeInMillis() >= mEndDate.getCalendar().getTimeInMillis())
                 throw new IllegalArgumentException(getString(R.string.end_date_must_be_after));
 
-            if (mBudget != null) { // modifying existing budget
-                mBudget.setStartTime(mStartDate.getCalendar().getTime());
-                mBudget.setEndTime(mEndDate.getCalendar().getTime());
-                if (mCoveredAccountSelector.getSelectedItem() != null)
-                    mBudget.setCoveredAccount(Account.getFromDB(mAccountAdapter.getItemUUID(mCoveredAccountSelector.getSelectedItemPosition())));
-                else if (mBudget.getCoveredAccount() != null)
-                    mBudget.setCoveredAccount(null);
-                if (DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.MODIFY, mBudget))
-                    dismiss();
-                else
-                    throw new IllegalArgumentException(getString(R.string.budget_not_found));
-            } else { // new budget
-                final Budget tempBudget = new Budget();
-                tempBudget.setName(mBudgetName.getText().toString());
-                tempBudget.setStartTime(mStartDate.getCalendar().getTime());
-                tempBudget.setEndTime(mEndDate.getCalendar().getTime());
-                if (mCoveredAccountSelector.getSelectedItem() != null)
-                    tempBudget.setCoveredAccount(Account.getFromDB(mAccountAdapter.getItemUUID(mCoveredAccountSelector.getSelectedItemPosition())));
-                if (DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.ADD, tempBudget))
-                    dismiss();
-                else
-                    throw new IllegalArgumentException(getString(R.string.budget_exists));
-            }
+            tmp.setStartTime(mStartDate.getCalendar().getTime());
+            tmp.setEndTime(mEndDate.getCalendar().getTime());
+
+            if (mCoveredAccountSelector.getSelectedItem() != null)
+                tmp.setCoveredAccount(DatabaseFactory.getHelper().getAccountDao().queryForId(mAccountAdapter.getItemUUID(mCoveredAccountSelector.getSelectedItemPosition())));
+            else if (tmp.getCoveredAccount() != null)
+                tmp.setCoveredAccount(null);
+
+            DatabaseFactory.getHelper().getBudgetDao().createOrUpdate(tmp);
+            dismiss();
+        } catch (SQLException e) {
+            Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         } catch (IllegalArgumentException iae) {
             Toast.makeText(getWalletActivity(), iae.getMessage(), Toast.LENGTH_SHORT).show();
         }

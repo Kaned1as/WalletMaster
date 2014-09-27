@@ -15,9 +15,15 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.adonai.wallet.entities.Category;
+import com.adonai.wallet.database.DatabaseFactory;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
+
+import java.sql.SQLException;
+import java.util.UUID;
+
+import static com.adonai.wallet.entities.Category.CategoryType;
 
 /**
  * Fragment that is responsible for showing categories list
@@ -45,7 +51,7 @@ public class CategoriesFragment extends WalletBaseListFragment {
         mEntityList = (ListView) rootView.findViewById(R.id.categories_list);
         mEntityList.setOnItemLongClickListener(new CategoryEditListener());
 
-        mCategoriesAdapter = new CategoriesAdapter(Category.EXPENSE);
+        mCategoriesAdapter = new CategoriesAdapter(CategoryType.EXPENSE);
         DatabaseDAO.getInstance().registerDatabaseListener(mCategoriesAdapter, DatabaseDAO.EntityType.CATEGORIES.toString());
         DatabaseDAO.getInstance().registerDatabaseListener(mCategoriesAdapter, DatabaseDAO.EntityType.ACCOUNTS.toString()); // foreign keys
         mEntityList.setAdapter(mCategoriesAdapter);
@@ -98,9 +104,9 @@ public class CategoriesFragment extends WalletBaseListFragment {
     }
 
     private class CategoriesAdapter extends UUIDCursorAdapter implements SpinnerAdapter, DatabaseDAO.DatabaseListener {
-        private int mCategoryType;
+        private CategoryType mCategoryType;
 
-        public CategoriesAdapter(int categoryType) {
+        public CategoriesAdapter(CategoryType categoryType) {
             super(getActivity(), DatabaseDAO.getInstance().getCategoryCursor(categoryType));
             mCategoryType = categoryType;
         }
@@ -137,12 +143,12 @@ public class CategoriesFragment extends WalletBaseListFragment {
             return view;
         }
 
-        public void setCategoryType(int type) {
+        public void setCategoryType(CategoryType type) {
             mCategoryType = type;
             handleUpdate();
         }
 
-        public int getCategoryType() {
+        public CategoryType getCategoryType() {
             return mCategoryType;
         }
     }
@@ -165,16 +171,20 @@ public class CategoriesFragment extends WalletBaseListFragment {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            switch (which) {
-                case 0: // modify
-                    final String categoryID = mCategoriesAdapter.getItemUUID(mItemPosition);
-                    final CategoryDialogFragment fragment = CategoryDialogFragment.forCategory(categoryID);
-                    fragment.show(getFragmentManager(), "categoryCreate");
-                    break;
-                case 1: // delete
-                    final String categoryId = mCategoriesAdapter.getItemUUID(mItemPosition);
-                    DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.DELETE, Category.getFromDB(categoryId));
-                    break;
+            try {
+                switch (which) {
+                    case 0: // modify
+                        final UUID categoryID = mCategoriesAdapter.getItemUUID(mItemPosition);
+                        final CategoryDialogFragment fragment = CategoryDialogFragment.forCategory(categoryID.toString());
+                        fragment.show(getFragmentManager(), "categoryCreate");
+                        break;
+                    case 1: // delete
+                        final UUID categoryId = mCategoriesAdapter.getItemUUID(mItemPosition);
+                        DatabaseFactory.getHelper().getCategoryDao().deleteById(categoryId);
+                        break;
+                }
+            } catch (SQLException e) {
+                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         }
     }

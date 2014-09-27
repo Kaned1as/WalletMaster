@@ -18,7 +18,7 @@ public class Budget extends Entity {
     @DatabaseField(canBeNull = false)
     private String name;
 
-    @DatabaseField(foreign = true)
+    @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Account coveredAccount;
 
     @ForeignCollectionField

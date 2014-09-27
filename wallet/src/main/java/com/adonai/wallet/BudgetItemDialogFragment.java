@@ -59,7 +59,7 @@ public class BudgetItemDialogFragment extends WalletBaseDialogFragment implement
         assert dialog != null;
 
         mMaxAmountEdit = (EditText) dialog.findViewById(R.id.max_amount_edit);
-        mCategoryAdapter = new CategoriesAdapter(Category.EXPENSE);
+        mCategoryAdapter = new CategoriesAdapter(Category.CategoryType.EXPENSE);
         mCategorySelector = (Spinner) dialog.findViewById(R.id.category_spinner);
         mCategorySelector.setAdapter(mCategoryAdapter);
 

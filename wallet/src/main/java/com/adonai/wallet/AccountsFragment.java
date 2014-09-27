@@ -17,11 +17,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.adonai.wallet.database.DatabaseFactory;
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 
+import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.UUID;
 
 import static com.adonai.wallet.Utils.convertDpToPixel;
 
@@ -146,9 +150,16 @@ public class AccountsFragment extends WalletBaseListFragment {
     private class AccountClickListener implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            final String accountID = mAccountsAdapter.getItemUUID(position);
-            final Account managed = Account.getFromDB(accountID);
-            new OperationDialogFragment(managed).show(getFragmentManager(), "opModify");
+            try {
+                final UUID accountID = mAccountsAdapter.getItemUUID(position);
+                final Account managed = DatabaseFactory.getHelper().getAccountDao().queryForId(accountID);
+                if(managed != null) {
+                    new OperationDialogFragment(managed).show(getFragmentManager(), "createOperation");
+                }
+            } catch (SQLException e) {
+                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 
@@ -160,15 +171,19 @@ public class AccountsFragment extends WalletBaseListFragment {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            final String accID = mAccountsAdapter.getItemUUID(mItemPosition);
-            final Account acc = Account.getFromDB(accID);
-            switch (which) {
-                case 0: // modify
-                    AccountDialogFragment.forAccount(acc.getId()).show(getFragmentManager(), "accModify");
-                    break;
-                case 1: // delete
-                    mAccountDeleter.handleRemoveAttempt(acc);
-                    break;
+            try {
+                final UUID accID = mAccountsAdapter.getItemUUID(mItemPosition);
+                final Account acc = DatabaseFactory.getHelper().getAccountDao().queryForId(accID);
+                switch (which) {
+                    case 0: // modify
+                        AccountDialogFragment.forAccount(acc.getId().toString()).show(getFragmentManager(), "accModify");
+                        break;
+                    case 1: // delete
+                        mAccountDeleter.handleRemoveAttempt(acc);
+                        break;
+                }
+            } catch (SQLException e) {
+                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         }
     }

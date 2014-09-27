@@ -20,7 +20,7 @@ public class BudgetItem extends Entity {
     @DatabaseField(canBeNull = false, foreign = true)
     private Budget parentBudget;
 
-    @DatabaseField(canBeNull = false, foreign = true)
+    @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
     private Category category;
 
     @DatabaseField

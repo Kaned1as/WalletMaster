@@ -19,11 +19,12 @@ public abstract class UUIDCursorAdapter extends BaseAdapter {
     protected Cursor mCursor;
     protected Context mContext;
 
-    private final int UUID_COLUMN = 0;
+    private final int uuidColumn;
 
     public UUIDCursorAdapter(Context context, Cursor cursor) {
         mCursor = cursor;
         mContext = context;
+        uuidColumn = cursor.getColumnIndex("id");
     }
 
     public void changeCursor(Cursor cursor) {
@@ -68,30 +69,35 @@ public abstract class UUIDCursorAdapter extends BaseAdapter {
     public long getItemId(int position) {
         if (mCursor != null) {
             if (mCursor.moveToPosition(position))
-                return UUID.fromString(mCursor.getString(UUID_COLUMN)).getLeastSignificantBits();
+                return UUID.fromString(mCursor.getString(uuidColumn)).getLeastSignificantBits();
             else
                 return 0;
         } else
             return 0;
     }
 
-    public String getItemUUID(int position) {
+    public UUID getItemUUID(int position) {
         if (mCursor != null) {
             if (mCursor.moveToPosition(position))
-                return mCursor.getString(UUID_COLUMN);
+                return UUID.fromString(mCursor.getString(uuidColumn));
             else
                 return null;
         } else
             return null;
     }
 
-    public int getPosition(String id) {
+    public int getPosition(String uuid) {
         mCursor.moveToFirst();
         do {
-            if(mCursor.getString(UUID_COLUMN).equals(id))
+            if(mCursor.getString(uuidColumn).equals(uuid))
                 return mCursor.getPosition();
         } while(mCursor.moveToNext());
 
         return -1;
+    }
+
+    public int getPosition(UUID uuid) {
+        String strRepresentation = uuid.toString();
+        return getPosition(strRepresentation);
     }
 }

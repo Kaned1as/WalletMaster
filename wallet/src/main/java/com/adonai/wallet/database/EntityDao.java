@@ -52,6 +52,17 @@ public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
         }
     }
 
+    @Override
+    public int deleteById(UUID uuid) throws SQLException {
+        T data = queryForId(uuid);
+        if(data.getLastModified() == null) { // never been synced, safe to delete
+            return super.deleteById(uuid);
+        } else {                             // exists on the server side, set deleted
+            data.setDeleted(true);
+            return super.update(data);
+        }
+    }
+
     public int deleteByServer(T data) throws SQLException { // entity should be deleted on client as on server
         return super.delete(data);
     }

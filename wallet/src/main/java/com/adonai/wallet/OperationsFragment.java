@@ -16,16 +16,19 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
+import com.adonai.wallet.database.DatabaseFactory;
 import com.adonai.wallet.entities.Operation;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.adonai.wallet.view.OperationView;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.adonai.wallet.DatabaseDAO.CategoriesFields;
-import static com.adonai.wallet.DatabaseDAO.EntityType;
 import static com.adonai.wallet.DatabaseDAO.EntityType.CATEGORIES;
 import static com.adonai.wallet.DatabaseDAO.EntityType.OPERATIONS;
 import static com.adonai.wallet.DatabaseDAO.OperationsFields;
@@ -188,19 +191,23 @@ public class OperationsFragment extends WalletBaseListFragment {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            final DatabaseDAO db = DatabaseDAO.getInstance();
-            final String opID = mOpAdapter.getItemUUID(mItemPosition);
-            final Operation operation = Operation.getFromDB(opID);
-            switch (which) {
-                case 0: // modify
-                    new OperationDialogFragment(operation).show(getFragmentManager(), "opModify");
-                    break;
-                case 1: // delete
-                    mOperationDeleter.handleRemoveAttempt(operation);
-                    break;
-                case 2: // cancel operation
-                    db.revertOperation(operation);
-                    break;
+            try {
+                final DatabaseDAO db = DatabaseDAO.getInstance();
+                final UUID opID = mOpAdapter.getItemUUID(mItemPosition);
+                final Operation operation = DatabaseFactory.getHelper().getOperationDao().queryForId(opID);
+                switch (which) {
+                    case 0: // modify
+                        new OperationDialogFragment(operation).show(getFragmentManager(), "opModify");
+                        break;
+                    case 1: // delete
+                        mOperationDeleter.handleRemoveAttempt(operation);
+                        break;
+                    case 2: // cancel operation
+                        db.revertOperation(operation);
+                        break;
+                }
+            } catch (SQLException e) {
+                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         }
     }

@@ -10,10 +10,12 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.UUIDSpinnerAdapter;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
 
@@ -124,16 +126,16 @@ public class WalletBaseDialogFragment extends DialogFragment {
         }
 
         @Override
-        public String getItemUUID(int position) {
+        public UUID getItemUUID(int position) {
             if(position == 0)
-                return "None";
+                return null;
             else
                 return super.getItemUUID(position - 1);
         }
 
         @Override
-        public int getPosition(String id) {
-            int parent = super.getPosition(id);
+        public int getPosition(String uuid) {
+            int parent = super.getPosition(uuid);
             if(parent >= 0)
                 return parent + 1;
             else
@@ -142,9 +144,9 @@ public class WalletBaseDialogFragment extends DialogFragment {
     }
 
     public class CategoriesAdapter extends UUIDSpinnerAdapter implements DatabaseDAO.DatabaseListener {
-        private int mCategoryType;
+        private Category.CategoryType mCategoryType;
 
-        public CategoriesAdapter(int categoryType) {
+        public CategoriesAdapter(Category.CategoryType categoryType) {
             super(getActivity(), DatabaseDAO.getInstance().getCategoryCursor(categoryType));
             mCategoryType = categoryType;
         }
@@ -160,7 +162,7 @@ public class WalletBaseDialogFragment extends DialogFragment {
 
         }
 
-        public void setCategoryType(int type) {
+        public void setCategoryType(Category.CategoryType type) {
             mCategoryType = type;
             handleUpdate();
         }

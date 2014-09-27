@@ -1,10 +1,6 @@
 package com.adonai.wallet.entities;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.util.Log;
-
-import com.adonai.wallet.DatabaseDAO;
+import com.adonai.wallet.database.DatabaseFactory;
 import com.adonai.wallet.database.EntityDao;
 import com.adonai.wallet.sync.SyncProtocol;
 import com.j256.ormlite.field.DataType;
@@ -13,10 +9,9 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.UUID;
-
-import static com.adonai.wallet.entities.Category.CategoryType;
 
 /**
  * Entity representing an operation. Operations show money flow
@@ -49,16 +44,16 @@ public class Operation extends Entity {
     @DatabaseField(canBeNull = false)
     private BigDecimal amount;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
     private Category category;
 
     @DatabaseField
     private String description;
 
-    @DatabaseField(foreign = true)
+    @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Account orderer;
 
-    @DatabaseField(foreign = true)
+    @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Account beneficiar;
 
     @DatabaseField
@@ -135,16 +130,16 @@ public class Operation extends Entity {
             return getAmount();
     }
 
-    public static Operation fromProtoOperation(SyncProtocol.Operation operation) {
+    public static Operation fromProtoOperation(SyncProtocol.Operation operation) throws SQLException {
         final Operation temp = new Operation();
         temp.setId(UUID.fromString(operation.getID()));
         temp.setDescription(operation.getDescription());
-        temp.setCategory(Category.getFromDB(operation.getCategoryId()));
+        temp.setCategory(DatabaseFactory.getHelper().getCategoryDao().queryForId(UUID.fromString(operation.getCategoryId())));
         temp.setTime(new Date(operation.getTime()));
         if(operation.hasChargerId())
-            temp.setOrderer(Account.getFromDB(operation.getChargerId()));
+            temp.setOrderer(DatabaseFactory.getHelper().getAccountDao().queryForId(UUID.fromString(operation.getChargerId())));
         if(operation.hasBeneficiarId())
-            temp.setBeneficiar(Account.getFromDB(operation.getBeneficiarId()));
+            temp.setBeneficiar(DatabaseFactory.getHelper().getAccountDao().queryForId(UUID.fromString(operation.getBeneficiarId())));
         temp.setAmount(new BigDecimal(operation.getAmount()));
         if(operation.hasConvertingRate())
             temp.setConvertingRate(BigDecimal.valueOf(operation.getConvertingRate()));
