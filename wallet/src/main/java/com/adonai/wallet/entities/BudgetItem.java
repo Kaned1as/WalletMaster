@@ -15,6 +15,9 @@ import java.sql.SQLException;
 @DatabaseTable(tableName = "budget_item", daoClass = EntityDao.class)
 public class BudgetItem extends Entity {
 
+    public BudgetItem() {
+    }
+
     public BudgetItem(Budget parentBudget) {
         this.parentBudget = parentBudget;
     }

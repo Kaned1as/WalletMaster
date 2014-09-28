@@ -13,15 +13,15 @@ import java.util.UUID;
  */
 public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
 
-    protected EntityDao(Class<T> dataClass) throws SQLException {
+    public EntityDao(Class<T> dataClass) throws SQLException {
         super(dataClass);
     }
 
-    protected EntityDao(ConnectionSource connectionSource, Class<T> dataClass) throws SQLException {
+    public EntityDao(ConnectionSource connectionSource, Class<T> dataClass) throws SQLException {
         super(connectionSource, dataClass);
     }
 
-    protected EntityDao(ConnectionSource connectionSource, DatabaseTableConfig<T> tableConfig) throws SQLException {
+    public EntityDao(ConnectionSource connectionSource, DatabaseTableConfig<T> tableConfig) throws SQLException {
         super(connectionSource, tableConfig);
     }
 

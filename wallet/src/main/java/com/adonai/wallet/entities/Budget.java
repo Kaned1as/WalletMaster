@@ -1,13 +1,13 @@
 package com.adonai.wallet.entities;
 
 import com.adonai.wallet.database.EntityDao;
+import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by adonai on 19.06.14.
@@ -22,7 +22,7 @@ public class Budget extends Entity {
     private Account coveredAccount;
 
     @ForeignCollectionField
-    private List<BudgetItem> content;
+    private ForeignCollection<BudgetItem> content;
 
     @DatabaseField(canBeNull = false, dataType = DataType.DATE_LONG)
     private Date startTime;
@@ -46,11 +46,11 @@ public class Budget extends Entity {
         this.coveredAccount = coveredAccount;
     }
 
-    public List<BudgetItem> getContent() {
+    public ForeignCollection<BudgetItem> getContent() {
         return content;
     }
 
-    public void setContent(List<BudgetItem> content) {
+    public void setContent(ForeignCollection<BudgetItem> content) {
         this.content = content;
     }
 
