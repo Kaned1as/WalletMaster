@@ -1,11 +1,13 @@
 package com.adonai.wallet.entities;
 
-import com.adonai.wallet.DatabaseDAO;
+import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.database.EntityDao;
+import com.j256.ormlite.dao.GenericRawResults;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 
 /**
  * Created by adonai on 19.06.14.
@@ -55,6 +57,26 @@ public class BudgetItem extends Entity {
         if(parentBudget == null) // parent budget is not set, nothing to count
             return result;
 
-        return DatabaseDAO.getInstance().getAmountForBudget(parentBudget, category);
+        return getAmountForBudget(parentBudget, category);
+    }
+
+    public BigDecimal getAmountForBudget(Budget budget, Category category) {
+        final BigDecimal sum;
+        GenericRawResults<String[]> results;
+        if(budget.getCoveredAccount() == null) { // all accounts
+            results = DbProvider.getHelper().getOperationDao().queryRaw("SELECT SUM(amount) FROM operations WHERE category = ? AND time BETWEEN ? AND ?", category.getId().toString(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime()));
+        }else {
+            results = DbProvider.getHelper().getOperationDao().queryRaw("SELECT SUM(amount) FROM operations WHERE orderer = ? AND category = ? AND time BETWEEN ? AND ?", budget.getCoveredAccount().getId().toString(), category.getId().toString(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime()));
+        }
+
+        try {
+            String[] res = results.getFirstResult();
+            sum = new BigDecimal(res[0]);
+            results.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return sum;
     }
 }
