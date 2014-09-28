@@ -4,23 +4,18 @@ import android.content.SharedPreferences;
 import android.database.Observable;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 
-import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.WalletConstants;
 import com.adonai.wallet.entities.Account;
-import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Entity;
-import com.adonai.wallet.entities.Operation;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.List;
 
@@ -165,10 +160,9 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
         @Override
         public boolean handleMessage(Message msg) {
             final State state = State.values()[msg.what];
-            final DatabaseDAO db = DatabaseDAO.getInstance();
             try {
                 switch (state) {
-                    case AUTH: { // at this state, account should be already configured and accessible from preferences!
+                    /*case AUTH: { // at this state, account should be already configured and accessible from preferences!
                         if (!mPreferences.contains(WalletConstants.ACCOUNT_NAME_KEY))
                             throw new RuntimeException("No account configured! Can't sync!"); // shouldn't happen
                         start();
@@ -353,7 +347,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         mPreferences.edit().putLong(WalletConstants.ACCOUNT_LAST_SYNC, ack.getNewServerTimestamp()).commit();
                         finish();
                         break;
-                    }
+                    }*/
                 }
             } catch (Exception io) {
                 interrupt(io.getMessage());
@@ -362,38 +356,38 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
         }
 
         private void start() throws IOException {
-            DatabaseDAO.getInstance().beginTransaction();
+            /*DatabaseDAO.getInstance().beginTransaction();
             mSocket = new Socket(); // creating socket here!
             mSocket.setSoTimeout(10000);
-            mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "anticitizen.dhis.org"), 17001));
+            mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "anticitizen.dhis.org"), 17001));*/
         }
 
         private void finish() throws IOException {
-            final DatabaseDAO db = DatabaseDAO.getInstance();
+            /*final DatabaseDAO db = DatabaseDAO.getInstance();
             db.clearActions();
             db.setTransactionSuccessful();
             db.endTransaction();
             mSocket.close();
-            setState(State.INIT, mContext.getString(R.string.sync_completed));
+            setState(State.INIT, mContext.getString(R.string.sync_completed));*/
         }
 
         private void interrupt(String error) {
-            DatabaseDAO.getInstance().endTransaction();
+            /*DatabaseDAO.getInstance().endTransaction();
             setState(State.INIT, error);
             if(!mSocket.isClosed())
                 try {
                     mSocket.close();
-                } catch (IOException e) { throw new RuntimeException(e); } // should not happen
+                } catch (IOException e) { throw new RuntimeException(e); } // should not happen*/
         }
 
         private void sendKnownEntities(OutputStream os, Class<? extends Entity> clazz) throws IOException {
-            final Long lastServerTime = mPreferences.getLong(WalletConstants.ACCOUNT_LAST_SYNC, 0);
+            /*final Long lastServerTime = mPreferences.getLong(WalletConstants.ACCOUNT_LAST_SYNC, 0);
             final List<String> knownIDs = DatabaseDAO.getInstance().getKnownIDs(clazz);
 
             SyncProtocol.EntityRequest.newBuilder()
                     .setLastKnownServerTimestamp(lastServerTime)
                     .addAllKnownID(knownIDs)
-                    .build().writeDelimitedTo(os); // sent account request
+                    .build().writeDelimitedTo(os); // sent account request*/
         }
 
         private void handleAuthResponse(InputStream is) throws IOException {

@@ -15,6 +15,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.adonai.wallet.R;
+import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Operation;
 
 import java.util.HashMap;
@@ -31,7 +32,7 @@ import static com.adonai.wallet.Utils.convertPixelsToDp;
 public class OperationView extends FrameLayout {
 
     private Operation mOperation;
-    private final static Map<Operation.OperationType, Drawable> mDrawableMap = new HashMap<>(3);
+    private final static Map<Category.CategoryType, Drawable> mDrawableMap = new HashMap<>(3);
 
     private View mCollapsedView;
 
@@ -56,7 +57,7 @@ public class OperationView extends FrameLayout {
     }
 
     private void onOperationChanged() {
-        findViewById(R.id.main_content_layout).setBackgroundDrawable(mDrawableMap.get(mOperation.getOperationType()));
+        findViewById(R.id.main_content_layout).setBackgroundDrawable(mDrawableMap.get(mOperation.getCategory().getType()));
 
         final TextView chargeAcc = (TextView) findViewById(R.id.charge_account_label);
         final TextView benefAcc = (TextView) findViewById(R.id.beneficiar_account_label);
@@ -70,7 +71,7 @@ public class OperationView extends FrameLayout {
         operationTime.setText(VIEW_DATE_FORMAT.format(mOperation.getTime().getTime()));
         operationCategory.setText(mOperation.getCategory().getName());
 
-        switch (mOperation.getOperationType()) {
+        switch (mOperation.getCategory().getType()) {
             case TRANSFER:
                 chargeAcc.setText(mOperation.getOrderer().getName());
                 benefAcc.setText(mOperation.getBeneficiar().getName());
@@ -94,7 +95,7 @@ public class OperationView extends FrameLayout {
         }
     }
 
-    private Map<Operation.OperationType, Drawable> fillDrawableMap(Context context, Map<Operation.OperationType, Drawable> result) {
+    private void fillDrawableMap(Context context, Map<Category.CategoryType, Drawable> result) {
         // EXPENSE
         final Path expensePath = new Path();
         expensePath.moveTo(0, 50);
@@ -109,7 +110,7 @@ public class OperationView extends FrameLayout {
         expenseDrawable.getPaint().setShader(new LinearGradient(0, 0, convertPixelsToDp(context.getResources().getDisplayMetrics().widthPixels, context), 0,
                 Color.argb(50, 255, 0, 0), Color.argb(0, 255, 0, 0), Shader.TileMode.CLAMP)); // RED
 
-        result.put(Operation.OperationType.EXPENSE, expenseDrawable);
+        result.put(Category.CategoryType.EXPENSE, expenseDrawable);
 
         // INCOME
         final Path incomePath = new Path();
@@ -125,7 +126,7 @@ public class OperationView extends FrameLayout {
         incomeDrawable.getPaint().setShader(new LinearGradient(0, 0, convertPixelsToDp(context.getResources().getDisplayMetrics().widthPixels, context), 0,
                 Color.argb(0, 0, 255, 0), Color.argb(50, 0, 255, 0), Shader.TileMode.CLAMP)); // GREEN
 
-        result.put(Operation.OperationType.INCOME, incomeDrawable);
+        result.put(Category.CategoryType.INCOME, incomeDrawable);
 
         // TRANSFER
         final Path transferPath = new Path();
@@ -142,8 +143,6 @@ public class OperationView extends FrameLayout {
         transferDrawable.getPaint().setShader(new LinearGradient(0, 0, convertPixelsToDp(context.getResources().getDisplayMetrics().widthPixels, context), 0,
                 Color.argb(50, 255, 0, 0), Color.argb(50, 0, 255, 0), Shader.TileMode.CLAMP)); // RED -> GREEN
 
-        result.put(Operation.OperationType.TRANSFER, transferDrawable);
-
-        return result;
+        result.put(Category.CategoryType.TRANSFER, transferDrawable);
     }
 }
