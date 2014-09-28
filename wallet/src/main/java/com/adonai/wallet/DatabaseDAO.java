@@ -254,63 +254,6 @@ public class DatabaseDAO extends SQLiteOpenHelper
                 " PRIMARY KEY(" + ActionsFields.DATA_ID + ", " + ActionsFields.DATA_TYPE + ")" +
                 ")");
 
-        sqLiteDatabase.beginTransaction(); // initial fill
-        // fill Categories
-        final String[] defaultOutcomeCategories = mContext.getResources().getStringArray(R.array.out_categories);
-        final String[] defaultIncomeCategories = mContext.getResources().getStringArray(R.array.inc_categories);
-        final String[] defaultTransCategories = mContext.getResources().getStringArray(R.array.transfer_categories);
-
-        Category outAdd = null;
-        for(final String outCategory : defaultOutcomeCategories) {
-            outAdd = new Category();
-            outAdd.setName(outCategory);
-            outAdd.setType(Category.EXPENSE);
-            makeAction(ActionType.ADD, outAdd);
-        }
-        Category inAdd = null;
-        for(final String inCategory : defaultIncomeCategories) {
-            inAdd = new Category();
-            inAdd.setName(inCategory);
-            inAdd.setType(Category.INCOME);
-            makeAction(ActionType.ADD, inAdd);
-        }
-        Category transAdd = null;
-        for(final String transCategory : defaultTransCategories) {
-            transAdd = new Category();
-            transAdd.setName(transCategory);
-            transAdd.setType(Category.TRANSFER);
-            makeAction(ActionType.ADD, transAdd);
-        }
-
-        //fill Currencies
-        final InputStream allCurrencies = getClass().getResourceAsStream("/assets/currencies.csv");
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(allCurrencies));
-        String line;
-        try {
-            while ((line = reader.readLine()) != null) {
-                final String[] tokens = line.split(":");
-                final ContentValues values = new ContentValues(3);
-                switch (tokens.length) { // switch-case-no-break magic!
-                    case 3:
-                        values.put(CurrenciesFields.USED_IN.toString(), tokens[2]);
-                        /* falls through */
-                    case 2:
-                        values.put(CurrenciesFields.DESCRIPTION.toString(), tokens[1]);
-                        /* falls through */
-                    case 1:
-                        values.put(CurrenciesFields.CODE.toString(), tokens[0]);
-                        break;
-                }
-                sqLiteDatabase.insert(Currency.TABLE_NAME, null, values);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e); // should not happen!
-        }
-
-        sqLiteDatabase.setTransactionSuccessful(); // batch insert
-        sqLiteDatabase.endTransaction();
-        // fill
-
         // test accounts
         /*
         sqLiteDatabase.beginTransaction(); // initial fill
@@ -572,47 +515,6 @@ public class DatabaseDAO extends SQLiteOpenHelper
     }
 
     /**
-     * Calling this method means we have full operation object with all data built and ready for applying
-     * @param operation operation to be applied
-     */
-    public boolean applyOperation(Operation operation) {
-        final Account chargeAcc = operation.getOrderer();
-        final Account benefAcc = operation.getBeneficiar();
-        final BigDecimal amount = operation.getAmount();
-
-        boolean allSucceeded = false;
-        mDatabase.beginTransaction();
-        transactionFlow:
-        {
-            if(!makeAction(ActionType.ADD, operation))
-                break transactionFlow;
-
-            switch (operation.getOperationType()) {
-                case TRANSFER:
-                    benefAcc.setAmount(benefAcc.getAmount().add(operation.getAmountDelivered()));
-                    chargeAcc.setAmount(chargeAcc.getAmount().subtract(amount));
-                    if(!makeAction(ActionType.MODIFY, benefAcc) || !makeAction(ActionType.MODIFY, chargeAcc)) // apply to db
-                        break transactionFlow;
-                    break;
-                case EXPENSE: // subtract value
-                    chargeAcc.setAmount(chargeAcc.getAmount().subtract(amount));
-                    if(!makeAction(ActionType.MODIFY, chargeAcc))
-                        break transactionFlow;
-                    break;
-                case INCOME: // add value
-                    benefAcc.setAmount(benefAcc.getAmount().add(amount));
-                    if(!makeAction(ActionType.MODIFY, benefAcc))
-                        break transactionFlow;
-                    break;
-            }
-            mDatabase.setTransactionSuccessful();
-            allSucceeded = true;
-        }
-        mDatabase.endTransaction();
-        return allSucceeded;
-    }
-
-    /**
      * Call this in need of explicitly selecting operation from DB to have up-to-date values such when
      * reapplying operation
      * @param id id of operation to revert
@@ -620,47 +522,6 @@ public class DatabaseDAO extends SQLiteOpenHelper
      */
     public boolean revertOperation(String id) {
         return revertOperation(Operation.getFromDB(id));
-    }
-
-    /**
-     * Calling this method means we have full operation object with all data built and ready for reverting
-     * @param operation operation to be reverted
-     */
-    public boolean revertOperation(Operation operation) {
-        final Account chargeAcc = operation.getOrderer();
-        final Account benefAcc = operation.getBeneficiar();
-        final BigDecimal amount = operation.getAmount();
-
-        boolean allSucceeded = false;
-        mDatabase.beginTransaction();
-        transactionFlow:
-        {
-            if(!makeAction(ActionType.DELETE, operation))
-                break transactionFlow;
-
-            switch (operation.getOperationType()) {
-                case TRANSFER:
-                    benefAcc.setAmount(benefAcc.getAmount().subtract(operation.getAmountDelivered()));
-                    chargeAcc.setAmount(chargeAcc.getAmount().add(amount));
-                    if(!makeAction(ActionType.MODIFY, benefAcc) || !makeAction(ActionType.MODIFY, chargeAcc))
-                        break transactionFlow;
-                    break;
-                case EXPENSE: // add subtracted value
-                    chargeAcc.setAmount(chargeAcc.getAmount().add(amount));
-                    if(!makeAction(ActionType.MODIFY, chargeAcc))
-                        break transactionFlow;
-                    break;
-                case INCOME: // subtract added value
-                    benefAcc.setAmount(benefAcc.getAmount().subtract(amount));
-                    if(!makeAction(ActionType.MODIFY, benefAcc))
-                        break transactionFlow;
-                    break;
-            }
-            mDatabase.setTransactionSuccessful();
-            allSucceeded = true;
-        }
-        mDatabase.endTransaction();
-        return allSucceeded;
     }
 
     /**

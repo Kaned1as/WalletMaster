@@ -3,19 +3,18 @@ package com.adonai.wallet;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.adonai.wallet.entities.Account;
+import com.adonai.wallet.database.DatabaseFactory;
 import com.adonai.wallet.entities.Category;
-import com.adonai.wallet.entities.UUIDSpinnerAdapter;
+
+import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * Dialog fragment for category creation/deletion
@@ -32,7 +31,6 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
     private EditText mCategoryName;
     private int mCategoryType;
 
-    private Category mCategory;
     private OnCategoryCreateListener mListener;
 
     public interface OnCategoryCreateListener {
@@ -79,13 +77,17 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
 
         // modifying existing category
         if(getArguments().containsKey(CATEGORY_REFERENCE)) {
-            builder.setTitle(R.string.edit_category);
-            builder.setPositiveButton(R.string.confirm, this);
+            try {
+                builder.setTitle(R.string.edit_category);
+                builder.setPositiveButton(R.string.confirm, this);
 
-            mCategory = Category.getFromDB(getArguments().getString(CATEGORY_REFERENCE));
-            mCategoryName.setText(mCategory.getName());
-            if(mCategory.getPreferredAccount() != null) // optional
-                mPreferredAccSpinner.setSelection(mAccountAdapter.getPosition(mCategory.getPreferredAccount().getId()));
+                Category tmp = DatabaseFactory.getHelper().getCategoryDao().queryForId(UUID.fromString(getArguments().getString(CATEGORY_REFERENCE)));
+                mCategoryName.setText(tmp.getName());
+                if(tmp.getPreferredAccount() != null) // optional
+                    mPreferredAccSpinner.setSelection(mAccountAdapter.getPosition(tmp.getPreferredAccount().getId()));
+            } catch (SQLException e) {
+                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
         } else { // new category create
             builder.setTitle(R.string.create_new_category);
             builder.setPositiveButton(R.string.create, this);
@@ -98,27 +100,24 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        if(mCategory != null) { // modifying existing category
-            mCategory.setName(mCategoryName.getText().toString());
-            if(mPreferredAccSpinner.getSelectedItem() != null)
-                mCategory.setPreferredAccount(Account.getFromDB(mAccountAdapter.getItemUUID(mPreferredAccSpinner.getSelectedItemPosition())));
-            else if (mCategory.getPreferredAccount() != null)
-                mCategory.setPreferredAccount(null);
-            if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.MODIFY, mCategory))
-                dismiss();
-            else
-                Toast.makeText(getActivity(), R.string.category_not_found, Toast.LENGTH_SHORT).show();
-        } else { // new category
-            final Category tempCat = new Category(mCategoryName.getText().toString(), mCategoryType);
-            if(mPreferredAccSpinner.getSelectedItem() != null)
-                tempCat.setPreferredAccount(Account.getFromDB(mAccountAdapter.getItemUUID(mPreferredAccSpinner.getSelectedItemPosition())));
-            if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.ADD, tempCat)) {
-                if(mListener != null)
-                    mListener.handleCategoryCreate(tempCat.getId()); // we have it set at this moment
-                dismiss();
+        try {
+            Category tmp;
+            if(getArguments() != null && getArguments().containsKey(CATEGORY_REFERENCE)) { // modifying existing category
+                tmp = DatabaseFactory.getHelper().getCategoryDao().queryForId(UUID.fromString(getArguments().getString(CATEGORY_REFERENCE)));
+            } else {
+                tmp = new Category();
             }
-            else
-                Toast.makeText(getActivity(), R.string.category_exists, Toast.LENGTH_SHORT).show();
+
+            tmp.setName(mCategoryName.getText().toString());
+            if(mPreferredAccSpinner.getSelectedItem() != null) {
+                tmp.setPreferredAccount(DatabaseFactory.getHelper().getAccountDao().queryForId(mAccountAdapter.getItemUUID(mPreferredAccSpinner.getSelectedItemPosition())));
+            } else if (tmp.getPreferredAccount() != null) {
+                tmp.setPreferredAccount(null);
+            }
+            DatabaseFactory.getHelper().getCategoryDao().createOrUpdate(tmp);
+            dismiss();
+        } catch (SQLException e) {
+            Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 

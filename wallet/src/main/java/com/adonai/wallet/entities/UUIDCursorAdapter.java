@@ -1,9 +1,13 @@
 package com.adonai.wallet.entities;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.widget.BaseAdapter;
 
+import com.adonai.wallet.database.EntityDao;
+import com.j256.ormlite.dao.CloseableIterator;
+import com.j256.ormlite.stmt.QueryBuilder;
+
+import java.sql.SQLException;
 import java.util.UUID;
 
 /**
@@ -14,90 +18,83 @@ import java.util.UUID;
  *
  * @author Adonai
  */
-public abstract class UUIDCursorAdapter extends BaseAdapter {
+public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
 
-    protected Cursor mCursor;
+    protected QueryBuilder<T, UUID> query;
+    protected CloseableIterator<T> mCursor;
     protected Context mContext;
 
-    private final int uuidColumn;
-
-    public UUIDCursorAdapter(Context context, Cursor cursor) {
-        mCursor = cursor;
+    public UUIDCursorAdapter(Context context, EntityDao<T> entityDao) {
+        query = entityDao.queryBuilder();
+        mCursor = entityDao.closeableIterator();
         mContext = context;
-        uuidColumn = cursor.getColumnIndex("id");
-    }
-
-    public void changeCursor(Cursor cursor) {
-        final Cursor old = swapCursor(cursor);
-        if (old != null)
-            old.close();
-    }
-
-    public Cursor swapCursor(Cursor newCursor) {
-        if (newCursor == mCursor) {
-            return null;
-        }
-        final Cursor oldCursor = mCursor;
-        mCursor = newCursor;
-
-        if (newCursor != null)
-            notifyDataSetChanged();
-        else
-            notifyDataSetInvalidated();
-
-        return oldCursor;
     }
 
     @Override
     public int getCount() {
-        if (mCursor != null)
-            return mCursor.getCount();
-        else
+        try {
+            return (int) query.countOf();
+        } catch (SQLException e) {
             return 0;
+        }
     }
 
     @Override
-    public Cursor getItem(int position) {
-        if (mCursor != null) {
-            mCursor.moveToPosition(position);
-            return mCursor;
-        } else
+    public T getItem(int position) {
+        try {
+            mCursor.first();
+            return mCursor.moveRelative(position);
+        } catch (SQLException e) {
             return null;
+        }
     }
 
     @Override
     public long getItemId(int position) {
-        if (mCursor != null) {
-            if (mCursor.moveToPosition(position))
-                return UUID.fromString(mCursor.getString(uuidColumn)).getLeastSignificantBits();
-            else
-                return 0;
-        } else
-            return 0;
+        try {
+            mCursor.first();
+            T entity = mCursor.moveRelative(position);
+            return entity.getId().getLeastSignificantBits();
+        } catch (SQLException e) {
+            return  -1;
+        }
     }
 
     public UUID getItemUUID(int position) {
-        if (mCursor != null) {
-            if (mCursor.moveToPosition(position))
-                return UUID.fromString(mCursor.getString(uuidColumn));
-            else
-                return null;
-        } else
-            return null;
+        try {
+            mCursor.first();
+            T entity = mCursor.moveRelative(position);
+            return entity.getId();
+        } catch (SQLException e) {
+            return  null;
+        }
     }
 
     public int getPosition(String uuid) {
-        mCursor.moveToFirst();
-        do {
-            if(mCursor.getString(uuidColumn).equals(uuid))
-                return mCursor.getPosition();
-        } while(mCursor.moveToNext());
-
-        return -1;
+        UUID toFind = UUID.fromString(uuid);
+        return getPosition(toFind);
     }
 
     public int getPosition(UUID uuid) {
-        String strRepresentation = uuid.toString();
-        return getPosition(strRepresentation);
+        try {
+            int pos = 0;
+            T first = mCursor.first();
+            if(first.getId().equals(uuid))
+                return pos;
+
+            while (mCursor.hasNext()) {
+                ++pos;
+                T entity = mCursor.next();
+                if(entity.getId().equals(uuid))
+                    return pos;
+            }
+        } catch (SQLException e) {
+            return  -1;
+        }
+        return -1;
+    }
+
+    public void closeCursor() {
+        mCursor.closeQuietly();
     }
 }

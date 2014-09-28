@@ -52,7 +52,6 @@ public class AccountsFragment extends WalletBaseListFragment {
         budgetSum = (TextView) rootView.findViewById(R.id.account_sum);
 
         mAccountsAdapter = new AccountsAdapter();
-        DatabaseDAO.getInstance().registerDatabaseListener(mAccountsAdapter, DatabaseDAO.EntityType.ACCOUNTS.toString());
 
         mEntityList.setAdapter(mAccountsAdapter);
         mEntityList.setOnItemLongClickListener(new AccountLongClickListener());
@@ -80,20 +79,14 @@ public class AccountsFragment extends WalletBaseListFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private class AccountsAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener {
+    private class AccountsAdapter extends UUIDCursorAdapter<Account> implements DatabaseDAO.DatabaseListener {
         public AccountsAdapter() {
-            super(getActivity(), DatabaseDAO.getInstance().getAccountCursor());
+            super(getActivity(), DatabaseFactory.getHelper().getAccountDao());
         }
 
         @Override
         public void handleUpdate() {
-            getWalletActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    changeCursor(DatabaseDAO.getInstance().getAccountCursor());
-                }
-            });
-
+            notifyDataSetChanged();
         }
 
         @Override
@@ -101,30 +94,36 @@ public class AccountsFragment extends WalletBaseListFragment {
         public View getView(int position, View convertView, ViewGroup parent) {
             final View view;
             final LayoutInflater inflater = LayoutInflater.from(mContext);
-            mCursor.moveToPosition(position);
 
             if (convertView == null)
                 view = inflater.inflate(R.layout.account_list_item, parent, false);
             else
                 view = convertView;
 
-            final int accColor = mCursor.getInt(5);
-            final float[] rounds = new float[8];
-            Arrays.fill(rounds, convertDpToPixel(10f, mContext));
-            final ShapeDrawable mDrawable = new ShapeDrawable(new RoundRectShape(rounds, null, null));
-            mDrawable.getPaint().setShader(new LinearGradient(0, 0, mContext.getResources().getDisplayMetrics().widthPixels, 0,
-                    Color.argb(50, Color.red(accColor), Color.green(accColor), Color.blue(accColor)),
-                    Color.argb(0, Color.red(accColor), Color.green(accColor), Color.blue(accColor)), Shader.TileMode.CLAMP));
-            view.findViewById(R.id.main_content_layout).setBackgroundDrawable(mDrawable);
+            try {
+                mCursor.first();
+                Account acc = mCursor.moveRelative(position);
 
-            final TextView name = (TextView) view.findViewById(R.id.account_name_label);
-            name.setText(mCursor.getString(1));
-            final TextView description = (TextView) view.findViewById(R.id.account_description_label);
-            description.setText(mCursor.getString(2));
-            final TextView currency = (TextView) view.findViewById(R.id.account_currency_label);
-            currency.setText(mCursor.getString(3));
-            final TextView amount = (TextView) view.findViewById(R.id.account_amount_label);
-            amount.setText(mCursor.getString(4));
+                final int accColor = acc.getColor();
+                final float[] rounds = new float[8];
+                Arrays.fill(rounds, convertDpToPixel(10f, mContext));
+                final ShapeDrawable mDrawable = new ShapeDrawable(new RoundRectShape(rounds, null, null));
+                mDrawable.getPaint().setShader(new LinearGradient(0, 0, mContext.getResources().getDisplayMetrics().widthPixels, 0,
+                        Color.argb(50, Color.red(accColor), Color.green(accColor), Color.blue(accColor)),
+                        Color.argb(0, Color.red(accColor), Color.green(accColor), Color.blue(accColor)), Shader.TileMode.CLAMP));
+                view.findViewById(R.id.main_content_layout).setBackgroundDrawable(mDrawable);
+
+                final TextView name = (TextView) view.findViewById(R.id.account_name_label);
+                name.setText(acc.getName());
+                final TextView description = (TextView) view.findViewById(R.id.account_description_label);
+                description.setText(acc.getDescription());
+                final TextView currency = (TextView) view.findViewById(R.id.account_currency_label);
+                currency.setText(acc.getCurrency().getCode());
+                final TextView amount = (TextView) view.findViewById(R.id.account_amount_label);
+                amount.setText(acc.getAmount().toPlainString());
+            } catch (SQLException e) {
+                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
 
             return view;
         }
@@ -144,7 +143,7 @@ public class AccountsFragment extends WalletBaseListFragment {
     public void onDestroyView() {
         super.onDestroyView();
         DatabaseDAO.getInstance().unregisterDatabaseListener(mAccountsAdapter, DatabaseDAO.EntityType.ACCOUNTS.toString());
-        mAccountsAdapter.changeCursor(null); // close opened cursor
+        mAccountsAdapter.closeCursor();
     }
 
     private class AccountClickListener implements AdapterView.OnItemClickListener {

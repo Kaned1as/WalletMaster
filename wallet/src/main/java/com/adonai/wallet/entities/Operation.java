@@ -5,6 +5,7 @@ import com.adonai.wallet.database.EntityDao;
 import com.adonai.wallet.sync.SyncProtocol;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.misc.TransactionManager;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 /**
  * Entity representing an operation. Operations show money flow
@@ -161,5 +163,84 @@ public class Operation extends Entity {
             builder.setConvertingRate(operation.getConvertingRate().doubleValue());
 
         return builder.build();
+    }
+
+    /**
+     * Calling this method means we have full operation object with all data built and ready for reverting
+     * @param operation operation to be reverted
+     */
+    public static boolean revertOperation(final Operation operation) throws SQLException {
+        final Account chargeAcc = operation.getOrderer();
+        final Account benefAcc = operation.getBeneficiar();
+        final BigDecimal amount = operation.getAmount();
+        return  TransactionManager.callInTransaction(DatabaseFactory.getHelper().getConnectionSource(),
+                new Callable<Boolean>() {
+                    public Boolean call() throws Exception {
+                        if(DatabaseFactory.getHelper().getOperationDao().delete(operation) == 0) {
+                            throw new IllegalStateException();
+                        }
+
+                        switch (operation.getCategory().getType()) {
+                            case TRANSFER:
+                                benefAcc.setAmount(benefAcc.getAmount().subtract(operation.getAmountDelivered()));
+                                chargeAcc.setAmount(chargeAcc.getAmount().add(amount));
+                                if(DatabaseFactory.getHelper().getAccountDao().update(benefAcc) == 0 || DatabaseFactory.getHelper().getAccountDao().update(chargeAcc) == 0) {
+                                    throw new IllegalStateException();
+                                }
+                                break;
+                            case EXPENSE: // add subtracted value
+                                chargeAcc.setAmount(chargeAcc.getAmount().add(amount));
+                                if(DatabaseFactory.getHelper().getAccountDao().update(chargeAcc) == 0) {
+                                    throw new IllegalStateException();
+                                }
+                                break;
+                            case INCOME: // subtract added value
+                                benefAcc.setAmount(benefAcc.getAmount().subtract(amount));
+                                if(DatabaseFactory.getHelper().getAccountDao().update(benefAcc) == 0) {
+                                    throw new IllegalStateException();
+                                }
+                                break;
+                        }
+                        return true;
+                    }
+                });
+    }
+
+    /**
+     * Calling this method means we have full operation object with all data built and ready for applying
+     * @param operation operation to be applied
+     */
+    public static boolean applyOperation(final Operation operation) throws SQLException {
+        final Account chargeAcc = operation.getOrderer();
+        final Account benefAcc = operation.getBeneficiar();
+        final BigDecimal amount = operation.getAmount();
+
+        return  TransactionManager.callInTransaction(DatabaseFactory.getHelper().getConnectionSource(),
+                new Callable<Boolean>() {
+                    public Boolean call() throws Exception {
+                        if(DatabaseFactory.getHelper().getOperationDao().create(operation) == 0)
+                            throw new IllegalStateException();
+
+                        switch (operation.getCategory().getType()) {
+                            case TRANSFER:
+                                benefAcc.setAmount(benefAcc.getAmount().add(operation.getAmountDelivered()));
+                                chargeAcc.setAmount(chargeAcc.getAmount().subtract(amount));
+                                if(DatabaseFactory.getHelper().getAccountDao().update(benefAcc) == 0 || DatabaseFactory.getHelper().getAccountDao().update(chargeAcc) == 0) // apply to db
+                                    throw new IllegalStateException();
+                                break;
+                            case EXPENSE: // subtract value
+                                chargeAcc.setAmount(chargeAcc.getAmount().subtract(amount));
+                                if(DatabaseFactory.getHelper().getAccountDao().update(chargeAcc) == 0)
+                                    throw new IllegalStateException();
+                                break;
+                            case INCOME: // add value
+                                benefAcc.setAmount(benefAcc.getAmount().add(amount));
+                                if(DatabaseFactory.getHelper().getAccountDao().update(benefAcc) == 0)
+                                    throw new IllegalStateException();
+                                break;
+                        }
+                        return true;
+                    }
+                });
     }
 }

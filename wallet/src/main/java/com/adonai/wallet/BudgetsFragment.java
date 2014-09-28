@@ -38,8 +38,6 @@ public class BudgetsFragment extends WalletBaseListFragment {
         setHasOptionsMenu(true);
 
         mBudgetsAdapter = new BudgetsAdapter();
-        DatabaseDAO.getInstance().registerDatabaseListener(mBudgetsAdapter, null);
-
         final View rootView = inflater.inflate(R.layout.budgets_flow, container, false);
         assert rootView != null;
 
@@ -60,8 +58,7 @@ public class BudgetsFragment extends WalletBaseListFragment {
         for(BudgetView view : shadow)
             view.collapse(); // close all child cursors
 
-        DatabaseDAO.getInstance().unregisterDatabaseListener(mBudgetsAdapter, null);
-        mBudgetsAdapter.changeCursor(null); // close opened cursor
+        mBudgetsAdapter.closeCursor();
     }
 
     @Override
@@ -84,28 +81,22 @@ public class BudgetsFragment extends WalletBaseListFragment {
     }
 
 
-    public class BudgetsAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener {
+    public class BudgetsAdapter extends UUIDCursorAdapter<Budget> implements DatabaseDAO.DatabaseListener {
         private final ArrayList<BudgetView> mExpandedBudgets = new ArrayList<>();
 
         public BudgetsAdapter() {
-            super(getActivity(), DatabaseDAO.getInstance().getBudgetsCursor());
+            super(getActivity(), DatabaseFactory.getHelper().getBudgetDao());
         }
 
         @Override
         public void handleUpdate() {
-            getWalletActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    changeCursor(DatabaseDAO.getInstance().getBudgetsCursor());
-                }
-            });
+            notifyDataSetChanged();
         }
 
         @Override
         @SuppressWarnings("deprecation") // for compat with older APIs
         public View getView(int position, View convertView, ViewGroup parent) {
             final BudgetView view;
-            mCursor.moveToPosition(position);
 
             if (convertView == null)
                 view = new BudgetView(mContext, this);
@@ -113,7 +104,8 @@ public class BudgetsFragment extends WalletBaseListFragment {
                 view = (BudgetView) convertView;
 
             try {
-                final Budget forView = DatabaseFactory.getHelper().getBudgetDao().queryForId(UUID.fromString(mCursor.getString(0)));
+                mCursor.first();
+                final Budget forView = mCursor.moveRelative(position);
                 view.setBudget(forView);
             } catch (SQLException e) {
                 Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();

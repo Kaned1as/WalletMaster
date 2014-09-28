@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.adonai.wallet.database.DatabaseFactory;
+import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 
 import java.sql.SQLException;
@@ -52,8 +53,6 @@ public class CategoriesFragment extends WalletBaseListFragment {
         mEntityList.setOnItemLongClickListener(new CategoryEditListener());
 
         mCategoriesAdapter = new CategoriesAdapter(CategoryType.EXPENSE);
-        DatabaseDAO.getInstance().registerDatabaseListener(mCategoriesAdapter, DatabaseDAO.EntityType.CATEGORIES.toString());
-        DatabaseDAO.getInstance().registerDatabaseListener(mCategoriesAdapter, DatabaseDAO.EntityType.ACCOUNTS.toString()); // foreign keys
         mEntityList.setAdapter(mCategoriesAdapter);
 
         return rootView;
@@ -62,9 +61,7 @@ public class CategoriesFragment extends WalletBaseListFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        DatabaseDAO.getInstance().unregisterDatabaseListener(mCategoriesAdapter, DatabaseDAO.EntityType.CATEGORIES.toString());
-        DatabaseDAO.getInstance().unregisterDatabaseListener(mCategoriesAdapter, DatabaseDAO.EntityType.ACCOUNTS.toString());
-        mCategoriesAdapter.changeCursor(null);
+        mCategoriesAdapter.closeCursor();
     }
 
     @Override
@@ -103,7 +100,7 @@ public class CategoriesFragment extends WalletBaseListFragment {
         }
     }
 
-    private class CategoriesAdapter extends UUIDCursorAdapter implements SpinnerAdapter, DatabaseDAO.DatabaseListener {
+    private class CategoriesAdapter extends UUIDCursorAdapter<Category> implements SpinnerAdapter, DatabaseDAO.DatabaseListener {
         private CategoryType mCategoryType;
 
         public CategoriesAdapter(CategoryType categoryType) {
@@ -113,13 +110,7 @@ public class CategoriesFragment extends WalletBaseListFragment {
 
         @Override
         public void handleUpdate() {
-            getWalletActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    changeCursor(DatabaseDAO.getInstance().getCategoryCursor(mCategoryType));
-                }
-            });
-
+            notifyDataSetChanged();
         }
 
         @Override
@@ -129,7 +120,8 @@ public class CategoriesFragment extends WalletBaseListFragment {
 
         public View newView(int position, View convertView, ViewGroup parent, int resId) {
             final View view;
-            mCursor.moveToPosition(position);
+            mCursor.first();
+            mCursor.moveRelative(position);
 
             if (convertView == null) {
                 final LayoutInflater inflater = LayoutInflater.from(mContext);

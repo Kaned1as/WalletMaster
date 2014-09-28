@@ -4,8 +4,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.adonai.wallet.R;
 import com.adonai.wallet.entities.Account;
-import com.adonai.wallet.entities.Action;
 import com.adonai.wallet.entities.Budget;
 import com.adonai.wallet.entities.BudgetItem;
 import com.adonai.wallet.entities.Category;
@@ -14,10 +14,14 @@ import com.adonai.wallet.entities.Operation;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.table.TableUtils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.SQLException;
-import java.util.UUID;
 
 /**
  * Created by adonai on 29.06.14.
@@ -39,7 +43,6 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
     private EntityDao<Category> categoryDao = null;
     private Dao<Currency, String> currencyDao = null;
     private EntityDao<Operation> operationDao = null;
-    private Dao<Action, UUID> actionDao = null;
     private final Context mContext;
 
     public PersistManager(Context context){
@@ -57,7 +60,61 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, Category.class);
             TableUtils.createTable(connectionSource, Currency.class);
             TableUtils.createTable(connectionSource, Operation.class);
-            TableUtils.createTable(connectionSource, Action.class);
+
+            DatabaseConnection conn = connectionSource.getReadWriteConnection();
+            conn.setAutoCommit(false);
+            // fill Categories
+            final String[] defaultOutcomeCategories = mContext.getResources().getStringArray(R.array.out_categories);
+            final String[] defaultIncomeCategories = mContext.getResources().getStringArray(R.array.inc_categories);
+            final String[] defaultTransCategories = mContext.getResources().getStringArray(R.array.transfer_categories);
+
+            Category outAdd = null;
+            for(final String outCategory : defaultOutcomeCategories) {
+                outAdd = new Category();
+                outAdd.setName(outCategory);
+                outAdd.setType(Category.CategoryType.EXPENSE);
+                getCategoryDao().create(outAdd);
+            }
+            Category inAdd = null;
+            for(final String inCategory : defaultIncomeCategories) {
+                inAdd = new Category();
+                inAdd.setName(inCategory);
+                inAdd.setType(Category.CategoryType.INCOME);
+                getCategoryDao().create(inAdd);
+            }
+            Category transAdd = null;
+            for(final String transCategory : defaultTransCategories) {
+                transAdd = new Category();
+                transAdd.setName(transCategory);
+                transAdd.setType(Category.CategoryType.TRANSFER);
+                getCategoryDao().create(transAdd);
+            }
+
+            //fill Currencies
+            final InputStream allCurrencies = getClass().getResourceAsStream("/assets/currencies.csv");
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(allCurrencies));
+            String line;
+            try {
+                while ((line = reader.readLine()) != null) {
+                    final String[] tokens = line.split(":");
+                    final Currency curr = new Currency();
+                    switch (tokens.length) { // switch-case-no-break magic!
+                        case 3:
+                            curr.setUsedIn(tokens[2]);
+                        /* falls through */
+                        case 2:
+                            curr.setDescription(tokens[1]);
+                        /* falls through */
+                        case 1:
+                            curr.setCode(tokens[0]);
+                            break;
+                    }
+                    getCurrencyDao().create(curr);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e); // should not happen!
+            }
+
         } catch (SQLException e) {
             Log.e(TAG, "error creating DB " + DATABASE_NAME);
             throw new RuntimeException(e);
@@ -70,46 +127,64 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
 
     }
 
-    public Dao<Account, UUID> getAccountDao() throws SQLException {
+    public EntityDao<Account> getAccountDao() {
         if(accountDao == null)
-            accountDao = getDao(Account.class);
+            try {
+                accountDao = getDao(Account.class);
+            } catch (SQLException e) {
+                throw new RuntimeException(e); // should not happen
+            }
         return accountDao;
     }
 
-    public Dao<Budget, UUID> getBudgetDao() throws SQLException {
+    public EntityDao<Budget> getBudgetDao() {
         if(budgetDao == null)
-            budgetDao = getDao(Budget.class);
+            try {
+                budgetDao = getDao(Budget.class);
+            } catch (SQLException e) {
+                throw new RuntimeException(e); // should not happen
+            }
         return budgetDao;
     }
 
-    public Dao<BudgetItem, UUID> getBudgetItemDao() throws SQLException {
+    public EntityDao<BudgetItem> getBudgetItemDao() {
         if(budgetItemDao == null)
-            budgetItemDao = getDao(BudgetItem.class);
+            try {
+                budgetItemDao = getDao(BudgetItem.class);
+            } catch (SQLException e) {
+                throw new RuntimeException(e); // should not happen
+            }
         return budgetItemDao;
     }
 
-    public Dao<Category, UUID> getCategoryDao() throws SQLException {
+    public EntityDao<Category> getCategoryDao() {
         if(categoryDao == null)
-            categoryDao = getDao(Category.class);
+            try {
+                categoryDao = getDao(Category.class);
+            } catch (SQLException e) {
+                throw new RuntimeException(e); // should not happen
+            }
         return categoryDao;
     }
 
-    public Dao<Currency, String> getCurrencyDao() throws SQLException {
+    public Dao<Currency, String> getCurrencyDao() {
         if(currencyDao == null)
-            currencyDao = getDao(Currency.class);
+            try {
+                currencyDao = getDao(Currency.class);
+            } catch (SQLException e) {
+                throw new RuntimeException(e); // should not happen
+            }
         return currencyDao;
     }
 
-    public Dao<Operation, UUID> getOperationDao() throws SQLException {
+    public EntityDao<Operation> getOperationDao() {
         if(operationDao == null)
-            operationDao = getDao(Operation.class);
+            try {
+                operationDao = getDao(Operation.class);
+            } catch (SQLException e) {
+                throw new RuntimeException(e); // should not happen
+            }
         return operationDao;
-    }
-
-    public Dao<Action, UUID> getActionDao() throws SQLException {
-        if(actionDao == null)
-            actionDao = getDao(Action.class);
-        return actionDao;
     }
 
     //выполняется при закрытии приложения

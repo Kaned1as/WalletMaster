@@ -18,21 +18,6 @@ import com.j256.ormlite.table.DatabaseTable;
  */
 @DatabaseTable
 public class Currency {
-    public static final String TABLE_NAME = "currencies";
-
-    public Currency(String code, String description, String usedIn) {
-        assert code != null;
-
-        this.code = code;
-        this.description = description;
-        this.usedIn = usedIn;
-    }
-
-    public Currency(String code) {
-        assert code != null;
-
-        this.code = code;
-    }
 
     @DatabaseField(id = true)
     private String code;
@@ -42,6 +27,17 @@ public class Currency {
 
     @DatabaseField
     private String usedIn;
+
+    public Currency() {
+    }
+
+    public Currency(String code) {
+        this.code = code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 
     public String getCode() {
         return code;

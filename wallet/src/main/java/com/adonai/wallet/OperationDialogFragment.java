@@ -281,30 +281,25 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        final DatabaseDAO db = DatabaseDAO.getInstance();
         try {
             if (mOperation != null) { // operation is already applied, need to revert it and re-apply again
                 fillOperationFields();
-                if (db.revertOperation(mOperation.getId())) { // revert original one and apply ours
+                if (Operation.revertOperation(DatabaseFactory.getHelper().getOperationDao().queryForId(mOperation.getId()))) { // revert original one and apply ours
+                    Operation.applyOperation(mOperation);
                     dismiss();
-                    // update operation fields in case accounts were affected when reverting
-                    // ugly hack (lack of managed/non-managed entity difference)
-                    if(mOperation.getOrderer() != null)
-                        mOperation.setOrderer(DatabaseFactory.getHelper().getAccountDao().queryForId(mOperation.getOrderer().getId()));
-                    if(mOperation.getBeneficiar() != null)
-                        mOperation.setBeneficiar(DatabaseFactory.getHelper().getAccountDao().queryForId(mOperation.getBeneficiar().getId()));
-                    db.applyOperation(mOperation);
                 }
                 else
                     throw new IllegalStateException("Cannot reapply operation!"); // should never happen!!
             } else { // create new operation with data from fields specified
                 mOperation = new Operation();
                 fillOperationFields();
-                if (db.applyOperation(mOperation)) // all succeeded
+                if (Operation.applyOperation(mOperation)) // all succeeded
                     dismiss();
                 else
                     throw new IllegalStateException("Cannot apply operation!"); // should never happen!!
             }
+        } catch (SQLException e) {
+            Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         } catch (IllegalArgumentException ex) {
             Toast.makeText(getWalletActivity(), ex.getMessage(), Toast.LENGTH_SHORT).show();
             mOperation = null;
@@ -312,54 +307,58 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     }
 
     private void fillOperationFields() {
-        // check data input
-        final BigDecimal amount = getValue(mAmount.getText().toString(), BigDecimal.ZERO);
-        if (amount.equals(BigDecimal.ZERO))
-            throw new IllegalArgumentException(getString(R.string.operation_needs_amount));
+        try {
+            // check data input
+            final BigDecimal amount = getValue(mAmount.getText().toString(), BigDecimal.ZERO);
+            if (amount.equals(BigDecimal.ZERO))
+                throw new IllegalArgumentException(getString(R.string.operation_needs_amount));
 
-        final UUID opCategoryID = ((UUIDCursorAdapter) mCategorySelector.getAdapter()).getItemUUID(mCategorySelector.getSelectedItemPosition());
-        final Category opCategory = DatabaseFactory.getHelper().getCategoryDao().queryForId(opCategoryID);
-        if (opCategory == null)
-            throw new IllegalArgumentException(getString(R.string.operation_needs_category));
-        // fill operation fields
-        mOperation.setAmount(amount);
-        mOperation.setCategory(opCategory);
-        mOperation.setTime(mDatePicker.getCalendar().getTime());
-        mOperation.setDescription(mDescription.getText().toString());
-        switch (mTypeSwitch.getCheckedRadioButtonId()) { // prepare operation depending on type
-            case R.id.transfer_radio: { // transfer op, we need 2 accounts
-                final UUID chargerID = mAccountAdapter.getItemUUID(mChargeAccountSelector.getSelectedItemPosition());
-                final UUID beneficiarID = mAccountAdapter.getItemUUID(mBeneficiarAccountSelector.getSelectedItemPosition());
-                final Account chargeAcc = DatabaseFactory.getHelper().getAccountDao().queryForId(chargerID);
-                final Account benefAcc = DatabaseFactory.getHelper().getAccountDao().queryForId(beneficiarID);
-                if (chargeAcc == null || benefAcc == null)
-                    throw new IllegalArgumentException(getString(R.string.operation_needs_transfer_accs));
-                if (chargeAcc.getId().equals(benefAcc.getId())) // no transfer to self
-                    throw new IllegalArgumentException(getString(R.string.accounts_identical));
-                mOperation.setOrderer(chargeAcc);
-                mOperation.setBeneficiar(benefAcc);
-                if (!mOperation.getBeneficiar().getCurrency().equals(mOperation.getOrderer().getCurrency())) // different currencies
-                    mOperation.setConvertingRate(getValue(mBeneficiarConversionRate.getText().toString(), BigDecimal.ONE));
-                break;
+            final UUID opCategoryID = ((UUIDCursorAdapter) mCategorySelector.getAdapter()).getItemUUID(mCategorySelector.getSelectedItemPosition());
+            final Category opCategory = DatabaseFactory.getHelper().getCategoryDao().queryForId(opCategoryID);
+            if (opCategory == null)
+                throw new IllegalArgumentException(getString(R.string.operation_needs_category));
+            // fill operation fields
+            mOperation.setAmount(amount);
+            mOperation.setCategory(opCategory);
+            mOperation.setTime(mDatePicker.getCalendar().getTime());
+            mOperation.setDescription(mDescription.getText().toString());
+            switch (mTypeSwitch.getCheckedRadioButtonId()) { // prepare operation depending on type
+                case R.id.transfer_radio: { // transfer op, we need 2 accounts
+                    final UUID chargerID = mAccountAdapter.getItemUUID(mChargeAccountSelector.getSelectedItemPosition());
+                    final UUID beneficiarID = mAccountAdapter.getItemUUID(mBeneficiarAccountSelector.getSelectedItemPosition());
+                    final Account chargeAcc = DatabaseFactory.getHelper().getAccountDao().queryForId(chargerID);
+                    final Account benefAcc = DatabaseFactory.getHelper().getAccountDao().queryForId(beneficiarID);
+                    if (chargeAcc == null || benefAcc == null)
+                        throw new IllegalArgumentException(getString(R.string.operation_needs_transfer_accs));
+                    if (chargeAcc.getId().equals(benefAcc.getId())) // no transfer to self
+                        throw new IllegalArgumentException(getString(R.string.accounts_identical));
+                    mOperation.setOrderer(chargeAcc);
+                    mOperation.setBeneficiar(benefAcc);
+                    if (!mOperation.getBeneficiar().getCurrency().equals(mOperation.getOrderer().getCurrency())) // different currencies
+                        mOperation.setConvertingRate(getValue(mBeneficiarConversionRate.getText().toString(), BigDecimal.ONE));
+                    break;
+                }
+                case R.id.income_radio: { // income op, we need beneficiar
+                    final UUID beneficiarID = mAccountAdapter.getItemUUID(mBeneficiarAccountSelector.getSelectedItemPosition());
+                    final Account benefAcc = DatabaseFactory.getHelper().getAccountDao().queryForId(beneficiarID);
+                    if (benefAcc == null)
+                        throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
+                    mOperation.setBeneficiar(benefAcc);
+                    mOperation.setOrderer(null);
+                    break;
+                }
+                case R.id.expense_radio: { // expense op, we need charger
+                    final UUID chargerID = mAccountAdapter.getItemUUID(mChargeAccountSelector.getSelectedItemPosition());
+                    final Account chargeAcc = DatabaseFactory.getHelper().getAccountDao().queryForId(chargerID);
+                    if (chargeAcc == null)
+                        throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
+                    mOperation.setOrderer(chargeAcc);
+                    mOperation.setBeneficiar(null);
+                    break;
+                }
             }
-            case R.id.income_radio: { // income op, we need beneficiar
-                final UUID beneficiarID = mAccountAdapter.getItemUUID(mBeneficiarAccountSelector.getSelectedItemPosition());
-                final Account benefAcc = DatabaseFactory.getHelper().getAccountDao().queryForId(beneficiarID);
-                if (benefAcc == null)
-                    throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
-                mOperation.setBeneficiar(benefAcc);
-                mOperation.setOrderer(null);
-                break;
-            }
-            case R.id.expense_radio: { // expense op, we need charger
-                final UUID chargerID = mAccountAdapter.getItemUUID(mChargeAccountSelector.getSelectedItemPosition());
-                final Account chargeAcc = DatabaseFactory.getHelper().getAccountDao().queryForId(chargerID);
-                if (chargeAcc == null)
-                    throw new IllegalArgumentException(getString(R.string.operation_needs_acc));
-                mOperation.setOrderer(chargeAcc);
-                mOperation.setBeneficiar(null);
-                break;
-            }
+        } catch (SQLException e) {
+            Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
