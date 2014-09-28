@@ -2,17 +2,19 @@ package com.adonai.wallet;
 
 import android.app.DatePickerDialog;
 import android.app.DialogFragment;
-import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.adonai.wallet.entities.Category;
+import com.adonai.wallet.database.DbProvider;
+import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.UUIDSpinnerAdapter;
 
+import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
@@ -83,11 +85,11 @@ public class WalletBaseDialogFragment extends DialogFragment {
         }
     }
 
-    protected class AccountsWithNoneAdapter extends UUIDSpinnerAdapter {
+    protected class AccountsWithNoneAdapter extends UUIDSpinnerAdapter<Account> {
         private final int mNoneResId;
 
         public AccountsWithNoneAdapter(int noneTextResId) {
-            super(getActivity(), DatabaseDAO.getInstance().getAccountCursor());
+            super(getActivity(), DbProvider.getHelper().getAccountDao().queryBuilder());
             this.mNoneResId = noneTextResId;
         }
 
@@ -105,8 +107,13 @@ public class WalletBaseDialogFragment extends DialogFragment {
             if(position == 0)
                 name.setText(mNoneResId);
             else {
-                mCursor.moveToPosition(position - 1);
-                name.setText(mCursor.getString(1));
+                try {
+                    mCursor.first();
+                    Account acc = mCursor.moveRelative(position - 1);
+                    name.setText(acc.getName());
+                } catch (SQLException e) {
+                    Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
 
             return view;
@@ -118,7 +125,7 @@ public class WalletBaseDialogFragment extends DialogFragment {
         }
 
         @Override
-        public Cursor getItem(int position) {
+        public Account getItem(int position) {
             if(position == 0)
                 return null;
             else
@@ -140,35 +147,6 @@ public class WalletBaseDialogFragment extends DialogFragment {
                 return parent + 1;
             else
                 return parent;
-        }
-    }
-
-    public class CategoriesAdapter extends UUIDSpinnerAdapter implements DatabaseDAO.DatabaseListener {
-        private Category.CategoryType mCategoryType;
-
-        public CategoriesAdapter(Category.CategoryType categoryType) {
-            super(getActivity(), DatabaseDAO.getInstance().getCategoryCursor(categoryType));
-            mCategoryType = categoryType;
-        }
-
-        @Override
-        public void handleUpdate() {
-            getWalletActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    changeCursor(DatabaseDAO.getInstance().getCategoryCursor(mCategoryType));
-                }
-            });
-
-        }
-
-        public void setCategoryType(Category.CategoryType type) {
-            mCategoryType = type;
-            handleUpdate();
-        }
-
-        public int getCategoryType() {
-            return mCategoryType;
         }
     }
 }

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,21 +17,13 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.adonai.wallet.database.DatabaseFactory;
+import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Operation;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.adonai.wallet.view.OperationView;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
-
-import static com.adonai.wallet.DatabaseDAO.CategoriesFields;
-import static com.adonai.wallet.DatabaseDAO.EntityType.CATEGORIES;
-import static com.adonai.wallet.DatabaseDAO.EntityType.OPERATIONS;
-import static com.adonai.wallet.DatabaseDAO.OperationsFields;
-import static com.adonai.wallet.WalletBaseFilterFragment.FilterType;
 
 /**
  * Fragment that is responsible for showing operations list
@@ -54,7 +45,6 @@ public class OperationsFragment extends WalletBaseListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         mOpAdapter = new OperationsAdapter();
-        DatabaseDAO.getInstance().registerDatabaseListener(mOpAdapter, null);
 
         final View rootView = inflater.inflate(R.layout.operations_flow, container, false);
         assert rootView != null;
@@ -70,8 +60,7 @@ public class OperationsFragment extends WalletBaseListFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        DatabaseDAO.getInstance().unregisterDatabaseListener(mOpAdapter, null);
-        mOpAdapter.changeCursor(null); // close opened cursor
+        mOpAdapter.closeCursor(); // close opened cursor
     }
 
     @Override
@@ -104,6 +93,7 @@ public class OperationsFragment extends WalletBaseListFragment {
                 break;
             case R.id.operation_filter:
                 // form filtering map
+                /*
                 final Map<String, Pair<FilterType, Object>> allowedToFilter = new HashMap<>(3);
                 allowedToFilter.put(getString(R.string.description), new Pair<FilterType, Object>(FilterType.TEXT, OperationsFields.DESCRIPTION.toString()));
                 allowedToFilter.put(getString(R.string.amount), new Pair<FilterType, Object>(FilterType.AMOUNT, OperationsFields.AMOUNT.toString()));
@@ -113,6 +103,7 @@ public class OperationsFragment extends WalletBaseListFragment {
                 final WalletBaseFilterFragment opFilter = WalletBaseFilterFragment.newInstance(OPERATIONS.toString(), allowedToFilter);
                 opFilter.setFilterCursorListener(mOpAdapter);
                 opFilter.show(getFragmentManager(), "opFilter");
+                */
             case R.id.operation_reset_filter:
                 mOpAdapter.resetFilter();
                 break;
@@ -122,52 +113,42 @@ public class OperationsFragment extends WalletBaseListFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private class OperationsAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener, WalletBaseFilterFragment.FilterCursorListener {
+    private class OperationsAdapter extends UUIDCursorAdapter<Operation> implements WalletBaseFilterFragment.FilterCursorListener {
         public OperationsAdapter() {
-            super(getActivity(), DatabaseDAO.getInstance().getOperationsCursor());
-        }
-
-        @Override
-        public void handleUpdate() {
-            getWalletActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    changeCursor(DatabaseDAO.getInstance().getOperationsCursor());
-                }
-            });
+            super(getActivity(), DbProvider.getHelper().getOperationDao().queryBuilder());
         }
 
         @Override
         @SuppressWarnings("deprecation") // for compat with older APIs
         public View getView(int position, View convertView, ViewGroup parent) {
             final OperationView view;
-            mCursor.moveToPosition(position);
 
             if (convertView == null)
                 view = new OperationView(mContext);
             else
                 view = (OperationView) convertView;
 
-            DatabaseDAO.getInstance().getAsyncOperation(mCursor.getString(OperationsFields._id.ordinal()), new DatabaseDAO.AsyncDbQuery.Listener<Operation>() {
-                @Override
-                public void onFinishLoad(Operation op) {
-                    view.setOperation(op);
-                }
-            });
+            try {
+                mCursor.first();
+                Operation op = mCursor.moveRelative(position);
+                view.setOperation(op);
+            } catch (SQLException e) {
+                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
 
             return view;
         }
 
         @Override
         public void OnFilterCompleted(Cursor cursor) {
-            changeCursor(cursor);
+            //changeCursor(cursor);
             isListFiltered = true;
             getActivity().invalidateOptionsMenu();
         }
 
         @Override
         public void resetFilter() {
-            changeCursor(DatabaseDAO.getInstance().getOperationsCursor());
+            //changeCursor(DatabaseDAO.getInstance().getOperationsCursor());
             isListFiltered = false;
             getActivity().invalidateOptionsMenu();
         }
@@ -192,9 +173,8 @@ public class OperationsFragment extends WalletBaseListFragment {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             try {
-                final DatabaseDAO db = DatabaseDAO.getInstance();
                 final UUID opID = mOpAdapter.getItemUUID(mItemPosition);
-                final Operation operation = DatabaseFactory.getHelper().getOperationDao().queryForId(opID);
+                final Operation operation = DbProvider.getHelper().getOperationDao().queryForId(opID);
                 switch (which) {
                     case 0: // modify
                         new OperationDialogFragment(operation).show(getFragmentManager(), "opModify");
@@ -203,7 +183,7 @@ public class OperationsFragment extends WalletBaseListFragment {
                         mOperationDeleter.handleRemoveAttempt(operation);
                         break;
                     case 2: // cancel operation
-                        db.revertOperation(operation);
+                        Operation.revertOperation(operation);
                         break;
                 }
             } catch (SQLException e) {
@@ -216,7 +196,7 @@ public class OperationsFragment extends WalletBaseListFragment {
         @Override
         public boolean onQueryTextSubmit(String query) {
             if(!query.isEmpty()) {
-                mOpAdapter.changeCursor(DatabaseDAO.getInstance().getOperationsCursor(query));
+                //mOpAdapter.changeCursor(DatabaseDAO.getInstance().getOperationsCursor(query));
                 if (mSearchItem != null)
                     mSearchItem.collapseActionView(); // hide after submit
                 isListFiltered = true;

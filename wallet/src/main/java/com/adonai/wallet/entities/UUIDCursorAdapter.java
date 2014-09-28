@@ -3,7 +3,6 @@ package com.adonai.wallet.entities;
 import android.content.Context;
 import android.widget.BaseAdapter;
 
-import com.adonai.wallet.database.EntityDao;
 import com.j256.ormlite.dao.CloseableIterator;
 import com.j256.ormlite.stmt.QueryBuilder;
 
@@ -20,20 +19,24 @@ import java.util.UUID;
  */
 public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
 
-    protected QueryBuilder<T, UUID> query;
+    protected QueryBuilder<T, UUID> mQuery;
     protected CloseableIterator<T> mCursor;
     protected Context mContext;
 
-    public UUIDCursorAdapter(Context context, EntityDao<T> entityDao) {
-        query = entityDao.queryBuilder();
-        mCursor = entityDao.closeableIterator();
-        mContext = context;
+    public UUIDCursorAdapter(Context context, QueryBuilder<T, UUID> query) {
+        try {
+            mQuery = query;
+            mCursor = mQuery.iterator();
+            mContext = context;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public int getCount() {
         try {
-            return (int) query.countOf();
+            return (int) mQuery.countOf();
         } catch (SQLException e) {
             return 0;
         }

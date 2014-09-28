@@ -13,7 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.adonai.wallet.database.DatabaseFactory;
+import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Budget;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.adonai.wallet.view.BudgetView;
@@ -81,16 +81,11 @@ public class BudgetsFragment extends WalletBaseListFragment {
     }
 
 
-    public class BudgetsAdapter extends UUIDCursorAdapter<Budget> implements DatabaseDAO.DatabaseListener {
+    public class BudgetsAdapter extends UUIDCursorAdapter<Budget> {
         private final ArrayList<BudgetView> mExpandedBudgets = new ArrayList<>();
 
         public BudgetsAdapter() {
-            super(getActivity(), DatabaseFactory.getHelper().getBudgetDao());
-        }
-
-        @Override
-        public void handleUpdate() {
-            notifyDataSetChanged();
+            super(getActivity(), DbProvider.getHelper().getBudgetDao().queryBuilder());
         }
 
         @Override
@@ -142,19 +137,15 @@ public class BudgetsFragment extends WalletBaseListFragment {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            try {
-                final UUID budgetID = mBudgetsAdapter.getItemUUID(mItemPosition);
-                final Budget budget = DatabaseFactory.getHelper().getBudgetDao().queryForId(budgetID);
-                switch (which) {
-                    case 0: // modify
-                        BudgetDialogFragment.forBudget(budget.getId().toString()).show(getFragmentManager(), "budgetModify");
-                        break;
-                    case 1: // delete
-                        mBudgetDeleter.handleRemoveAttempt(budget);
-                        break;
-                }
-            } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            final UUID budgetID = mBudgetsAdapter.getItemUUID(mItemPosition);
+            final Budget budget = DbProvider.getHelper().getBudgetDao().queryForId(budgetID);
+            switch (which) {
+                case 0: // modify
+                    BudgetDialogFragment.forBudget(budget.getId().toString()).show(getFragmentManager(), "budgetModify");
+                    break;
+                case 1: // delete
+                    mBudgetDeleter.handleRemoveAttempt(budget);
+                    break;
             }
         }
     }

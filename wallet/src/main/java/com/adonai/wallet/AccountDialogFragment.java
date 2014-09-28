@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,9 +17,11 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.adonai.wallet.database.DatabaseFactory;
+import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Currency;
+import com.j256.ormlite.dao.CloseableIterator;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -69,21 +70,16 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // if we are modifying existing account
         if(getArguments() != null && getArguments().containsKey(ACCOUNT_REFERENCE)) {
-            try {
-                Account modAcc = DatabaseFactory.getHelper().getAccountDao().queryForId(UUID.fromString(getArguments().getString(ACCOUNT_REFERENCE)));
+            Account modAcc = DbProvider.getHelper().getAccountDao().queryForId(UUID.fromString(getArguments().getString(ACCOUNT_REFERENCE)));
 
-                builder.setPositiveButton(R.string.confirm, this);
-                builder.setTitle(R.string.edit_account).setView(dialog);
+            builder.setPositiveButton(R.string.confirm, this);
+            builder.setTitle(R.string.edit_account).setView(dialog);
 
-                mAccountName.setText(modAcc.getName());
-                mAccountDescription.setText(modAcc.getDescription());
-                mCurrencySelector.setSelection(mCurrAdapter.getPosition(modAcc.getCurrency().getCode()));
-                mColorSelector.setSelection(mColorAdapter.getPosition(String.format("#%06X", (0xFFFFFF & modAcc.getColor()))));
-                mInitialAmount.setText(modAcc.getAmount().toPlainString());
-            } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                dismiss();
-            }
+            mAccountName.setText(modAcc.getName());
+            mAccountDescription.setText(modAcc.getDescription());
+            mCurrencySelector.setSelection(mCurrAdapter.getPosition(modAcc.getCurrency().getCode()));
+            mColorSelector.setSelection(mColorAdapter.getPosition(String.format("#%06X", (0xFFFFFF & modAcc.getColor()))));
+            mInitialAmount.setText(modAcc.getAmount().toPlainString());
         } else {
             builder.setPositiveButton(R.string.create, this);
             builder.setTitle(R.string.create_new_account).setView(dialog);
@@ -109,18 +105,14 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
             return;
         }
 
-        try {
-            Account tmp;
-            if(getArguments() != null && getArguments().containsKey(ACCOUNT_REFERENCE))  { // modifying existing account
-                tmp = DatabaseFactory.getHelper().getAccountDao().queryForId(UUID.fromString(getArguments().getString(ACCOUNT_REFERENCE)));
-            } else // creating new
-                tmp = new Account();
-            fillAccountFieldsFromGUI(tmp);
-            DatabaseFactory.getHelper().getAccountDao().createOrUpdate(tmp);
-            dismiss();
-        } catch (SQLException e) {
-            Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-        }
+        Account tmp;
+        if(getArguments() != null && getArguments().containsKey(ACCOUNT_REFERENCE))  { // modifying existing account
+            tmp = DbProvider.getHelper().getAccountDao().queryForId(UUID.fromString(getArguments().getString(ACCOUNT_REFERENCE)));
+        } else // creating new
+            tmp = new Account();
+        fillAccountFieldsFromGUI(tmp);
+        DbProvider.getHelper().getAccountDao().createOrUpdate(tmp);
+        dismiss();
     }
 
     public class ColorSpinnerAdapter extends ArrayAdapter<String> implements SpinnerAdapter {
@@ -158,26 +150,38 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
 
     public class CurrencyAdapter extends BaseAdapter {
         private final Context mContext;
-        private final Cursor mCursor;
+        private final QueryBuilder<Currency, String> mQuery;
+        private final CloseableIterator<Currency> mCursor;
 
         public CurrencyAdapter() {
-            mContext = getActivity();
-            mCursor = DatabaseDAO.getInstance().getCurrencyCursor();
+            try {
+                mContext = getActivity();
+                mQuery = DbProvider.getHelper().getCurrencyDao().queryBuilder();
+                mCursor = mQuery.iterator();
+            } catch (SQLException e) { // should not happen
+                throw new RuntimeException(e);
+            }
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             final View view;
             final LayoutInflater inflater = LayoutInflater.from(mContext);
-            mCursor.moveToPosition(position);
 
             if (convertView == null)
                 view = inflater.inflate(android.R.layout.simple_spinner_item, parent, false);
             else
                 view = convertView;
 
-            final TextView code = (TextView) view.findViewById(android.R.id.text1);
-            code.setText(mCursor.getString(DatabaseDAO.CurrenciesFields.CODE.ordinal()));
+            try {
+                mCursor.first();
+                Currency cur = mCursor.moveRelative(position);
+
+                final TextView code = (TextView) view.findViewById(android.R.id.text1);
+                code.setText(cur.getCode());
+            } catch (SQLException e) {
+                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
 
             return view;
         }
@@ -186,32 +190,48 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
             final View view;
             final LayoutInflater inflater = LayoutInflater.from(mContext);
-            mCursor.moveToPosition(position);
 
             if (convertView == null)
                 view = inflater.inflate(R.layout.currency_list_item, parent, false);
             else
                 view = convertView;
 
-            final TextView code = (TextView) view.findViewById(R.id.curr_caption_text);
-            code.setText(mCursor.getString(DatabaseDAO.CurrenciesFields.CODE.ordinal()));
-            final TextView desc = (TextView) view.findViewById(R.id.curr_description_text);
-            desc.setText(mCursor.getString(DatabaseDAO.CurrenciesFields.DESCRIPTION.ordinal()));
-            final TextView usedIn = (TextView) view.findViewById(R.id.curr_usedin_text);
-            usedIn.setText(mCursor.getString(DatabaseDAO.CurrenciesFields.USED_IN.ordinal()));
+            try {
+                mCursor.first();
+                Currency cur = mCursor.moveRelative(position);
+
+                final TextView code = (TextView) view.findViewById(R.id.curr_caption_text);
+                code.setText(cur.getCode());
+                final TextView desc = (TextView) view.findViewById(R.id.curr_description_text);
+                desc.setText(cur.getDescription());
+                final TextView usedIn = (TextView) view.findViewById(R.id.curr_usedin_text);
+                usedIn.setText(cur.getUsedIn());
+            } catch (SQLException e) {
+                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
 
             return view;
         }
 
         @Override
         public int getCount() {
-            return mCursor.getCount();
+            try {
+                return (int) mQuery.countOf();
+            } catch (SQLException e) {
+                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                return 0;
+            }
         }
 
         @Override
         public Currency getItem(int position) {
-            mCursor.moveToPosition(position);
-            return DatabaseDAO.getInstance().getCurrency(mCursor.getString(DatabaseDAO.CurrenciesFields.CODE.ordinal()));
+            try {
+                mCursor.first();
+                return mCursor.moveRelative(position);
+            } catch (SQLException e) {
+                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                return null;
+            }
         }
 
         @Override
@@ -220,17 +240,26 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
         }
 
         public int getPosition(String code) {
-            if(mCursor.moveToFirst())
-                do {
-                    if(mCursor.getString(DatabaseDAO.CurrenciesFields.CODE.ordinal()).equals(code))
-                        return mCursor.getPosition();
-                } while(mCursor.moveToNext());
+            try {
+                int pos = 0;
+                Currency first = mCursor.first();
+                if(first.getCode().equals(code))
+                    return pos;
 
+                while (mCursor.hasNext()) {
+                    ++pos;
+                    Currency entity = mCursor.next();
+                    if(entity.getCode().equals(code))
+                        return pos;
+                }
+            } catch (SQLException e) {
+                return  -1;
+            }
             return -1;
         }
 
         public void closeCursor() {
-            mCursor.close();
+            mCursor.closeQuietly();
         }
     }
 

@@ -19,7 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.adonai.wallet.database.DatabaseFactory;
+import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 
@@ -79,14 +79,9 @@ public class AccountsFragment extends WalletBaseListFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private class AccountsAdapter extends UUIDCursorAdapter<Account> implements DatabaseDAO.DatabaseListener {
+    private class AccountsAdapter extends UUIDCursorAdapter<Account> {
         public AccountsAdapter() {
-            super(getActivity(), DatabaseFactory.getHelper().getAccountDao());
-        }
-
-        @Override
-        public void handleUpdate() {
-            notifyDataSetChanged();
+            super(getActivity(), DbProvider.getHelper().getAccountDao().queryBuilder());
         }
 
         @Override
@@ -142,21 +137,16 @@ public class AccountsFragment extends WalletBaseListFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        DatabaseDAO.getInstance().unregisterDatabaseListener(mAccountsAdapter, DatabaseDAO.EntityType.ACCOUNTS.toString());
         mAccountsAdapter.closeCursor();
     }
 
     private class AccountClickListener implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            try {
-                final UUID accountID = mAccountsAdapter.getItemUUID(position);
-                final Account managed = DatabaseFactory.getHelper().getAccountDao().queryForId(accountID);
-                if(managed != null) {
-                    new OperationDialogFragment(managed).show(getFragmentManager(), "createOperation");
-                }
-            } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            final UUID accountID = mAccountsAdapter.getItemUUID(position);
+            final Account managed = DbProvider.getHelper().getAccountDao().queryForId(accountID);
+            if(managed != null) {
+                new OperationDialogFragment(managed).show(getFragmentManager(), "createOperation");
             }
 
         }
@@ -170,19 +160,15 @@ public class AccountsFragment extends WalletBaseListFragment {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            try {
-                final UUID accID = mAccountsAdapter.getItemUUID(mItemPosition);
-                final Account acc = DatabaseFactory.getHelper().getAccountDao().queryForId(accID);
-                switch (which) {
-                    case 0: // modify
-                        AccountDialogFragment.forAccount(acc.getId().toString()).show(getFragmentManager(), "accModify");
-                        break;
-                    case 1: // delete
-                        mAccountDeleter.handleRemoveAttempt(acc);
-                        break;
-                }
-            } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            final UUID accID = mAccountsAdapter.getItemUUID(mItemPosition);
+            final Account acc = DbProvider.getHelper().getAccountDao().queryForId(accID);
+            switch (which) {
+                case 0: // modify
+                    AccountDialogFragment.forAccount(acc.getId().toString()).show(getFragmentManager(), "accModify");
+                    break;
+                case 1: // delete
+                    mAccountDeleter.handleRemoveAttempt(acc);
+                    break;
             }
         }
     }

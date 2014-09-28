@@ -5,22 +5,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 
 import com.adonai.wallet.R;
-import com.adonai.wallet.database.EntityDao;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * Simple class prividing spinner views for all needs
  *
  * @author Adonai
  */
-public abstract class UUIDSpinnerAdapter<T extends Entity> extends UUIDCursorAdapter<T> implements SpinnerAdapter {
+public class UUIDSpinnerAdapter<T extends Entity> extends UUIDCursorAdapter<T> implements SpinnerAdapter {
 
-
-    public UUIDSpinnerAdapter(Context context, EntityDao<T> entityDao) {
-        super(context, entityDao);
+    public UUIDSpinnerAdapter(Context context, QueryBuilder<T, UUID> query) {
+        super(context, query);
     }
 
     @Override
@@ -43,10 +44,12 @@ public abstract class UUIDSpinnerAdapter<T extends Entity> extends UUIDCursorAda
 
         try {
             mCursor.first();
-            fillView(mCursor.moveRelative(position), view);
+            mCursor.moveRelative(position);
+            int nameCol = mCursor.getRawResults().findColumn("name");
+            String name = mCursor.getRawResults().getString(nameCol);
 
-            //final TextView name = (TextView) view.findViewById(android.R.id.text1);
-            //name.setText(mCursor.);
+            final TextView nameText = (TextView) view.findViewById(android.R.id.text1);
+            nameText.setText(name);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -54,6 +57,6 @@ public abstract class UUIDSpinnerAdapter<T extends Entity> extends UUIDCursorAda
         return view;
     }
 
-    abstract void fillView(T entity, View createdView);
+    //abstract void fillView(T entity, View createdView);
 
 }

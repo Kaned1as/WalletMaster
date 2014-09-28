@@ -8,12 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
-import com.adonai.wallet.database.DatabaseFactory;
+import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Category;
 
-import java.sql.SQLException;
 import java.util.UUID;
 
 /**
@@ -77,17 +75,13 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
 
         // modifying existing category
         if(getArguments().containsKey(CATEGORY_REFERENCE)) {
-            try {
-                builder.setTitle(R.string.edit_category);
-                builder.setPositiveButton(R.string.confirm, this);
+            builder.setTitle(R.string.edit_category);
+            builder.setPositiveButton(R.string.confirm, this);
 
-                Category tmp = DatabaseFactory.getHelper().getCategoryDao().queryForId(UUID.fromString(getArguments().getString(CATEGORY_REFERENCE)));
-                mCategoryName.setText(tmp.getName());
-                if(tmp.getPreferredAccount() != null) // optional
-                    mPreferredAccSpinner.setSelection(mAccountAdapter.getPosition(tmp.getPreferredAccount().getId()));
-            } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            }
+            Category tmp = DbProvider.getHelper().getCategoryDao().queryForId(UUID.fromString(getArguments().getString(CATEGORY_REFERENCE)));
+            mCategoryName.setText(tmp.getName());
+            if(tmp.getPreferredAccount() != null) // optional
+                mPreferredAccSpinner.setSelection(mAccountAdapter.getPosition(tmp.getPreferredAccount().getId()));
         } else { // new category create
             builder.setTitle(R.string.create_new_category);
             builder.setPositiveButton(R.string.create, this);
@@ -100,30 +94,27 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        try {
-            Category tmp;
-            if(getArguments() != null && getArguments().containsKey(CATEGORY_REFERENCE)) { // modifying existing category
-                tmp = DatabaseFactory.getHelper().getCategoryDao().queryForId(UUID.fromString(getArguments().getString(CATEGORY_REFERENCE)));
-            } else {
-                tmp = new Category();
-            }
-
-            tmp.setName(mCategoryName.getText().toString());
-            if(mPreferredAccSpinner.getSelectedItem() != null) {
-                tmp.setPreferredAccount(DatabaseFactory.getHelper().getAccountDao().queryForId(mAccountAdapter.getItemUUID(mPreferredAccSpinner.getSelectedItemPosition())));
-            } else if (tmp.getPreferredAccount() != null) {
-                tmp.setPreferredAccount(null);
-            }
-            DatabaseFactory.getHelper().getCategoryDao().createOrUpdate(tmp);
-            dismiss();
-        } catch (SQLException e) {
-            Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+        Category tmp;
+        if(getArguments() != null && getArguments().containsKey(CATEGORY_REFERENCE)) { // modifying existing category
+            tmp = DbProvider.getHelper().getCategoryDao().queryForId(UUID.fromString(getArguments().getString(CATEGORY_REFERENCE)));
+        } else {
+            tmp = new Category();
         }
+
+        tmp.setName(mCategoryName.getText().toString());
+        tmp.setType(Category.CategoryType.values()[mCategoryType]);
+        if(mPreferredAccSpinner.getSelectedItem() != null) {
+            tmp.setPreferredAccount(DbProvider.getHelper().getAccountDao().queryForId(mAccountAdapter.getItemUUID(mPreferredAccSpinner.getSelectedItemPosition())));
+        } else if (tmp.getPreferredAccount() != null) {
+            tmp.setPreferredAccount(null);
+        }
+        DbProvider.getHelper().getCategoryDao().createOrUpdate(tmp);
+        dismiss();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mAccountAdapter.changeCursor(null); // close opened cursor
+        mAccountAdapter.closeCursor(); // close opened cursor
     }
 }

@@ -8,7 +8,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.adonai.wallet.database.DatabaseFactory;
+import com.adonai.wallet.database.DbProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DatabaseFactory.setHelper(this);
+        DbProvider.setHelper(this);
         setContentView(R.layout.activity_main_flow);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -122,6 +122,6 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        DatabaseFactory.releaseHelper();
+        DbProvider.releaseHelper();
     }
 }

@@ -1,6 +1,6 @@
 package com.adonai.wallet.entities;
 
-import com.adonai.wallet.database.DatabaseFactory;
+import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.database.EntityDao;
 import com.adonai.wallet.sync.SyncProtocol;
 import com.j256.ormlite.field.DataType;
@@ -136,12 +136,12 @@ public class Operation extends Entity {
         final Operation temp = new Operation();
         temp.setId(UUID.fromString(operation.getID()));
         temp.setDescription(operation.getDescription());
-        temp.setCategory(DatabaseFactory.getHelper().getCategoryDao().queryForId(UUID.fromString(operation.getCategoryId())));
+        temp.setCategory(DbProvider.getHelper().getCategoryDao().queryForId(UUID.fromString(operation.getCategoryId())));
         temp.setTime(new Date(operation.getTime()));
         if(operation.hasChargerId())
-            temp.setOrderer(DatabaseFactory.getHelper().getAccountDao().queryForId(UUID.fromString(operation.getChargerId())));
+            temp.setOrderer(DbProvider.getHelper().getAccountDao().queryForId(UUID.fromString(operation.getChargerId())));
         if(operation.hasBeneficiarId())
-            temp.setBeneficiar(DatabaseFactory.getHelper().getAccountDao().queryForId(UUID.fromString(operation.getBeneficiarId())));
+            temp.setBeneficiar(DbProvider.getHelper().getAccountDao().queryForId(UUID.fromString(operation.getBeneficiarId())));
         temp.setAmount(new BigDecimal(operation.getAmount()));
         if(operation.hasConvertingRate())
             temp.setConvertingRate(BigDecimal.valueOf(operation.getConvertingRate()));
@@ -173,10 +173,10 @@ public class Operation extends Entity {
         final Account chargeAcc = operation.getOrderer();
         final Account benefAcc = operation.getBeneficiar();
         final BigDecimal amount = operation.getAmount();
-        return  TransactionManager.callInTransaction(DatabaseFactory.getHelper().getConnectionSource(),
+        return  TransactionManager.callInTransaction(DbProvider.getHelper().getConnectionSource(),
                 new Callable<Boolean>() {
                     public Boolean call() throws Exception {
-                        if(DatabaseFactory.getHelper().getOperationDao().delete(operation) == 0) {
+                        if(DbProvider.getHelper().getOperationDao().delete(operation) == 0) {
                             throw new IllegalStateException();
                         }
 
@@ -184,19 +184,19 @@ public class Operation extends Entity {
                             case TRANSFER:
                                 benefAcc.setAmount(benefAcc.getAmount().subtract(operation.getAmountDelivered()));
                                 chargeAcc.setAmount(chargeAcc.getAmount().add(amount));
-                                if(DatabaseFactory.getHelper().getAccountDao().update(benefAcc) == 0 || DatabaseFactory.getHelper().getAccountDao().update(chargeAcc) == 0) {
+                                if(DbProvider.getHelper().getAccountDao().update(benefAcc) == 0 || DbProvider.getHelper().getAccountDao().update(chargeAcc) == 0) {
                                     throw new IllegalStateException();
                                 }
                                 break;
                             case EXPENSE: // add subtracted value
                                 chargeAcc.setAmount(chargeAcc.getAmount().add(amount));
-                                if(DatabaseFactory.getHelper().getAccountDao().update(chargeAcc) == 0) {
+                                if(DbProvider.getHelper().getAccountDao().update(chargeAcc) == 0) {
                                     throw new IllegalStateException();
                                 }
                                 break;
                             case INCOME: // subtract added value
                                 benefAcc.setAmount(benefAcc.getAmount().subtract(amount));
-                                if(DatabaseFactory.getHelper().getAccountDao().update(benefAcc) == 0) {
+                                if(DbProvider.getHelper().getAccountDao().update(benefAcc) == 0) {
                                     throw new IllegalStateException();
                                 }
                                 break;
@@ -215,27 +215,27 @@ public class Operation extends Entity {
         final Account benefAcc = operation.getBeneficiar();
         final BigDecimal amount = operation.getAmount();
 
-        return  TransactionManager.callInTransaction(DatabaseFactory.getHelper().getConnectionSource(),
+        return  TransactionManager.callInTransaction(DbProvider.getHelper().getConnectionSource(),
                 new Callable<Boolean>() {
                     public Boolean call() throws Exception {
-                        if(DatabaseFactory.getHelper().getOperationDao().create(operation) == 0)
+                        if(DbProvider.getHelper().getOperationDao().create(operation) == 0)
                             throw new IllegalStateException();
 
                         switch (operation.getCategory().getType()) {
                             case TRANSFER:
                                 benefAcc.setAmount(benefAcc.getAmount().add(operation.getAmountDelivered()));
                                 chargeAcc.setAmount(chargeAcc.getAmount().subtract(amount));
-                                if(DatabaseFactory.getHelper().getAccountDao().update(benefAcc) == 0 || DatabaseFactory.getHelper().getAccountDao().update(chargeAcc) == 0) // apply to db
+                                if(DbProvider.getHelper().getAccountDao().update(benefAcc) == 0 || DbProvider.getHelper().getAccountDao().update(chargeAcc) == 0) // apply to db
                                     throw new IllegalStateException();
                                 break;
                             case EXPENSE: // subtract value
                                 chargeAcc.setAmount(chargeAcc.getAmount().subtract(amount));
-                                if(DatabaseFactory.getHelper().getAccountDao().update(chargeAcc) == 0)
+                                if(DbProvider.getHelper().getAccountDao().update(chargeAcc) == 0)
                                     throw new IllegalStateException();
                                 break;
                             case INCOME: // add value
                                 benefAcc.setAmount(benefAcc.getAmount().add(amount));
-                                if(DatabaseFactory.getHelper().getAccountDao().update(benefAcc) == 0)
+                                if(DbProvider.getHelper().getAccountDao().update(benefAcc) == 0)
                                     throw new IllegalStateException();
                                 break;
                         }

@@ -1,6 +1,6 @@
 package com.adonai.wallet.entities;
 
-import com.adonai.wallet.database.DatabaseFactory;
+import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.database.EntityDao;
 import com.adonai.wallet.sync.SyncProtocol;
 import com.j256.ormlite.field.DatabaseField;
@@ -83,7 +83,7 @@ public class Category extends Entity {
         tempCategory.setName(category.getName());
         tempCategory.setType(CategoryType.values()[category.getType()]);
         if(category.hasPreferredAccount())
-            tempCategory.setPreferredAccount(DatabaseFactory.getHelper().getAccountDao().queryForId(UUID.fromString(category.getPreferredAccount())));
+            tempCategory.setPreferredAccount(DbProvider.getHelper().getAccountDao().queryForId(UUID.fromString(category.getPreferredAccount())));
 
         return tempCategory;
     }

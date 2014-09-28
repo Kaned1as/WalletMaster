@@ -2,7 +2,6 @@ package com.adonai.wallet.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,10 +9,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.adonai.wallet.BudgetItemDialogFragment;
 import com.adonai.wallet.BudgetsFragment;
-import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.entities.Budget;
@@ -21,9 +20,8 @@ import com.adonai.wallet.entities.BudgetItem;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 
-import static com.adonai.wallet.DatabaseDAO.BudgetItemFields;
-import static com.adonai.wallet.DatabaseDAO.EntityType.BUDGET_ITEMS;
 import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
 
 /**
@@ -109,14 +107,13 @@ public class BudgetView extends LinearLayout {
             mFooter.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final BudgetItemDialogFragment budgetCreate = BudgetItemDialogFragment.forBudget(mBudget.getId());
+                    final BudgetItemDialogFragment budgetCreate = BudgetItemDialogFragment.forBudget(mBudget.getId().toString());
                     budgetCreate.show(((WalletBaseActivity) getContext()).getFragmentManager(), "budgetCreate");
                 }
             });
         }
 
-        mBudgetItemCursorAdapter.handleUpdate();
-        DatabaseDAO.getInstance().registerDatabaseListener(mBudgetItemCursorAdapter, null);
+        mBudgetItemCursorAdapter.notifyDataSetChanged();
 
         mState = State.EXPANDED;
         mViewAdapter.addExpandedView(this);
@@ -128,8 +125,7 @@ public class BudgetView extends LinearLayout {
             return;
 
         if(mBudgetItemCursorAdapter != null) { // was expanded before, unregister
-            DatabaseDAO.getInstance().unregisterDatabaseListener(mBudgetItemCursorAdapter, null);
-            mBudgetItemCursorAdapter.changeCursor(null);
+            mBudgetItemCursorAdapter.closeCursor();
         }
 
         mState = State.COLLAPSED;
@@ -146,7 +142,7 @@ public class BudgetView extends LinearLayout {
         attr.recycle();
     }
 
-    public class BudgetItemCursorAdapter extends UUIDCursorAdapter implements DatabaseDAO.DatabaseListener {
+    public class BudgetItemCursorAdapter extends UUIDCursorAdapter<BudgetItem> {
 
         public BudgetItemCursorAdapter(Context context) {
             super(context, null);
@@ -156,39 +152,34 @@ public class BudgetView extends LinearLayout {
         public View getView(int position, View convertView, ViewGroup parent) {
             final View view;
             final LayoutInflater inflater = LayoutInflater.from(mContext);
-            mCursor.moveToPosition(position);
-            final BudgetItem bItem = BudgetItem.getFromDB(mCursor.getString(BudgetItemFields._id.ordinal()));
-            bItem.setParentBudget(mBudget);
 
             if (convertView == null)
                 view = inflater.inflate(R.layout.budget_item_list_item, parent, false);
             else
                 view = convertView;
 
-            final TextView categoryText = (TextView) view.findViewById(R.id.category_label);
-            categoryText.setText(bItem.getCategory().getName());
-            final TextView maxAmountText = (TextView) view.findViewById(R.id.max_amount_label);
-            maxAmountText.setText(bItem.getMaxAmount().toPlainString());
-            final BigDecimal currentProgress = bItem.getProgress(); // invokes DB operation, be careful!
-            final TextView currentAmountText = (TextView) view.findViewById(R.id.current_progress_label);
-            currentAmountText.setText(currentProgress.toPlainString());
-            final ProgressBar progress = (ProgressBar) view.findViewById(R.id.deplete_progress);
-            progress.setMax(bItem.getMaxAmount().intValue());
-            progress.setProgress(currentProgress.intValue());
+            try {
+                mCursor.first();
+                final BudgetItem bItem = mCursor.moveRelative(position);
+                bItem.setParentBudget(mBudget);
+                final TextView categoryText = (TextView) view.findViewById(R.id.category_label);
+                categoryText.setText(bItem.getCategory().getName());
+                final TextView maxAmountText = (TextView) view.findViewById(R.id.max_amount_label);
+                maxAmountText.setText(bItem.getMaxAmount().toPlainString());
+                final BigDecimal currentProgress = bItem.getProgress(); // invokes DB operation, be careful!
+                final TextView currentAmountText = (TextView) view.findViewById(R.id.current_progress_label);
+                currentAmountText.setText(currentProgress.toPlainString());
+                final ProgressBar progress = (ProgressBar) view.findViewById(R.id.deplete_progress);
+                progress.setMax(bItem.getMaxAmount().intValue());
+                progress.setProgress(currentProgress.intValue());
+            } catch (SQLException e) {
+                Toast.makeText(mContext, mContext.getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
 
             return view;
         }
 
-        @Override
-        public void handleUpdate() {
-            ((WalletBaseActivity) getContext()).runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    changeCursor(DatabaseDAO.getInstance().getCustomCursor(BUDGET_ITEMS, BudgetItemFields.PARENT_BUDGET.toString(), mBudget.getId()));
-                }
-            });
-        }
-
+        /*
         @Override
         public void changeCursor(Cursor cursor) {
             super.changeCursor(cursor);
@@ -200,6 +191,7 @@ public class BudgetView extends LinearLayout {
                 mExpandedView.addView(mFooter);
             }
         }
+        */
     }
 
 

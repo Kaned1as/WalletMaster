@@ -9,7 +9,7 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.adonai.wallet.database.DatabaseFactory;
+import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.database.EntityDao;
 import com.adonai.wallet.entities.Entity;
 
@@ -61,7 +61,7 @@ public abstract class WalletBaseListFragment extends Fragment {
         @SuppressWarnings("unchecked")
         protected <T extends Entity> void deleteItem(T entity) {
             try {
-                ((EntityDao) DatabaseFactory.getHelper().getDao(entity.getClass())).delete(entity);
+                ((EntityDao) DbProvider.getHelper().getDao(entity.getClass())).delete(entity);
             } catch (SQLException e) {
                 Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }

@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.adonai.wallet.entities.UUIDSpinnerAdapter;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -190,7 +191,7 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                         equalSign.setText("=");
                         equalSign.setGravity(Gravity.CENTER);
                         final Spinner entitySelector = new Spinner(getActivity());
-                        entitySelector.setAdapter(new UUIDSpinnerAdapter(getActivity(), (android.database.Cursor) filterType.second));
+                        entitySelector.setAdapter(new UUIDSpinnerAdapter(getActivity(), (QueryBuilder) filterType.second));
                         filterLayout.addView(equalSign);
                         filterLayout.addView(entitySelector);
                         equalSign.setLayoutParams(forSigns);
@@ -262,7 +263,7 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                 case FOREIGN_ID: {
                     final Spinner idSelector = (Spinner) filterLayout.getChildAt(2);
                     UUIDSpinnerAdapter cursorHolder = (UUIDSpinnerAdapter) idSelector.getAdapter();
-                    String uuid = cursorHolder.getItemUUID(idSelector.getSelectedItemPosition());
+                    String uuid = cursorHolder.getItemUUID(idSelector.getSelectedItemPosition()).toString();
                     final String column = ((Cursor) filter.second).getColumnName(0);
                     toAdd = column + " = ?";
                     args.add(uuid);
@@ -286,7 +287,8 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
         if(!firstPassed) // we did at least one iteration
             throw new FilterFormatException(getString(R.string.no_filter_specified));
 
-        return DatabaseDAO.getInstance().select(sb.toString(), args.toArray(new String[args.size()]));
+        //return DatabaseDAO.getInstance().select(sb.toString(), args.toArray(new String[args.size()]));
+        return null;
     }
 
     public static class FilterFormatException extends Exception {

@@ -7,14 +7,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
+import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Budget;
 import com.adonai.wallet.entities.BudgetItem;
 import com.adonai.wallet.entities.Category;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
+import static com.adonai.wallet.CategoriesFragment.CategoriesAdapter;
 import static com.adonai.wallet.Utils.getValue;
 
 /**
@@ -30,9 +32,6 @@ public class BudgetItemDialogFragment extends WalletBaseDialogFragment implement
     private EditText mMaxAmountEdit;
 
     private CategoriesAdapter mCategoryAdapter;
-
-    private Budget mParent;
-    private BudgetItem mBudgetItem;
 
     public static BudgetItemDialogFragment forBudgetItem(String budgetItemId) {
         final BudgetItemDialogFragment fragment = new BudgetItemDialogFragment();
@@ -59,23 +58,21 @@ public class BudgetItemDialogFragment extends WalletBaseDialogFragment implement
         assert dialog != null;
 
         mMaxAmountEdit = (EditText) dialog.findViewById(R.id.max_amount_edit);
-        mCategoryAdapter = new CategoriesAdapter(Category.CategoryType.EXPENSE);
+        mCategoryAdapter = new CategoriesAdapter(getActivity(), Category.CategoryType.EXPENSE);
         mCategorySelector = (Spinner) dialog.findViewById(R.id.category_spinner);
         mCategorySelector.setAdapter(mCategoryAdapter);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // if we are modifying existing account
         if(getArguments().containsKey(BUDGET_ITEM_REFERENCE)) {
-            mBudgetItem = BudgetItem.getFromDB(getArguments().getString(BUDGET_ITEM_REFERENCE));
+            BudgetItem bi = DbProvider.getHelper().getBudgetItemDao().queryForId(UUID.fromString(getArguments().getString(BUDGET_ITEM_REFERENCE)));
 
             builder.setPositiveButton(R.string.confirm, null);
             builder.setTitle(R.string.edit_budget_item).setView(dialog);
 
-            mMaxAmountEdit.setText(mBudgetItem.getMaxAmount().toPlainString());
-            mCategorySelector.setSelection(mCategoryAdapter.getPosition(mBudgetItem.getCategory().getId()));
+            mMaxAmountEdit.setText(bi.getMaxAmount().toPlainString());
+            mCategorySelector.setSelection(mCategoryAdapter.getPosition(bi.getCategory().getId()));
         } else {
-            mParent = Budget.getFromDB(getArguments().getString(BUDGET_REFERENCE));
-
             builder.setPositiveButton(R.string.create, null);
             builder.setTitle(R.string.create_new_budget_item).setView(dialog);
         }
@@ -94,21 +91,19 @@ public class BudgetItemDialogFragment extends WalletBaseDialogFragment implement
     public void onClick(View view) {
         final BigDecimal amount = getValue(mMaxAmountEdit.getText().toString(), BigDecimal.ZERO);
 
-        if(mBudgetItem != null) { // modifying existing budget item
-            mBudgetItem.setMaxAmount(amount);
-            mBudgetItem.setCategory(Category.getFromDB(mCategoryAdapter.getItemUUID(mCategorySelector.getSelectedItemPosition())));
-            if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.MODIFY, mBudgetItem))
-                dismiss();
-            else
-                Toast.makeText(getActivity(), R.string.budget_item_not_found, Toast.LENGTH_SHORT).show();
+        if(getArguments().containsKey(BUDGET_ITEM_REFERENCE)) { // modifying existing budget item
+            BudgetItem bi = DbProvider.getHelper().getBudgetItemDao().queryForId(UUID.fromString(getArguments().getString(BUDGET_ITEM_REFERENCE)));
+            bi.setMaxAmount(amount);
+            bi.setCategory(DbProvider.getHelper().getCategoryDao().queryForId(mCategoryAdapter.getItemUUID(mCategorySelector.getSelectedItemPosition())));
+            DbProvider.getHelper().getBudgetItemDao().update(bi);
+            dismiss();
         } else { // new budget item
-            final BudgetItem tempBudget = new BudgetItem(mParent);
+            Budget budget = DbProvider.getHelper().getBudgetDao().queryForId(UUID.fromString(getArguments().getString(BUDGET_REFERENCE)));
+            final BudgetItem tempBudget = new BudgetItem(budget);
             tempBudget.setMaxAmount(amount);
-            tempBudget.setCategory(Category.getFromDB(mCategoryAdapter.getItemUUID(mCategorySelector.getSelectedItemPosition())));
-            if(DatabaseDAO.getInstance().makeAction(DatabaseDAO.ActionType.ADD, tempBudget))
-                dismiss();
-            else
-                Toast.makeText(getActivity(), R.string.budget_item_exists, Toast.LENGTH_SHORT).show();
+            tempBudget.setCategory(DbProvider.getHelper().getCategoryDao().queryForId(mCategoryAdapter.getItemUUID(mCategorySelector.getSelectedItemPosition())));
+            DbProvider.getHelper().getBudgetItemDao().create(tempBudget);
+            dismiss();
         }
     }
 }

@@ -13,6 +13,7 @@ import com.adonai.wallet.entities.Currency;
 import com.adonai.wallet.entities.Operation;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.table.TableUtils;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * Created by adonai on 29.06.14.
@@ -127,64 +129,64 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
 
     }
 
-    public EntityDao<Account> getAccountDao() {
+    public RuntimeExceptionDao<Account, UUID> getAccountDao() {
         if(accountDao == null)
             try {
                 accountDao = getDao(Account.class);
             } catch (SQLException e) {
                 throw new RuntimeException(e); // should not happen
             }
-        return accountDao;
+        return new RuntimeExceptionDao<>(accountDao);
     }
 
-    public EntityDao<Budget> getBudgetDao() {
+    public RuntimeExceptionDao<Budget, UUID> getBudgetDao() {
         if(budgetDao == null)
             try {
                 budgetDao = getDao(Budget.class);
             } catch (SQLException e) {
                 throw new RuntimeException(e); // should not happen
             }
-        return budgetDao;
+        return new RuntimeExceptionDao<>(budgetDao);
     }
 
-    public EntityDao<BudgetItem> getBudgetItemDao() {
+    public RuntimeExceptionDao<BudgetItem, UUID> getBudgetItemDao() {
         if(budgetItemDao == null)
             try {
                 budgetItemDao = getDao(BudgetItem.class);
             } catch (SQLException e) {
                 throw new RuntimeException(e); // should not happen
             }
-        return budgetItemDao;
+        return new RuntimeExceptionDao<>(budgetItemDao);
     }
 
-    public EntityDao<Category> getCategoryDao() {
+    public RuntimeExceptionDao<Category, UUID> getCategoryDao() {
         if(categoryDao == null)
             try {
                 categoryDao = getDao(Category.class);
             } catch (SQLException e) {
                 throw new RuntimeException(e); // should not happen
             }
-        return categoryDao;
+        return new RuntimeExceptionDao<>(categoryDao);
     }
 
-    public Dao<Currency, String> getCurrencyDao() {
+    public RuntimeExceptionDao<Currency, String> getCurrencyDao() {
         if(currencyDao == null)
             try {
                 currencyDao = getDao(Currency.class);
             } catch (SQLException e) {
                 throw new RuntimeException(e); // should not happen
             }
-        return currencyDao;
+        return new RuntimeExceptionDao<>(currencyDao);
     }
 
-    public EntityDao<Operation> getOperationDao() {
+    public RuntimeExceptionDao<Operation, UUID> getOperationDao() {
         if(operationDao == null)
             try {
                 operationDao = getDao(Operation.class);
             } catch (SQLException e) {
                 throw new RuntimeException(e); // should not happen
             }
-        return operationDao;
+        return new RuntimeExceptionDao<>(operationDao);
     }
 
     //выполняется при закрытии приложения

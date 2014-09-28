@@ -7,7 +7,7 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 /**
  * Created by adonai on 29.06.14.
  */
-public class DatabaseFactory {
+public class DbProvider {
     private static PersistManager databaseHelper;
 
     public static PersistManager getHelper(){

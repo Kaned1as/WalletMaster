@@ -2,6 +2,7 @@ package com.adonai.wallet;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,7 +18,7 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.adonai.wallet.database.DatabaseFactory;
+import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 
@@ -52,7 +53,7 @@ public class CategoriesFragment extends WalletBaseListFragment {
         mEntityList = (ListView) rootView.findViewById(R.id.categories_list);
         mEntityList.setOnItemLongClickListener(new CategoryEditListener());
 
-        mCategoriesAdapter = new CategoriesAdapter(CategoryType.EXPENSE);
+        mCategoriesAdapter = new CategoriesAdapter(getActivity(), CategoryType.EXPENSE);
         mEntityList.setAdapter(mCategoriesAdapter);
 
         return rootView;
@@ -82,7 +83,7 @@ public class CategoriesFragment extends WalletBaseListFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add_category:
-                final CategoryDialogFragment fragment = CategoryDialogFragment.newInstance(mCategoriesAdapter.getCategoryType());
+                final CategoryDialogFragment fragment = CategoryDialogFragment.newInstance(mCategoriesAdapter.getCategoryType().ordinal());
                 fragment.show(getFragmentManager(), "categoryCreate");
                 break;
             default:
@@ -95,22 +96,23 @@ public class CategoriesFragment extends WalletBaseListFragment {
 
         @Override
         public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-            mCategoriesAdapter.setCategoryType(itemPosition);
+            mCategoriesAdapter.setCategoryType(CategoryType.values()[itemPosition]);
             return true;
         }
     }
 
-    private class CategoriesAdapter extends UUIDCursorAdapter<Category> implements SpinnerAdapter, DatabaseDAO.DatabaseListener {
+    public static class CategoriesAdapter extends UUIDCursorAdapter<Category> implements SpinnerAdapter {
         private CategoryType mCategoryType;
 
-        public CategoriesAdapter(CategoryType categoryType) {
-            super(getActivity(), DatabaseDAO.getInstance().getCategoryCursor(categoryType));
+        public CategoriesAdapter(Context context, CategoryType categoryType) {
+            super(context, DbProvider.getHelper().getCategoryDao().queryBuilder());
             mCategoryType = categoryType;
-        }
-
-        @Override
-        public void handleUpdate() {
-            notifyDataSetChanged();
+            try {
+                mQuery.where().eq("type", mCategoryType);
+                mCursor = mQuery.iterator();
+            } catch (SQLException e) {
+                Toast.makeText(mContext, mContext.getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
         }
 
         @Override
@@ -120,8 +122,6 @@ public class CategoriesFragment extends WalletBaseListFragment {
 
         public View newView(int position, View convertView, ViewGroup parent, int resId) {
             final View view;
-            mCursor.first();
-            mCursor.moveRelative(position);
 
             if (convertView == null) {
                 final LayoutInflater inflater = LayoutInflater.from(mContext);
@@ -129,15 +129,28 @@ public class CategoriesFragment extends WalletBaseListFragment {
             } else
                 view = convertView;
 
-            final TextView name = (TextView) view.findViewById(android.R.id.text1);
-            name.setText(mCursor.getString(1));
+            try {
+                mCursor.first();
+                Category cat = mCursor.moveRelative(position);
+
+                final TextView name = (TextView) view.findViewById(android.R.id.text1);
+                name.setText(cat.getName());
+            } catch (SQLException e) {
+                throw new RuntimeException(e); // should not happen
+            }
 
             return view;
         }
 
         public void setCategoryType(CategoryType type) {
-            mCategoryType = type;
-            handleUpdate();
+            try {
+                mCategoryType = type;
+                mQuery.where().eq("type", mCategoryType);
+                mCursor = mQuery.iterator();
+            } catch (SQLException e) {
+                Toast.makeText(mContext, mContext.getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+            notifyDataSetChanged();
         }
 
         public CategoryType getCategoryType() {
@@ -163,20 +176,16 @@ public class CategoriesFragment extends WalletBaseListFragment {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            try {
-                switch (which) {
-                    case 0: // modify
-                        final UUID categoryID = mCategoriesAdapter.getItemUUID(mItemPosition);
-                        final CategoryDialogFragment fragment = CategoryDialogFragment.forCategory(categoryID.toString());
-                        fragment.show(getFragmentManager(), "categoryCreate");
-                        break;
-                    case 1: // delete
-                        final UUID categoryId = mCategoriesAdapter.getItemUUID(mItemPosition);
-                        DatabaseFactory.getHelper().getCategoryDao().deleteById(categoryId);
-                        break;
-                }
-            } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            switch (which) {
+                case 0: // modify
+                    final UUID categoryID = mCategoriesAdapter.getItemUUID(mItemPosition);
+                    final CategoryDialogFragment fragment = CategoryDialogFragment.forCategory(categoryID.toString());
+                    fragment.show(getFragmentManager(), "categoryCreate");
+                    break;
+                case 1: // delete
+                    final UUID categoryId = mCategoriesAdapter.getItemUUID(mItemPosition);
+                    DbProvider.getHelper().getCategoryDao().deleteById(categoryId);
+                    break;
             }
         }
     }
