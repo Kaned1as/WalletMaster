@@ -89,7 +89,7 @@ public class WalletBaseDialogFragment extends DialogFragment {
         private final int mNoneResId;
 
         public AccountsWithNoneAdapter(int noneTextResId) {
-            super(getActivity(), DbProvider.getHelper().getAccountDao().queryBuilder());
+            super(getActivity(), DbProvider.getHelper().getEntityDao(Account.class));
             this.mNoneResId = noneTextResId;
         }
 
@@ -112,7 +112,7 @@ public class WalletBaseDialogFragment extends DialogFragment {
                     Account acc = mCursor.moveRelative(position - 1);
                     name.setText(acc.getName());
                 } catch (SQLException e) {
-                    Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    throw new RuntimeException(e);
                 }
             }
 

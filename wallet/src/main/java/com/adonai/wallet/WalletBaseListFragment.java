@@ -63,7 +63,7 @@ public abstract class WalletBaseListFragment extends Fragment {
             try {
                 ((EntityDao) DbProvider.getHelper().getDao(entity.getClass())).delete(entity);
             } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                throw new RuntimeException(e);
             }
         }
     }

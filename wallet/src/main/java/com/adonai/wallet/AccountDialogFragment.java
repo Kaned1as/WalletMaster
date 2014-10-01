@@ -180,7 +180,7 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
                 final TextView code = (TextView) view.findViewById(android.R.id.text1);
                 code.setText(cur.getCode());
             } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                throw new RuntimeException(e);
             }
 
             return view;
@@ -207,7 +207,7 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
                 final TextView usedIn = (TextView) view.findViewById(R.id.curr_usedin_text);
                 usedIn.setText(cur.getUsedIn());
             } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                throw new RuntimeException(e);
             }
 
             return view;
@@ -218,8 +218,7 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
             try {
                 return (int) mQuery.countOf();
             } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                return 0;
+                throw new RuntimeException(e);
             }
         }
 
@@ -229,8 +228,7 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
                 mCursor.first();
                 return mCursor.moveRelative(position);
             } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                return null;
+                throw new RuntimeException(e);
             }
         }
 

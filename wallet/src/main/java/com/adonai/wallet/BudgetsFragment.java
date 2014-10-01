@@ -85,7 +85,7 @@ public class BudgetsFragment extends WalletBaseListFragment {
         private final ArrayList<BudgetView> mExpandedBudgets = new ArrayList<>();
 
         public BudgetsAdapter() {
-            super(getActivity(), DbProvider.getHelper().getBudgetDao().queryBuilder());
+            super(getActivity(), DbProvider.getHelper().getEntityDao(Budget.class));
         }
 
         @Override
@@ -103,7 +103,7 @@ public class BudgetsFragment extends WalletBaseListFragment {
                 final Budget forView = mCursor.moveRelative(position);
                 view.setBudget(forView);
             } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                throw new RuntimeException(e);
             }
 
             return view;

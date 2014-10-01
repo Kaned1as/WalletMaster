@@ -19,8 +19,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.adonai.wallet.database.EntityDao;
 import com.adonai.wallet.entities.UUIDSpinnerAdapter;
-import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -191,7 +191,7 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                         equalSign.setText("=");
                         equalSign.setGravity(Gravity.CENTER);
                         final Spinner entitySelector = new Spinner(getActivity());
-                        entitySelector.setAdapter(new UUIDSpinnerAdapter(getActivity(), (QueryBuilder) filterType.second));
+                        entitySelector.setAdapter(new UUIDSpinnerAdapter(getActivity(), (EntityDao) filterType.second));
                         filterLayout.addView(equalSign);
                         filterLayout.addView(entitySelector);
                         equalSign.setLayoutParams(forSigns);

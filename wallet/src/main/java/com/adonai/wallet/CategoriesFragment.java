@@ -16,7 +16,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Category;
@@ -105,13 +104,12 @@ public class CategoriesFragment extends WalletBaseListFragment {
         private CategoryType mCategoryType;
 
         public CategoriesAdapter(Context context, CategoryType categoryType) {
-            super(context, DbProvider.getHelper().getCategoryDao().queryBuilder());
-            mCategoryType = categoryType;
+            super(context, DbProvider.getHelper().getEntityDao(Category.class));
             try {
-                mQuery.where().eq("type", mCategoryType);
-                mCursor = mQuery.iterator();
+                mCategoryType = categoryType;
+                setQuery(DbProvider.getHelper().getCategoryDao().queryBuilder().where().eq("type", mCategoryType).prepare());
             } catch (SQLException e) {
-                Toast.makeText(mContext, mContext.getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                throw new RuntimeException(e);
             }
         }
 
@@ -145,10 +143,9 @@ public class CategoriesFragment extends WalletBaseListFragment {
         public void setCategoryType(CategoryType type) {
             try {
                 mCategoryType = type;
-                mQuery.where().eq("type", mCategoryType);
-                mCursor = mQuery.iterator();
+                setQuery(DbProvider.getHelper().getCategoryDao().queryBuilder().where().eq("type", mCategoryType).prepare());
             } catch (SQLException e) {
-                Toast.makeText(mContext, mContext.getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                throw new RuntimeException(e);
             }
             notifyDataSetChanged();
         }

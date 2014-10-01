@@ -3,8 +3,10 @@ package com.adonai.wallet.entities;
 import android.content.Context;
 import android.widget.BaseAdapter;
 
+import com.adonai.wallet.database.EntityDao;
+import com.j256.ormlite.android.AndroidDatabaseResults;
 import com.j256.ormlite.dao.CloseableIterator;
-import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.PreparedQuery;
 
 import java.sql.SQLException;
 import java.util.UUID;
@@ -19,27 +21,22 @@ import java.util.UUID;
  */
 public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
 
-    protected QueryBuilder<T, UUID> mQuery;
+    private EntityDao<T> mDao;
+
     protected CloseableIterator<T> mCursor;
     protected Context mContext;
 
-    public UUIDCursorAdapter(Context context, QueryBuilder<T, UUID> query) {
-        try {
-            mQuery = query;
-            mCursor = mQuery.iterator();
-            mContext = context;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public UUIDCursorAdapter(Context context, EntityDao<T> dao) {
+        mDao = dao;
+        mContext = context;
+        mDao.registerObserver(this);
+        mCursor = mDao.iterator();
+
     }
 
     @Override
     public int getCount() {
-        try {
-            return (int) mQuery.countOf();
-        } catch (SQLException e) {
-            return 0;
-        }
+        return ((AndroidDatabaseResults) mCursor.getRawResults()).getCount();
     }
 
     @Override
@@ -97,7 +94,17 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
         return -1;
     }
 
+    public void setQuery(PreparedQuery<T> query) {
+        try {
+            mCursor = mDao.iterator(query);
+            notifyDataSetChanged();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void closeCursor() {
         mCursor.closeQuietly();
+        mDao.unregisterObserver(this);
     }
 }

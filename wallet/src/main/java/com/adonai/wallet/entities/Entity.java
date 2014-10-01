@@ -11,7 +11,7 @@ import java.util.UUID;
  */
 public class Entity {
 
-    @DatabaseField(generatedId = true)
+    @DatabaseField(columnName = "_id", generatedId = true)
     private UUID id;
 
     @DatabaseField(canBeNull = true, dataType = DataType.DATE_LONG)
@@ -21,7 +21,7 @@ public class Entity {
     private boolean deleted;
 
     @DatabaseField
-    private boolean dirty; // indicates the entity is changed or not
+    private boolean dirty; // indicates the synced entity is changed locally or not
 
     public UUID getId() {
         return id;

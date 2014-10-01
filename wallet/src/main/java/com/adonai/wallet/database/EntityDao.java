@@ -1,6 +1,9 @@
 package com.adonai.wallet.database;
 
+import android.database.Observable;
+
 import com.adonai.wallet.entities.Entity;
+import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTableConfig;
@@ -12,6 +15,8 @@ import java.util.UUID;
  * Basic dao needed for persisting changes locally
  */
 public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
+
+    private DbNotifier mObservable = new DbNotifier();
 
     public EntityDao(Class<T> dataClass) throws SQLException {
         super(dataClass);
@@ -27,44 +32,77 @@ public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
 
     @Override
     public int create(T data) throws SQLException {
+        int result;
         data.setDeleted(false);
         data.setDirty(false);
-        return super.create(data);
+        result = super.create(data);
+        mObservable.notifyObservers();
+        return result;
     }
 
     @Override
     public int update(T data) throws SQLException {
+        int result;
         if(data.getLastModified() == null) { // never been synced, safe to update
-            return super.update(data);
+            result = super.update(data);
         } else {                             // exists on the server side, set dirty
             data.setDirty(true);
-            return super.update(data);
+            result = super.update(data);
         }
+        mObservable.notifyObservers();
+        return result;
     }
 
     @Override
     public int delete(T data) throws SQLException {
+        int result;
         if(data.getLastModified() == null) { // never been synced, safe to delete
-            return super.delete(data);
+            result = super.delete(data);
         } else {                             // exists on the server side, set deleted
             data.setDeleted(true);
-            return super.update(data);
+            result = super.update(data);
         }
+        mObservable.notifyObservers();
+        return result;
     }
 
     @Override
     public int deleteById(UUID uuid) throws SQLException {
+        int result;
         T data = queryForId(uuid);
         if(data.getLastModified() == null) { // never been synced, safe to delete
-            return super.deleteById(uuid);
+            result = super.deleteById(uuid);
         } else {                             // exists on the server side, set deleted
             data.setDeleted(true);
-            return super.update(data);
+            result = super.update(data);
         }
+        mObservable.notifyObservers();
+        return result;
     }
 
     public int deleteByServer(T data) throws SQLException { // entity should be deleted on client as on server
         return super.delete(data);
     }
 
+    private class DbNotifier extends Observable<UUIDCursorAdapter<T>> {
+
+        public void notifyObservers() {
+            for(UUIDCursorAdapter<T> observer : mObservers) {
+                observer.notifyDataSetChanged();
+            }
+        }
+
+    }
+
+    public void registerObserver(UUIDCursorAdapter<T> observer) {
+        mObservable.registerObserver(observer);
+    }
+
+    public void unregisterObserver(UUIDCursorAdapter<T> observer) {
+        mObservable.unregisterObserver(observer);
+    }
+
+    public void unregisterAll() {
+        mObservable.unregisterAll();
+    }
 }

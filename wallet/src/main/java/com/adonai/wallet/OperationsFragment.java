@@ -115,7 +115,7 @@ public class OperationsFragment extends WalletBaseListFragment {
 
     private class OperationsAdapter extends UUIDCursorAdapter<Operation> implements WalletBaseFilterFragment.FilterCursorListener {
         public OperationsAdapter() {
-            super(getActivity(), DbProvider.getHelper().getOperationDao().queryBuilder());
+            super(getActivity(), DbProvider.getHelper().getEntityDao(Operation.class));
         }
 
         @Override
@@ -133,7 +133,7 @@ public class OperationsFragment extends WalletBaseListFragment {
                 Operation op = mCursor.moveRelative(position);
                 view.setOperation(op);
             } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                throw new RuntimeException(e);
             }
 
             return view;
@@ -187,7 +187,7 @@ public class OperationsFragment extends WalletBaseListFragment {
                         break;
                 }
             } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                throw new RuntimeException(e);
             }
         }
     }

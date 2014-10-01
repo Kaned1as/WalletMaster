@@ -81,7 +81,7 @@ public class AccountsFragment extends WalletBaseListFragment {
 
     private class AccountsAdapter extends UUIDCursorAdapter<Account> {
         public AccountsAdapter() {
-            super(getActivity(), DbProvider.getHelper().getAccountDao().queryBuilder());
+            super(getActivity(), DbProvider.getHelper().getEntityDao(Account.class));
         }
 
         @Override
@@ -117,7 +117,7 @@ public class AccountsFragment extends WalletBaseListFragment {
                 final TextView amount = (TextView) view.findViewById(R.id.account_amount_label);
                 amount.setText(acc.getAmount().toPlainString());
             } catch (SQLException e) {
-                Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                throw new RuntimeException(e);
             }
 
             return view;

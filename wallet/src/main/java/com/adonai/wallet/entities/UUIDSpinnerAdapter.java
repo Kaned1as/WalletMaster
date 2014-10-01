@@ -8,10 +8,9 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.adonai.wallet.R;
-import com.j256.ormlite.stmt.QueryBuilder;
+import com.adonai.wallet.database.EntityDao;
 
 import java.sql.SQLException;
-import java.util.UUID;
 
 /**
  * Simple class prividing spinner views for all needs
@@ -20,8 +19,8 @@ import java.util.UUID;
  */
 public class UUIDSpinnerAdapter<T extends Entity> extends UUIDCursorAdapter<T> implements SpinnerAdapter {
 
-    public UUIDSpinnerAdapter(Context context, QueryBuilder<T, UUID> query) {
-        super(context, query);
+    public UUIDSpinnerAdapter(Context context, EntityDao<T> dao) {
+        super(context, dao);
     }
 
     @Override

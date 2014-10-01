@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.adonai.wallet.BudgetItemDialogFragment;
 import com.adonai.wallet.BudgetsFragment;
@@ -173,7 +172,7 @@ public class BudgetView extends LinearLayout {
                 progress.setMax(bItem.getMaxAmount().intValue());
                 progress.setProgress(currentProgress.intValue());
             } catch (SQLException e) {
-                Toast.makeText(mContext, mContext.getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                throw new RuntimeException(e);
             }
 
             return view;

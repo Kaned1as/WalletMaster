@@ -24,8 +24,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.+'
-    compile 'com.j256.ormlite:ormlite-android:+'
-    compile 'com.google.code.gson:gson:+'
+    compile 'com.android.support:support-v4:20.0.0'
+    compile 'com.j256.ormlite:ormlite-android:4.48'
     compile fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 }

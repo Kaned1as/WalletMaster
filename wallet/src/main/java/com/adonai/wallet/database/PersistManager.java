@@ -10,6 +10,7 @@ import com.adonai.wallet.entities.Budget;
 import com.adonai.wallet.entities.BudgetItem;
 import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Currency;
+import com.adonai.wallet.entities.Entity;
 import com.adonai.wallet.entities.Operation;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
@@ -187,6 +188,14 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
                 throw new RuntimeException(e); // should not happen
             }
         return new RuntimeExceptionDao<>(operationDao);
+    }
+
+    public <T extends Entity> EntityDao<T> getEntityDao(Class<T> clazz) {
+        try {
+            return getDao(clazz);
+        } catch (SQLException e) {
+            throw new RuntimeException(e); // should not happen
+        }
     }
 
     //выполняется при закрытии приложения

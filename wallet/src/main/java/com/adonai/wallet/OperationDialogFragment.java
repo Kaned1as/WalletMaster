@@ -80,7 +80,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mAccountAdapter = new UUIDSpinnerAdapter<>(getActivity(), DbProvider.getHelper().getAccountDao().queryBuilder());
+        mAccountAdapter = new UUIDSpinnerAdapter<>(getActivity(), DbProvider.getHelper().getEntityDao(Account.class));
         final AccountSelectListener accountSelectListener = new AccountSelectListener();
         final CountChangedWatcher textWatcher = new CountChangedWatcher();
 
@@ -291,7 +291,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
                     throw new IllegalStateException("Cannot apply operation!"); // should never happen!!
             }
         } catch (SQLException e) {
-            Toast.makeText(getActivity(), getString(R.string.database_error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            throw new RuntimeException(e);
         } catch (IllegalArgumentException ex) {
             Toast.makeText(getWalletActivity(), ex.getMessage(), Toast.LENGTH_SHORT).show();
             mOperation = null;
