@@ -95,7 +95,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         mChargeAccountSelector.setAdapter(mAccountAdapter);
         mChargeAccountSelector.setOnItemSelectedListener(accountSelectListener);
 
-        mCategoriesAdapter = new CategoriesAdapter(getActivity(), Category.CategoryType.EXPENSE);
+        mCategoriesAdapter = new CategoriesAdapter(getActivity(), android.R.layout.simple_spinner_item, Category.CategoryType.EXPENSE);
 
         mCategorySelector = (Spinner) dialog.findViewById(R.id.category_spinner);
         mCategorySelector.setOnItemSelectedListener(new CategorySelectListener());

@@ -52,7 +52,7 @@ public class CategoriesFragment extends WalletBaseListFragment {
         mEntityList = (ListView) rootView.findViewById(R.id.categories_list);
         mEntityList.setOnItemLongClickListener(new CategoryEditListener());
 
-        mCategoriesAdapter = new CategoriesAdapter(getActivity(), CategoryType.EXPENSE);
+        mCategoriesAdapter = new CategoriesAdapter(getActivity(), R.layout.category_list_item, CategoryType.EXPENSE);
         mEntityList.setAdapter(mCategoriesAdapter);
 
         return rootView;
@@ -101,11 +101,13 @@ public class CategoriesFragment extends WalletBaseListFragment {
     }
 
     public static class CategoriesAdapter extends UUIDCursorAdapter<Category> implements SpinnerAdapter {
+        private final int mResourceId;
         private CategoryType mCategoryType;
 
-        public CategoriesAdapter(Context context, CategoryType categoryType) {
+        public CategoriesAdapter(Context context, int resourceId, CategoryType categoryType) {
             super(context, DbProvider.getHelper().getEntityDao(Category.class));
             try {
+                mResourceId = resourceId;
                 mCategoryType = categoryType;
                 setQuery(DbProvider.getHelper().getCategoryDao().queryBuilder().where().eq("type", mCategoryType).prepare());
             } catch (SQLException e) {
@@ -115,7 +117,7 @@ public class CategoriesFragment extends WalletBaseListFragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            return newView(position, convertView, parent, R.layout.category_list_item);
+            return newView(position, convertView, parent, mResourceId);
         }
 
         public View newView(int position, View convertView, ViewGroup parent, int resId) {

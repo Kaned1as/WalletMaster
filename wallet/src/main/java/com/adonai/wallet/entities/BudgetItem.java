@@ -67,14 +67,14 @@ public class BudgetItem extends Entity {
         final BigDecimal sum;
         GenericRawResults<String[]> results;
         if(budget.getCoveredAccount() == null) { // all accounts
-            results = DbProvider.getHelper().getOperationDao().queryRaw("SELECT SUM(amount) FROM operations WHERE category = ? AND time BETWEEN ? AND ?", category.getId().toString(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime()));
-        }else {
-            results = DbProvider.getHelper().getOperationDao().queryRaw("SELECT SUM(amount) FROM operations WHERE orderer = ? AND category = ? AND time BETWEEN ? AND ?", budget.getCoveredAccount().getId().toString(), category.getId().toString(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime()));
+            results = DbProvider.getHelper().getOperationDao().queryRaw("SELECT SUM(amount) FROM operation WHERE category_id = ? AND time BETWEEN ? AND ?", category.getId().toString(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime()));
+        } else {
+            results = DbProvider.getHelper().getOperationDao().queryRaw("SELECT SUM(amount) FROM operation WHERE orderer_id = ? AND category_id = ? AND time BETWEEN ? AND ?", budget.getCoveredAccount().getId().toString(), category.getId().toString(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime()));
         }
 
         try {
             String[] res = results.getFirstResult();
-            sum = new BigDecimal(res[0]);
+            sum = res[0] == null ? BigDecimal.ZERO : new BigDecimal(res[0]);
             results.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);

@@ -14,6 +14,7 @@ import com.adonai.wallet.BudgetItemDialogFragment;
 import com.adonai.wallet.BudgetsFragment;
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
+import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Budget;
 import com.adonai.wallet.entities.BudgetItem;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
@@ -112,7 +113,9 @@ public class BudgetView extends LinearLayout {
             });
         }
 
-        mBudgetItemCursorAdapter.notifyDataSetChanged();
+        for (int i = 0; i < mBudgetItemCursorAdapter.getCount(); ++i)
+            mExpandedView.addView(mBudgetItemCursorAdapter.getView(i, null, mExpandedView));
+        mExpandedView.addView(mFooter);
 
         mState = State.EXPANDED;
         mViewAdapter.addExpandedView(this);
@@ -125,10 +128,12 @@ public class BudgetView extends LinearLayout {
 
         if(mBudgetItemCursorAdapter != null) { // was expanded before, unregister
             mBudgetItemCursorAdapter.closeCursor();
+            mBudgetItemCursorAdapter = null;
         }
 
         mState = State.COLLAPSED;
         mViewAdapter.removeExpandedView(this);
+        mExpandedView.removeAllViews();
         updateDrawables();
     }
 
@@ -144,7 +149,7 @@ public class BudgetView extends LinearLayout {
     public class BudgetItemCursorAdapter extends UUIDCursorAdapter<BudgetItem> {
 
         public BudgetItemCursorAdapter(Context context) {
-            super(context, null);
+            super(context, DbProvider.getHelper().getEntityDao(BudgetItem.class));
         }
 
         @Override
@@ -177,20 +182,6 @@ public class BudgetView extends LinearLayout {
 
             return view;
         }
-
-        /*
-        @Override
-        public void changeCursor(Cursor cursor) {
-            super.changeCursor(cursor);
-
-            mExpandedView.removeAllViews();
-            if(cursor != null) {
-                for (int i = 0; i < mBudgetItemCursorAdapter.getCount(); ++i)
-                    mExpandedView.addView(mBudgetItemCursorAdapter.getView(i, null, mExpandedView));
-                mExpandedView.addView(mFooter);
-            }
-        }
-        */
     }
 
 

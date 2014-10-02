@@ -22,6 +22,7 @@ import java.util.UUID;
 public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
 
     private EntityDao<T> mDao;
+    private PreparedQuery<T> mQuery = null;
 
     protected CloseableIterator<T> mCursor;
     protected Context mContext;
@@ -31,7 +32,6 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
         mContext = context;
         mDao.registerObserver(this);
         mCursor = mDao.iterator();
-
     }
 
     @Override
@@ -95,9 +95,15 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
     }
 
     public void setQuery(PreparedQuery<T> query) {
+        mQuery = query;
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
         try {
-            mCursor = mDao.iterator(query);
-            notifyDataSetChanged();
+            mCursor = (mQuery != null) ? mDao.iterator(mQuery) : mDao.iterator();
+            super.notifyDataSetChanged();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
