@@ -1,5 +1,11 @@
 package com.adonai.wallet;
 
+import com.adonai.wallet.database.DbProvider;
+import com.adonai.wallet.entities.Entity;
+import com.j256.ormlite.table.DatabaseTable;
+
+import java.sql.SQLException;
+
 /**
  * Database helper instance
  *
@@ -7,143 +13,6 @@ package com.adonai.wallet;
  * Actions contain original data
  */
 public class DatabaseDAO /*extends SQLiteOpenHelper*/ {
-//    private final Context mContext;
-//    private static DatabaseDAO mInstance;
-//
-//    public static void init(Context context) {
-//        mInstance = new DatabaseDAO(context.getApplicationContext());
-//    }
-//
-//    public static DatabaseDAO getInstance() {
-//        return mInstance;
-//    }
-//
-//    public interface DatabaseListener {
-//        static final String ANY_TABLE = "*";
-//
-//        void handleUpdate();
-//    }
-//
-//    /**
-//     * Register specified listener as database listener for changes.
-//     * @param listener listener to be registered
-//     * @param table table name to check or null if all table changes should be tracked
-//     */
-//    public void registerDatabaseListener(final DatabaseListener listener, final String table) {
-//        if(table == null) { // listen on all
-//            registerDatabaseListener(listener, DatabaseListener.ANY_TABLE);
-//            return;
-//        }
-//
-//        if(listenerMap.containsKey(table))
-//            listenerMap.get(table).add(listener);
-//        else {
-//            final ArrayList<DatabaseListener> newList = new ArrayList<>();
-//            newList.add(listener);
-//            listenerMap.put(table, newList);
-//        }
-//    }
-//
-//    /**
-//     * Unregister specified listener
-//     * @param listener listener to be unregistered
-//     * @param table table name that listener checked or null if listener tracked any table
-//     */
-//    public void unregisterDatabaseListener(final DatabaseListener listener, final String table) {
-//        if(table == null) { // listen on all
-//            unregisterDatabaseListener(listener, DatabaseListener.ANY_TABLE);
-//            return;
-//        }
-//
-//        if(listenerMap.containsKey(table))
-//            listenerMap.get(table).remove(listener);
-//    }
-//
-//    public static final String dbName = "moneyDB";
-//    public static final int dbVersion = 1;
-//
-//    public static enum AccountFields {
-//        _id,
-//        NAME,
-//        DESCRIPTION,
-//        CURRENCY,
-//        AMOUNT,
-//        COLOR,
-//    }
-//
-//    public static enum OperationsFields {
-//        _id,
-//        DESCRIPTION,
-//        CATEGORY,
-//        TIME,
-//        CHARGER,
-//        RECEIVER,
-//        AMOUNT,
-//        CONVERT_RATE,
-//    }
-//
-//    public static enum CurrenciesFields {
-//        CODE,
-//        DESCRIPTION,
-//        USED_IN,
-//    }
-//
-//
-//    public static enum CategoriesFields {
-//        _id,
-//        NAME,
-//        TYPE,
-//        PREFERRED_ACCOUNT,
-//    }
-//
-//    public static enum BudgetFields {
-//        _id,
-//        NAME,
-//        START_TIME,
-//        END_TIME,
-//        COVERED_ACCOUNT
-//    }
-//
-//    public static enum BudgetItemFields {
-//        _id,
-//        PARENT_BUDGET,
-//        CATEGORY,
-//        MAX_AMOUNT
-//    }
-//
-//    public static final String ACTIONS_TABLE_NAME = "actions";
-//    public static enum ActionsFields {
-//        DATA_ID,
-//        DATA_TYPE,
-//        ORIGINAL_DATA,
-//    }
-//
-//    public static enum EntityType {
-//        ACCOUNTS,
-//        CATEGORIES,
-//        OPERATIONS,
-//        BUDGETS,
-//        BUDGET_ITEMS
-//    }
-//
-//    private final Map<String, ArrayList<DatabaseListener>> listenerMap = new HashMap<>();
-//    private SQLiteDatabase mDatabase;
-//
-//    private DatabaseDAO(Context context) {
-//        super(context, dbName, null, dbVersion);
-//        mContext = context;
-//        mDatabase = getWritableDatabase();
-//        assert mDatabase != null;
-//    }
-//
-//    @Override
-//    public void onOpen(SQLiteDatabase db) { // called AFTER upgrade!
-//        super.onOpen(db);
-//        if (!db.isReadOnly())
-//            // Enable foreign key constraints
-//            db.execSQL("PRAGMA foreign_keys = ON");
-//    }
-//
 //    @Override
 //    public void onCreate(SQLiteDatabase sqLiteDatabase) {
 //        mDatabase = sqLiteDatabase;
@@ -252,96 +121,6 @@ public class DatabaseDAO /*extends SQLiteOpenHelper*/ {
 //        */
 //    }
 //
-//    @Override
-//    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i2) {
-//    }
-//
-//    public long insert(ContentValues cv, String tableName) {
-//        long result = mDatabase.insertWithOnConflict(tableName, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
-//        if(result != -1)
-//            notifyListeners(tableName);
-//        return result;
-//    }
-//
-//    public int update(ContentValues cv, String tableName) {
-//        final int result = mDatabase.update(tableName, cv, "_id = ?", new String[]{cv.getAsString("_id")});
-//        if(result > 0)
-//            notifyListeners(tableName);
-//        return result;
-//    }
-//
-//    public int delete(String id, String tableName) {
-//        int count = mDatabase.delete(tableName, "_id = ?", new String[]{String.valueOf(id)});
-//        if(count > 0)
-//            notifyListeners(tableName);
-//        return count;
-//    }
-//
-//    /**
-//     * Retrieves cursor of raw query request to underlying database
-//     * Don't forget to close the cursor!
-//     * @param query raw query to database
-//     * @param args query arguments
-//     * @return cursor of resulting query
-//     */
-//    public Cursor select(String query, String[] args) {
-//        return mDatabase.rawQuery(query, args);
-//    }
-//
-//    /**
-//     * Retrieves cursor of direct query by id
-//     * Don't forget to close the cursor!
-//     * @param entityType type of entity to retrieve
-//     * @param id uuid of entity to retrieve
-//     * @return cursor of resulting query
-//     */
-//    public Cursor get(EntityType entityType, String id) {
-//        return mDatabase.query(entityType.toString(), null, " _id = ?", new String[]{String.valueOf(id)}, null, null, null, null);
-//    }
-//
-//    public Cursor getAccountCursor() {
-//        Log.d("Database query", "getAccountCursor");
-//        return mDatabase.query(EntityType.ACCOUNTS.toString(), null, null, null, null, null, null, null);
-//    }
-//
-//    public Cursor getCurrencyCursor() {
-//        Log.d("Database query", "getCurrencyCursor");
-//        return mDatabase.query(Currency.TABLE_NAME, null, null, null, null, null, null, null);
-//    }
-//
-//    public Cursor getOperationsCursor() {
-//        Log.d("Database query", "getOperationsCursor");
-//        return mDatabase.query(EntityType.OPERATIONS.toString(), null, null, null, null, null, OperationsFields.TIME + " ASC", null);
-//    }
-//
-//    public Cursor getBudgetsCursor() {
-//        Log.d("Database query", "getBudgetsCursor");
-//        return mDatabase.query(EntityType.BUDGETS.toString(), null, null, null, null, null, null, null);
-//    }
-//
-//    public BigDecimal getAmountForBudget(Budget budget, Category category) {
-//        final Cursor sumCounter;
-//        final BigDecimal sum;
-//        if(budget.getCoveredAccount() == null) // all accounts
-//            sumCounter = mDatabase.rawQuery("SELECT SUM(" + OperationsFields.AMOUNT + ") FROM " + EntityType.OPERATIONS + " WHERE " + OperationsFields.CATEGORY + " = ? AND " + OperationsFields.TIME + " BETWEEN ? AND ?", new String[]{category.getId(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime())});
-//        else
-//            sumCounter = mDatabase.rawQuery("SELECT SUM(" + OperationsFields.AMOUNT + ") FROM " + EntityType.OPERATIONS + " WHERE " + OperationsFields.CHARGER + " = ? AND " + OperationsFields.CATEGORY + " = ? AND " + OperationsFields.TIME + " BETWEEN ? AND ?", new String[]{budget.getCoveredAccount().getId(), category.getId(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime())});
-//
-//        if(sumCounter.moveToFirst())
-//            sum = new BigDecimal(sumCounter.getLong(0));
-//        else
-//            sum = BigDecimal.ZERO;
-//
-//        sumCounter.close();
-//
-//        return sum;
-//    }
-//
-//    public Cursor getEntityCursor(EntityType tableName, long id) {
-//        Log.d("Database query", "getOperationsCursor");
-//        return mDatabase.query(tableName.toString(), null, " _id = ?", new String[]{String.valueOf(id)}, null, null, null, null);
-//    }
-//
 //    /**
 //     * Helper method to retrieve dependent entities names
 //     * Useful for spinner adapters
@@ -360,18 +139,6 @@ public class DatabaseDAO /*extends SQLiteOpenHelper*/ {
 //        return filterBuilder.query(mDatabase, new String[]{"t1." + fkColumn, "t2." + nameColumn}, null, null, null, null, null);
 //    }
 //
-//    /**
-//     * Helper method to query entities by one column
-//     * Useful for cases when foreign key is not present in source table
-//     *
-//     * @param tableName table name where IDs reside
-//     * @param column column in table
-//     * @param value value of selected column
-//     * @return
-//     */
-//    public Cursor getCustomCursor(EntityType tableName, String column, String value) {
-//        return mDatabase.query(tableName.toString(), null, column + " = ?", new String[]{value}, null, null, null);
-//    }
 //
 //    public Cursor getOperationsCursor(String filter) {
 //        Log.d("Database filter query", "getOperationsCursor with filter");
@@ -395,155 +162,12 @@ public class DatabaseDAO /*extends SQLiteOpenHelper*/ {
 //        return filterBuilder.query(mDatabase, new String[]{"op.*"}, null, new String[] {"%" + filter + "%"}, null, null, null);
 //    }
 //
-//    public Cursor getCategoryCursor(int type) {
-//        Log.d("Database query", "getCategoryCursorWithType");
-//        return mDatabase.query(EntityType.CATEGORIES.toString(), null, CategoriesFields.TYPE + " = ?", new String[]{String.valueOf(type)}, null, null, CategoriesFields.NAME + " ASC", null);
-//    }
-//
-//    @SuppressWarnings("unchecked")
-//    private void notifyListeners(String table) {
-//        // notify listeners that are subscribed to all events
-//        if(listenerMap.containsKey(DatabaseListener.ANY_TABLE)) {
-//            final ArrayList<DatabaseListener> shadow = (ArrayList<DatabaseListener>) listenerMap.get(DatabaseListener.ANY_TABLE).clone();
-//            for (final DatabaseListener listener : shadow)
-//                listener.handleUpdate();
-//        }
-//
-//        if(listenerMap.containsKey(table)) {
-//            final ArrayList<DatabaseListener> shadow = (ArrayList<DatabaseListener>) listenerMap.get(table).clone();
-//            for (final DatabaseListener listener : shadow)
-//                listener.handleUpdate();
-//        }
-//    }
-//
-//    public long addCurrency(Currency curr) {
-//        Log.d("Currency special", "addCurrency: " + curr);
-//        final ContentValues values = new ContentValues(3);
-//        values.put(CurrenciesFields.CODE.toString(), curr.getDescription());
-//        if(curr.getDescription() != null)
-//            values.put(CurrenciesFields.DESCRIPTION.toString(), curr.getDescription());
-//        if(curr.getUsedIn() != null)
-//            values.put(CurrenciesFields.USED_IN.toString(), curr.getUsedIn());
-//
-//        return mDatabase.insert(Currency.TABLE_NAME, null, values);
-//    }
-//
-//    public Currency getCurrency(String code) {
-//        Log.d("Currency special", "getCurrency: " + code);
-//        final Cursor cursor = mDatabase.query(Currency.TABLE_NAME, null, CurrenciesFields.CODE + " = ?", new String[]{code}, null, null, null, null);
-//
-//        if (cursor.moveToNext()) {
-//            final Currency result = new Currency(cursor.getString(0), cursor.getString(1), cursor.getString(2));
-//            cursor.close();
-//            return result;
-//        }
-//
-//        cursor.close();
-//        return null;
-//    }
-//
-//    public static class AsyncDbQuery<T> extends AsyncTask<Callable<T>, Void, T> {
-//        private final Listener<T> listener;
-//
-//        protected AsyncDbQuery(Listener<T> listener) {
-//            this.listener = listener;
-//        }
-//
-//        public interface Listener<T> {
-//            void onFinishLoad(T what);
-//        }
-//
-//        @Override
-//        @SafeVarargs
-//        final protected T doInBackground(Callable<T>... params) {
-//            try {
-//                return params[0].call();
-//            } catch (Exception e) {
-//                // should not happen!
-//                throw new RuntimeException(e);
-//            }
-//        }
-//
-//        @Override
-//        protected void onPostExecute(T t) {
-//            super.onPostExecute(t);
-//            listener.onFinishLoad(t);
-//        }
-//    }
-//
-//    @SuppressWarnings("unchecked")
-//    public void getAsyncOperation(final String id, AsyncDbQuery.Listener<Operation> lst) {
-//        new AsyncDbQuery<>(lst).execute(new Callable<Operation>() {
-//            @Override
-//            public Operation call() throws Exception {
-//                return Operation.getFromDB(id);
-//            }
-//        });
-//    }
-//
-//    /**
-//     * Call this in need of explicitly selecting operation from DB to have up-to-date values such when
-//     * reapplying operation
-//     * @param id id of operation to revert
-//     * @return success or failure
-//     */
-//    public boolean revertOperation(String id) {
-//        return revertOperation(Operation.getFromDB(id));
-//    }
-//
-//    /**
-//     * We have locally modified entity in one action only
-//     * @param entity entity that should be found in action list
-//     * @param <T> type of entity to be found
-//     * @return found entity with modification type or null if nothing was found
-//     */
-//    @SuppressWarnings("unchecked")
-//    public <T extends Entity> T getBackedVersion(T entity) {
-//        final Cursor actionCursor = mDatabase.query(ACTIONS_TABLE_NAME,
-//                new String[]{ActionsFields.ORIGINAL_DATA.toString()},
-//                ActionsFields.DATA_ID + " = ? AND " + ActionsFields.DATA_TYPE + " = ?",
-//                new String[]{String.valueOf(entity.getId()), String.valueOf(entity.getEntityType().ordinal())}, null, null, null);
-//        if(actionCursor.moveToNext()) {
-//            final String json = actionCursor.getString(0);
-//            final Entity modifiedEntity = new Gson().fromJson(json, entity.getClass());
-//            return (T) modifiedEntity;
-//        }
-//
-//        return null;
-//    }
-//
-//    /**
-//     * Select all entities that are known to client
-//     * Note that entities added on device are not in this list
-//     * @return list of known entities IDs
-//     */
-//    public <T extends Entity> List<String> getKnownIDs(Class<T> clazz) {
-//        final List<String> result = new ArrayList<>();
-//        final EntityType type = clazz.getAnnotation(EntityDescriptor.class).type();
-//        final Cursor selections = select(
-//                "SELECT " + OperationsFields._id +
-//                " FROM " + type.toString() +
-//                " WHERE " + OperationsFields._id + " NOT IN (" +
-//                    "SELECT " + ActionsFields.DATA_ID +
-//                    " FROM " + ACTIONS_TABLE_NAME +
-//                    " WHERE " + ActionsFields.DATA_TYPE + " = " + type.ordinal() +
-//                    " AND " + ActionsFields.ORIGINAL_DATA + " IS NULL" + // not in added entities
-//                    ")" +
-//                " UNION ALL " + // we also know about deleted entities, so we should add them
-//                "SELECT " + ActionsFields.DATA_ID +
-//                " FROM " + ACTIONS_TABLE_NAME +
-//                " WHERE " + ActionsFields.DATA_TYPE + " = " + type.ordinal() +
-//                " AND " + ActionsFields.DATA_ID + " NOT IN (" +
-//                    "SELECT " + OperationsFields._id +
-//                    " FROM " + type.toString() + // these are deleted entities - present in backup table but not exist in real entities table
-//                    ")"
-//                , null);
-//        while (selections.moveToNext())
-//            result.add(selections.getString(0));
-//        selections.close();
-//        return result;
-//    }
-//
+
+    public static <T extends Entity> long getLastServerTimestamp(Class<T> clazz) throws SQLException {
+        String tableName = clazz.getAnnotation(DatabaseTable.class).tableName();
+        return DbProvider.getHelper().getEntityDao(clazz).queryRawValue("select ifnull(timestamp, 0) from" + tableName + "order by timestamp desc limit 1");
+    }
+
 //    /**
 //     * Select all entities that are added locally and not yet synchronized with remote database
 //     * @return list of entities of specified class that were added locally
@@ -619,20 +243,5 @@ public class DatabaseDAO /*extends SQLiteOpenHelper*/ {
 //        return result;
 //    }
 //
-//    public int clearActions() {
-//        return mDatabase.delete(ACTIONS_TABLE_NAME, "1", null);
-//    }
-//
-//    public void beginTransaction() {
-//        mDatabase.beginTransaction();
-//    }
-//
-//    public void endTransaction() {
-//        mDatabase.endTransaction();
-//    }
-//
-//    public void setTransactionSuccessful() {
-//        mDatabase.setTransactionSuccessful();
-//    }
 }
 

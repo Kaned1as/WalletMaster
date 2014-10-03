@@ -14,7 +14,7 @@ public class Entity {
     @DatabaseField(columnName = "_id", generatedId = true)
     private UUID id;
 
-    @DatabaseField(canBeNull = true, dataType = DataType.DATE_LONG)
+    @DatabaseField(columnName = "last_modified", canBeNull = true, dataType = DataType.DATE_LONG)
     private Date lastModified;
 
     @DatabaseField

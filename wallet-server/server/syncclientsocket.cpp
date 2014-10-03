@@ -282,13 +282,13 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
     switch(state)
     {
         case WAITING_ACCOUNTS:
-            selectSyncedEntities.prepare("SELECT id, name, description, currency, amount, color, last_modified FROM accounts WHERE sync_account = :userId");
+        selectSyncedEntities.prepare("SELECT id, name, description, currency, amount, color, last_modified, deleted FROM accounts WHERE sync_account = :userId AND last_modified > :lastModified");
             break;
         case WAITING_CATEGORIES:
-            selectSyncedEntities.prepare("SELECT id, name, type, preferred_account_id, last_modified FROM categories WHERE sync_account = :userId");
+        selectSyncedEntities.prepare("SELECT id, name, type, preferred_account_id, last_modified, deleted FROM categories WHERE sync_account = :userId AND last_modified > :lastModified");
             break;
         case WAITING_OPERATIONS:
-            selectSyncedEntities.prepare("SELECT id, description, amount, category_id, time, charger_id, beneficiar_id, converting_rate, last_modified FROM operations WHERE sync_account = :userId");
+        selectSyncedEntities.prepare("SELECT id, description, amount, category_id, time, orderer_id, beneficiar_id, converting_rate, last_modified, deleted FROM operations WHERE sync_account = :userId AND last_modified > :lastModified");
             break;
         default:
             qDebug() << tr("Unknown entity type processing!");
@@ -296,6 +296,7 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
             return response;
     }
     selectSyncedEntities.bindValue(":userId", userId);
+    selectSyncedEntities.bindValue(":lastModified", static_cast<quint64>(request.lastknownservertimestamp()));
 
     if(!selectSyncedEntities.exec())
     {
@@ -304,87 +305,56 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
         return response; // empty response
     }
 
-    QList<QString> knownIds;
-    knownIds.reserve(request.knownid_size());
-    for(std::string known : request.knownid())
-        knownIds.append(QString(known.data()));
-
-    while(selectSyncedEntities.next())
+    while(selectSyncedEntities.next()) // iterate over all the modified entities
     {
-        const QString currentId = selectSyncedEntities.value("id").toString();
-        EntityState entityState = EQUAL;
-        // check whether we need any processing
-        if(knownIds.contains(currentId)) // we have this entity on device already, should detect, if entity was modified
-        {
-            knownIds.removeOne(currentId); // we have it on server and client, remove it
-            const quint64 serverLastModified = selectSyncedEntities.value("last_modified").toDateTime().toMSecsSinceEpoch();
-            if(request.lastknownservertimestamp() > serverLastModified)
-                continue;
-            else
-                entityState = MODIFIED; // we have old copy on our device, need to update (or merge!)
-
-        }
-        else // we don't have this entity on device
-            entityState = ADDED;
-
+        sync::Entity * const entity = response.add_modified();
+        entity->set_id(selectSyncedEntities.value("id").toString().toStdString());
+        entity->set_deleted(selectSyncedEntities.value("deleted").toBool());
         switch(state)
         {
-            case WAITING_ACCOUNTS:
-            {
-                sync::Account* const account = entityState == ADDED
-                    ? response.add_added()->mutable_account()
-                    : response.add_modified()->mutable_account();
-                account->set_id(selectSyncedEntities.value("id").toString().toStdString());
-                account->set_name(selectSyncedEntities.value("name").toString().toStdString());
-                if(!selectSyncedEntities.value("description").isNull())
-                    account->set_description(selectSyncedEntities.value("description").toString().toStdString());
-                account->set_currency(selectSyncedEntities.value("currency").toString().toStdString());
-                account->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
-                account->set_color(selectSyncedEntities.value("color").toInt());
-                break;
-            }
-            case WAITING_CATEGORIES:
-            {
-                sync::Category* const category = entityState == ADDED
-                        ? response.add_added()->mutable_category()
-                        : response.add_modified()->mutable_category();
-                category->set_id(selectSyncedEntities.value("id").toString().toStdString());
-                category->set_name(selectSyncedEntities.value("name").toString().toStdString());
-                category->set_type(selectSyncedEntities.value("type").toInt());
-                if(!selectSyncedEntities.value("preferred_account_id").isNull())
-                    category->set_preferredaccount(selectSyncedEntities.value("preferred_account_id").toString().toStdString());
-                break;
-            }
-            case WAITING_OPERATIONS:
-            {
-                sync::Operation* const operation = entityState == ADDED
-                    ? response.add_added()->mutable_operation()
-                    : response.add_modified()->mutable_operation();
-                operation->set_id(selectSyncedEntities.value("id").toString().toStdString());
-                if(!selectSyncedEntities.value("description").isNull())
-                    operation->set_description(selectSyncedEntities.value("description").toString().toStdString());
-                operation->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
-                operation->set_time(selectSyncedEntities.value("time").toDateTime().toMSecsSinceEpoch());
-                operation->set_categoryid(selectSyncedEntities.value("category_id").toString().toStdString());
-                if(!selectSyncedEntities.value("charger_id").isNull())
-                    operation->set_chargerid(selectSyncedEntities.value("charger_id").toString().toStdString());
-                if(!selectSyncedEntities.value("beneficiar_id").isNull())
-                    operation->set_beneficiarid(selectSyncedEntities.value("beneficiar_id").toString().toStdString());
-                if(!selectSyncedEntities.value("converting_rate").isNull())
-                    operation->set_convertingrate(selectSyncedEntities.value("converting_rate").toDouble());
-                operation->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
-                break;
-            }
-            default:
-                qDebug() << tr("Unknown entity type processing!");
-                interruptProcessing();
-                return response;
+        case WAITING_ACCOUNTS:
+        {
+            sync::Account* const account = entity->mutable_account();
+            account->set_name(selectSyncedEntities.value("name").toString().toStdString());
+            if(!selectSyncedEntities.value("description").isNull())
+                account->set_description(selectSyncedEntities.value("description").toString().toStdString());
+            account->set_currency(selectSyncedEntities.value("currency").toString().toStdString());
+            account->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
+            account->set_color(selectSyncedEntities.value("color").toInt());
+            break;
+        }
+        case WAITING_CATEGORIES:
+        {
+            sync::Category* const category = entity->mutable_category();
+            category->set_name(selectSyncedEntities.value("name").toString().toStdString());
+            category->set_type(selectSyncedEntities.value("type").toInt());
+            if(!selectSyncedEntities.value("preferred_account_id").isNull())
+                category->set_preferredaccount(selectSyncedEntities.value("preferred_account_id").toString().toStdString());
+            break;
+        }
+        case WAITING_OPERATIONS:
+        {
+            sync::Operation* const operation = entity->mutable_operation();
+            if(!selectSyncedEntities.value("description").isNull())
+                operation->set_description(selectSyncedEntities.value("description").toString().toStdString());
+            operation->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
+            operation->set_time(selectSyncedEntities.value("time").toDateTime().toMSecsSinceEpoch());
+            operation->set_categoryid(selectSyncedEntities.value("category_id").toString().toStdString());
+            if(!selectSyncedEntities.value("charger_id").isNull())
+                operation->set_ordererid(selectSyncedEntities.value("orderer_id").toString().toStdString());
+            if(!selectSyncedEntities.value("beneficiar_id").isNull())
+                operation->set_beneficiarid(selectSyncedEntities.value("beneficiar_id").toString().toStdString());
+            if(!selectSyncedEntities.value("converting_rate").isNull())
+                operation->set_convertingrate(selectSyncedEntities.value("converting_rate").toDouble());
+            operation->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
+            break;
+        }
+        default:
+            qDebug() << tr("Unknown entity type processing!");
+            interruptProcessing();
+            return response;
         }
     }
-
-    // remaining entities are deleted on server, and so, should be returned to device being marked for deletion
-    for(QString delId : knownIds)
-        response.add_deletedid(delId.toStdString());
 
     return response;
 }

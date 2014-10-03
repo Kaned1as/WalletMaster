@@ -22,13 +22,13 @@ public class BudgetItem extends Entity {
         this.parentBudget = parentBudget;
     }
 
-    @DatabaseField(canBeNull = false, foreign = true)
+    @DatabaseField(columnName = "parent_budget", canBeNull = false, foreign = true)
     private Budget parentBudget;
 
     @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
     private Category category;
 
-    @DatabaseField
+    @DatabaseField(columnName = "max_amount")
     private BigDecimal maxAmount;
 
     public Budget getParentBudget() {

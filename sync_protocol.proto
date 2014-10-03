@@ -26,13 +26,10 @@ message SyncResponse {
 
 message EntityRequest {
     required uint64 lastKnownServerTimestamp = 1; // known to client last server revision
-    repeated string knownID = 2; // known to client server IDs to detect deletions and modifications
 }
 
 message EntityResponse {
-    repeated string deletedID = 1; // entities deleted on server/client
-    repeated Entity added = 2; // entities added on server/client
-    repeated Entity modified = 3; // entities modified on server/client
+    repeated Entity modified = 1; // entities modified on server/client
 }
 
 message EntityAck {
@@ -40,41 +37,41 @@ message EntityAck {
 }
 
 message Entity {
-    optional Account account = 1;
-    optional Operation operation = 2;
-    optional Category category = 3;
-    optional Budget budget = 4;
+    required string ID = 1;
+    required uint64 lastModified = 2;
+    required bool deleted = 3;
+
+    optional Account account = 4;
+    optional Operation operation = 5;
+    optional Category category = 6;
+    optional Budget budget = 7;
 }
 
 message Account { // root, independent
-    required string ID = 1;
     required string name = 2;
-    optional string description = 3;
-    required string currency = 4;
-    required string amount = 5; // BigDecimal for Java
+    required string currency = 3;
+    required string amount = 4; // BigDecimal for Java
+    optional string description = 5;
     optional int32 color = 6;
 }
 
 message Operation { // depends on accounts and categories
-    required string ID = 1;
-    optional string description = 2;
-    required uint64 time = 3;
-    optional string chargerId = 4;
-    optional string beneficiarId = 5;
-    required string amount = 6;
-    optional double convertingRate = 7;
-    required string categoryId = 8;
+    required uint64 time = 2;
+    required string categoryId = 3;
+    required string amount = 4;
+    optional string description = 5;
+    optional string ordererId = 6;
+    optional string beneficiarId = 7;
+    optional double convertingRate = 8;
 }
 
 message Category { // depends on accounts
-    required string ID = 1;
     required string name = 2;
     required uint32 type = 3;
     optional string preferredAccount = 4;
 }
 
 message Budget { // depends on accounts
-    required string ID = 1;
     required string name = 2;
     required uint64 from = 3; // start time
     required string till = 4; // end time
@@ -83,7 +80,6 @@ message Budget { // depends on accounts
 }
 
 message BudgetItem { // depends on budgets and categories
-    required string ID = 1;
     required string parentBudgetId = 2;
 
     required string categoryId = 3;

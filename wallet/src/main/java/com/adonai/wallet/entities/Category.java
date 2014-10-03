@@ -42,7 +42,7 @@ public class Category extends Entity {
     @DatabaseField(canBeNull = false)
     private CategoryType type;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true)
+    @DatabaseField(columnName = "preferred_account", foreign = true, foreignAutoRefresh = true)
     private Account preferredAccount;
 
     public Category() {

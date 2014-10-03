@@ -58,7 +58,7 @@ public class Operation extends Entity {
     @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Account beneficiar;
 
-    @DatabaseField
+    @DatabaseField(columnName = "converting_rate")
     private BigDecimal convertingRate;
 
     public Operation() {
@@ -138,8 +138,8 @@ public class Operation extends Entity {
         temp.setDescription(operation.getDescription());
         temp.setCategory(DbProvider.getHelper().getCategoryDao().queryForId(UUID.fromString(operation.getCategoryId())));
         temp.setTime(new Date(operation.getTime()));
-        if(operation.hasChargerId())
-            temp.setOrderer(DbProvider.getHelper().getAccountDao().queryForId(UUID.fromString(operation.getChargerId())));
+        if(operation.hasOrdererId())
+            temp.setOrderer(DbProvider.getHelper().getAccountDao().queryForId(UUID.fromString(operation.getOrdererId())));
         if(operation.hasBeneficiarId())
             temp.setBeneficiar(DbProvider.getHelper().getAccountDao().queryForId(UUID.fromString(operation.getBeneficiarId())));
         temp.setAmount(new BigDecimal(operation.getAmount()));
@@ -156,7 +156,7 @@ public class Operation extends Entity {
                 .setTime(operation.getTime().getTime())
                 .setCategoryId(operation.getCategory().getId().toString());
         if(operation.getOrderer() != null)
-            builder.setChargerId(operation.getOrderer().getId().toString());
+            builder.setOrdererId(operation.getOrderer().getId().toString());
         if(operation.getBeneficiar() != null)
             builder.setBeneficiarId(operation.getBeneficiar().getId().toString());
         if(operation.getConvertingRate() != null)

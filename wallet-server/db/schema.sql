@@ -31,6 +31,7 @@ CREATE TABLE `accounts` (
   `amount` varchar(45) NOT NULL COMMENT 'amount of synced account - equals amount in client DB',
   `color` int(11) DEFAULT NULL COMMENT 'color of synced account - equals color in client DB',
   `last_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` boolean NOT NULL DEFAULT FALSE COMMENT 'mark of deleted entity for indicating to clients',
   PRIMARY KEY (`id`,`sync_account`),
   KEY `account_idx` (`sync_account`),
   CONSTRAINT `account` FOREIGN KEY (`sync_account`) REFERENCES `sync_accounts` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
@@ -51,6 +52,7 @@ CREATE TABLE `categories` (
   `type` int(11) NOT NULL,
   `preferred_account_id` varchar(45) DEFAULT NULL,
   `last_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` boolean NOT NULL DEFAULT FALSE COMMENT 'mark of deleted entity for indicating to clients',
   PRIMARY KEY (`id`,`sync_account`),
   KEY `preferred_account_fk_idx` (`preferred_account_id`),
   CONSTRAINT `preferred_account_fk` FOREIGN KEY (`preferred_account_id`) REFERENCES `accounts` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -71,17 +73,18 @@ CREATE TABLE `operations` (
   `amount` varchar(45) NOT NULL,
   `category_id` varchar(45) NOT NULL,
   `time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `charger_id` varchar(45) DEFAULT NULL,
+  `orderer_id` varchar(45) DEFAULT NULL,
   `beneficiar_id` varchar(45) DEFAULT NULL,
   `converting_rate` double DEFAULT NULL,
   `last_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` boolean NOT NULL DEFAULT FALSE COMMENT 'mark of deleted entity for indicating to clients',
   PRIMARY KEY (`id`,`sync_account`),
-  KEY `charger_idx` (`charger_id`),
+  KEY `orderer_idx` (`orderer_id`),
   KEY `beneficiar_idx` (`beneficiar_id`),
   KEY `categories_fk_idx` (`category_id`),
   CONSTRAINT `categories_fk` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `beneficiar_fk` FOREIGN KEY (`beneficiar_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `charger_fk` FOREIGN KEY (`charger_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `charger_fk` FOREIGN KEY (`orderer_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

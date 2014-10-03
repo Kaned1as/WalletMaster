@@ -18,16 +18,16 @@ public class Budget extends Entity {
     @DatabaseField(canBeNull = false)
     private String name;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true)
+    @DatabaseField(columnName = "covered_account", foreign = true, foreignAutoRefresh = true)
     private Account coveredAccount;
 
     @ForeignCollectionField
     private ForeignCollection<BudgetItem> content;
 
-    @DatabaseField(canBeNull = false, dataType = DataType.DATE_LONG)
+    @DatabaseField(columnName = "start_time", canBeNull = false, dataType = DataType.DATE_LONG)
     private Date startTime;
 
-    @DatabaseField(canBeNull = false, dataType = DataType.DATE_LONG)
+    @DatabaseField(columnName = "end_time", canBeNull = false, dataType = DataType.DATE_LONG)
     private Date endTime;
 
     public String getName() {

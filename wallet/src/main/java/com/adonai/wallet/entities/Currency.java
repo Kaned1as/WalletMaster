@@ -25,7 +25,7 @@ public class Currency {
     @DatabaseField
     private String description;
 
-    @DatabaseField
+    @DatabaseField(columnName = "used_in")
     private String usedIn;
 
     public Currency() {

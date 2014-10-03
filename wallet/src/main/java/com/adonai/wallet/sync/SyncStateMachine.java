@@ -7,6 +7,7 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.preference.PreferenceManager;
 
+import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.WalletConstants;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.List;
 
 import static com.adonai.wallet.sync.SyncProtocol.SyncRequest;
@@ -162,7 +164,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
             final State state = State.values()[msg.what];
             try {
                 switch (state) {
-                    /*case AUTH: { // at this state, account should be already configured and accessible from preferences!
+                    case AUTH: { // at this state, account should be already configured and accessible from preferences!
                         if (!mPreferences.contains(WalletConstants.ACCOUNT_NAME_KEY))
                             throw new RuntimeException("No account configured! Can't sync!"); // shouldn't happen
                         start();
@@ -178,7 +180,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         final InputStream is = mSocket.getInputStream();
                         final OutputStream os = mSocket.getOutputStream();
 
-                        sendKnownEntities(os, Account.class);
+                        sendLastTimestamp(os, Account.class);
                         setState(State.ACC_REQ_SENT);
 
                         final SyncProtocol.EntityResponse serverSide = SyncProtocol.EntityResponse.parseDelimitedFrom(is);
@@ -233,11 +235,11 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         setState(State.CAT_REQ);
                         break;
                     }
-                    case CAT_REQ: {
+                    /*case CAT_REQ: {
                         final InputStream is = mSocket.getInputStream();
                         final OutputStream os = mSocket.getOutputStream();
 
-                        sendKnownEntities(os, Category.class);
+                        sendLastTimestamp(os, Category.class);
                         setState(State.CAT_REQ_SENT);
 
                         final SyncProtocol.EntityResponse serverSide = SyncProtocol.EntityResponse.parseDelimitedFrom(is);
@@ -294,7 +296,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         final InputStream is = mSocket.getInputStream();
                         final OutputStream os = mSocket.getOutputStream();
 
-                        sendKnownEntities(os, Operation.class);
+                        sendLastTimestamp(os, Operation.class);
                         setState(State.OP_REQ_SENT);
 
                         final SyncProtocol.EntityResponse serverSide = SyncProtocol.EntityResponse.parseDelimitedFrom(is);
@@ -380,14 +382,12 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                 } catch (IOException e) { throw new RuntimeException(e); } // should not happen*/
         }
 
-        private void sendKnownEntities(OutputStream os, Class<? extends Entity> clazz) throws IOException {
-            /*final Long lastServerTime = mPreferences.getLong(WalletConstants.ACCOUNT_LAST_SYNC, 0);
-            final List<String> knownIDs = DatabaseDAO.getInstance().getKnownIDs(clazz);
+        private void sendLastTimestamp(OutputStream os, Class<? extends Entity> clazz) throws IOException, SQLException {
+            final Long lastServerTime = DatabaseDAO.getLastServerTimestamp(clazz);
 
             SyncProtocol.EntityRequest.newBuilder()
                     .setLastKnownServerTimestamp(lastServerTime)
-                    .addAllKnownID(knownIDs)
-                    .build().writeDelimitedTo(os); // sent account request*/
+                    .build().writeDelimitedTo(os); // sent request
         }
 
         private void handleAuthResponse(InputStream is) throws IOException {
