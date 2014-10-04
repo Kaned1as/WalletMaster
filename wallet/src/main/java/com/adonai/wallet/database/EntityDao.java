@@ -34,7 +34,7 @@ public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
     public int create(T data) throws SQLException {
         int result;
         data.setDeleted(false);
-        data.setDirty(false);
+        data.setBackup(null);
         result = super.create(data);
         mObservable.notifyObservers();
         return result;
@@ -45,8 +45,10 @@ public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
         int result;
         if(data.getLastModified() == null) { // never been synced, safe to update
             result = super.update(data);
-        } else {                             // exists on the server side, set dirty
-            data.setDirty(true);
+        } else {                             // exists on the server side, set dirty (if not already)
+            T base = queryForSameId(data);
+            if(!base.isDirty())              // we have backed up version, no need to update it (as it's purpose is to keep original)
+                data.setBackup(base);
             result = super.update(data);
         }
         mObservable.notifyObservers();
@@ -59,6 +61,9 @@ public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
         if(data.getLastModified() == null) { // never been synced, safe to delete
             result = super.delete(data);
         } else {                             // exists on the server side, set deleted
+            T base = queryForSameId(data);
+            if(!base.isDirty())              // we have backed up version, no need to update it (as it's purpose is to keep original)
+                data.setBackup(base);
             data.setDeleted(true);
             result = super.update(data);
         }
@@ -73,6 +78,9 @@ public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
         if(data.getLastModified() == null) { // never been synced, safe to delete
             result = super.deleteById(uuid);
         } else {                             // exists on the server side, set deleted
+            T base = queryForSameId(data);
+            if(!base.isDirty())              // we have backed up version, no need to update it (as it's purpose is to keep original)
+                data.setBackup(base);
             data.setDeleted(true);
             result = super.update(data);
         }
@@ -80,8 +88,36 @@ public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
         return result;
     }
 
-    public int deleteByServer(T data) throws SQLException { // entity should be deleted on client as on server
-        return super.delete(data);
+    public int deleteByServer(T data) { // entity should be deleted on client as on server
+        try {
+            int result = super.delete(data);
+            mObservable.notifyObservers();
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int createByServer(T data) {
+        try {
+            data.setBackup(null);
+            int result = super.create(data);
+            mObservable.notifyObservers();
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int updateByServer(T data) {
+        try {
+            data.setBackup(null);
+            int result = super.update(data);
+            mObservable.notifyObservers();
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private class DbNotifier extends Observable<UUIDCursorAdapter<T>> {

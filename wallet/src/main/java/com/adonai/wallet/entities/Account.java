@@ -6,6 +6,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -85,25 +86,35 @@ public class Account extends Entity {
         this.color = color;
     }
 
-    public static Account fromProtoAccount(SyncProtocol.Account account) {
+    public static Account fromProtoEntity(SyncProtocol.Entity entity) {
         final Account temp = new Account();
-        temp.setId(UUID.fromString(account.getID()));
-        temp.setName(account.getName());
-        temp.setAmount(new BigDecimal(account.getAmount()));
-        temp.setColor(account.getColor());
-        temp.setDescription(account.getDescription());
-        temp.setCurrency(new Currency(account.getCurrency()));
+        temp.setId(UUID.fromString(entity.getID()));
+        temp.setDeleted(entity.getDeleted());
+        temp.setLastModified(new Date(entity.getLastModified()));
+
+        temp.setName(entity.getAccount().getName());
+        temp.setAmount(new BigDecimal(entity.getAccount().getAmount()));
+        temp.setColor(entity.getAccount().getColor());
+        temp.setDescription(entity.getAccount().getDescription());
+        temp.setCurrency(new Currency(entity.getAccount().getCurrency()));
         return temp;
     }
 
-    public static SyncProtocol.Account toProtoAccount(Account account) {
-        return SyncProtocol.Account.newBuilder()
-                .setID(account.getId().toString())
-                .setName(account.getName())
-                .setAmount(account.getAmount().toPlainString())
-                .setColor(account.getColor())
-                .setDescription(account.getDescription())
-                .setCurrency(account.getCurrency().getCode())
+    public SyncProtocol.Entity toProtoEntity() {
+        SyncProtocol.Account acc = SyncProtocol.Account.newBuilder()
+                .setName(getName())
+                .setAmount(getAmount().toPlainString())
+                .setColor(getColor())
+                .setDescription(getDescription())
+                .setCurrency(getCurrency().getCode())
                 .build();
+
+        return SyncProtocol.Entity.newBuilder()
+                .setID(getId().toString())
+                .setDeleted(isDeleted())
+                .setLastModified(getLastModified().getTime())
+                .setAccount(acc)
+                .build();
+
     }
 }

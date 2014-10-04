@@ -28,10 +28,14 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
     protected Context mContext;
 
     public UUIDCursorAdapter(Context context, EntityDao<T> dao) {
-        mDao = dao;
-        mContext = context;
-        mDao.registerObserver(this);
-        mCursor = mDao.iterator();
+        try {
+            mDao = dao;
+            mContext = context;
+            mDao.registerObserver(this);
+            mCursor = mDao.queryBuilder().where().eq("deleted", false).iterator();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

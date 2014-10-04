@@ -132,37 +132,46 @@ public class Operation extends Entity {
             return getAmount();
     }
 
-    public static Operation fromProtoOperation(SyncProtocol.Operation operation) throws SQLException {
+    public static Operation fromProtoEntity(SyncProtocol.Entity entity) throws SQLException {
         final Operation temp = new Operation();
-        temp.setId(UUID.fromString(operation.getID()));
-        temp.setDescription(operation.getDescription());
-        temp.setCategory(DbProvider.getHelper().getCategoryDao().queryForId(UUID.fromString(operation.getCategoryId())));
-        temp.setTime(new Date(operation.getTime()));
-        if(operation.hasOrdererId())
-            temp.setOrderer(DbProvider.getHelper().getAccountDao().queryForId(UUID.fromString(operation.getOrdererId())));
-        if(operation.hasBeneficiarId())
-            temp.setBeneficiar(DbProvider.getHelper().getAccountDao().queryForId(UUID.fromString(operation.getBeneficiarId())));
-        temp.setAmount(new BigDecimal(operation.getAmount()));
-        if(operation.hasConvertingRate())
-            temp.setConvertingRate(BigDecimal.valueOf(operation.getConvertingRate()));
+        temp.setId(UUID.fromString(entity.getID()));
+        temp.setDeleted(entity.getDeleted());
+        temp.setLastModified(new Date(entity.getLastModified()));
+
+        temp.setDescription(entity.getOperation().getDescription());
+        temp.setCategory(DbProvider.getHelper().getCategoryDao().queryForId(UUID.fromString(entity.getOperation().getCategoryId())));
+        temp.setTime(new Date(entity.getOperation().getTime()));
+        if(entity.getOperation().hasOrdererId())
+            temp.setOrderer(DbProvider.getHelper().getAccountDao().queryForId(UUID.fromString(entity.getOperation().getOrdererId())));
+        if(entity.getOperation().hasBeneficiarId())
+            temp.setBeneficiar(DbProvider.getHelper().getAccountDao().queryForId(UUID.fromString(entity.getOperation().getBeneficiarId())));
+        temp.setAmount(new BigDecimal(entity.getOperation().getAmount()));
+        if(entity.getOperation().hasConvertingRate())
+            temp.setConvertingRate(BigDecimal.valueOf(entity.getOperation().getConvertingRate()));
         return temp;
     }
 
-    public static SyncProtocol.Operation toProtoOperation(Operation operation) {
+    public SyncProtocol.Entity toProtoOperation() {
         final SyncProtocol.Operation.Builder builder = SyncProtocol.Operation.newBuilder()
-                .setID(operation.getId().toString())
-                .setDescription(operation.getDescription())
-                .setAmount(operation.getAmount().toPlainString())
-                .setTime(operation.getTime().getTime())
-                .setCategoryId(operation.getCategory().getId().toString());
-        if(operation.getOrderer() != null)
-            builder.setOrdererId(operation.getOrderer().getId().toString());
-        if(operation.getBeneficiar() != null)
-            builder.setBeneficiarId(operation.getBeneficiar().getId().toString());
-        if(operation.getConvertingRate() != null)
-            builder.setConvertingRate(operation.getConvertingRate().doubleValue());
+                .setDescription(getDescription())
+                .setAmount(getAmount().toPlainString())
+                .setTime(getTime().getTime())
+                .setCategoryId(getCategory().getId().toString());
+        if(getOrderer() != null)
+            builder.setOrdererId(getOrderer().getId().toString());
+        if(getBeneficiar() != null)
+            builder.setBeneficiarId(getBeneficiar().getId().toString());
+        if(getConvertingRate() != null)
+            builder.setConvertingRate(getConvertingRate().doubleValue());
 
-        return builder.build();
+        SyncProtocol.Operation op = builder.build();
+
+        return SyncProtocol.Entity.newBuilder()
+                .setID(getId().toString())
+                .setDeleted(isDeleted())
+                .setLastModified(getLastModified().getTime())
+                .setOperation(op)
+                .build();
     }
 
     /**

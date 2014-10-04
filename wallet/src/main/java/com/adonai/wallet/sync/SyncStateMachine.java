@@ -11,6 +11,7 @@ import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.WalletConstants;
+import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Entity;
 
@@ -186,48 +187,21 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         final SyncProtocol.EntityResponse serverSide = SyncProtocol.EntityResponse.parseDelimitedFrom(is);
                         setState(State.ACC_REQ_ACK);
 
-                        final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
-                        final List<String> deletedLocally = db.getDeleted(Account.class);
-
                         // handle modified entities - check if we updated them too...
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
-                            final Account remote = Account.fromProtoAccount(entity.getAccount());
-                            final Account changed = Account.getFromDB(remote.getId()); // should not be null
-                            final Account base = db.getBackedVersion(remote);
-                            if(base == null) // we have not modified this entity locally
-                                remote.update();
-                            else if (changed == null) // it's modified on server and deleted locally
-                                continue; // leave deleted
-                            else { // changed and base are present, merge them + add to mod-list later
-                                final Account result = mergeAccounts(remote, changed, base);
-                                result.update();
+                            final Account remote = Account.fromProtoEntity(entity);
+                            final Account local = DbProvider.getHelper().getAccountDao().queryForId(remote.getId());
+                            if(local == null) // not found on client, but exists remotely, should create on client
+                                DbProvider.getHelper().getEntityDao(Account.class).createByServer(remote);
+                            else if (!local.isDirty()) // updated on server but not on client, replace local with remote
+                                DbProvider.getHelper().getEntityDao(Account.class).updateByServer(remote);
+                            else { // update on server and on client, should resolve conflicts (just take server version for now)
+                                Account merged = mergeAccounts(remote, local, (Account) local.getBackup());
+                                DbProvider.getHelper().getEntityDao(Account.class).update(merged); // do not reset dirty flag
                             }
                         }
-                        // add to modified list local modifications
-                        final List<Account> modifiedLocally = db.getModified(Account.class);
-                        for(final Account acc : modifiedLocally)
-                            serverUpdate.addModified(SyncProtocol.Entity.newBuilder().setAccount(Account.toProtoAccount(acc)).build());
 
-                        // handle added entities
-                        // need to delete all entities and replace it with ours...
-
-                        // add remote
-                        for(final SyncProtocol.Entity entity : serverSide.getAddedList()) {
-                            final Account remote = Account.fromProtoAccount(entity.getAccount());
-                            remote.persist();
-                        }
-                        // re-add locals + add to add-list
-                        final List<Account> addedLocally = db.getAdded(Account.class);
-                        for(final Account acc : addedLocally)
-                            serverUpdate.addAdded(SyncProtocol.Entity.newBuilder().setAccount(Account.toProtoAccount(acc)).build());
-
-
-                        // handle deleted
-                        for(final String deletedID : serverSide.getDeletedIDList())
-                            db.delete(deletedID, DatabaseDAO.EntityType.ACCOUNTS.toString());
-                        // + add to delete list entities that we deleted locally
-                        for(final String deletedLocal : deletedLocally)
-                            serverUpdate.addDeletedID(deletedLocal);
+                        final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
 
                         serverUpdate.build().writeDelimitedTo(os);
 
@@ -427,6 +401,8 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
     private Account mergeAccounts(Account remote, Account local, Account base) {
         final Account result = new Account();
         result.setId(local.getId());
+        result.setDeleted(remote.isDeleted());
+        result.setLastModified(remote.getLastModified());
 
         if(local.getName().equals(base.getName())) // name wasn't changed
             result.setName(remote.getName()); // set name to remote's

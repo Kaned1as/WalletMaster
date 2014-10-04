@@ -7,6 +7,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -77,26 +78,33 @@ public class Category extends Entity {
         this.preferredAccount = preferredAccount;
     }
 
-    public static Category fromProtoCategory(SyncProtocol.Category category) throws SQLException {
+    public static Category fromProtoEntity(SyncProtocol.Entity entity) throws SQLException {
         final Category tempCategory = new Category();
-        tempCategory.setId(UUID.fromString(category.getID()));
-        tempCategory.setName(category.getName());
-        tempCategory.setType(CategoryType.values()[category.getType()]);
-        if(category.hasPreferredAccount())
-            tempCategory.setPreferredAccount(DbProvider.getHelper().getAccountDao().queryForId(UUID.fromString(category.getPreferredAccount())));
+        tempCategory.setId(UUID.fromString(entity.getID()));
+        tempCategory.setDeleted(entity.getDeleted());
+        tempCategory.setLastModified(new Date(entity.getLastModified()));
+
+        tempCategory.setName(entity.getCategory().getName());
+        tempCategory.setType(CategoryType.values()[entity.getCategory().getType()]);
+        if(entity.getCategory().hasPreferredAccount())
+            tempCategory.setPreferredAccount(DbProvider.getHelper().getAccountDao().queryForId(UUID.fromString(entity.getCategory().getPreferredAccount())));
 
         return tempCategory;
     }
 
-    public static SyncProtocol.Category toProtoCategory(Category category) {
+    public SyncProtocol.Entity toProtoEntity() {
         final SyncProtocol.Category.Builder builder = SyncProtocol.Category.newBuilder()
-                .setID(category.getId().toString())
-                .setName(category.getName())
-                .setType(category.getType().ordinal());
+                .setName(getName())
+                .setType(getType().ordinal());
+        if(getPreferredAccount() != null)
+            builder.setPreferredAccount(getPreferredAccount().getId().toString());
+        SyncProtocol.Category cat = builder.build();
 
-        if(category.getPreferredAccount() != null)
-            builder.setPreferredAccount(category.getPreferredAccount().getId().toString());
-
-        return builder.build();
+        return SyncProtocol.Entity.newBuilder()
+                .setID(getId().toString())
+                .setDeleted(isDeleted())
+                .setLastModified(getLastModified().getTime())
+                .setCategory(cat)
+                .build();
     }
 }

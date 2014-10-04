@@ -3,13 +3,14 @@ package com.adonai.wallet.entities;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
 /**
  * Created by adonai on 24.09.14.
  */
-public class Entity {
+public class Entity implements Serializable {
 
     @DatabaseField(columnName = "_id", generatedId = true)
     private UUID id;
@@ -20,8 +21,8 @@ public class Entity {
     @DatabaseField
     private boolean deleted;
 
-    @DatabaseField
-    private boolean dirty; // indicates the synced entity is changed locally or not
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
+    private Entity backup; // indicates the synced entity is changed locally or not
 
     public UUID getId() {
         return id;
@@ -48,10 +49,14 @@ public class Entity {
     }
 
     public boolean isDirty() {
-        return dirty;
+        return backup != null;
     }
 
-    public void setDirty(boolean dirty) {
-        this.dirty = dirty;
+    public Entity getBackup() {
+        return backup;
+    }
+
+    public void setBackup(Entity backup) {
+        this.backup = backup;
     }
 }
