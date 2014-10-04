@@ -118,8 +118,9 @@ void protobuf_AssignDesc_sync_5fprotocol_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(EntityRequest));
   EntityResponse_descriptor_ = file->message_type(3);
-  static const int EntityResponse_offsets_[1] = {
+  static const int EntityResponse_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityResponse, modified_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityResponse, added_),
   };
   EntityResponse_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -341,30 +342,31 @@ void protobuf_AddDesc_sync_5fprotocol_2eproto() {
     "\007SyncAck\022\007\n\002OK\020\310\001\022\023\n\016ACCOUNT_EXISTS\020\222\003\022\017"
     "\n\nAUTH_WRONG\020\223\003\022\024\n\017ALREADY_SYNCING\020\231\003\022\022\n"
     "\rUNKNOWN_ERROR\020\347\007\"1\n\rEntityRequest\022 \n\030la"
-    "stKnownServerTimestamp\030\001 \002(\004\"B\n\016EntityRe"
+    "stKnownServerTimestamp\030\001 \002(\004\"q\n\016EntityRe"
     "sponse\0220\n\010modified\030\001 \003(\0132\036.com.adonai.wa"
-    "llet.sync.Entity\"\'\n\tEntityAck\022\032\n\022newServ"
-    "erTimestamp\030\001 \002(\004\"\207\002\n\006Entity\022\n\n\002ID\030\001 \002(\t"
-    "\022\024\n\014lastModified\030\002 \002(\004\022\017\n\007deleted\030\003 \002(\010\022"
-    "0\n\007account\030\004 \001(\0132\037.com.adonai.wallet.syn"
-    "c.Account\0224\n\toperation\030\005 \001(\0132!.com.adona"
-    "i.wallet.sync.Operation\0222\n\010category\030\006 \001("
-    "\0132 .com.adonai.wallet.sync.Category\022.\n\006b"
-    "udget\030\007 \001(\0132\036.com.adonai.wallet.sync.Bud"
-    "get\"]\n\007Account\022\014\n\004name\030\002 \002(\t\022\020\n\010currency"
-    "\030\003 \002(\t\022\016\n\006amount\030\004 \002(\t\022\023\n\013description\030\005 "
-    "\001(\t\022\r\n\005color\030\006 \001(\005\"\223\001\n\tOperation\022\014\n\004time"
-    "\030\002 \002(\004\022\022\n\ncategoryId\030\003 \002(\t\022\016\n\006amount\030\004 \002"
-    "(\t\022\023\n\013description\030\005 \001(\t\022\021\n\tordererId\030\006 \001"
-    "(\t\022\024\n\014beneficiarId\030\007 \001(\t\022\026\n\016convertingRa"
-    "te\030\010 \001(\001\"@\n\010Category\022\014\n\004name\030\002 \002(\t\022\014\n\004ty"
-    "pe\030\003 \002(\r\022\030\n\020preferredAccount\030\004 \001(\t\"\201\001\n\006B"
-    "udget\022\014\n\004name\030\002 \002(\t\022\014\n\004from\030\003 \002(\004\022\014\n\004til"
-    "l\030\004 \002(\t\022\030\n\020coveredAccountId\030\005 \001(\t\0223\n\007con"
-    "tent\030\006 \003(\0132\".com.adonai.wallet.sync.Budg"
-    "etItem\"K\n\nBudgetItem\022\026\n\016parentBudgetId\030\002"
-    " \002(\t\022\022\n\ncategoryId\030\003 \002(\t\022\021\n\tmaxAmount\030\004 "
-    "\002(\004", 1323);
+    "llet.sync.Entity\022-\n\005added\030\002 \003(\0132\036.com.ad"
+    "onai.wallet.sync.Entity\"\'\n\tEntityAck\022\032\n\022"
+    "newServerTimestamp\030\001 \002(\004\"\207\002\n\006Entity\022\n\n\002I"
+    "D\030\001 \002(\t\022\024\n\014lastModified\030\002 \002(\004\022\017\n\007deleted"
+    "\030\003 \002(\010\0220\n\007account\030\004 \001(\0132\037.com.adonai.wal"
+    "let.sync.Account\0224\n\toperation\030\005 \001(\0132!.co"
+    "m.adonai.wallet.sync.Operation\0222\n\010catego"
+    "ry\030\006 \001(\0132 .com.adonai.wallet.sync.Catego"
+    "ry\022.\n\006budget\030\007 \001(\0132\036.com.adonai.wallet.s"
+    "ync.Budget\"]\n\007Account\022\014\n\004name\030\002 \002(\t\022\020\n\010c"
+    "urrency\030\003 \002(\t\022\016\n\006amount\030\004 \002(\t\022\023\n\013descrip"
+    "tion\030\005 \001(\t\022\r\n\005color\030\006 \001(\005\"\223\001\n\tOperation\022"
+    "\014\n\004time\030\002 \002(\004\022\022\n\ncategoryId\030\003 \002(\t\022\016\n\006amo"
+    "unt\030\004 \002(\t\022\023\n\013description\030\005 \001(\t\022\021\n\tordere"
+    "rId\030\006 \001(\t\022\024\n\014beneficiarId\030\007 \001(\t\022\026\n\016conve"
+    "rtingRate\030\010 \001(\001\"@\n\010Category\022\014\n\004name\030\002 \002("
+    "\t\022\014\n\004type\030\003 \002(\r\022\030\n\020preferredAccount\030\004 \001("
+    "\t\"\201\001\n\006Budget\022\014\n\004name\030\002 \002(\t\022\014\n\004from\030\003 \002(\004"
+    "\022\014\n\004till\030\004 \002(\t\022\030\n\020coveredAccountId\030\005 \001(\t"
+    "\0223\n\007content\030\006 \003(\0132\".com.adonai.wallet.sy"
+    "nc.BudgetItem\"K\n\nBudgetItem\022\026\n\016parentBud"
+    "getId\030\002 \002(\t\022\022\n\ncategoryId\030\003 \002(\t\022\021\n\tmaxAm"
+    "ount\030\004 \002(\004", 1370);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "sync_protocol.proto", &protobuf_RegisterTypes);
   SyncRequest::default_instance_ = new SyncRequest();
@@ -1204,6 +1206,7 @@ void EntityRequest::Swap(EntityRequest* other) {
 
 #ifndef _MSC_VER
 const int EntityResponse::kModifiedFieldNumber;
+const int EntityResponse::kAddedFieldNumber;
 #endif  // !_MSC_VER
 
 EntityResponse::EntityResponse()
@@ -1257,6 +1260,7 @@ EntityResponse* EntityResponse::New() const {
 
 void EntityResponse::Clear() {
   modified_.Clear();
+  added_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -1278,6 +1282,21 @@ bool EntityResponse::MergePartialFromCodedStream(
           goto handle_uninterpreted;
         }
         if (input->ExpectTag(10)) goto parse_modified;
+        if (input->ExpectTag(18)) goto parse_added;
+        break;
+      }
+
+      // repeated .com.adonai.wallet.sync.Entity added = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_added:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_added()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_added;
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1306,6 +1325,12 @@ void EntityResponse::SerializeWithCachedSizes(
       1, this->modified(i), output);
   }
 
+  // repeated .com.adonai.wallet.sync.Entity added = 2;
+  for (int i = 0; i < this->added_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->added(i), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1319,6 +1344,13 @@ void EntityResponse::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->modified(i), target);
+  }
+
+  // repeated .com.adonai.wallet.sync.Entity added = 2;
+  for (int i = 0; i < this->added_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->added(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1337,6 +1369,14 @@ int EntityResponse::ByteSize() const {
     total_size +=
       ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
         this->modified(i));
+  }
+
+  // repeated .com.adonai.wallet.sync.Entity added = 2;
+  total_size += 1 * this->added_size();
+  for (int i = 0; i < this->added_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->added(i));
   }
 
   if (!unknown_fields().empty()) {
@@ -1365,6 +1405,7 @@ void EntityResponse::MergeFrom(const ::google::protobuf::Message& from) {
 void EntityResponse::MergeFrom(const EntityResponse& from) {
   GOOGLE_CHECK_NE(&from, this);
   modified_.MergeFrom(from.modified_);
+  added_.MergeFrom(from.added_);
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -1385,12 +1426,16 @@ bool EntityResponse::IsInitialized() const {
   for (int i = 0; i < modified_size(); i++) {
     if (!this->modified(i).IsInitialized()) return false;
   }
+  for (int i = 0; i < added_size(); i++) {
+    if (!this->added(i).IsInitialized()) return false;
+  }
   return true;
 }
 
 void EntityResponse::Swap(EntityResponse* other) {
   if (other != this) {
     modified_.Swap(&other->modified_);
+    added_.Swap(&other->added_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

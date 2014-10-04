@@ -30,6 +30,7 @@ message EntityRequest {
 
 message EntityResponse {
     repeated Entity modified = 1; // entities modified on server/client
+    repeated Entity added = 2; // entities added on client
 }
 
 message EntityAck {

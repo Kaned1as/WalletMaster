@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 import static com.adonai.wallet.sync.SyncProtocol.SyncRequest;
@@ -201,11 +202,32 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                             }
                         }
 
-                        final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
+                        // adding newly inserted entities
+                        SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
+
+                        List<Account> newAccounts = DbProvider.getHelper().getAccountDao().queryBuilder().where().isNull("last_modified").query();
+                        for(Account newAcc : newAccounts) {
+                            serverUpdate.addAdded(newAcc.toProtoEntity());
+                        }
+                        // adding modified entities
+                        List<Account> dirtyAccounts = DbProvider.getHelper().getAccountDao().queryBuilder().where().isNotNull("backup").query();
+                        for(Account dirtyAcc : dirtyAccounts) {
+                            serverUpdate.addModified(dirtyAcc.toProtoEntity());
+                        }
 
                         serverUpdate.build().writeDelimitedTo(os);
-
                         final SyncProtocol.EntityAck ack = SyncProtocol.EntityAck.parseDelimitedFrom(is);
+                        Date newTimestamp = new Date(ack.getNewServerTimestamp());
+                        // updating local entities with new timestamp
+                        for(Account newAcc : newAccounts) {
+                            newAcc.setLastModified(newTimestamp);
+                            DbProvider.getHelper().getEntityDao(Account.class).updateByServer(newAcc);
+                        }
+                        for(Account dirtyAcc : dirtyAccounts) {
+                            dirtyAcc.setLastModified(newTimestamp);
+                            DbProvider.getHelper().getEntityDao(Account.class).updateByServer(dirtyAcc);
+                        }
+
                         setState(State.CAT_REQ);
                         break;
                     }

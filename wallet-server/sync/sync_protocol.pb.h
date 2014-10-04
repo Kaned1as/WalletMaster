@@ -485,15 +485,28 @@ class EntityResponse : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity >*
       mutable_modified();
 
+  // repeated .com.adonai.wallet.sync.Entity added = 2;
+  inline int added_size() const;
+  inline void clear_added();
+  static const int kAddedFieldNumber = 2;
+  inline const ::com::adonai::wallet::sync::Entity& added(int index) const;
+  inline ::com::adonai::wallet::sync::Entity* mutable_added(int index);
+  inline ::com::adonai::wallet::sync::Entity* add_added();
+  inline const ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity >&
+      added() const;
+  inline ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity >*
+      mutable_added();
+
   // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.EntityResponse)
  private:
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity > modified_;
+  ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity > added_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
 
   friend void  protobuf_AddDesc_sync_5fprotocol_2eproto();
   friend void protobuf_AssignDesc_sync_5fprotocol_2eproto();
@@ -1662,6 +1675,31 @@ EntityResponse::modified() const {
 inline ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity >*
 EntityResponse::mutable_modified() {
   return &modified_;
+}
+
+// repeated .com.adonai.wallet.sync.Entity added = 2;
+inline int EntityResponse::added_size() const {
+  return added_.size();
+}
+inline void EntityResponse::clear_added() {
+  added_.Clear();
+}
+inline const ::com::adonai::wallet::sync::Entity& EntityResponse::added(int index) const {
+  return added_.Get(index);
+}
+inline ::com::adonai::wallet::sync::Entity* EntityResponse::mutable_added(int index) {
+  return added_.Mutable(index);
+}
+inline ::com::adonai::wallet::sync::Entity* EntityResponse::add_added() {
+  return added_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity >&
+EntityResponse::added() const {
+  return added_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::com::adonai::wallet::sync::Entity >*
+EntityResponse::mutable_added() {
+  return &added_;
 }
 
 // -------------------------------------------------------------------
