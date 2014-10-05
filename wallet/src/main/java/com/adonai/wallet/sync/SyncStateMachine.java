@@ -18,6 +18,7 @@ import com.adonai.wallet.entities.Entity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.util.Date;
@@ -210,7 +211,8 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                             serverUpdate.addAdded(newAcc.toProtoEntity());
                         }
                         // adding modified entities
-                        List<Account> dirtyAccounts = DbProvider.getHelper().getAccountDao().queryBuilder().where().isNotNull("backup").query();
+                        //List<Account> dirtyAccounts = DbProvider.getHelper().getAccountDao().queryBuilder().where().isNotNull("backup").query(); // TODO: restore with 4.49
+                        List<Account> dirtyAccounts = DbProvider.getHelper().getAccountDao().queryBuilder().where().raw("backup IS NOT NULL").query();
                         for(Account dirtyAcc : dirtyAccounts) {
                             serverUpdate.addModified(dirtyAcc.toProtoEntity());
                         }
@@ -227,8 +229,8 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                             dirtyAcc.setLastModified(newTimestamp);
                             DbProvider.getHelper().getEntityDao(Account.class).updateByServer(dirtyAcc);
                         }
-
-                        setState(State.CAT_REQ);
+                        finish();
+                        //setState(State.CAT_REQ);
                         break;
                     }
                     /*case CAT_REQ: {
@@ -354,28 +356,29 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
         }
 
         private void start() throws IOException {
-            /*DatabaseDAO.getInstance().beginTransaction();
+            /*DatabaseDAO.getInstance().beginTransaction();*/
             mSocket = new Socket(); // creating socket here!
-            mSocket.setSoTimeout(10000);
-            mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "anticitizen.dhis.org"), 17001));*/
+            //mSocket.setSoTimeout(10000);
+            //mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "anticitizen.dhis.org"), 17001));
+            mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "192.168.1.166"), 17001));
         }
 
         private void finish() throws IOException {
-            /*final DatabaseDAO db = DatabaseDAO.getInstance();
-            db.clearActions();
-            db.setTransactionSuccessful();
-            db.endTransaction();
+            //final DatabaseDAO db = DatabaseDAO.getInstance();
+            //db.clearActions();
+            //db.setTransactionSuccessful();
+            //db.endTransaction();
             mSocket.close();
-            setState(State.INIT, mContext.getString(R.string.sync_completed));*/
+            setState(State.INIT, mContext.getString(R.string.sync_completed));
         }
 
         private void interrupt(String error) {
-            /*DatabaseDAO.getInstance().endTransaction();
+           // DatabaseDAO.getInstance().endTransaction();
             setState(State.INIT, error);
             if(!mSocket.isClosed())
                 try {
                     mSocket.close();
-                } catch (IOException e) { throw new RuntimeException(e); } // should not happen*/
+                } catch (IOException e) { throw new RuntimeException(e); } // should not happen
         }
 
         private void sendLastTimestamp(OutputStream os, Class<? extends Entity> clazz) throws IOException, SQLException {
@@ -392,7 +395,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                 case OK:
                     setState(State.AUTH_ACK);
                     setState(State.ACC_REQ);
-                    mPreferences.edit().putBoolean(WalletConstants.ACCOUNT_SYNC_KEY, true).commit(); // save auth
+                    mPreferences.edit().putBoolean(WalletConstants.ACCOUNT_SYNC_KEY, true).apply(); // save auth
                     break;
                 case AUTH_WRONG:
                     interrupt(mContext.getString(R.string.auth_invalid));
@@ -459,6 +462,6 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                 .remove(WalletConstants.ACCOUNT_SYNC_KEY)
                 .remove(WalletConstants.ACCOUNT_NAME_KEY)
                 .remove(WalletConstants.ACCOUNT_PASSWORD_KEY)
-                .commit();
+                .apply();
     }
 }

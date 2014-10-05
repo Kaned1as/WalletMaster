@@ -136,7 +136,6 @@ public class Operation extends Entity {
         final Operation temp = new Operation();
         temp.setId(UUID.fromString(entity.getID()));
         temp.setDeleted(entity.getDeleted());
-        temp.setLastModified(new Date(entity.getLastModified()));
 
         temp.setDescription(entity.getOperation().getDescription());
         temp.setCategory(DbProvider.getHelper().getCategoryDao().queryForId(UUID.fromString(entity.getOperation().getCategoryId())));
@@ -169,7 +168,7 @@ public class Operation extends Entity {
         return SyncProtocol.Entity.newBuilder()
                 .setID(getId().toString())
                 .setDeleted(isDeleted())
-                .setLastModified(getLastModified().getTime())
+                //.setLastModified(getLastModified().getTime()) // don't send server time to itself
                 .setOperation(op)
                 .build();
     }

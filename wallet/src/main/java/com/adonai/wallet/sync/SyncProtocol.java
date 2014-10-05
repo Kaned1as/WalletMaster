@@ -3503,79 +3503,69 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getIDBytes();
 
-    // required uint64 lastModified = 2;
+    // required bool deleted = 2;
     /**
-     * <code>required uint64 lastModified = 2;</code>
-     */
-    boolean hasLastModified();
-    /**
-     * <code>required uint64 lastModified = 2;</code>
-     */
-    long getLastModified();
-
-    // required bool deleted = 3;
-    /**
-     * <code>required bool deleted = 3;</code>
+     * <code>required bool deleted = 2;</code>
      */
     boolean hasDeleted();
     /**
-     * <code>required bool deleted = 3;</code>
+     * <code>required bool deleted = 2;</code>
      */
     boolean getDeleted();
 
-    // optional .com.adonai.wallet.sync.Account account = 4;
+    // optional .com.adonai.wallet.sync.Account account = 3;
     /**
-     * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+     * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
      */
     boolean hasAccount();
     /**
-     * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+     * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
      */
     com.adonai.wallet.sync.SyncProtocol.Account getAccount();
     /**
-     * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+     * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
      */
     com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder getAccountOrBuilder();
 
-    // optional .com.adonai.wallet.sync.Operation operation = 5;
+    // optional .com.adonai.wallet.sync.Operation operation = 4;
     /**
-     * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+     * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
      */
     boolean hasOperation();
     /**
-     * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+     * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
      */
     com.adonai.wallet.sync.SyncProtocol.Operation getOperation();
     /**
-     * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+     * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
      */
     com.adonai.wallet.sync.SyncProtocol.OperationOrBuilder getOperationOrBuilder();
 
-    // optional .com.adonai.wallet.sync.Category category = 6;
+    // optional .com.adonai.wallet.sync.Category category = 5;
     /**
-     * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+     * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
      */
     boolean hasCategory();
     /**
-     * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+     * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
      */
     com.adonai.wallet.sync.SyncProtocol.Category getCategory();
     /**
-     * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+     * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
      */
     com.adonai.wallet.sync.SyncProtocol.CategoryOrBuilder getCategoryOrBuilder();
 
-    // optional .com.adonai.wallet.sync.Budget budget = 7;
+    // optional .com.adonai.wallet.sync.Budget budget = 6;
     /**
-     * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+     * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
      */
     boolean hasBudget();
     /**
-     * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+     * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
      */
     com.adonai.wallet.sync.SyncProtocol.Budget getBudget();
     /**
-     * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+     * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
      */
     com.adonai.wallet.sync.SyncProtocol.BudgetOrBuilder getBudgetOrBuilder();
   }
@@ -3637,17 +3627,12 @@ public final class SyncProtocol {
             }
             case 16: {
               bitField0_ |= 0x00000002;
-              lastModified_ = input.readUInt64();
-              break;
-            }
-            case 24: {
-              bitField0_ |= 0x00000004;
               deleted_ = input.readBool();
               break;
             }
-            case 34: {
+            case 26: {
               com.adonai.wallet.sync.SyncProtocol.Account.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000008) == 0x00000008)) {
+              if (((bitField0_ & 0x00000004) == 0x00000004)) {
                 subBuilder = account_.toBuilder();
               }
               account_ = input.readMessage(com.adonai.wallet.sync.SyncProtocol.Account.PARSER, extensionRegistry);
@@ -3655,12 +3640,12 @@ public final class SyncProtocol {
                 subBuilder.mergeFrom(account_);
                 account_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00000008;
+              bitField0_ |= 0x00000004;
               break;
             }
-            case 42: {
+            case 34: {
               com.adonai.wallet.sync.SyncProtocol.Operation.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000010) == 0x00000010)) {
+              if (((bitField0_ & 0x00000008) == 0x00000008)) {
                 subBuilder = operation_.toBuilder();
               }
               operation_ = input.readMessage(com.adonai.wallet.sync.SyncProtocol.Operation.PARSER, extensionRegistry);
@@ -3668,12 +3653,12 @@ public final class SyncProtocol {
                 subBuilder.mergeFrom(operation_);
                 operation_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00000010;
+              bitField0_ |= 0x00000008;
               break;
             }
-            case 50: {
+            case 42: {
               com.adonai.wallet.sync.SyncProtocol.Category.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000020) == 0x00000020)) {
+              if (((bitField0_ & 0x00000010) == 0x00000010)) {
                 subBuilder = category_.toBuilder();
               }
               category_ = input.readMessage(com.adonai.wallet.sync.SyncProtocol.Category.PARSER, extensionRegistry);
@@ -3681,12 +3666,12 @@ public final class SyncProtocol {
                 subBuilder.mergeFrom(category_);
                 category_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00000020;
+              bitField0_ |= 0x00000010;
               break;
             }
-            case 58: {
+            case 50: {
               com.adonai.wallet.sync.SyncProtocol.Budget.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000040) == 0x00000040)) {
+              if (((bitField0_ & 0x00000020) == 0x00000020)) {
                 subBuilder = budget_.toBuilder();
               }
               budget_ = input.readMessage(com.adonai.wallet.sync.SyncProtocol.Budget.PARSER, extensionRegistry);
@@ -3694,7 +3679,7 @@ public final class SyncProtocol {
                 subBuilder.mergeFrom(budget_);
                 budget_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00000040;
+              bitField0_ |= 0x00000020;
               break;
             }
           }
@@ -3780,121 +3765,105 @@ public final class SyncProtocol {
       }
     }
 
-    // required uint64 lastModified = 2;
-    public static final int LASTMODIFIED_FIELD_NUMBER = 2;
-    private long lastModified_;
+    // required bool deleted = 2;
+    public static final int DELETED_FIELD_NUMBER = 2;
+    private boolean deleted_;
     /**
-     * <code>required uint64 lastModified = 2;</code>
+     * <code>required bool deleted = 2;</code>
      */
-    public boolean hasLastModified() {
+    public boolean hasDeleted() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>required uint64 lastModified = 2;</code>
-     */
-    public long getLastModified() {
-      return lastModified_;
-    }
-
-    // required bool deleted = 3;
-    public static final int DELETED_FIELD_NUMBER = 3;
-    private boolean deleted_;
-    /**
-     * <code>required bool deleted = 3;</code>
-     */
-    public boolean hasDeleted() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    /**
-     * <code>required bool deleted = 3;</code>
+     * <code>required bool deleted = 2;</code>
      */
     public boolean getDeleted() {
       return deleted_;
     }
 
-    // optional .com.adonai.wallet.sync.Account account = 4;
-    public static final int ACCOUNT_FIELD_NUMBER = 4;
+    // optional .com.adonai.wallet.sync.Account account = 3;
+    public static final int ACCOUNT_FIELD_NUMBER = 3;
     private com.adonai.wallet.sync.SyncProtocol.Account account_;
     /**
-     * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+     * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
      */
     public boolean hasAccount() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+     * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
      */
     public com.adonai.wallet.sync.SyncProtocol.Account getAccount() {
       return account_;
     }
     /**
-     * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+     * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
      */
     public com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder getAccountOrBuilder() {
       return account_;
     }
 
-    // optional .com.adonai.wallet.sync.Operation operation = 5;
-    public static final int OPERATION_FIELD_NUMBER = 5;
+    // optional .com.adonai.wallet.sync.Operation operation = 4;
+    public static final int OPERATION_FIELD_NUMBER = 4;
     private com.adonai.wallet.sync.SyncProtocol.Operation operation_;
     /**
-     * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+     * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
      */
     public boolean hasOperation() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+     * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
      */
     public com.adonai.wallet.sync.SyncProtocol.Operation getOperation() {
       return operation_;
     }
     /**
-     * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+     * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
      */
     public com.adonai.wallet.sync.SyncProtocol.OperationOrBuilder getOperationOrBuilder() {
       return operation_;
     }
 
-    // optional .com.adonai.wallet.sync.Category category = 6;
-    public static final int CATEGORY_FIELD_NUMBER = 6;
+    // optional .com.adonai.wallet.sync.Category category = 5;
+    public static final int CATEGORY_FIELD_NUMBER = 5;
     private com.adonai.wallet.sync.SyncProtocol.Category category_;
     /**
-     * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+     * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
      */
     public boolean hasCategory() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
-     * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+     * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
      */
     public com.adonai.wallet.sync.SyncProtocol.Category getCategory() {
       return category_;
     }
     /**
-     * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+     * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
      */
     public com.adonai.wallet.sync.SyncProtocol.CategoryOrBuilder getCategoryOrBuilder() {
       return category_;
     }
 
-    // optional .com.adonai.wallet.sync.Budget budget = 7;
-    public static final int BUDGET_FIELD_NUMBER = 7;
+    // optional .com.adonai.wallet.sync.Budget budget = 6;
+    public static final int BUDGET_FIELD_NUMBER = 6;
     private com.adonai.wallet.sync.SyncProtocol.Budget budget_;
     /**
-     * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+     * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
      */
     public boolean hasBudget() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
-     * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+     * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
      */
     public com.adonai.wallet.sync.SyncProtocol.Budget getBudget() {
       return budget_;
     }
     /**
-     * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+     * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
      */
     public com.adonai.wallet.sync.SyncProtocol.BudgetOrBuilder getBudgetOrBuilder() {
       return budget_;
@@ -3902,7 +3871,6 @@ public final class SyncProtocol {
 
     private void initFields() {
       iD_ = "";
-      lastModified_ = 0L;
       deleted_ = false;
       account_ = com.adonai.wallet.sync.SyncProtocol.Account.getDefaultInstance();
       operation_ = com.adonai.wallet.sync.SyncProtocol.Operation.getDefaultInstance();
@@ -3915,10 +3883,6 @@ public final class SyncProtocol {
       if (isInitialized != -1) return isInitialized == 1;
 
       if (!hasID()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasLastModified()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -3961,22 +3925,19 @@ public final class SyncProtocol {
         output.writeBytes(1, getIDBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeUInt64(2, lastModified_);
+        output.writeBool(2, deleted_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeBool(3, deleted_);
+        output.writeMessage(3, account_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeMessage(4, account_);
+        output.writeMessage(4, operation_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeMessage(5, operation_);
+        output.writeMessage(5, category_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeMessage(6, category_);
-      }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeMessage(7, budget_);
+        output.writeMessage(6, budget_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -3993,27 +3954,23 @@ public final class SyncProtocol {
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(2, lastModified_);
+          .computeBoolSize(2, deleted_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(3, deleted_);
+          .computeMessageSize(3, account_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(4, account_);
+          .computeMessageSize(4, operation_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(5, operation_);
+          .computeMessageSize(5, category_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(6, category_);
-      }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(7, budget_);
+          .computeMessageSize(6, budget_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -4137,34 +4094,32 @@ public final class SyncProtocol {
         super.clear();
         iD_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
-        lastModified_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000002);
         deleted_ = false;
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000002);
         if (accountBuilder_ == null) {
           account_ = com.adonai.wallet.sync.SyncProtocol.Account.getDefaultInstance();
         } else {
           accountBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000004);
         if (operationBuilder_ == null) {
           operation_ = com.adonai.wallet.sync.SyncProtocol.Operation.getDefaultInstance();
         } else {
           operationBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000008);
         if (categoryBuilder_ == null) {
           category_ = com.adonai.wallet.sync.SyncProtocol.Category.getDefaultInstance();
         } else {
           categoryBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         if (budgetBuilder_ == null) {
           budget_ = com.adonai.wallet.sync.SyncProtocol.Budget.getDefaultInstance();
         } else {
           budgetBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
 
@@ -4200,37 +4155,33 @@ public final class SyncProtocol {
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
-        result.lastModified_ = lastModified_;
+        result.deleted_ = deleted_;
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000004;
-        }
-        result.deleted_ = deleted_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-          to_bitField0_ |= 0x00000008;
         }
         if (accountBuilder_ == null) {
           result.account_ = account_;
         } else {
           result.account_ = accountBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
-          to_bitField0_ |= 0x00000010;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
         }
         if (operationBuilder_ == null) {
           result.operation_ = operation_;
         } else {
           result.operation_ = operationBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-          to_bitField0_ |= 0x00000020;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
         }
         if (categoryBuilder_ == null) {
           result.category_ = category_;
         } else {
           result.category_ = categoryBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
-          to_bitField0_ |= 0x00000040;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
         }
         if (budgetBuilder_ == null) {
           result.budget_ = budget_;
@@ -4258,9 +4209,6 @@ public final class SyncProtocol {
           iD_ = other.iD_;
           onChanged();
         }
-        if (other.hasLastModified()) {
-          setLastModified(other.getLastModified());
-        }
         if (other.hasDeleted()) {
           setDeleted(other.getDeleted());
         }
@@ -4282,10 +4230,6 @@ public final class SyncProtocol {
 
       public final boolean isInitialized() {
         if (!hasID()) {
-          
-          return false;
-        }
-        if (!hasLastModified()) {
           
           return false;
         }
@@ -4413,84 +4357,51 @@ public final class SyncProtocol {
         return this;
       }
 
-      // required uint64 lastModified = 2;
-      private long lastModified_ ;
+      // required bool deleted = 2;
+      private boolean deleted_ ;
       /**
-       * <code>required uint64 lastModified = 2;</code>
+       * <code>required bool deleted = 2;</code>
        */
-      public boolean hasLastModified() {
+      public boolean hasDeleted() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>required uint64 lastModified = 2;</code>
-       */
-      public long getLastModified() {
-        return lastModified_;
-      }
-      /**
-       * <code>required uint64 lastModified = 2;</code>
-       */
-      public Builder setLastModified(long value) {
-        bitField0_ |= 0x00000002;
-        lastModified_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>required uint64 lastModified = 2;</code>
-       */
-      public Builder clearLastModified() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        lastModified_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      // required bool deleted = 3;
-      private boolean deleted_ ;
-      /**
-       * <code>required bool deleted = 3;</code>
-       */
-      public boolean hasDeleted() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>required bool deleted = 3;</code>
+       * <code>required bool deleted = 2;</code>
        */
       public boolean getDeleted() {
         return deleted_;
       }
       /**
-       * <code>required bool deleted = 3;</code>
+       * <code>required bool deleted = 2;</code>
        */
       public Builder setDeleted(boolean value) {
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000002;
         deleted_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required bool deleted = 3;</code>
+       * <code>required bool deleted = 2;</code>
        */
       public Builder clearDeleted() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000002);
         deleted_ = false;
         onChanged();
         return this;
       }
 
-      // optional .com.adonai.wallet.sync.Account account = 4;
+      // optional .com.adonai.wallet.sync.Account account = 3;
       private com.adonai.wallet.sync.SyncProtocol.Account account_ = com.adonai.wallet.sync.SyncProtocol.Account.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           com.adonai.wallet.sync.SyncProtocol.Account, com.adonai.wallet.sync.SyncProtocol.Account.Builder, com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder> accountBuilder_;
       /**
-       * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+       * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
        */
       public boolean hasAccount() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+       * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
        */
       public com.adonai.wallet.sync.SyncProtocol.Account getAccount() {
         if (accountBuilder_ == null) {
@@ -4500,7 +4411,7 @@ public final class SyncProtocol {
         }
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+       * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
        */
       public Builder setAccount(com.adonai.wallet.sync.SyncProtocol.Account value) {
         if (accountBuilder_ == null) {
@@ -4512,11 +4423,11 @@ public final class SyncProtocol {
         } else {
           accountBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000004;
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+       * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
        */
       public Builder setAccount(
           com.adonai.wallet.sync.SyncProtocol.Account.Builder builderForValue) {
@@ -4526,15 +4437,15 @@ public final class SyncProtocol {
         } else {
           accountBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000004;
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+       * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
        */
       public Builder mergeAccount(com.adonai.wallet.sync.SyncProtocol.Account value) {
         if (accountBuilder_ == null) {
-          if (((bitField0_ & 0x00000008) == 0x00000008) &&
+          if (((bitField0_ & 0x00000004) == 0x00000004) &&
               account_ != com.adonai.wallet.sync.SyncProtocol.Account.getDefaultInstance()) {
             account_ =
               com.adonai.wallet.sync.SyncProtocol.Account.newBuilder(account_).mergeFrom(value).buildPartial();
@@ -4545,11 +4456,11 @@ public final class SyncProtocol {
         } else {
           accountBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000004;
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+       * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
        */
       public Builder clearAccount() {
         if (accountBuilder_ == null) {
@@ -4558,19 +4469,19 @@ public final class SyncProtocol {
         } else {
           accountBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+       * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
        */
       public com.adonai.wallet.sync.SyncProtocol.Account.Builder getAccountBuilder() {
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000004;
         onChanged();
         return getAccountFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+       * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
        */
       public com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder getAccountOrBuilder() {
         if (accountBuilder_ != null) {
@@ -4580,7 +4491,7 @@ public final class SyncProtocol {
         }
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Account account = 4;</code>
+       * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           com.adonai.wallet.sync.SyncProtocol.Account, com.adonai.wallet.sync.SyncProtocol.Account.Builder, com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder> 
@@ -4596,18 +4507,18 @@ public final class SyncProtocol {
         return accountBuilder_;
       }
 
-      // optional .com.adonai.wallet.sync.Operation operation = 5;
+      // optional .com.adonai.wallet.sync.Operation operation = 4;
       private com.adonai.wallet.sync.SyncProtocol.Operation operation_ = com.adonai.wallet.sync.SyncProtocol.Operation.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           com.adonai.wallet.sync.SyncProtocol.Operation, com.adonai.wallet.sync.SyncProtocol.Operation.Builder, com.adonai.wallet.sync.SyncProtocol.OperationOrBuilder> operationBuilder_;
       /**
-       * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+       * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
        */
       public boolean hasOperation() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
+        return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+       * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
        */
       public com.adonai.wallet.sync.SyncProtocol.Operation getOperation() {
         if (operationBuilder_ == null) {
@@ -4617,7 +4528,7 @@ public final class SyncProtocol {
         }
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+       * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
        */
       public Builder setOperation(com.adonai.wallet.sync.SyncProtocol.Operation value) {
         if (operationBuilder_ == null) {
@@ -4629,11 +4540,11 @@ public final class SyncProtocol {
         } else {
           operationBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000008;
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+       * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
        */
       public Builder setOperation(
           com.adonai.wallet.sync.SyncProtocol.Operation.Builder builderForValue) {
@@ -4643,15 +4554,15 @@ public final class SyncProtocol {
         } else {
           operationBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000008;
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+       * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
        */
       public Builder mergeOperation(com.adonai.wallet.sync.SyncProtocol.Operation value) {
         if (operationBuilder_ == null) {
-          if (((bitField0_ & 0x00000010) == 0x00000010) &&
+          if (((bitField0_ & 0x00000008) == 0x00000008) &&
               operation_ != com.adonai.wallet.sync.SyncProtocol.Operation.getDefaultInstance()) {
             operation_ =
               com.adonai.wallet.sync.SyncProtocol.Operation.newBuilder(operation_).mergeFrom(value).buildPartial();
@@ -4662,11 +4573,11 @@ public final class SyncProtocol {
         } else {
           operationBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000008;
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+       * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
        */
       public Builder clearOperation() {
         if (operationBuilder_ == null) {
@@ -4675,19 +4586,19 @@ public final class SyncProtocol {
         } else {
           operationBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+       * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
        */
       public com.adonai.wallet.sync.SyncProtocol.Operation.Builder getOperationBuilder() {
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000008;
         onChanged();
         return getOperationFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+       * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
        */
       public com.adonai.wallet.sync.SyncProtocol.OperationOrBuilder getOperationOrBuilder() {
         if (operationBuilder_ != null) {
@@ -4697,7 +4608,7 @@ public final class SyncProtocol {
         }
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Operation operation = 5;</code>
+       * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           com.adonai.wallet.sync.SyncProtocol.Operation, com.adonai.wallet.sync.SyncProtocol.Operation.Builder, com.adonai.wallet.sync.SyncProtocol.OperationOrBuilder> 
@@ -4713,18 +4624,18 @@ public final class SyncProtocol {
         return operationBuilder_;
       }
 
-      // optional .com.adonai.wallet.sync.Category category = 6;
+      // optional .com.adonai.wallet.sync.Category category = 5;
       private com.adonai.wallet.sync.SyncProtocol.Category category_ = com.adonai.wallet.sync.SyncProtocol.Category.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           com.adonai.wallet.sync.SyncProtocol.Category, com.adonai.wallet.sync.SyncProtocol.Category.Builder, com.adonai.wallet.sync.SyncProtocol.CategoryOrBuilder> categoryBuilder_;
       /**
-       * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+       * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
        */
       public boolean hasCategory() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+       * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
        */
       public com.adonai.wallet.sync.SyncProtocol.Category getCategory() {
         if (categoryBuilder_ == null) {
@@ -4734,7 +4645,7 @@ public final class SyncProtocol {
         }
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+       * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
        */
       public Builder setCategory(com.adonai.wallet.sync.SyncProtocol.Category value) {
         if (categoryBuilder_ == null) {
@@ -4746,11 +4657,11 @@ public final class SyncProtocol {
         } else {
           categoryBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000010;
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+       * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
        */
       public Builder setCategory(
           com.adonai.wallet.sync.SyncProtocol.Category.Builder builderForValue) {
@@ -4760,15 +4671,15 @@ public final class SyncProtocol {
         } else {
           categoryBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000010;
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+       * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
        */
       public Builder mergeCategory(com.adonai.wallet.sync.SyncProtocol.Category value) {
         if (categoryBuilder_ == null) {
-          if (((bitField0_ & 0x00000020) == 0x00000020) &&
+          if (((bitField0_ & 0x00000010) == 0x00000010) &&
               category_ != com.adonai.wallet.sync.SyncProtocol.Category.getDefaultInstance()) {
             category_ =
               com.adonai.wallet.sync.SyncProtocol.Category.newBuilder(category_).mergeFrom(value).buildPartial();
@@ -4779,11 +4690,11 @@ public final class SyncProtocol {
         } else {
           categoryBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000010;
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+       * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
        */
       public Builder clearCategory() {
         if (categoryBuilder_ == null) {
@@ -4792,19 +4703,19 @@ public final class SyncProtocol {
         } else {
           categoryBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+       * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
        */
       public com.adonai.wallet.sync.SyncProtocol.Category.Builder getCategoryBuilder() {
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000010;
         onChanged();
         return getCategoryFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+       * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
        */
       public com.adonai.wallet.sync.SyncProtocol.CategoryOrBuilder getCategoryOrBuilder() {
         if (categoryBuilder_ != null) {
@@ -4814,7 +4725,7 @@ public final class SyncProtocol {
         }
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Category category = 6;</code>
+       * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           com.adonai.wallet.sync.SyncProtocol.Category, com.adonai.wallet.sync.SyncProtocol.Category.Builder, com.adonai.wallet.sync.SyncProtocol.CategoryOrBuilder> 
@@ -4830,18 +4741,18 @@ public final class SyncProtocol {
         return categoryBuilder_;
       }
 
-      // optional .com.adonai.wallet.sync.Budget budget = 7;
+      // optional .com.adonai.wallet.sync.Budget budget = 6;
       private com.adonai.wallet.sync.SyncProtocol.Budget budget_ = com.adonai.wallet.sync.SyncProtocol.Budget.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           com.adonai.wallet.sync.SyncProtocol.Budget, com.adonai.wallet.sync.SyncProtocol.Budget.Builder, com.adonai.wallet.sync.SyncProtocol.BudgetOrBuilder> budgetBuilder_;
       /**
-       * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+       * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
        */
       public boolean hasBudget() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+       * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
        */
       public com.adonai.wallet.sync.SyncProtocol.Budget getBudget() {
         if (budgetBuilder_ == null) {
@@ -4851,7 +4762,7 @@ public final class SyncProtocol {
         }
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+       * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
        */
       public Builder setBudget(com.adonai.wallet.sync.SyncProtocol.Budget value) {
         if (budgetBuilder_ == null) {
@@ -4863,11 +4774,11 @@ public final class SyncProtocol {
         } else {
           budgetBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000040;
+        bitField0_ |= 0x00000020;
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+       * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
        */
       public Builder setBudget(
           com.adonai.wallet.sync.SyncProtocol.Budget.Builder builderForValue) {
@@ -4877,15 +4788,15 @@ public final class SyncProtocol {
         } else {
           budgetBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000040;
+        bitField0_ |= 0x00000020;
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+       * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
        */
       public Builder mergeBudget(com.adonai.wallet.sync.SyncProtocol.Budget value) {
         if (budgetBuilder_ == null) {
-          if (((bitField0_ & 0x00000040) == 0x00000040) &&
+          if (((bitField0_ & 0x00000020) == 0x00000020) &&
               budget_ != com.adonai.wallet.sync.SyncProtocol.Budget.getDefaultInstance()) {
             budget_ =
               com.adonai.wallet.sync.SyncProtocol.Budget.newBuilder(budget_).mergeFrom(value).buildPartial();
@@ -4896,11 +4807,11 @@ public final class SyncProtocol {
         } else {
           budgetBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000040;
+        bitField0_ |= 0x00000020;
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+       * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
        */
       public Builder clearBudget() {
         if (budgetBuilder_ == null) {
@@ -4909,19 +4820,19 @@ public final class SyncProtocol {
         } else {
           budgetBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+       * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
        */
       public com.adonai.wallet.sync.SyncProtocol.Budget.Builder getBudgetBuilder() {
-        bitField0_ |= 0x00000040;
+        bitField0_ |= 0x00000020;
         onChanged();
         return getBudgetFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+       * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
        */
       public com.adonai.wallet.sync.SyncProtocol.BudgetOrBuilder getBudgetOrBuilder() {
         if (budgetBuilder_ != null) {
@@ -4931,7 +4842,7 @@ public final class SyncProtocol {
         }
       }
       /**
-       * <code>optional .com.adonai.wallet.sync.Budget budget = 7;</code>
+       * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           com.adonai.wallet.sync.SyncProtocol.Budget, com.adonai.wallet.sync.SyncProtocol.Budget.Builder, com.adonai.wallet.sync.SyncProtocol.BudgetOrBuilder> 
@@ -10439,27 +10350,26 @@ public final class SyncProtocol {
       "sponse\0220\n\010modified\030\001 \003(\0132\036.com.adonai.wa" +
       "llet.sync.Entity\022-\n\005added\030\002 \003(\0132\036.com.ad" +
       "onai.wallet.sync.Entity\"\'\n\tEntityAck\022\032\n\022" +
-      "newServerTimestamp\030\001 \002(\004\"\207\002\n\006Entity\022\n\n\002I" +
-      "D\030\001 \002(\t\022\024\n\014lastModified\030\002 \002(\004\022\017\n\007deleted" +
-      "\030\003 \002(\010\0220\n\007account\030\004 \001(\0132\037.com.adonai.wal" +
-      "let.sync.Account\0224\n\toperation\030\005 \001(\0132!.co" +
-      "m.adonai.wallet.sync.Operation\0222\n\010catego" +
-      "ry\030\006 \001(\0132 .com.adonai.wallet.sync.Catego",
-      "ry\022.\n\006budget\030\007 \001(\0132\036.com.adonai.wallet.s" +
-      "ync.Budget\"]\n\007Account\022\014\n\004name\030\002 \002(\t\022\020\n\010c" +
-      "urrency\030\003 \002(\t\022\016\n\006amount\030\004 \002(\t\022\023\n\013descrip" +
-      "tion\030\005 \001(\t\022\r\n\005color\030\006 \001(\005\"\223\001\n\tOperation\022" +
-      "\014\n\004time\030\002 \002(\004\022\022\n\ncategoryId\030\003 \002(\t\022\016\n\006amo" +
-      "unt\030\004 \002(\t\022\023\n\013description\030\005 \001(\t\022\021\n\tordere" +
-      "rId\030\006 \001(\t\022\024\n\014beneficiarId\030\007 \001(\t\022\026\n\016conve" +
-      "rtingRate\030\010 \001(\001\"@\n\010Category\022\014\n\004name\030\002 \002(" +
-      "\t\022\014\n\004type\030\003 \002(\r\022\030\n\020preferredAccount\030\004 \001(" +
-      "\t\"\201\001\n\006Budget\022\014\n\004name\030\002 \002(\t\022\014\n\004from\030\003 \002(\004",
-      "\022\014\n\004till\030\004 \002(\t\022\030\n\020coveredAccountId\030\005 \001(\t" +
-      "\0223\n\007content\030\006 \003(\0132\".com.adonai.wallet.sy" +
-      "nc.BudgetItem\"K\n\nBudgetItem\022\026\n\016parentBud" +
-      "getId\030\002 \002(\t\022\022\n\ncategoryId\030\003 \002(\t\022\021\n\tmaxAm" +
-      "ount\030\004 \002(\004"
+      "newServerTimestamp\030\001 \002(\004\"\361\001\n\006Entity\022\n\n\002I" +
+      "D\030\001 \002(\t\022\017\n\007deleted\030\002 \002(\010\0220\n\007account\030\003 \001(" +
+      "\0132\037.com.adonai.wallet.sync.Account\0224\n\top" +
+      "eration\030\004 \001(\0132!.com.adonai.wallet.sync.O" +
+      "peration\0222\n\010category\030\005 \001(\0132 .com.adonai." +
+      "wallet.sync.Category\022.\n\006budget\030\006 \001(\0132\036.c",
+      "om.adonai.wallet.sync.Budget\"]\n\007Account\022" +
+      "\014\n\004name\030\002 \002(\t\022\020\n\010currency\030\003 \002(\t\022\016\n\006amoun" +
+      "t\030\004 \002(\t\022\023\n\013description\030\005 \001(\t\022\r\n\005color\030\006 " +
+      "\001(\005\"\223\001\n\tOperation\022\014\n\004time\030\002 \002(\004\022\022\n\ncateg" +
+      "oryId\030\003 \002(\t\022\016\n\006amount\030\004 \002(\t\022\023\n\013descripti" +
+      "on\030\005 \001(\t\022\021\n\tordererId\030\006 \001(\t\022\024\n\014beneficia" +
+      "rId\030\007 \001(\t\022\026\n\016convertingRate\030\010 \001(\001\"@\n\010Cat" +
+      "egory\022\014\n\004name\030\002 \002(\t\022\014\n\004type\030\003 \002(\r\022\030\n\020pre" +
+      "ferredAccount\030\004 \001(\t\"\201\001\n\006Budget\022\014\n\004name\030\002" +
+      " \002(\t\022\014\n\004from\030\003 \002(\004\022\014\n\004till\030\004 \002(\t\022\030\n\020cove",
+      "redAccountId\030\005 \001(\t\0223\n\007content\030\006 \003(\0132\".co" +
+      "m.adonai.wallet.sync.BudgetItem\"K\n\nBudge" +
+      "tItem\022\026\n\016parentBudgetId\030\002 \002(\t\022\022\n\ncategor" +
+      "yId\030\003 \002(\t\022\021\n\tmaxAmount\030\004 \002(\004"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -10501,7 +10411,7 @@ public final class SyncProtocol {
           internal_static_com_adonai_wallet_sync_Entity_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_com_adonai_wallet_sync_Entity_descriptor,
-              new java.lang.String[] { "ID", "LastModified", "Deleted", "Account", "Operation", "Category", "Budget", });
+              new java.lang.String[] { "ID", "Deleted", "Account", "Operation", "Category", "Budget", });
           internal_static_com_adonai_wallet_sync_Account_descriptor =
             getDescriptor().getMessageTypes().get(6);
           internal_static_com_adonai_wallet_sync_Account_fieldAccessorTable = new

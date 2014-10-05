@@ -149,9 +149,8 @@ void protobuf_AssignDesc_sync_5fprotocol_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(EntityAck));
   Entity_descriptor_ = file->message_type(5);
-  static const int Entity_offsets_[7] = {
+  static const int Entity_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, lastmodified_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, deleted_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, account_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Entity, operation_),
@@ -346,27 +345,26 @@ void protobuf_AddDesc_sync_5fprotocol_2eproto() {
     "sponse\0220\n\010modified\030\001 \003(\0132\036.com.adonai.wa"
     "llet.sync.Entity\022-\n\005added\030\002 \003(\0132\036.com.ad"
     "onai.wallet.sync.Entity\"\'\n\tEntityAck\022\032\n\022"
-    "newServerTimestamp\030\001 \002(\004\"\207\002\n\006Entity\022\n\n\002I"
-    "D\030\001 \002(\t\022\024\n\014lastModified\030\002 \002(\004\022\017\n\007deleted"
-    "\030\003 \002(\010\0220\n\007account\030\004 \001(\0132\037.com.adonai.wal"
-    "let.sync.Account\0224\n\toperation\030\005 \001(\0132!.co"
-    "m.adonai.wallet.sync.Operation\0222\n\010catego"
-    "ry\030\006 \001(\0132 .com.adonai.wallet.sync.Catego"
-    "ry\022.\n\006budget\030\007 \001(\0132\036.com.adonai.wallet.s"
-    "ync.Budget\"]\n\007Account\022\014\n\004name\030\002 \002(\t\022\020\n\010c"
-    "urrency\030\003 \002(\t\022\016\n\006amount\030\004 \002(\t\022\023\n\013descrip"
-    "tion\030\005 \001(\t\022\r\n\005color\030\006 \001(\005\"\223\001\n\tOperation\022"
-    "\014\n\004time\030\002 \002(\004\022\022\n\ncategoryId\030\003 \002(\t\022\016\n\006amo"
-    "unt\030\004 \002(\t\022\023\n\013description\030\005 \001(\t\022\021\n\tordere"
-    "rId\030\006 \001(\t\022\024\n\014beneficiarId\030\007 \001(\t\022\026\n\016conve"
-    "rtingRate\030\010 \001(\001\"@\n\010Category\022\014\n\004name\030\002 \002("
-    "\t\022\014\n\004type\030\003 \002(\r\022\030\n\020preferredAccount\030\004 \001("
-    "\t\"\201\001\n\006Budget\022\014\n\004name\030\002 \002(\t\022\014\n\004from\030\003 \002(\004"
-    "\022\014\n\004till\030\004 \002(\t\022\030\n\020coveredAccountId\030\005 \001(\t"
-    "\0223\n\007content\030\006 \003(\0132\".com.adonai.wallet.sy"
-    "nc.BudgetItem\"K\n\nBudgetItem\022\026\n\016parentBud"
-    "getId\030\002 \002(\t\022\022\n\ncategoryId\030\003 \002(\t\022\021\n\tmaxAm"
-    "ount\030\004 \002(\004", 1370);
+    "newServerTimestamp\030\001 \002(\004\"\361\001\n\006Entity\022\n\n\002I"
+    "D\030\001 \002(\t\022\017\n\007deleted\030\002 \002(\010\0220\n\007account\030\003 \001("
+    "\0132\037.com.adonai.wallet.sync.Account\0224\n\top"
+    "eration\030\004 \001(\0132!.com.adonai.wallet.sync.O"
+    "peration\0222\n\010category\030\005 \001(\0132 .com.adonai."
+    "wallet.sync.Category\022.\n\006budget\030\006 \001(\0132\036.c"
+    "om.adonai.wallet.sync.Budget\"]\n\007Account\022"
+    "\014\n\004name\030\002 \002(\t\022\020\n\010currency\030\003 \002(\t\022\016\n\006amoun"
+    "t\030\004 \002(\t\022\023\n\013description\030\005 \001(\t\022\r\n\005color\030\006 "
+    "\001(\005\"\223\001\n\tOperation\022\014\n\004time\030\002 \002(\004\022\022\n\ncateg"
+    "oryId\030\003 \002(\t\022\016\n\006amount\030\004 \002(\t\022\023\n\013descripti"
+    "on\030\005 \001(\t\022\021\n\tordererId\030\006 \001(\t\022\024\n\014beneficia"
+    "rId\030\007 \001(\t\022\026\n\016convertingRate\030\010 \001(\001\"@\n\010Cat"
+    "egory\022\014\n\004name\030\002 \002(\t\022\014\n\004type\030\003 \002(\r\022\030\n\020pre"
+    "ferredAccount\030\004 \001(\t\"\201\001\n\006Budget\022\014\n\004name\030\002"
+    " \002(\t\022\014\n\004from\030\003 \002(\004\022\014\n\004till\030\004 \002(\t\022\030\n\020cove"
+    "redAccountId\030\005 \001(\t\0223\n\007content\030\006 \003(\0132\".co"
+    "m.adonai.wallet.sync.BudgetItem\"K\n\nBudge"
+    "tItem\022\026\n\016parentBudgetId\030\002 \002(\t\022\022\n\ncategor"
+    "yId\030\003 \002(\t\022\021\n\tmaxAmount\030\004 \002(\004", 1348);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "sync_protocol.proto", &protobuf_RegisterTypes);
   SyncRequest::default_instance_ = new SyncRequest();
@@ -1664,7 +1662,6 @@ void EntityAck::Swap(EntityAck* other) {
 
 #ifndef _MSC_VER
 const int Entity::kIDFieldNumber;
-const int Entity::kLastModifiedFieldNumber;
 const int Entity::kDeletedFieldNumber;
 const int Entity::kAccountFieldNumber;
 const int Entity::kOperationFieldNumber;
@@ -1693,7 +1690,6 @@ Entity::Entity(const Entity& from)
 void Entity::SharedCtor() {
   _cached_size_ = 0;
   id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  lastmodified_ = GOOGLE_ULONGLONG(0);
   deleted_ = false;
   account_ = NULL;
   operation_ = NULL;
@@ -1746,7 +1742,6 @@ void Entity::Clear() {
         id_->clear();
       }
     }
-    lastmodified_ = GOOGLE_ULONGLONG(0);
     deleted_ = false;
     if (has_account()) {
       if (account_ != NULL) account_->::com::adonai::wallet::sync::Account::Clear();
@@ -1783,28 +1778,12 @@ bool Entity::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(16)) goto parse_lastModified;
+        if (input->ExpectTag(16)) goto parse_deleted;
         break;
       }
 
-      // required uint64 lastModified = 2;
+      // required bool deleted = 2;
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_lastModified:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &lastmodified_)));
-          set_has_lastmodified();
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(24)) goto parse_deleted;
-        break;
-      }
-
-      // required bool deleted = 3;
-      case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
          parse_deleted:
@@ -1815,12 +1794,12 @@ bool Entity::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(34)) goto parse_account;
+        if (input->ExpectTag(26)) goto parse_account;
         break;
       }
 
-      // optional .com.adonai.wallet.sync.Account account = 4;
-      case 4: {
+      // optional .com.adonai.wallet.sync.Account account = 3;
+      case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_account:
@@ -1829,12 +1808,12 @@ bool Entity::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(42)) goto parse_operation;
+        if (input->ExpectTag(34)) goto parse_operation;
         break;
       }
 
-      // optional .com.adonai.wallet.sync.Operation operation = 5;
-      case 5: {
+      // optional .com.adonai.wallet.sync.Operation operation = 4;
+      case 4: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_operation:
@@ -1843,12 +1822,12 @@ bool Entity::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(50)) goto parse_category;
+        if (input->ExpectTag(42)) goto parse_category;
         break;
       }
 
-      // optional .com.adonai.wallet.sync.Category category = 6;
-      case 6: {
+      // optional .com.adonai.wallet.sync.Category category = 5;
+      case 5: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_category:
@@ -1857,12 +1836,12 @@ bool Entity::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(58)) goto parse_budget;
+        if (input->ExpectTag(50)) goto parse_budget;
         break;
       }
 
-      // optional .com.adonai.wallet.sync.Budget budget = 7;
-      case 7: {
+      // optional .com.adonai.wallet.sync.Budget budget = 6;
+      case 6: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_budget:
@@ -1902,38 +1881,33 @@ void Entity::SerializeWithCachedSizes(
       1, this->id(), output);
   }
 
-  // required uint64 lastModified = 2;
-  if (has_lastmodified()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->lastmodified(), output);
-  }
-
-  // required bool deleted = 3;
+  // required bool deleted = 2;
   if (has_deleted()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->deleted(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->deleted(), output);
   }
 
-  // optional .com.adonai.wallet.sync.Account account = 4;
+  // optional .com.adonai.wallet.sync.Account account = 3;
   if (has_account()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, this->account(), output);
+      3, this->account(), output);
   }
 
-  // optional .com.adonai.wallet.sync.Operation operation = 5;
+  // optional .com.adonai.wallet.sync.Operation operation = 4;
   if (has_operation()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, this->operation(), output);
+      4, this->operation(), output);
   }
 
-  // optional .com.adonai.wallet.sync.Category category = 6;
+  // optional .com.adonai.wallet.sync.Category category = 5;
   if (has_category()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      6, this->category(), output);
+      5, this->category(), output);
   }
 
-  // optional .com.adonai.wallet.sync.Budget budget = 7;
+  // optional .com.adonai.wallet.sync.Budget budget = 6;
   if (has_budget()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      7, this->budget(), output);
+      6, this->budget(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -1954,42 +1928,37 @@ void Entity::SerializeWithCachedSizes(
         1, this->id(), target);
   }
 
-  // required uint64 lastModified = 2;
-  if (has_lastmodified()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->lastmodified(), target);
-  }
-
-  // required bool deleted = 3;
+  // required bool deleted = 2;
   if (has_deleted()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->deleted(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->deleted(), target);
   }
 
-  // optional .com.adonai.wallet.sync.Account account = 4;
+  // optional .com.adonai.wallet.sync.Account account = 3;
   if (has_account()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        4, this->account(), target);
+        3, this->account(), target);
   }
 
-  // optional .com.adonai.wallet.sync.Operation operation = 5;
+  // optional .com.adonai.wallet.sync.Operation operation = 4;
   if (has_operation()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        5, this->operation(), target);
+        4, this->operation(), target);
   }
 
-  // optional .com.adonai.wallet.sync.Category category = 6;
+  // optional .com.adonai.wallet.sync.Category category = 5;
   if (has_category()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        6, this->category(), target);
+        5, this->category(), target);
   }
 
-  // optional .com.adonai.wallet.sync.Budget budget = 7;
+  // optional .com.adonai.wallet.sync.Budget budget = 6;
   if (has_budget()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        7, this->budget(), target);
+        6, this->budget(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -2010,40 +1979,33 @@ int Entity::ByteSize() const {
           this->id());
     }
 
-    // required uint64 lastModified = 2;
-    if (has_lastmodified()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->lastmodified());
-    }
-
-    // required bool deleted = 3;
+    // required bool deleted = 2;
     if (has_deleted()) {
       total_size += 1 + 1;
     }
 
-    // optional .com.adonai.wallet.sync.Account account = 4;
+    // optional .com.adonai.wallet.sync.Account account = 3;
     if (has_account()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->account());
     }
 
-    // optional .com.adonai.wallet.sync.Operation operation = 5;
+    // optional .com.adonai.wallet.sync.Operation operation = 4;
     if (has_operation()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->operation());
     }
 
-    // optional .com.adonai.wallet.sync.Category category = 6;
+    // optional .com.adonai.wallet.sync.Category category = 5;
     if (has_category()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->category());
     }
 
-    // optional .com.adonai.wallet.sync.Budget budget = 7;
+    // optional .com.adonai.wallet.sync.Budget budget = 6;
     if (has_budget()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
@@ -2080,9 +2042,6 @@ void Entity::MergeFrom(const Entity& from) {
     if (from.has_id()) {
       set_id(from.id());
     }
-    if (from.has_lastmodified()) {
-      set_lastmodified(from.lastmodified());
-    }
     if (from.has_deleted()) {
       set_deleted(from.deleted());
     }
@@ -2115,7 +2074,7 @@ void Entity::CopyFrom(const Entity& from) {
 }
 
 bool Entity::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
 
   if (has_account()) {
     if (!this->account().IsInitialized()) return false;
@@ -2135,7 +2094,6 @@ bool Entity::IsInitialized() const {
 void Entity::Swap(Entity* other) {
   if (other != this) {
     std::swap(id_, other->id_);
-    std::swap(lastmodified_, other->lastmodified_);
     std::swap(deleted_, other->deleted_);
     std::swap(account_, other->account_);
     std::swap(operation_, other->operation_);

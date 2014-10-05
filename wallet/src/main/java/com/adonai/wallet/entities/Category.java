@@ -7,7 +7,6 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -82,7 +81,6 @@ public class Category extends Entity {
         final Category tempCategory = new Category();
         tempCategory.setId(UUID.fromString(entity.getID()));
         tempCategory.setDeleted(entity.getDeleted());
-        tempCategory.setLastModified(new Date(entity.getLastModified()));
 
         tempCategory.setName(entity.getCategory().getName());
         tempCategory.setType(CategoryType.values()[entity.getCategory().getType()]);
@@ -103,7 +101,7 @@ public class Category extends Entity {
         return SyncProtocol.Entity.newBuilder()
                 .setID(getId().toString())
                 .setDeleted(isDeleted())
-                .setLastModified(getLastModified().getTime())
+                //.setLastModified(getLastModified().getTime())  // don't send server time to itself
                 .setCategory(cat)
                 .build();
     }

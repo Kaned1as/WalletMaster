@@ -159,7 +159,8 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
         case SENT_ACCOUNTS: // wait response
         {
             handleGeneric<sync::EntityResponse, sync::EntityAck>(incomingData);
-            setState(WAITING_CATEGORIES);
+            //setState(WAITING_CATEGORIES);
+            finishProcessing();
             break;
         }
         case WAITING_CATEGORIES: // wait categories
@@ -375,7 +376,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
     sync::EntityAck ack;
 
     // delete entities that deleted on device
-    QSqlQuery deleter(*conn);
+    //QSqlQuery deleter(*conn);
     // add entities that were created on device
     QSqlQuery adder(*conn);
     // modify entities that were merged on device
@@ -383,18 +384,18 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
     switch(state)
     {
         case SENT_ACCOUNTS:
-            deleter.prepare("DELETE FROM accounts WHERE sync_account = :userId AND id = :id");
-            adder.prepare("INSERT INTO accounts(sync_account, id, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?, ?)");
+            //deleter.prepare("DELETE FROM accounts WHERE sync_account = :userId AND id = :id");
+            adder.prepare("INSERT INTO accounts(sync_account, id, deleted, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
             modifier.prepare("UPDATE accounts SET name = ?, description = ?, currency = ?, amount = ?, color = ? WHERE sync_account = ? AND id = ?");
             break;
         case SENT_CATEGORIES:
-            deleter.prepare("DELETE FROM categories WHERE sync_account = :userId AND id = :id");
-            adder.prepare("INSERT INTO categories(sync_account, id, name, type, preferred_account_id) VALUES(?, ?, ?, ?, ?)");
+            //deleter.prepare("DELETE FROM categories WHERE sync_account = :userId AND id = :id");
+            adder.prepare("INSERT INTO categories(sync_account, id, deleted, name, type, preferred_account_id) VALUES(?, ?, ?, ?, ?, ?)");
             modifier.prepare("UPDATE categories SET name = ?, type = ?, preferred_account_id = ? WHERE sync_account = ? AND id = ?");
             break;
         case SENT_OPERATIONS:
-            deleter.prepare("DELETE FROM operations WHERE sync_account = :userId AND id = :id");
-            adder.prepare("INSERT INTO operations(sync_account, id, description, amount, category_id, time, charger_id, beneficiar_id, converting_rate) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            //deleter.prepare("DELETE FROM operations WHERE sync_account = :userId AND id = :id");
+            adder.prepare("INSERT INTO operations(sync_account, id, deleted, description, amount, category_id, time, charger_id, beneficiar_id, converting_rate) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             modifier.prepare("UPDATE operations SET description = ?, amount = ?, category_id = ?, time = ?, charger_id = ?, beneficiar_id = ?, converting_rate = ? WHERE sync_account = ? AND id = ?");
             break;
         default:
@@ -403,95 +404,73 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             return ack;
     }
 
-    /// delete entities
-    QVariantList userList, idList;
-    userList.reserve(response.deletedid_size());
-    idList.reserve(response.deletedid_size());
-    for(std::string id : response.deletedid())
-    {
-        userList.append(userId);
-        idList.append(id.data());
-        //ack.add_deletedguid(id);
-    }
-    deleter.addBindValue(userList);
-    deleter.addBindValue(idList);
-    if(!deleter.execBatch())
-    {
-        qDebug() << tr("Cannot delete entities from server! Error %1").arg(deleter.lastError().text());
-        interruptProcessing();
-        return ack;
-    }
-
     /// add entities
     // should execute each query async-ly because lastInsertId works only for last :(
     for(sync::Entity entity : response.added())
     {
+        adder.addBindValue(userId);
+        adder.addBindValue(entity.id().data());
+        adder.addBindValue(entity.deleted());
         switch(state)
         {
-            case SENT_ACCOUNTS:
-            {
-                const sync::Account& acc = entity.account();
-                adder.addBindValue(userId);
-                adder.addBindValue(acc.id().data());
-                adder.addBindValue(acc.name().data());
-                if(acc.has_description())
-                    adder.addBindValue(acc.description().data());
-                else
-                    adder.addBindValue(QVariant(QVariant::String)); // no desc
-                adder.addBindValue(acc.currency().data());
-                adder.addBindValue(acc.amount().data());
-                if(acc.has_color())
-                    adder.addBindValue(acc.color());
-                else
-                    adder.addBindValue(QVariant(QVariant::Int));
-                break;
-            }
-            case SENT_CATEGORIES:
-            {
-                const sync::Category& category = entity.category();
-                adder.addBindValue(userId);
-                adder.addBindValue(category.id().data());
-                adder.addBindValue(category.name().data());
-                adder.addBindValue(category.type());
-                if(category.has_preferredaccount())
-                    adder.addBindValue(category.preferredaccount().data());
-                else
-                    adder.addBindValue(QVariant(QVariant::String));
-                break;
-            }
-            case SENT_OPERATIONS:
-            {
-                const sync::Operation& operation = entity.operation();
-                adder.addBindValue(userId);
-                adder.addBindValue(operation.id().data());
-                if(operation.has_description())
-                    adder.addBindValue(operation.description().data());
-                else
-                    adder.addBindValue(QVariant(QVariant::String)); // no desc
-                adder.addBindValue(operation.amount().data());
-                adder.addBindValue(operation.categoryid().data());
-                adder.addBindValue(QDateTime::fromMSecsSinceEpoch(operation.time()));
+        case SENT_ACCOUNTS:
+        {
+            const sync::Account& acc = entity.account();
+            adder.addBindValue(acc.name().data());
+            if(acc.has_description())
+                adder.addBindValue(acc.description().data());
+            else
+                adder.addBindValue(QVariant(QVariant::String)); // no desc
+            adder.addBindValue(acc.currency().data());
+            adder.addBindValue(acc.amount().data());
+            if(acc.has_color())
+                adder.addBindValue(acc.color());
+            else
+                adder.addBindValue(QVariant(QVariant::Int));
+            break;
+        }
+        case SENT_CATEGORIES:
+        {
+            const sync::Category& category = entity.category();
+            adder.addBindValue(category.name().data());
+            adder.addBindValue(category.type());
+            if(category.has_preferredaccount())
+                adder.addBindValue(category.preferredaccount().data());
+            else
+                adder.addBindValue(QVariant(QVariant::String));
+            break;
+        }
+        case SENT_OPERATIONS:
+        {
+            const sync::Operation& operation = entity.operation();
+            if(operation.has_description())
+                adder.addBindValue(operation.description().data());
+            else
+                adder.addBindValue(QVariant(QVariant::String)); // no desc
+            adder.addBindValue(operation.amount().data());
+            adder.addBindValue(operation.categoryid().data());
+            adder.addBindValue(QDateTime::fromMSecsSinceEpoch(operation.time()));
 
-                if(operation.has_chargerid())
-                    adder.addBindValue(operation.chargerid().data());
-                else
-                    adder.addBindValue(QVariant(QVariant::String)); // no charger
+            if(operation.has_ordererid())
+                adder.addBindValue(operation.ordererid().data());
+            else
+                adder.addBindValue(QVariant(QVariant::String)); // no charger
 
-                if(operation.has_beneficiarid())
-                    adder.addBindValue(operation.beneficiarid().data());
-                else
-                    adder.addBindValue(QVariant(QVariant::String)); // no beneficiar
+            if(operation.has_beneficiarid())
+                adder.addBindValue(operation.beneficiarid().data());
+            else
+                adder.addBindValue(QVariant(QVariant::String)); // no beneficiar
 
-                if(operation.has_convertingrate())
-                    adder.addBindValue(operation.convertingrate());
-                else
-                    adder.addBindValue(QVariant(QVariant::Double)); // no converting rate
-                break;
-            }
-            default:
-                qDebug() << tr("Unknown entity type processing!");
-                interruptProcessing();
-                return ack;
+            if(operation.has_convertingrate())
+                adder.addBindValue(operation.convertingrate());
+            else
+                adder.addBindValue(QVariant(QVariant::Double)); // no converting rate
+            break;
+        }
+        default:
+            qDebug() << tr("Unknown entity type processing!");
+            interruptProcessing();
+            return ack;
         }
 
         if(!adder.exec())
@@ -523,8 +502,6 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
                     modifier.addBindValue(acc.color());
                 else
                     modifier.addBindValue(QVariant(QVariant::Int));
-                modifier.addBindValue(userId);
-                modifier.addBindValue(acc.id().data());
                 break;
             }
             case SENT_CATEGORIES:
@@ -536,8 +513,6 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
                     modifier.addBindValue(category.preferredaccount().data());
                 else
                     modifier.addBindValue(QVariant(QVariant::String));
-                modifier.addBindValue(userId);
-                modifier.addBindValue(category.id().data());
                 break;
             }
             case SENT_OPERATIONS:
@@ -551,8 +526,8 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
                 modifier.addBindValue(operation.amount().data());
                 modifier.addBindValue(operation.categoryid().data());
                 modifier.addBindValue(QDateTime::fromMSecsSinceEpoch(operation.time()));
-                if(operation.has_chargerid())
-                    modifier.addBindValue(operation.chargerid().data());
+                if(operation.has_ordererid())
+                    modifier.addBindValue(operation.ordererid().data());
                 else
                     modifier.addBindValue(QVariant(QVariant::String));
 
@@ -565,9 +540,6 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
                     modifier.addBindValue(operation.convertingrate());
                 else
                     modifier.addBindValue(QVariant(QVariant::String));
-
-                modifier.addBindValue(userId);
-                modifier.addBindValue(operation.id().data());
                 break;
             }
             default:
@@ -575,6 +547,8 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
                 interruptProcessing();
                 return ack;
         }
+        modifier.addBindValue(entity.id().data());
+        modifier.addBindValue(userId);
 
         if(!modifier.exec())
         {

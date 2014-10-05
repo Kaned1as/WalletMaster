@@ -165,7 +165,9 @@ public class DatabaseDAO /*extends SQLiteOpenHelper*/ {
 
     public static <T extends Entity> long getLastServerTimestamp(Class<T> clazz) throws SQLException {
         String tableName = clazz.getAnnotation(DatabaseTable.class).tableName();
-        return DbProvider.getHelper().getEntityDao(clazz).queryRawValue("select ifnull(timestamp, 0) from" + tableName + "order by timestamp desc limit 1");
+        if(tableName.isEmpty())
+            tableName = clazz.getSimpleName().toLowerCase();
+        return DbProvider.getHelper().getEntityDao(clazz).queryRawValue("select ifnull(last_modified, 0) from " + tableName + " order by last_modified desc limit 1");
     }
 
 //    /**

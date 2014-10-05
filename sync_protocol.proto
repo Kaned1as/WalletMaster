@@ -39,13 +39,12 @@ message EntityAck {
 
 message Entity {
     required string ID = 1;
-    required uint64 lastModified = 2;
-    required bool deleted = 3;
+    required bool deleted = 2;
 
-    optional Account account = 4;
-    optional Operation operation = 5;
-    optional Category category = 6;
-    optional Budget budget = 7;
+    optional Account account = 3;
+    optional Operation operation = 4;
+    optional Category category = 5;
+    optional Budget budget = 6;
 }
 
 message Account { // root, independent

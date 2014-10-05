@@ -6,7 +6,6 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -90,7 +89,6 @@ public class Account extends Entity {
         final Account temp = new Account();
         temp.setId(UUID.fromString(entity.getID()));
         temp.setDeleted(entity.getDeleted());
-        temp.setLastModified(new Date(entity.getLastModified()));
 
         temp.setName(entity.getAccount().getName());
         temp.setAmount(new BigDecimal(entity.getAccount().getAmount()));
@@ -112,7 +110,7 @@ public class Account extends Entity {
         return SyncProtocol.Entity.newBuilder()
                 .setID(getId().toString())
                 .setDeleted(isDeleted())
-                .setLastModified(getLastModified().getTime())
+                //.setLastModified(getLastModified().getTime()) // don't send server time to itself
                 .setAccount(acc)
                 .build();
 

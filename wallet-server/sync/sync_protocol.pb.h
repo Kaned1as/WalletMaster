@@ -665,51 +665,44 @@ class Entity : public ::google::protobuf::Message {
   inline ::std::string* release_id();
   inline void set_allocated_id(::std::string* id);
 
-  // required uint64 lastModified = 2;
-  inline bool has_lastmodified() const;
-  inline void clear_lastmodified();
-  static const int kLastModifiedFieldNumber = 2;
-  inline ::google::protobuf::uint64 lastmodified() const;
-  inline void set_lastmodified(::google::protobuf::uint64 value);
-
-  // required bool deleted = 3;
+  // required bool deleted = 2;
   inline bool has_deleted() const;
   inline void clear_deleted();
-  static const int kDeletedFieldNumber = 3;
+  static const int kDeletedFieldNumber = 2;
   inline bool deleted() const;
   inline void set_deleted(bool value);
 
-  // optional .com.adonai.wallet.sync.Account account = 4;
+  // optional .com.adonai.wallet.sync.Account account = 3;
   inline bool has_account() const;
   inline void clear_account();
-  static const int kAccountFieldNumber = 4;
+  static const int kAccountFieldNumber = 3;
   inline const ::com::adonai::wallet::sync::Account& account() const;
   inline ::com::adonai::wallet::sync::Account* mutable_account();
   inline ::com::adonai::wallet::sync::Account* release_account();
   inline void set_allocated_account(::com::adonai::wallet::sync::Account* account);
 
-  // optional .com.adonai.wallet.sync.Operation operation = 5;
+  // optional .com.adonai.wallet.sync.Operation operation = 4;
   inline bool has_operation() const;
   inline void clear_operation();
-  static const int kOperationFieldNumber = 5;
+  static const int kOperationFieldNumber = 4;
   inline const ::com::adonai::wallet::sync::Operation& operation() const;
   inline ::com::adonai::wallet::sync::Operation* mutable_operation();
   inline ::com::adonai::wallet::sync::Operation* release_operation();
   inline void set_allocated_operation(::com::adonai::wallet::sync::Operation* operation);
 
-  // optional .com.adonai.wallet.sync.Category category = 6;
+  // optional .com.adonai.wallet.sync.Category category = 5;
   inline bool has_category() const;
   inline void clear_category();
-  static const int kCategoryFieldNumber = 6;
+  static const int kCategoryFieldNumber = 5;
   inline const ::com::adonai::wallet::sync::Category& category() const;
   inline ::com::adonai::wallet::sync::Category* mutable_category();
   inline ::com::adonai::wallet::sync::Category* release_category();
   inline void set_allocated_category(::com::adonai::wallet::sync::Category* category);
 
-  // optional .com.adonai.wallet.sync.Budget budget = 7;
+  // optional .com.adonai.wallet.sync.Budget budget = 6;
   inline bool has_budget() const;
   inline void clear_budget();
-  static const int kBudgetFieldNumber = 7;
+  static const int kBudgetFieldNumber = 6;
   inline const ::com::adonai::wallet::sync::Budget& budget() const;
   inline ::com::adonai::wallet::sync::Budget* mutable_budget();
   inline ::com::adonai::wallet::sync::Budget* release_budget();
@@ -719,8 +712,6 @@ class Entity : public ::google::protobuf::Message {
  private:
   inline void set_has_id();
   inline void clear_has_id();
-  inline void set_has_lastmodified();
-  inline void clear_has_lastmodified();
   inline void set_has_deleted();
   inline void clear_has_deleted();
   inline void set_has_account();
@@ -735,7 +726,6 @@ class Entity : public ::google::protobuf::Message {
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::std::string* id_;
-  ::google::protobuf::uint64 lastmodified_;
   ::com::adonai::wallet::sync::Account* account_;
   ::com::adonai::wallet::sync::Operation* operation_;
   ::com::adonai::wallet::sync::Category* category_;
@@ -743,7 +733,7 @@ class Entity : public ::google::protobuf::Message {
   bool deleted_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(7 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(6 + 31) / 32];
 
   friend void  protobuf_AddDesc_sync_5fprotocol_2eproto();
   friend void protobuf_AssignDesc_sync_5fprotocol_2eproto();
@@ -1802,37 +1792,15 @@ inline void Entity::set_allocated_id(::std::string* id) {
   }
 }
 
-// required uint64 lastModified = 2;
-inline bool Entity::has_lastmodified() const {
+// required bool deleted = 2;
+inline bool Entity::has_deleted() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void Entity::set_has_lastmodified() {
+inline void Entity::set_has_deleted() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void Entity::clear_has_lastmodified() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void Entity::clear_lastmodified() {
-  lastmodified_ = GOOGLE_ULONGLONG(0);
-  clear_has_lastmodified();
-}
-inline ::google::protobuf::uint64 Entity::lastmodified() const {
-  return lastmodified_;
-}
-inline void Entity::set_lastmodified(::google::protobuf::uint64 value) {
-  set_has_lastmodified();
-  lastmodified_ = value;
-}
-
-// required bool deleted = 3;
-inline bool Entity::has_deleted() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void Entity::set_has_deleted() {
-  _has_bits_[0] |= 0x00000004u;
-}
 inline void Entity::clear_has_deleted() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void Entity::clear_deleted() {
   deleted_ = false;
@@ -1846,15 +1814,15 @@ inline void Entity::set_deleted(bool value) {
   deleted_ = value;
 }
 
-// optional .com.adonai.wallet.sync.Account account = 4;
+// optional .com.adonai.wallet.sync.Account account = 3;
 inline bool Entity::has_account() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
 inline void Entity::set_has_account() {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000004u;
 }
 inline void Entity::clear_has_account() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void Entity::clear_account() {
   if (account_ != NULL) account_->::com::adonai::wallet::sync::Account::Clear();
@@ -1884,15 +1852,15 @@ inline void Entity::set_allocated_account(::com::adonai::wallet::sync::Account* 
   }
 }
 
-// optional .com.adonai.wallet.sync.Operation operation = 5;
+// optional .com.adonai.wallet.sync.Operation operation = 4;
 inline bool Entity::has_operation() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline void Entity::set_has_operation() {
-  _has_bits_[0] |= 0x00000010u;
+  _has_bits_[0] |= 0x00000008u;
 }
 inline void Entity::clear_has_operation() {
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline void Entity::clear_operation() {
   if (operation_ != NULL) operation_->::com::adonai::wallet::sync::Operation::Clear();
@@ -1922,15 +1890,15 @@ inline void Entity::set_allocated_operation(::com::adonai::wallet::sync::Operati
   }
 }
 
-// optional .com.adonai.wallet.sync.Category category = 6;
+// optional .com.adonai.wallet.sync.Category category = 5;
 inline bool Entity::has_category() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
 inline void Entity::set_has_category() {
-  _has_bits_[0] |= 0x00000020u;
+  _has_bits_[0] |= 0x00000010u;
 }
 inline void Entity::clear_has_category() {
-  _has_bits_[0] &= ~0x00000020u;
+  _has_bits_[0] &= ~0x00000010u;
 }
 inline void Entity::clear_category() {
   if (category_ != NULL) category_->::com::adonai::wallet::sync::Category::Clear();
@@ -1960,15 +1928,15 @@ inline void Entity::set_allocated_category(::com::adonai::wallet::sync::Category
   }
 }
 
-// optional .com.adonai.wallet.sync.Budget budget = 7;
+// optional .com.adonai.wallet.sync.Budget budget = 6;
 inline bool Entity::has_budget() const {
-  return (_has_bits_[0] & 0x00000040u) != 0;
+  return (_has_bits_[0] & 0x00000020u) != 0;
 }
 inline void Entity::set_has_budget() {
-  _has_bits_[0] |= 0x00000040u;
+  _has_bits_[0] |= 0x00000020u;
 }
 inline void Entity::clear_has_budget() {
-  _has_bits_[0] &= ~0x00000040u;
+  _has_bits_[0] &= ~0x00000020u;
 }
 inline void Entity::clear_budget() {
   if (budget_ != NULL) budget_->::com::adonai::wallet::sync::Budget::Clear();
