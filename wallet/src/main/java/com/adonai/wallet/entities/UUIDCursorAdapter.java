@@ -1,6 +1,6 @@
 package com.adonai.wallet.entities;
 
-import android.content.Context;
+import android.app.Activity;
 import android.widget.BaseAdapter;
 
 import com.adonai.wallet.database.EntityDao;
@@ -25,9 +25,9 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
     private PreparedQuery<T> mQuery = null;
 
     protected CloseableIterator<T> mCursor;
-    protected Context mContext;
+    protected Activity mContext;
 
-    public UUIDCursorAdapter(Context context, EntityDao<T> dao) {
+    public UUIDCursorAdapter(Activity context, EntityDao<T> dao) {
         try {
             mDao = dao;
             mContext = context;
@@ -105,12 +105,17 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
 
     @Override
     public void notifyDataSetChanged() {
-        try {
-            mCursor = (mQuery != null) ? mDao.iterator(mQuery) : mDao.iterator();
-            super.notifyDataSetChanged();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        mContext.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mCursor = (mQuery != null) ? mDao.iterator(mQuery) : mDao.iterator();
+                    UUIDCursorAdapter.super.notifyDataSetChanged();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 
     public void closeCursor() {

@@ -1,8 +1,8 @@
 package com.adonai.wallet;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -104,7 +104,7 @@ public class CategoriesFragment extends WalletBaseListFragment {
         private final int mResourceId;
         private CategoryType mCategoryType;
 
-        public CategoriesAdapter(Context context, int resourceId, CategoryType categoryType) {
+        public CategoriesAdapter(Activity context, int resourceId, CategoryType categoryType) {
             super(context, DbProvider.getHelper().getEntityDao(Category.class));
             try {
                 mResourceId = resourceId;

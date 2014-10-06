@@ -1,5 +1,6 @@
 package com.adonai.wallet.view;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.view.LayoutInflater;
@@ -101,7 +102,7 @@ public class BudgetView extends LinearLayout {
             return;
 
         if(mBudgetItemCursorAdapter == null) { // never expanded before
-            mBudgetItemCursorAdapter = new BudgetItemCursorAdapter(getContext());
+            mBudgetItemCursorAdapter = new BudgetItemCursorAdapter((Activity) getContext());
 
             mFooter = View.inflate(getContext(), R.layout.listview_add_footer, null);
             mFooter.setOnClickListener(new OnClickListener() {
@@ -148,7 +149,7 @@ public class BudgetView extends LinearLayout {
 
     public class BudgetItemCursorAdapter extends UUIDCursorAdapter<BudgetItem> {
 
-        public BudgetItemCursorAdapter(Context context) {
+        public BudgetItemCursorAdapter(Activity context) {
             super(context, DbProvider.getHelper().getEntityDao(BudgetItem.class));
         }
 

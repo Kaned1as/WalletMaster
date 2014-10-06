@@ -1,6 +1,6 @@
 package com.adonai.wallet.entities;
 
-import android.content.Context;
+import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +19,7 @@ import java.sql.SQLException;
  */
 public class UUIDSpinnerAdapter<T extends Entity> extends UUIDCursorAdapter<T> implements SpinnerAdapter {
 
-    public UUIDSpinnerAdapter(Context context, EntityDao<T> dao) {
+    public UUIDSpinnerAdapter(Activity context, EntityDao<T> dao) {
         super(context, dao);
     }
 

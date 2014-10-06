@@ -3,6 +3,8 @@ package com.adonai.wallet.entities;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.io.Serializable;
+
 /**
  * Service class needed for conversions and account splitting
  * Note: this is not an entity. Currency tables are local for now
@@ -17,7 +19,7 @@ import com.j256.ormlite.table.DatabaseTable;
  * @author Adonai
  */
 @DatabaseTable
-public class Currency {
+public class Currency implements Serializable {
 
     @DatabaseField(id = true)
     private String code;
