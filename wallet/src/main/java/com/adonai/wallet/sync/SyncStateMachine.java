@@ -427,7 +427,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
         final Account result = new Account();
         result.setId(local.getId());
         result.setDeleted(remote.isDeleted());
-        result.setLastModified(remote.getLastModified());
+        result.setLastModified(local.getLastModified());
 
         if(local.getName().equals(base.getName())) // name wasn't changed
             result.setName(remote.getName()); // set name to remote's
