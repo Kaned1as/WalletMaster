@@ -297,7 +297,7 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
             return response;
     }
     selectSyncedEntities.bindValue(":userId", userId);
-    selectSyncedEntities.bindValue(":lastModified", static_cast<quint64>(request.lastknownservertimestamp()));
+    selectSyncedEntities.bindValue(":lastModified", QDateTime::fromMSecsSinceEpoch(request.lastknownservertimestamp()));
 
     if(!selectSyncedEntities.exec())
     {
@@ -547,8 +547,8 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
                 interruptProcessing();
                 return ack;
         }
-        modifier.addBindValue(entity.id().data());
         modifier.addBindValue(userId);
+        modifier.addBindValue(entity.id().data());
 
         if(!modifier.exec())
         {
@@ -582,7 +582,6 @@ template<typename REQ, typename RESP> void SyncClientSocket::handleGeneric(const
 
     // handle
     RESP response = handle(request);
-    if(isOpen())
 
     // send response
     if(!writeDelimited(response))
