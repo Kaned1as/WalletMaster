@@ -150,7 +150,7 @@ public class Operation extends Entity {
         return temp;
     }
 
-    public SyncProtocol.Entity toProtoOperation() {
+    public SyncProtocol.Entity toProtoEntity() {
         final SyncProtocol.Operation.Builder builder = SyncProtocol.Operation.newBuilder()
                 .setDescription(getDescription())
                 .setAmount(getAmount().toPlainString())

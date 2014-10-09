@@ -13,7 +13,9 @@ import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.WalletConstants;
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Account;
+import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Entity;
+import com.adonai.wallet.entities.Operation;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -197,7 +199,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                                 DbProvider.getHelper().getEntityDao(Account.class).createByServer(remote);
                             else if (!local.isDirty()) // updated on server but not on client, replace local with remote
                                 DbProvider.getHelper().getEntityDao(Account.class).updateByServer(remote);
-                            else { // update on server and on client, should resolve conflicts (just take server version for now)
+                            else { // update on server and on client, should resolve conflicts
                                 Account merged = mergeAccounts(remote, local, (Account) local.getBackup());
                                 DbProvider.getHelper().getEntityDao(Account.class).update(merged); // do not reset dirty flag
                             }
@@ -229,11 +231,10 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                             dirtyAcc.setLastModified(newTimestamp);
                             DbProvider.getHelper().getEntityDao(Account.class).updateByServer(dirtyAcc);
                         }
-                        finish();
-                        //setState(State.CAT_REQ);
+                        setState(State.CAT_REQ);
                         break;
                     }
-                    /*case CAT_REQ: {
+                    case CAT_REQ: {
                         final InputStream is = mSocket.getInputStream();
                         final OutputStream os = mSocket.getOutputStream();
 
@@ -243,50 +244,45 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         final SyncProtocol.EntityResponse serverSide = SyncProtocol.EntityResponse.parseDelimitedFrom(is);
                         setState(State.CAT_REQ_ACK);
 
-                        final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
-                        final List<String> deletedLocally = db.getDeleted(Category.class);
-
                         // handle modified entities - check if we updated them too...
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
-                            final Category remote = Category.fromProtoCategory(entity.getCategory());
-                            final Category changed = Category.getFromDB(remote.getId()); // should not be null
-                            final Category base = db.getBackedVersion(remote);
-                            if(base == null) // we have not modified this entity locally
-                                remote.update();
-                            else if (changed == null) // it's modified on server and deleted locally
-                                continue; // leave deleted
-                            else
-                                changed.update();
+                            final Category remote = Category.fromProtoEntity(entity);
+                            final Category local = DbProvider.getHelper().getCategoryDao().queryForId(remote.getId());
+                            if(local == null) // not found on client, but exists remotely, should create on client
+                                DbProvider.getHelper().getEntityDao(Category.class).createByServer(remote);
+                            else if (!local.isDirty()) // updated on server but not on client, replace local with remote
+                                DbProvider.getHelper().getEntityDao(Category.class).updateByServer(remote);
+                            else { // update on server and on client, should resolve conflicts (just take server version for now)
+                                DbProvider.getHelper().getEntityDao(Category.class).updateByServer(remote);
+                            }
                         }
-                        // add to modified list local modifications
-                        final List<Category> modifiedLocally = db.getModified(Category.class);
-                        for(final Category cat : modifiedLocally)
-                            serverUpdate.addModified(SyncProtocol.Entity.newBuilder().setCategory(Category.toProtoCategory(cat)).build());
 
-                        // handle added entities
-                        // need to delete all entities and replace it with ours...
+                        // adding newly inserted entities
+                        SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
 
-                        // add remote
-                        for(final SyncProtocol.Entity entity : serverSide.getAddedList()) {
-                            final Category remote = Category.fromProtoCategory(entity.getCategory());
-                            remote.persist();
+                        List<Category> newCategories = DbProvider.getHelper().getCategoryDao().queryBuilder().where().isNull("last_modified").query();
+                        for(Category newCategory : newCategories) {
+                            serverUpdate.addAdded(newCategory.toProtoEntity());
                         }
-                        // re-add locals + add to add-list
-                        final List<Category> addedLocally = db.getAdded(Category.class);
-                        for(final Category cat : addedLocally)
-                            serverUpdate.addAdded(SyncProtocol.Entity.newBuilder().setCategory(Category.toProtoCategory(cat)).build());
-
-
-                        // handle deleted
-                        for(final String deletedID : serverSide.getDeletedIDList())
-                            db.delete(deletedID, DatabaseDAO.EntityType.CATEGORIES.toString());
-                        // + add to delete list entities that we deleted locally
-                        for(final String deletedLocal : deletedLocally)
-                            serverUpdate.addDeletedID(deletedLocal);
+                        // adding modified entities
+                        //List<Category> dirtyCategories = DbProvider.getHelper().getCategoryDao().queryBuilder().where().isNotNull("backup").query(); // TODO: restore with 4.49
+                        List<Category> dirtyCategories = DbProvider.getHelper().getCategoryDao().queryBuilder().where().raw("backup IS NOT NULL").query();
+                        for(Category dirtyCategory : dirtyCategories) {
+                            serverUpdate.addModified(dirtyCategory.toProtoEntity());
+                        }
 
                         serverUpdate.build().writeDelimitedTo(os);
-
                         final SyncProtocol.EntityAck ack = SyncProtocol.EntityAck.parseDelimitedFrom(is);
+                        Date newTimestamp = new Date(ack.getNewServerTimestamp());
+                        // updating local entities with new timestamp
+                        for(Category newCategory : newCategories) {
+                            newCategory.setLastModified(newTimestamp);
+                            DbProvider.getHelper().getEntityDao(Category.class).updateByServer(newCategory);
+                        }
+                        for(Category dirtyCategory : dirtyCategories) {
+                            dirtyCategory.setLastModified(newTimestamp);
+                            DbProvider.getHelper().getEntityDao(Category.class).updateByServer(dirtyCategory);
+                        }
                         setState(State.OP_REQ);
                         break;
                     }
@@ -300,54 +296,49 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         final SyncProtocol.EntityResponse serverSide = SyncProtocol.EntityResponse.parseDelimitedFrom(is);
                         setState(State.OP_REQ_ACK);
 
-                        final SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
-                        final List<String> deletedLocally = db.getDeleted(Operation.class);
-
                         // handle modified entities - check if we updated them too...
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
-                            final Operation remote = Operation.fromProtoOperation(entity.getOperation());
-                            final Operation changed = Operation.getFromDB(remote.getId()); // should not be null
-                            final Operation base = db.getBackedVersion(remote);
-                            if(base == null) // we have not modified this entity locally
-                                remote.update();
-                            else if (changed == null) // it's modified on server and deleted locally
-                                continue; // leave deleted
-                            else { // select changed as resulting operation
-                                changed.update();
+                            final Operation remote = Operation.fromProtoEntity(entity);
+                            final Operation local = DbProvider.getHelper().getOperationDao().queryForId(remote.getId());
+                            if(local == null) // not found on client, but exists remotely, should create on client
+                                DbProvider.getHelper().getEntityDao(Operation.class).createByServer(remote);
+                            else if (!local.isDirty()) // updated on server but not on client, replace local with remote
+                                DbProvider.getHelper().getEntityDao(Operation.class).updateByServer(remote);
+                            else { // update on server and on client, should resolve conflicts
+                                DbProvider.getHelper().getEntityDao(Operation.class).updateByServer(remote); // just take server version
                             }
                         }
-                        // add to modified list local modifications
-                        final List<Operation> modifiedLocally = db.getModified(Operation.class);
-                        for(final Operation op : modifiedLocally)
-                            serverUpdate.addModified(SyncProtocol.Entity.newBuilder().setOperation(Operation.toProtoOperation(op)).build());
 
-                        // handle added entities
-                        // need to delete all entities and replace it with ours...
+                        // adding newly inserted entities
+                        SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
 
-                        // add remote
-                        for(final SyncProtocol.Entity entity : serverSide.getAddedList()) {
-                            final Operation remote = Operation.fromProtoOperation(entity.getOperation());
-                            remote.persist();
+                        List<Operation> newOperations = DbProvider.getHelper().getOperationDao().queryBuilder().where().isNull("last_modified").query();
+                        for(Operation newOp : newOperations) {
+                            serverUpdate.addAdded(newOp.toProtoEntity());
                         }
-                        // re-add locals + add to add-list
-                        final List<Operation> addedLocally = db.getAdded(Operation.class);
-                        for(final Operation op : addedLocally)
-                            serverUpdate.addAdded(SyncProtocol.Entity.newBuilder().setOperation(Operation.toProtoOperation(op)).build());
-
-                        // handle deleted
-                        for(final String deletedID : serverSide.getDeletedIDList())
-                            db.delete(deletedID, DatabaseDAO.EntityType.OPERATIONS.toString());
-                        // + add to delete list entities that we deleted locally
-                        for(final String deletedLocal : deletedLocally)
-                            serverUpdate.addDeletedID(deletedLocal);
+                        // adding modified entities
+                        //List<Operation> dirtyOperations = DbProvider.getHelper().getAccountDao().queryBuilder().where().isNotNull("backup").query(); // TODO: restore with 4.49
+                        List<Operation> dirtyOperations = DbProvider.getHelper().getOperationDao().queryBuilder().where().raw("backup IS NOT NULL").query();
+                        for(Operation dirtyOp : dirtyOperations) {
+                            serverUpdate.addModified(dirtyOp.toProtoEntity());
+                        }
 
                         serverUpdate.build().writeDelimitedTo(os);
-
                         final SyncProtocol.EntityAck ack = SyncProtocol.EntityAck.parseDelimitedFrom(is);
-                        mPreferences.edit().putLong(WalletConstants.ACCOUNT_LAST_SYNC, ack.getNewServerTimestamp()).commit();
+                        Date newTimestamp = new Date(ack.getNewServerTimestamp());
+                        // updating local entities with new timestamp
+                        for(Operation newOp : newOperations) {
+                            newOp.setLastModified(newTimestamp);
+                            DbProvider.getHelper().getEntityDao(Operation.class).updateByServer(newOp);
+                        }
+                        for(Operation dirtyOp : dirtyOperations) {
+                            dirtyOp.setLastModified(newTimestamp);
+                            DbProvider.getHelper().getEntityDao(Operation.class).updateByServer(dirtyOp);
+                        }
+
                         finish();
                         break;
-                    }*/
+                    }
                 }
             } catch (Exception io) {
                 interrupt(io.getMessage());

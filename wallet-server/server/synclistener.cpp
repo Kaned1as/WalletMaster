@@ -53,9 +53,10 @@ void SyncListener::handleNewConnection()
 {
     SyncClientSocket* const clientSocket = server->nextPendingConnection();
     int descriptor = clientSocket->socketDescriptor();
+    QString host = clientSocket->peerAddress().toString();
     activeClients[clientSocket->socketDescriptor()] = clientSocket;
     connect(clientSocket, &QTcpSocket::disconnected, this, [=] () {
-        qDebug() << tr("Freeing client %1").arg(descriptor);
+        qDebug() << tr("Freeing client %1").arg(host);
         activeClients.remove(descriptor); // remove client from active list (`this` to handle in our thread)
     });
 }
