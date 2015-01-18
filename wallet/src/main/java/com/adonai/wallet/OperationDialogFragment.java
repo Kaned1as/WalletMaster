@@ -277,6 +277,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
             if (mOperation != null) { // operation is already applied, need to revert it and re-apply again
                 fillOperationFields();
                 if (Operation.revertOperation(DbProvider.getHelper().getOperationDao().queryForId(mOperation.getId()))) { // revert original one and apply ours
+                    DbProvider.getHelper().getAccountDao().refresh(mOperation.getBeneficiar()); // remember amount change
+                    DbProvider.getHelper().getAccountDao().refresh(mOperation.getOrderer()); // remember amount change
                     Operation.applyOperation(mOperation);
                     dismiss();
                 }

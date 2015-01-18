@@ -159,8 +159,7 @@ void SyncClientSocket::handleMessage(const QByteArray& incomingData)
         case SENT_ACCOUNTS: // wait response
         {
             handleGeneric<sync::EntityResponse, sync::EntityAck>(incomingData);
-            //setState(WAITING_CATEGORIES);
-            finishProcessing();
+            setState(WAITING_CATEGORIES);
             break;
         }
         case WAITING_CATEGORIES: // wait categories

@@ -201,7 +201,11 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/amount_edit"
                 android:inputType="numberDecimal"
-                android:imeOptions="actionDone" />
+                android:imeOptions="actionDone">
+
+                <requestFocus/>
+
+            </EditText>
         </TableRow>
 
         <TableRow
@@ -250,8 +254,7 @@
                 android:id="@+id/beneficiar_amount_value_label"
                 android:textColor="@color/green_amount"
                 android:textStyle="bold"
-                android:editable="false"
-                android:gravity="right" />
+                android:gravity="end" />
 
         </TableRow>
 
