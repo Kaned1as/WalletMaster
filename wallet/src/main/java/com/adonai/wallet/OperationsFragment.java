@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,7 +23,11 @@ import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.adonai.wallet.view.OperationView;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+
+import static com.adonai.wallet.WalletBaseFilterFragment.FilterType;
 
 /**
  * Fragment that is responsible for showing operations list
@@ -92,17 +97,14 @@ public class OperationsFragment extends WalletBaseListFragment {
                 break;
             case R.id.operation_filter:
                 // form filtering map
-                /*
-                final Map<String, Pair<FilterType, Object>> allowedToFilter = new HashMap<>(3);
-                allowedToFilter.put(getString(R.string.description), new Pair<FilterType, Object>(FilterType.TEXT, OperationsFields.DESCRIPTION.toString()));
-                allowedToFilter.put(getString(R.string.amount), new Pair<FilterType, Object>(FilterType.AMOUNT, OperationsFields.AMOUNT.toString()));
-                final Cursor foreignCursor = DatabaseDAO.getInstance().getForeignNameCursor(OPERATIONS, OperationsFields.CATEGORY.toString(), CATEGORIES, CategoriesFields.NAME.toString());
-                allowedToFilter.put(getString(R.string.category), new Pair<FilterType, Object>(FilterType.FOREIGN_ID, foreignCursor));
-                allowedToFilter.put(getString(R.string.date), new Pair<FilterType, Object>(FilterType.DATE, OperationsFields.TIME.toString()));
-                final WalletBaseFilterFragment opFilter = WalletBaseFilterFragment.newInstance(OPERATIONS.toString(), allowedToFilter);
+                final Map<String, Pair<FilterType, String>> allowedToFilter = new HashMap<>(3);
+                allowedToFilter.put(getString(R.string.description), Pair.create(FilterType.TEXT, "description"));
+                allowedToFilter.put(getString(R.string.amount), Pair.create(FilterType.AMOUNT, "amount"));
+                allowedToFilter.put(getString(R.string.category), Pair.create(FilterType.FOREIGN_ID, "category"));
+                allowedToFilter.put(getString(R.string.date), Pair.create(FilterType.DATE, "time"));
+                final WalletBaseFilterFragment opFilter = WalletBaseFilterFragment.newInstance(Operation.class, allowedToFilter);
                 opFilter.setFilterCursorListener(mOpAdapter);
                 opFilter.show(getFragmentManager(), "opFilter");
-                */
             case R.id.operation_reset_filter:
                 mOpAdapter.resetFilter();
                 break;
