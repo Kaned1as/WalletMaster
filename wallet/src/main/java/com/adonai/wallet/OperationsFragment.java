@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.Toast;
 
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Operation;
@@ -177,7 +176,7 @@ public class OperationsFragment extends WalletBaseListFragment {
                 final Operation operation = DbProvider.getHelper().getOperationDao().queryForId(opID);
                 switch (which) {
                     case 0: // modify
-                        new OperationDialogFragment(operation).show(getFragmentManager(), "opModify");
+                        OperationDialogFragment.forOperation(operation.getId().toString()).show(getFragmentManager(), "opModify");
                         break;
                     case 1: // delete
                         mOperationDeleter.handleRemoveAttempt(operation);

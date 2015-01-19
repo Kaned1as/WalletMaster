@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Account;
@@ -146,7 +145,7 @@ public class AccountsFragment extends WalletBaseListFragment {
             final UUID accountID = mAccountsAdapter.getItemUUID(position);
             final Account managed = DbProvider.getHelper().getAccountDao().queryForId(accountID);
             if(managed != null) {
-                new OperationDialogFragment(managed).show(getFragmentManager(), "createOperation");
+                OperationDialogFragment.forAccount(managed.getId().toString()).show(getFragmentManager(), "createOperation");
             }
 
         }
