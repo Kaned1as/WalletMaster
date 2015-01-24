@@ -120,16 +120,6 @@ public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
         }
     }
 
-    private class DbNotifier extends Observable<UUIDCursorAdapter<T>> {
-
-        public void notifyObservers() {
-            for(UUIDCursorAdapter<T> observer : mObservers) {
-                observer.notifyDataSetChanged();
-            }
-        }
-
-    }
-
     public void registerObserver(UUIDCursorAdapter<T> observer) {
         mObservable.registerObserver(observer);
     }
@@ -140,5 +130,15 @@ public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
 
     public void unregisterAll() {
         mObservable.unregisterAll();
+    }
+
+    private class DbNotifier extends Observable<UUIDCursorAdapter<T>> {
+
+        public void notifyObservers() {
+            for(UUIDCursorAdapter<T> observer : mObservers) {
+                observer.notifyDataSetChanged();
+            }
+        }
+
     }
 }

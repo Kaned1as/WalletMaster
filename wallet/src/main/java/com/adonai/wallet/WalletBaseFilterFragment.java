@@ -76,6 +76,7 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
             dismiss();
 
         mTypeAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, mAllowedToFilter.keySet().toArray(new String[mAllowedToFilter.keySet().size()]));
+        mTypeAdapter.setDropDownViewResource(R.layout.tall_list_item);
 
         final View dialog = getActivity().getLayoutInflater().inflate(R.layout.entity_filter_dialog, null);
         assert dialog != null;

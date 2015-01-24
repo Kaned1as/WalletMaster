@@ -116,7 +116,8 @@ public class OperationsFragment extends WalletBaseListFragment {
 
     private class OperationsAdapter extends UUIDCursorAdapter<Operation> implements WalletBaseFilterFragment.FilterCursorListener {
         public OperationsAdapter() {
-            super(getActivity(), DbProvider.getHelper().getEntityDao(Operation.class));
+            super(getActivity(), DbProvider.getHelper().getEntityDao(Operation.class),
+                    DbProvider.getHelper().getEntityDao(Operation.class).queryBuilder().orderBy("time", false));
         }
 
         @Override

@@ -7,6 +7,7 @@ import com.adonai.wallet.database.EntityDao;
 import com.j256.ormlite.android.AndroidDatabaseResults;
 import com.j256.ormlite.dao.CloseableIterator;
 import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.sql.SQLException;
 import java.util.UUID;
@@ -33,6 +34,19 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
             mContext = context;
             mDao.registerObserver(this);
             mCursor = mDao.queryBuilder().where().eq("deleted", false).iterator();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public UUIDCursorAdapter(Activity context, EntityDao<T> dao, QueryBuilder<T, UUID> builder) {
+        try {
+            // set dao and context
+            mDao = dao;
+            mContext = context;
+            mDao.registerObserver(this);
+            mQuery = builder.where().eq("deleted", false).prepare(); // don't query objects marked as deleted
+            mCursor = mDao.iterator(mQuery);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
