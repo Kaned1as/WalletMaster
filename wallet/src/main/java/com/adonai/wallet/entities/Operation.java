@@ -31,7 +31,7 @@ import java.util.concurrent.Callable;
  * <ol>
  *     <li>description</li>
  *     <li>charge account-----| choose one</li>
- *     <li>beneficiar account-| required</li>
+ *     <li>beneficiar account--| required</li>
  *     <li>conversion rate</li>
  * </ol>
  * </p>

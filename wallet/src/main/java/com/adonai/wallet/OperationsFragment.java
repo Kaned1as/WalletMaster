@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -21,6 +20,8 @@ import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Operation;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.adonai.wallet.view.OperationView;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -102,9 +103,10 @@ public class OperationsFragment extends WalletBaseListFragment {
                 allowedToFilter.put(getString(R.string.amount), Pair.create(FilterType.AMOUNT, "amount"));
                 allowedToFilter.put(getString(R.string.category), Pair.create(FilterType.FOREIGN_ID, "category"));
                 allowedToFilter.put(getString(R.string.date), Pair.create(FilterType.DATE, "time"));
-                final WalletBaseFilterFragment opFilter = WalletBaseFilterFragment.newInstance(Operation.class, allowedToFilter);
+                final WalletBaseFilterFragment<Operation> opFilter = WalletBaseFilterFragment.newInstance(Operation.class, allowedToFilter);
                 opFilter.setFilterCursorListener(mOpAdapter);
                 opFilter.show(getFragmentManager(), "opFilter");
+                break;
             case R.id.operation_reset_filter:
                 mOpAdapter.resetFilter();
                 break;
@@ -114,7 +116,7 @@ public class OperationsFragment extends WalletBaseListFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private class OperationsAdapter extends UUIDCursorAdapter<Operation> implements WalletBaseFilterFragment.FilterCursorListener {
+    private class OperationsAdapter extends UUIDCursorAdapter<Operation> implements WalletBaseFilterFragment.FilterCursorListener<Operation> {
         public OperationsAdapter() {
             super(getActivity(), DbProvider.getHelper().getEntityDao(Operation.class),
                     DbProvider.getHelper().getEntityDao(Operation.class).queryBuilder().orderBy("time", false));
@@ -142,15 +144,26 @@ public class OperationsFragment extends WalletBaseListFragment {
         }
 
         @Override
-        public void OnFilterCompleted(Cursor cursor) {
-            //changeCursor(cursor);
+        public void onFilterCompleted(QueryBuilder<Operation, UUID> qBuilder) {
+            setQuery(qBuilder);
             isListFiltered = true;
             getActivity().invalidateOptionsMenu();
         }
 
         @Override
+        public void setQuery(QueryBuilder<Operation, UUID> qBuilder) {
+            try {
+                qBuilder.orderBy("time", false);
+                mQuery = qBuilder != null ? qBuilder.prepare() : null;
+                notifyDataSetChanged();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
         public void resetFilter() {
-            //changeCursor(DatabaseDAO.getInstance().getOperationsCursor());
+            setQuery((PreparedQuery<Operation>) null);
             isListFiltered = false;
             getActivity().invalidateOptionsMenu();
         }

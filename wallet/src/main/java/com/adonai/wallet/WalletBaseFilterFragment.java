@@ -3,7 +3,6 @@ package com.adonai.wallet;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Pair;
@@ -22,10 +21,13 @@ import android.widget.Toast;
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Entity;
 import com.adonai.wallet.entities.UUIDArrayAdapter;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.Where;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +38,7 @@ import static android.view.WindowManager.LayoutParams;
 /**
  * Created by adonai on 12.06.14.
  */
-public class WalletBaseFilterFragment extends WalletBaseDialogFragment implements View.OnClickListener {
+public class WalletBaseFilterFragment<T extends Entity> extends WalletBaseDialogFragment implements View.OnClickListener {
 
     public enum FilterType {
         AMOUNT,
@@ -45,28 +47,28 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
         FOREIGN_ID
     }
 
-     public interface FilterCursorListener {
-         void OnFilterCompleted(Cursor cursor);
+     public interface FilterCursorListener<T> {
+         void onFilterCompleted(QueryBuilder<T, UUID> query);
          void resetFilter();
      }
 
-    public void setFilterCursorListener(FilterCursorListener listener) {
+    public void setFilterCursorListener(FilterCursorListener<T> listener) {
         this.listener = listener;
     }
 
-    public static WalletBaseFilterFragment newInstance(Class tableName, Map<String, Pair<FilterType, String>> allowedToFilter) {
-        final WalletBaseFilterFragment fragment = new WalletBaseFilterFragment();
+    public static <T extends Entity> WalletBaseFilterFragment<T> newInstance(Class<T> entityClass, Map<String, Pair<FilterType, String>> allowedToFilter) {
+        final WalletBaseFilterFragment<T> fragment = new WalletBaseFilterFragment<>();
         fragment.mAllowedToFilter = allowedToFilter;
-        fragment.mEntityClass = tableName;
+        fragment.mEntityClass = entityClass;
         return fragment;
     }
 
                    /* caption,     filter    , column    */
     private Map<String, Pair<FilterType, String>> mAllowedToFilter = new HashMap<>(10);
-    private Class mEntityClass;
+    private Class<T> mEntityClass;
     private LinearLayout mFiltersRoot;
     private ImageButton mAddFilterButton;
-    private FilterCursorListener listener;
+    private FilterCursorListener<T> listener;
 
     private ArrayAdapter<String> mTypeAdapter;
 
@@ -100,8 +102,8 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
             public void onClick(DialogInterface dialog, int which) {
                 if(listener != null)
                     try {
-                        listener.OnFilterCompleted(getFilterCursor());
-                    } catch (FilterFormatException e) {
+                        listener.onFilterCompleted(getFilterCursor());
+                    } catch (SQLException e) {
                         Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
             }
@@ -216,15 +218,12 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
         mFiltersRoot.addView(filterLayout);
     }
 
-    public Cursor getFilterCursor() throws FilterFormatException {
-        final StringBuilder sb = new StringBuilder(100);
-        sb.append("SELECT * FROM ");
-        sb.append(mEntityClass.getSimpleName());
+    public QueryBuilder<T, UUID> getFilterCursor() throws SQLException {
+        final QueryBuilder<T, UUID> qb = DbProvider.getHelper().getEntityDao(mEntityClass).queryBuilder();
+        final Where<T, UUID> where = qb.where();
+        int andClauseNum = 0;
 
-        final List<String> args = new ArrayList<>();
-        boolean firstPassed = false;
         for(int i = 0; i < mFiltersRoot.getChildCount(); ++i) {
-            final String toAdd;
             final LinearLayout filterLayout = (LinearLayout) mFiltersRoot.getChildAt(i);
             final Spinner typeSelector = (Spinner) filterLayout.getChildAt(0);
             final Pair<FilterType, String> filter = mAllowedToFilter.get(typeSelector.getSelectedItem().toString());
@@ -234,12 +233,16 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                     final EditText amountInput = (EditText) filterLayout.getChildAt(2);
                     final String sign = signSelector.getSelectedItem().toString();
                     final String column = filter.second;
-                    final String amount = amountInput.getText().toString();
-                    if (!amount.isEmpty()) {
-                        toAdd = column + " " + sign + " ?";
-                        args.add(amount);
-                    } else
-                        toAdd = null;
+                    final String amountText = amountInput.getText().toString();
+                    if (!amountText.isEmpty()) {
+                        final BigDecimal amount = new BigDecimal(amountText);
+                        andClauseNum++;
+                        switch (sign) {
+                            case "<": where.lt(column, amount); break;
+                            case "=": where.eq(column, amount); break;
+                            case ">": where.gt(column, amount); break;
+                        }
+                    }
                     break;
                 }
                 case TEXT: {
@@ -247,10 +250,9 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                     final String column = filter.second;
                     final String text = textInput.getText().toString();
                     if (!text.isEmpty()) {
-                        toAdd = column + " = ?";
-                        args.add(text);
-                    } else
-                        toAdd = null;
+                        andClauseNum++;
+                        where.eq(column, text);
+                    }
                     break;
                 }
                 case DATE: {
@@ -260,10 +262,14 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                     final String sign = signSelector.getSelectedItem().toString();
                     final String column = filter.second;
                     if(timeInput.getText().length() > 0) {
-                        toAdd = column + " " + sign + " ?";
-                        args.add(String.valueOf(dateHolder.getCalendar().getTimeInMillis()));
-                    } else
-                        toAdd = null;
+                        andClauseNum++;
+                        Date date = new Date(dateHolder.getCalendar().getTimeInMillis());
+                        switch (sign) {
+                            case "<": where.lt(column, date); break;
+                            case "=": where.eq(column, date); break;
+                            case ">": where.gt(column, date); break;
+                        }
+                    }
                     break;
                 }
                 case FOREIGN_ID: {
@@ -271,35 +277,18 @@ public class WalletBaseFilterFragment extends WalletBaseDialogFragment implement
                     UUIDArrayAdapter cursorHolder = (UUIDArrayAdapter) idSelector.getAdapter();
                     UUID uuid = cursorHolder.getItem(idSelector.getSelectedItemPosition()).getId();
                     final String column = filter.second;
-                    toAdd = column + " = ?";
-                    args.add(uuid.toString());
+                    andClauseNum++;
+                    where.eq(column + "_id", uuid);
                     break;
                 }
                 default:
-                    toAdd = null;
                     break;
-
             }
-            if(toAdd != null)
-                if (firstPassed) {
-                    sb.append(" AND ");
-                    sb.append(toAdd);
-                } else {
-                    sb.append(" WHERE ");
-                    sb.append(toAdd);
-                    firstPassed = true;
-                }
         }
-        if(!firstPassed) // we did at least one iteration
-            throw new FilterFormatException(getString(R.string.no_filter_specified));
 
-        //return DatabaseDAO.getInstance().select(sb.toString(), args.toArray(new String[args.size()]));
-        return null;
-    }
+        where.eq("deleted", false); // don't query deleted entries
+        where.and(++andClauseNum);
 
-    public static class FilterFormatException extends Exception {
-        public FilterFormatException(String detailMessage) {
-            super(detailMessage);
-        }
+        return qb;
     }
 }
