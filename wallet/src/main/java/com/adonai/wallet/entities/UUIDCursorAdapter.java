@@ -71,8 +71,8 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
     @Override
     public T getItem(int position) {
         try {
-            mCursor.first();
-            return mCursor.moveRelative(position);
+            ((AndroidDatabaseResults) mCursor.getRawResults()).moveAbsolute(position);
+            return mCursor.current();
         } catch (SQLException e) {
             return null;
         }

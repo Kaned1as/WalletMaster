@@ -1,10 +1,13 @@
 package com.adonai.wallet;
 
 import android.app.AlertDialog;
-import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.SearchView;
 
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Operation;
@@ -39,11 +41,9 @@ import static com.adonai.wallet.WalletBaseFilterFragment.FilterType;
  */
 public class OperationsFragment extends WalletBaseListFragment {
 
-    private MenuItem mSearchItem;
-
     private OperationsAdapter mOpAdapter;
+    private BroadcastReceiver mBackPressListener = new DbBroadcastReceiver();
     private final EntityDeleteListener mOperationDeleter = new EntityDeleteListener(R.string.really_delete_operation);
-    private final QuickSearchQueryHandler mQuickSearchHandler = new QuickSearchQueryHandler();
     private boolean isListFiltered = false;
 
     @Override
@@ -73,19 +73,12 @@ public class OperationsFragment extends WalletBaseListFragment {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.operations_flow, menu);
 
-        final SearchManager manager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
-        mSearchItem = menu.findItem(R.id.operation_quick_filter);
-        final SearchView search = (SearchView) mSearchItem.getActionView();
-        search.setQueryHint(getString(R.string.quick_filter));
-        search.setSearchableInfo(manager.getSearchableInfo(getActivity().getComponentName()));
-        search.setOnQueryTextListener(mQuickSearchHandler);
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         menu.findItem(R.id.operation_filter).setVisible(!isListFiltered);
-        menu.findItem(R.id.operation_quick_filter).setVisible(!isListFiltered);
         menu.findItem(R.id.operation_reset_filter).setVisible(isListFiltered);
     }
 
@@ -147,6 +140,7 @@ public class OperationsFragment extends WalletBaseListFragment {
         public void onFilterCompleted(QueryBuilder<Operation, UUID> qBuilder) {
             setQuery(qBuilder);
             isListFiltered = true;
+            LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mBackPressListener, new IntentFilter(Utils.BACK_PRESSED));
             getActivity().invalidateOptionsMenu();
         }
 
@@ -207,23 +201,24 @@ public class OperationsFragment extends WalletBaseListFragment {
         }
     }
 
-    private class QuickSearchQueryHandler implements SearchView.OnQueryTextListener {
-        @Override
-        public boolean onQueryTextSubmit(String query) {
-            if(!query.isEmpty()) {
-                //mOpAdapter.changeCursor(DatabaseDAO.getInstance().getOperationsCursor(query));
-                if (mSearchItem != null)
-                    mSearchItem.collapseActionView(); // hide after submit
-                isListFiltered = true;
-                getActivity().invalidateOptionsMenu(); // update filter buttons visibility
-            }
-
-            return true;
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if(hidden) {
+            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mBackPressListener);
+        } else if(isListFiltered) {
+            LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mBackPressListener, new IntentFilter(Utils.BACK_PRESSED));
         }
+    }
 
+    /**
+     * Handler to receive notifications for back key pressed
+     */
+    private class DbBroadcastReceiver extends BroadcastReceiver {
         @Override
-        public boolean onQueryTextChange(String newText) {
-            return false;
+        public void onReceive(Context context, Intent intent) {
+            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mBackPressListener);
+            mOpAdapter.resetFilter();
         }
     }
 }

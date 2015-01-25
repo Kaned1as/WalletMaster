@@ -18,6 +18,8 @@ import java.util.Iterator;
 public class Utils {
     public final static SimpleDateFormat VIEW_DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
 
+    public static final String BACK_PRESSED = "BACK_PRESSED_INTENT";
+
     @SuppressWarnings("unchecked") // we know what we want
     public static <T> T getValue(String value, T defaultValue) {
         T result;

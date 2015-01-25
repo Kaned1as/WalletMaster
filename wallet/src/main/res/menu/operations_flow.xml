@@ -9,13 +9,7 @@
     <item android:id="@+id/operation_filter"
         android:title="@string/filter"
         android:icon="@drawable/filter_image"
-        android:showAsAction="never" />
-
-    <item android:id="@+id/operation_quick_filter"
-        android:title="@string/quick_filter"
-        android:icon="@android:drawable/ic_menu_search"
-        android:actionViewClass="android.widget.SearchView"
-        android:showAsAction="collapseActionView|ifRoom" />
+        android:showAsAction="ifRoom" />
 
     <item android:id="@+id/operation_reset_filter"
         android:title="@string/reset_filter"

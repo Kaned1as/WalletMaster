@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,6 +51,13 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(!LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Utils.BACK_PRESSED))) {
+            super.onBackPressed();
+        }
     }
 
     @Override
