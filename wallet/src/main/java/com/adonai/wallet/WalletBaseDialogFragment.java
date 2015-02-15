@@ -8,9 +8,7 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.UUIDSpinnerAdapter;
 
@@ -89,7 +87,7 @@ public class WalletBaseDialogFragment extends DialogFragment {
         private final int mNoneResId;
 
         public AccountsWithNoneAdapter(int noneTextResId) {
-            super(getActivity(), DbProvider.getHelper().getEntityDao(Account.class));
+            super(getActivity(), Account.class);
             this.mNoneResId = noneTextResId;
         }
 

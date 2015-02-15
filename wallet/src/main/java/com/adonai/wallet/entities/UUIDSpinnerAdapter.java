@@ -8,7 +8,6 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.adonai.wallet.R;
-import com.adonai.wallet.database.EntityDao;
 
 import java.sql.SQLException;
 
@@ -19,8 +18,8 @@ import java.sql.SQLException;
  */
 public class UUIDSpinnerAdapter<T extends Entity> extends UUIDCursorAdapter<T> implements SpinnerAdapter {
 
-    public UUIDSpinnerAdapter(Activity context, EntityDao<T> dao) {
-        super(context, dao);
+    public UUIDSpinnerAdapter(Activity context, Class<T> clazz) {
+        super(context, clazz);
     }
 
     @Override

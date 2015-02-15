@@ -88,7 +88,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mAccountAdapter = new UUIDSpinnerAdapter<>(getActivity(), DbProvider.getHelper().getEntityDao(Account.class));
+        mAccountAdapter = new UUIDSpinnerAdapter<>(getActivity(), Account.class);
         final AccountSelectListener accountSelectListener = new AccountSelectListener();
         final CountChangedWatcher textWatcher = new CountChangedWatcher();
 

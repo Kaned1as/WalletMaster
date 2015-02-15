@@ -12,16 +12,17 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.adonai.wallet.BudgetItemDialogFragment;
-import com.adonai.wallet.BudgetsFragment;
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Budget;
 import com.adonai.wallet.entities.BudgetItem;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
+import com.j256.ormlite.stmt.Where;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
 
@@ -37,8 +38,6 @@ public class BudgetView extends LinearLayout {
         EXPANDED
     }
 
-    private final BudgetsFragment.BudgetsAdapter mViewAdapter;
-
     private Budget mBudget;
     private State mState = State.COLLAPSED;
 
@@ -48,9 +47,8 @@ public class BudgetView extends LinearLayout {
     private View mFooter;
     private BudgetItemCursorAdapter mBudgetItemCursorAdapter;
 
-    public BudgetView(Context context, BudgetsFragment.BudgetsAdapter budgetsAdapter) {
+    public BudgetView(Context context) {
         super(context);
-        mViewAdapter = budgetsAdapter;
 
         final LayoutInflater inflater = LayoutInflater.from(context);
         mHeaderView = inflater.inflate(R.layout.budget_list_item, this, true);
@@ -65,10 +63,6 @@ public class BudgetView extends LinearLayout {
                     collapse();
             }
         });
-    }
-
-    public State getState() {
-        return mState;
     }
 
     public void setBudget(Budget budget) {
@@ -102,9 +96,14 @@ public class BudgetView extends LinearLayout {
             return;
 
         if(mBudgetItemCursorAdapter == null) { // never expanded before
-            mBudgetItemCursorAdapter = new BudgetItemCursorAdapter((Activity) getContext());
+            try {
+                Where<BudgetItem, UUID> where = DbProvider.getHelper().getEntityDao(BudgetItem.class).queryBuilder().where().eq("parent_budget", mBudget);
+                mBudgetItemCursorAdapter = new BudgetItemCursorAdapter((Activity) getContext(), where);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
 
-            mFooter = View.inflate(getContext(), R.layout.listview_add_footer, null);
+            mFooter = LayoutInflater.from(getContext()).inflate(R.layout.listview_add_footer, mExpandedView, false);
             mFooter.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -114,12 +113,12 @@ public class BudgetView extends LinearLayout {
             });
         }
 
+        mExpandedView.removeAllViews();
         for (int i = 0; i < mBudgetItemCursorAdapter.getCount(); ++i)
             mExpandedView.addView(mBudgetItemCursorAdapter.getView(i, null, mExpandedView));
         mExpandedView.addView(mFooter);
 
         mState = State.EXPANDED;
-        mViewAdapter.addExpandedView(this);
         updateDrawables();
     }
 
@@ -133,9 +132,14 @@ public class BudgetView extends LinearLayout {
         }
 
         mState = State.COLLAPSED;
-        mViewAdapter.removeExpandedView(this);
         mExpandedView.removeAllViews();
         updateDrawables();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        collapse(); // close child cursor
     }
 
     private void updateDrawables() {
@@ -149,8 +153,8 @@ public class BudgetView extends LinearLayout {
 
     public class BudgetItemCursorAdapter extends UUIDCursorAdapter<BudgetItem> {
 
-        public BudgetItemCursorAdapter(Activity context) {
-            super(context, DbProvider.getHelper().getEntityDao(BudgetItem.class));
+        public BudgetItemCursorAdapter(Activity context, Where<BudgetItem, UUID> where) {
+            super(context, BudgetItem.class, where);
         }
 
         @Override
@@ -183,7 +187,16 @@ public class BudgetView extends LinearLayout {
 
             return view;
         }
+
+        @Override
+        public void notifyDataSetChanged() {
+            BudgetItemCursorAdapter.super.notifyDataSetChanged();
+            mContext.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    expand();
+                }
+            });
+        }
     }
-
-
 }

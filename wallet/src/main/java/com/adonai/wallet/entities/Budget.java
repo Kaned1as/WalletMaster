@@ -8,7 +8,6 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * Created by adonai on 19.06.14.
@@ -78,7 +77,7 @@ public class Budget extends Entity {
 
         final Budget budget = (Budget) o;
 
-        if (coveredAccount != null ? !Objects.equals(coveredAccount, budget.coveredAccount) : budget.coveredAccount != null)
+        if (coveredAccount != null ? !coveredAccount.equals(budget.coveredAccount) : budget.coveredAccount != null)
             return false;
         if (!endTime.equals(budget.endTime))
             return false;

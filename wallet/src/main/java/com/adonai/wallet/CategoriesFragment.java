@@ -105,7 +105,7 @@ public class CategoriesFragment extends WalletBaseListFragment {
         private CategoryType mCategoryType;
 
         public CategoriesAdapter(Activity context, int resourceId, CategoryType categoryType) {
-            super(context, DbProvider.getHelper().getEntityDao(Category.class));
+            super(context, Category.class);
             try {
                 mResourceId = resourceId;
                 mCategoryType = categoryType;

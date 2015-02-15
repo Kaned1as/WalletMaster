@@ -80,7 +80,7 @@ public class AccountsFragment extends WalletBaseListFragment {
 
     private class AccountsAdapter extends UUIDCursorAdapter<Account> {
         public AccountsAdapter() {
-            super(getActivity(), DbProvider.getHelper().getEntityDao(Account.class));
+            super(getActivity(), Account.class);
         }
 
         @Override

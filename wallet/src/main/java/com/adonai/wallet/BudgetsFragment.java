@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Budget;
@@ -19,7 +18,6 @@ import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.adonai.wallet.view.BudgetView;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.UUID;
 
 /**
@@ -54,10 +52,6 @@ public class BudgetsFragment extends WalletBaseListFragment {
     @SuppressWarnings("unchecked")
     public void onDestroyView() {
         super.onDestroyView();
-        final ArrayList<BudgetView> shadow = (ArrayList<BudgetView>) mBudgetsAdapter.mExpandedBudgets.clone();
-        for(BudgetView view : shadow)
-            view.collapse(); // close all child cursors
-
         mBudgetsAdapter.closeCursor();
     }
 
@@ -82,10 +76,8 @@ public class BudgetsFragment extends WalletBaseListFragment {
 
 
     public class BudgetsAdapter extends UUIDCursorAdapter<Budget> {
-        private final ArrayList<BudgetView> mExpandedBudgets = new ArrayList<>();
-
         public BudgetsAdapter() {
-            super(getActivity(), DbProvider.getHelper().getEntityDao(Budget.class));
+            super(getActivity(), Budget.class);
         }
 
         @Override
@@ -94,7 +86,7 @@ public class BudgetsFragment extends WalletBaseListFragment {
             final BudgetView view;
 
             if (convertView == null)
-                view = new BudgetView(mContext, this);
+                view = new BudgetView(mContext);
             else
                 view = (BudgetView) convertView;
 
@@ -107,14 +99,6 @@ public class BudgetsFragment extends WalletBaseListFragment {
             }
 
             return view;
-        }
-
-        public void addExpandedView(BudgetView view) {
-            mExpandedBudgets.add(view);
-        }
-
-        public void removeExpandedView(BudgetView view) {
-            mExpandedBudgets.remove(view);
         }
     }
 

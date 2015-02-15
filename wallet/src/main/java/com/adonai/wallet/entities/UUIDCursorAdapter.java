@@ -3,6 +3,7 @@ package com.adonai.wallet.entities;
 import android.app.Activity;
 import android.widget.BaseAdapter;
 
+import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.database.EntityDao;
 import com.j256.ormlite.android.AndroidDatabaseResults;
 import com.j256.ormlite.dao.CloseableIterator;
@@ -31,12 +32,30 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
 
     private final Where<T, UUID> defaultWhere;
 
-    public UUIDCursorAdapter(Activity context, EntityDao<T> dao) {
+    public UUIDCursorAdapter(Activity context, Class<T> clazz) {
         try {
-            mDao = dao;
+            mDao = DbProvider.getHelper().getDao(clazz);
             mContext = context;
             mDao.registerObserver(this);
             defaultWhere = mDao.queryBuilder().where().eq("deleted", false);
+            mCursor = defaultWhere.iterator();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Constructor for cursor adapter with specific where
+     * @param context context to build objects on
+     * @param dao entity dao for objects
+     * @param builder builder with specific ordering
+     */
+    public UUIDCursorAdapter(Activity context, Class<T> clazz, Where<T, UUID> where) {
+        try {
+            mDao = DbProvider.getHelper().getDao(clazz);
+            mContext = context;
+            mDao.registerObserver(this);
+            defaultWhere = where.and().eq("deleted", false);
             mCursor = defaultWhere.iterator();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -49,10 +68,10 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
      * @param dao entity dao for objects
      * @param builder builder with specific ordering
      */
-    public UUIDCursorAdapter(Activity context, EntityDao<T> dao, QueryBuilder<T, UUID> builder) {
+    public UUIDCursorAdapter(Activity context, Class<T> clazz, QueryBuilder<T, UUID> builder) {
         try {
             // set dao and context
-            mDao = dao;
+            mDao = DbProvider.getHelper().getDao(clazz);
             mContext = context;
             mDao.registerObserver(this);
             defaultWhere = builder.where().eq("deleted", false);
@@ -81,8 +100,11 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
     @Override
     public long getItemId(int position) {
         try {
-            mCursor.first();
-            T entity = mCursor.moveRelative(position);
+            ((AndroidDatabaseResults) mCursor.getRawResults()).moveAbsolute(position);
+            T entity = mCursor.current();
+            if(entity == null)
+                return -1;
+
             return entity.getId().getLeastSignificantBits();
         } catch (SQLException e) {
             return  -1;
