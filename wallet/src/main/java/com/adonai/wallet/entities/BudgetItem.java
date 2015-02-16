@@ -10,7 +10,11 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 
 /**
- * Created by adonai on 19.06.14.
+ * Entity representing a budget item. Budget item tracks sum of all expenses for specified period
+ * of time for specified category
+ *
+ * @see com.adonai.wallet.entities.Budget
+ * @author Adonai
  */
 @DatabaseTable(tableName = "budget_item", daoClass = EntityDao.class)
 public class BudgetItem extends Entity {

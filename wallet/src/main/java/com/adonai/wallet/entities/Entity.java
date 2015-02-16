@@ -8,7 +8,14 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * Created by adonai on 24.09.14.
+ * Base class representing database entity. Uses UUID as ID field and has sync-related fields
+ * that determine its state.
+ *
+ * @see com.adonai.wallet.entities.Operation
+ * @see com.adonai.wallet.entities.Category
+ * @see com.adonai.wallet.entities.Budget
+ * @see com.adonai.wallet.entities.Account
+ * @see com.adonai.wallet.entities.Operation
  */
 public class Entity implements Serializable {
 

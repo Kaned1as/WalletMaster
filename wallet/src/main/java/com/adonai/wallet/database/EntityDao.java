@@ -12,7 +12,10 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 /**
- * Basic dao needed for persisting changes locally
+ * Basic dao for all entities needed for persisting changes locally
+ * Also handles synchronized entity state change
+ *
+ * @author Adonai
  */
 public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
 

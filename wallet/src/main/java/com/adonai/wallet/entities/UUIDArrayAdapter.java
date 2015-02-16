@@ -14,7 +14,11 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 /**
- * Created by adonai on 20.01.15.
+ * Array adapter for showing entities that have a field "name".
+ * <br/>
+ * Needed for filtering foreign fields in {@link com.adonai.wallet.WalletBaseFilterFragment}
+ *
+ * @author Adonai
  */
 public class UUIDArrayAdapter extends ArrayAdapter<Entity> {
 

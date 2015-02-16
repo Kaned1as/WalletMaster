@@ -12,7 +12,7 @@ import com.adonai.wallet.R;
 import java.sql.SQLException;
 
 /**
- * Simple class prividing spinner views for all needs
+ * Simple class providing spinner views for all needs
  *
  * @author Adonai
  */

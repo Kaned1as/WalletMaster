@@ -36,7 +36,14 @@ import java.util.UUID;
 import static android.view.WindowManager.LayoutParams;
 
 /**
- * Created by adonai on 12.06.14.
+ * Convenient fragment for filtering any entity list.
+ * Supports amounts, test equality, date after/before, foreign fields (retrieved as list).
+ * <br/>
+ * For now used only for operation filtering
+ *
+ * @see com.adonai.wallet.OperationsFragment
+ *
+ * @author Adonai
  */
 public class WalletBaseFilterFragment<T extends Entity> extends WalletBaseDialogFragment implements View.OnClickListener {
 

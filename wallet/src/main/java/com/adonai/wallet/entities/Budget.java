@@ -7,10 +7,22 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * Created by adonai on 19.06.14.
+ * Entity representing a budget
+ * <br/>
+ * Budget may have child {@link BudgetItem}'s that track progress and expiration
+ * and may specify account that restricts child budget items' counters to its expenses only.
+ * <br/>
+ * Budgets may also have flags that describe its behaviour and expiration conditions
+ *
+ * <br/><br/>
+ * For now budgets are local items not being synchronized with server
+ *
+ * @see com.adonai.wallet.entities.BudgetItem
+ * @author Adonai
  */
 @DatabaseTable(daoClass = EntityDao.class)
 public class Budget extends Entity {
@@ -29,6 +41,15 @@ public class Budget extends Entity {
 
     @DatabaseField(columnName = "end_time", canBeNull = false, dataType = DataType.DATE_LONG)
     private Date endTime;
+
+    @DatabaseField
+    private long flags; // primitive: zero if null in DB
+
+    @DatabaseField(columnName = "repeat_time_seconds")
+    private Long repeatTimeSeconds;
+
+    @DatabaseField(columnName = "warning_amount")
+    private BigDecimal warningAmount;
 
     public String getName() {
         return name;
@@ -87,5 +108,46 @@ public class Budget extends Entity {
             return false;
 
         return true;
+    }
+
+    public long getFlags() {
+        return flags;
+    }
+
+    public void setFlags(long flags) {
+        this.flags = flags;
+    }
+
+    public Long getRepeatTimeSeconds() {
+        return repeatTimeSeconds;
+    }
+
+    public void setRepeatTimeSeconds(Long repeatTimeSeconds) {
+        this.repeatTimeSeconds = repeatTimeSeconds;
+    }
+
+    public BigDecimal getWarningAmount() {
+        return warningAmount;
+    }
+
+    public void setWarningAmount(BigDecimal warningAmount) {
+        this.warningAmount = warningAmount;
+    }
+
+    public enum Flags {
+        REPEATING(0x1),             // repeatable budgets (daily, weekly, monthly)
+        AUTO_EXPANDING(0x2),        // auto-expanding budgets (child items automatically match the size)
+        WARN_ON_OVERFLOW(0x4),      // print a warning to user when overflown
+        WARN_ON_NEAR_BREACH(0x8);   // print a warning to user when almost overflown
+
+        private int value;
+
+        Flags(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
     }
 }

@@ -35,7 +35,6 @@ import static com.adonai.wallet.WalletBaseFilterFragment.FilterType;
 /**
  * Fragment that is responsible for showing operations list
  * and their context actions
- * Uses async operation load for better interactivity
  *
  * @author adonai
  */
