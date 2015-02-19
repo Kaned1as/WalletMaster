@@ -352,6 +352,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
             //mSocket.setSoTimeout(10000);
             //mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "anticitizen.dhis.org"), 17001));
             mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "192.168.1.166"), 17001));
+            DbProvider.getHelper().getWritableDatabase().beginTransaction();
         }
 
         private void finish() throws IOException {
@@ -361,10 +362,12 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
             //db.endTransaction();
             mSocket.close();
             setState(State.INIT, mContext.getString(R.string.sync_completed));
+            DbProvider.getHelper().getWritableDatabase().setTransactionSuccessful();
+            DbProvider.getHelper().getWritableDatabase().endTransaction();
         }
 
         private void interrupt(String error) {
-           // DatabaseDAO.getInstance().endTransaction();
+            DbProvider.getHelper().getWritableDatabase().endTransaction();
             setState(State.INIT, error);
             if(!mSocket.isClosed())
                 try {
