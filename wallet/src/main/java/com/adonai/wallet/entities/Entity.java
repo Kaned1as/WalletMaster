@@ -19,7 +19,7 @@ import java.util.UUID;
  */
 public class Entity implements Serializable {
 
-    @DatabaseField(columnName = "_id", generatedId = true)
+    @DatabaseField(columnName = "_id", generatedId = true, allowGeneratedIdInsert = true)
     private UUID id;
 
     @DatabaseField(columnName = "last_modified", canBeNull = true, dataType = DataType.DATE_LONG)

@@ -340,7 +340,7 @@ sync::EntityResponse SyncClientSocket::handle(const sync::EntityRequest &request
             operation->set_amount(selectSyncedEntities.value("amount").toString().toStdString());
             operation->set_time(selectSyncedEntities.value("time").toDateTime().toMSecsSinceEpoch());
             operation->set_categoryid(selectSyncedEntities.value("category_id").toString().toStdString());
-            if(!selectSyncedEntities.value("charger_id").isNull())
+            if(!selectSyncedEntities.value("orderer_id").isNull())
                 operation->set_ordererid(selectSyncedEntities.value("orderer_id").toString().toStdString());
             if(!selectSyncedEntities.value("beneficiar_id").isNull())
                 operation->set_beneficiarid(selectSyncedEntities.value("beneficiar_id").toString().toStdString());
@@ -385,17 +385,17 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
         case SENT_ACCOUNTS:
             //deleter.prepare("DELETE FROM accounts WHERE sync_account = :userId AND id = :id");
             adder.prepare("INSERT INTO accounts(sync_account, id, deleted, name, description, currency, amount, color) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
-            modifier.prepare("UPDATE accounts SET name = ?, description = ?, currency = ?, amount = ?, color = ? WHERE sync_account = ? AND id = ?");
+            modifier.prepare("UPDATE accounts SET name = ?, description = ?, currency = ?, amount = ?, color = ?, deleted = ? WHERE sync_account = ? AND id = ?");
             break;
         case SENT_CATEGORIES:
             //deleter.prepare("DELETE FROM categories WHERE sync_account = :userId AND id = :id");
             adder.prepare("INSERT INTO categories(sync_account, id, deleted, name, type, preferred_account_id) VALUES(?, ?, ?, ?, ?, ?)");
-            modifier.prepare("UPDATE categories SET name = ?, type = ?, preferred_account_id = ? WHERE sync_account = ? AND id = ?");
+            modifier.prepare("UPDATE categories SET name = ?, type = ?, preferred_account_id = ?, deleted = ? WHERE sync_account = ? AND id = ?");
             break;
         case SENT_OPERATIONS:
             //deleter.prepare("DELETE FROM operations WHERE sync_account = :userId AND id = :id");
-            adder.prepare("INSERT INTO operations(sync_account, id, deleted, description, amount, category_id, time, charger_id, beneficiar_id, converting_rate) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            modifier.prepare("UPDATE operations SET description = ?, amount = ?, category_id = ?, time = ?, charger_id = ?, beneficiar_id = ?, converting_rate = ? WHERE sync_account = ? AND id = ?");
+            adder.prepare("INSERT INTO operations(sync_account, id, deleted, description, amount, category_id, time, orderer_id, beneficiar_id, converting_rate) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            modifier.prepare("UPDATE operations SET description = ?, amount = ?, category_id = ?, time = ?, orderer_id = ?, beneficiar_id = ?, converting_rate = ?, deleted = ? WHERE sync_account = ? AND id = ?");
             break;
         default:
             qDebug() << tr("Unknown entity type processing!");
@@ -453,7 +453,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
             if(operation.has_ordererid())
                 adder.addBindValue(operation.ordererid().data());
             else
-                adder.addBindValue(QVariant(QVariant::String)); // no charger
+                adder.addBindValue(QVariant(QVariant::String)); // no orderer
 
             if(operation.has_beneficiarid())
                 adder.addBindValue(operation.beneficiarid().data());
@@ -546,6 +546,7 @@ sync::EntityAck SyncClientSocket::handle(const sync::EntityResponse &response)
                 interruptProcessing();
                 return ack;
         }
+        modifier.addBindValue(entity.deleted());
         modifier.addBindValue(userId);
         modifier.addBindValue(entity.id().data());
 

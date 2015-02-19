@@ -37,7 +37,7 @@ public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
     public int create(T data) throws SQLException {
         int result;
         data.setDeleted(false);
-        data.setBackup(null);
+        //data.setBackup(null);
         result = super.create(data);
         mObservable.notifyObservers();
         return result;

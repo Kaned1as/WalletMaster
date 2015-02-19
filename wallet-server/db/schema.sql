@@ -84,7 +84,7 @@ CREATE TABLE `operations` (
   KEY `categories_fk_idx` (`category_id`),
   CONSTRAINT `categories_fk` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `beneficiar_fk` FOREIGN KEY (`beneficiar_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `charger_fk` FOREIGN KEY (`orderer_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `orderer_fk` FOREIGN KEY (`orderer_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

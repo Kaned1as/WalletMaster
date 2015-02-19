@@ -184,7 +184,8 @@ public class Operation extends Entity {
         return  TransactionManager.callInTransaction(DbProvider.getHelper().getConnectionSource(),
                 new Callable<Boolean>() {
                     public Boolean call() throws Exception {
-                        if(DbProvider.getHelper().getOperationDao().delete(operation) == 0) {
+                        EntityDao<Operation> opDao = DbProvider.getHelper().getDao(Operation.class);
+                        if(opDao.delete(operation) == 0) {
                             throw new IllegalStateException();
                         }
 
@@ -226,7 +227,7 @@ public class Operation extends Entity {
         return  TransactionManager.callInTransaction(DbProvider.getHelper().getConnectionSource(),
                 new Callable<Boolean>() {
                     public Boolean call() throws Exception {
-                        if(DbProvider.getHelper().getOperationDao().create(operation) == 0)
+                        if(DbProvider.getHelper().getOperationDao().createOrUpdate(operation).getNumLinesChanged() == 0)
                             throw new IllegalStateException();
 
                         switch (operation.getCategory().getType()) {

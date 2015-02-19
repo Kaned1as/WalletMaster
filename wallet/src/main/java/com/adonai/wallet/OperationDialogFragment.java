@@ -320,10 +320,11 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         if (opCategory == null)
             throw new IllegalArgumentException(getString(R.string.operation_needs_category));
         // fill operation fields
-       fillOp.setAmount(amount);
-       fillOp.setCategory(opCategory);
-       fillOp.setTime(mDatePicker.getCalendar().getTime());
-       fillOp.setDescription(mDescription.getText().toString());
+        fillOp.setDeleted(false); // in case we're reapplying it will back it from dead
+        fillOp.setAmount(amount);
+        fillOp.setCategory(opCategory);
+        fillOp.setTime(mDatePicker.getCalendar().getTime());
+        fillOp.setDescription(mDescription.getText().toString());
         switch (mTypeSwitch.getCheckedRadioButtonId()) { // prepare operation depending on type
             case R.id.transfer_radio: { // transfer op, we need 2 accounts
                 final UUID chargerID = mAccountAdapter.getItemUUID(mChargeAccountSelector.getSelectedItemPosition());
