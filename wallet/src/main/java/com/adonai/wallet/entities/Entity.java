@@ -22,7 +22,7 @@ public class Entity implements Serializable {
     @DatabaseField(columnName = "_id", generatedId = true, allowGeneratedIdInsert = true)
     private UUID id;
 
-    @DatabaseField(columnName = "last_modified", canBeNull = true, dataType = DataType.DATE_LONG)
+    @DatabaseField(columnName = "last_modified", index = true, dataType = DataType.DATE_LONG)
     private Date lastModified;
 
     @DatabaseField
@@ -65,5 +65,17 @@ public class Entity implements Serializable {
 
     public void setBackup(Entity backup) {
         this.backup = backup;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Entity entity = (Entity) o;
+
+        if (id != null ? !id.equals(entity.id) : entity.id != null) return false;
+
+        return true;
     }
 }

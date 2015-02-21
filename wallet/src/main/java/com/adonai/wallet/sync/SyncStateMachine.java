@@ -7,7 +7,6 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.preference.PreferenceManager;
 
-import com.adonai.wallet.DatabaseDAO;
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.WalletConstants;
@@ -16,6 +15,7 @@ import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Entity;
 import com.adonai.wallet.entities.Operation;
+import com.j256.ormlite.table.DatabaseTable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -192,23 +193,27 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         setState(State.ACC_REQ_ACK);
 
                         // handle modified entities - check if we updated them too...
+                        List<Account> changedAccs = new ArrayList<>(serverSide.getModifiedList().size());
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
-                            final Account remote = Account.fromProtoEntity(entity);
-                            final Account local = DbProvider.getHelper().getAccountDao().queryForId(remote.getId());
-                            if(local == null) // not found on client, but exists remotely, should create on client
+                            Account remote = Account.fromProtoEntity(entity);
+                            Account local = DbProvider.getHelper().getAccountDao().queryForId(remote.getId());
+                            if(local == null) { // not found on client, but exists remotely, should create on client
                                 DbProvider.getHelper().getEntityDao(Account.class).createByServer(remote);
-                            else if (!local.isDirty()) // updated on server but not on client, replace local with remote
+                            } else if (!local.isDirty()) { // updated on server but not on client, replace local with remote
                                 DbProvider.getHelper().getEntityDao(Account.class).updateByServer(remote);
-                            else { // update on server and on client, should resolve conflicts
-                                Account merged = mergeAccounts(remote, local, (Account) local.getBackup());
-                                DbProvider.getHelper().getEntityDao(Account.class).update(merged); // do not reset dirty flag
+                            } else { // update on server and on client, should resolve conflicts
+                                remote = mergeAccounts(remote, local, (Account) local.getBackup());
+                                DbProvider.getHelper().getEntityDao(Account.class).update(remote); // do not reset dirty flag
                             }
+                            changedAccs.add(remote);
                         }
 
-                        // adding newly inserted entities
+                        // prepare response
                         SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
 
+                        // adding newly inserted entities
                         List<Account> newAccounts = DbProvider.getHelper().getAccountDao().queryBuilder().where().isNull("last_modified").query();
+                        newAccounts.removeAll(changedAccs);
                         for(Account newAcc : newAccounts) {
                             serverUpdate.addAdded(newAcc.toProtoEntity());
                         }
@@ -231,6 +236,10 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                             dirtyAcc.setLastModified(newTimestamp);
                             DbProvider.getHelper().getEntityDao(Account.class).updateByServer(dirtyAcc);
                         }
+                        for(Account changedAcc : changedAccs) {
+                            changedAcc.setLastModified(newTimestamp);
+                            DbProvider.getHelper().getEntityDao(Account.class).updateByServer(changedAcc);
+                        }
                         setState(State.CAT_REQ);
                         break;
                     }
@@ -245,22 +254,26 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         setState(State.CAT_REQ_ACK);
 
                         // handle modified entities - check if we updated them too...
+                        List<Category> changedCategories = new ArrayList<>(serverSide.getModifiedList().size());
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
                             final Category remote = Category.fromProtoEntity(entity);
                             final Category local = DbProvider.getHelper().getCategoryDao().queryForId(remote.getId());
-                            if(local == null) // not found on client, but exists remotely, should create on client
+                            if(local == null) { // not found on client, but exists remotely, should create on client
                                 DbProvider.getHelper().getEntityDao(Category.class).createByServer(remote);
-                            else if (!local.isDirty()) // updated on server but not on client, replace local with remote
+                            } else if (!local.isDirty()) { // updated on server but not on client, replace local with remote
                                 DbProvider.getHelper().getEntityDao(Category.class).updateByServer(remote);
-                            else { // update on server and on client, should resolve conflicts (just take server version for now)
+                            } else { // update on server and on client, should resolve conflicts (just take server version for now)
                                 DbProvider.getHelper().getEntityDao(Category.class).updateByServer(remote);
                             }
+                            changedCategories.add(remote);
                         }
 
-                        // adding newly inserted entities
+                        // prepare response
                         SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
 
+                        // adding newly inserted entities
                         List<Category> newCategories = DbProvider.getHelper().getCategoryDao().queryBuilder().where().isNull("last_modified").query();
+                        newCategories.removeAll(changedCategories);
                         for(Category newCategory : newCategories) {
                             serverUpdate.addAdded(newCategory.toProtoEntity());
                         }
@@ -283,6 +296,10 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                             dirtyCategory.setLastModified(newTimestamp);
                             DbProvider.getHelper().getEntityDao(Category.class).updateByServer(dirtyCategory);
                         }
+                        for(Category changedCategory : changedCategories) {
+                            changedCategory.setLastModified(newTimestamp);
+                            DbProvider.getHelper().getEntityDao(Category.class).updateByServer(changedCategory);
+                        }
                         setState(State.OP_REQ);
                         break;
                     }
@@ -297,22 +314,26 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         setState(State.OP_REQ_ACK);
 
                         // handle modified entities - check if we updated them too...
+                        List<Operation> changedOps = new ArrayList<>(serverSide.getModifiedList().size());
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
                             final Operation remote = Operation.fromProtoEntity(entity);
                             final Operation local = DbProvider.getHelper().getOperationDao().queryForId(remote.getId());
-                            if(local == null) // not found on client, but exists remotely, should create on client
+                            if(local == null) { // not found on client, but exists remotely, should create on client
                                 DbProvider.getHelper().getEntityDao(Operation.class).createByServer(remote);
-                            else if (!local.isDirty()) // updated on server but not on client, replace local with remote
+                            } else if (!local.isDirty()) { // updated on server but not on client, replace local with remote
                                 DbProvider.getHelper().getEntityDao(Operation.class).updateByServer(remote);
-                            else { // update on server and on client, should resolve conflicts
+                            } else { // update on server and on client, should resolve conflicts
                                 DbProvider.getHelper().getEntityDao(Operation.class).updateByServer(remote); // just take server version
                             }
+                            changedOps.add(remote);
                         }
 
-                        // adding newly inserted entities
+                        // prepare response
                         SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
 
+                        // adding newly inserted entities
                         List<Operation> newOperations = DbProvider.getHelper().getOperationDao().queryBuilder().where().isNull("last_modified").query();
+                        newOperations.removeAll(changedOps);
                         for(Operation newOp : newOperations) {
                             serverUpdate.addAdded(newOp.toProtoEntity());
                         }
@@ -334,6 +355,10 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                         for(Operation dirtyOp : dirtyOperations) {
                             dirtyOp.setLastModified(newTimestamp);
                             DbProvider.getHelper().getEntityDao(Operation.class).updateByServer(dirtyOp);
+                        }
+                        for(Operation changedOp : changedOps) {
+                            changedOp.setLastModified(newTimestamp);
+                            DbProvider.getHelper().getEntityDao(Operation.class).updateByServer(changedOp);
                         }
 
                         finish();
@@ -376,7 +401,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
         }
 
         private void sendLastTimestamp(OutputStream os, Class<? extends Entity> clazz) throws IOException, SQLException {
-            final Long lastServerTime = DatabaseDAO.getLastServerTimestamp(clazz);
+            final Long lastServerTime = getLastServerTimestamp(clazz);
 
             SyncProtocol.EntityRequest.newBuilder()
                     .setLastKnownServerTimestamp(lastServerTime)
@@ -458,5 +483,12 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
                 .remove(WalletConstants.ACCOUNT_NAME_KEY)
                 .remove(WalletConstants.ACCOUNT_PASSWORD_KEY)
                 .apply();
+    }
+
+    public static <T extends Entity> long getLastServerTimestamp(Class<T> clazz) throws SQLException {
+        String tableName = clazz.getAnnotation(DatabaseTable.class).tableName();
+        if(tableName.isEmpty())
+            tableName = clazz.getSimpleName().toLowerCase();
+        return DbProvider.getHelper().getEntityDao(clazz).queryRawValue("select ifnull(max(last_modified), 0) from " + tableName);
     }
 }
