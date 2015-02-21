@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="colors">
+    <string-array name="colors" translatable="false">
         <item name="white">#FFFFFF</item>
         <item name="yellow">#FFFF00</item>
         <item name="fuchsia">#FF00FF</item>
