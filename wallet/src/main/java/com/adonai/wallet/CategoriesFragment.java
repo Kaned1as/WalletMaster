@@ -109,7 +109,8 @@ public class CategoriesFragment extends WalletBaseListFragment {
             try {
                 mResourceId = resourceId;
                 mCategoryType = categoryType;
-                setQuery(DbProvider.getHelper().getCategoryDao().queryBuilder().where().eq("type", mCategoryType).prepare());
+                setQuery(DbProvider.getHelper().getCategoryDao().queryBuilder()
+                        .where().eq("type", mCategoryType).and().eq("deleted", false).prepare());
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -145,7 +146,8 @@ public class CategoriesFragment extends WalletBaseListFragment {
         public void setCategoryType(CategoryType type) {
             try {
                 mCategoryType = type;
-                setQuery(DbProvider.getHelper().getCategoryDao().queryBuilder().where().eq("type", mCategoryType).prepare());
+                setQuery(DbProvider.getHelper().getCategoryDao().queryBuilder()
+                        .where().eq("type", mCategoryType).and().eq("deleted", false).prepare());
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
