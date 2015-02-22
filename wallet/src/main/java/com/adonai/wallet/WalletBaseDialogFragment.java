@@ -131,6 +131,14 @@ public class WalletBaseDialogFragment extends DialogFragment {
         }
 
         @Override
+        public long getItemId(int position) {
+            if(position == 0)
+                return -1;
+            else
+                return super.getItemId(position - 1);
+        }
+
+        @Override
         public UUID getItemUUID(int position) {
             if(position == 0)
                 return null;
