@@ -72,8 +72,10 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
             final String[] defaultTransCategories = mContext.getResources().getStringArray(R.array.transfer_categories);
 
             Category outAdd = null;
+            long current = 0; // prefilled categories should have predictable IDs for further sync
             for(final String outCategory : defaultOutcomeCategories) {
                 outAdd = new Category();
+                outAdd.setId(new UUID(0, ++current));
                 outAdd.setName(outCategory);
                 outAdd.setType(Category.CategoryType.EXPENSE);
                 getCategoryDao().create(outAdd);
@@ -81,6 +83,7 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
             Category inAdd = null;
             for(final String inCategory : defaultIncomeCategories) {
                 inAdd = new Category();
+                inAdd.setId(new UUID(0, ++current));
                 inAdd.setName(inCategory);
                 inAdd.setType(Category.CategoryType.INCOME);
                 getCategoryDao().create(inAdd);
@@ -88,6 +91,7 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
             Category transAdd = null;
             for(final String transCategory : defaultTransCategories) {
                 transAdd = new Category();
+                transAdd.setId(new UUID(0, ++current));
                 transAdd.setName(transCategory);
                 transAdd.setType(Category.CategoryType.TRANSFER);
                 getCategoryDao().create(transAdd);
