@@ -1,10 +1,10 @@
 package com.adonai.wallet;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -73,7 +73,7 @@ public class CategoriesFragment extends WalletBaseListFragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        final ActionBar actBar = getActivity().getActionBar();
+        final ActionBar actBar = getWalletActivity().getSupportActionBar();
         actBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         actBar.setListNavigationCallbacks(mCategoryTypeAdapter, mNavListener);
     }

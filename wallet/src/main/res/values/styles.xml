@@ -4,12 +4,12 @@
     <attr name="ExpandBudgetDrawable" format="reference"/>
     <attr name="CollapseBudgetDrawable" format="reference"/>
 
-    <style name="Light" parent="android:Theme.Holo.Light">
+    <style name="Light" parent="Theme.AppCompat.Light">
         <item name="DrawerBackgroundColor">@color/light_drawer_bg</item>
         <item name="ExpandBudgetDrawable">@drawable/ic_find_next_holo_light</item>
         <item name="CollapseBudgetDrawable">@drawable/ic_find_previous_holo_light</item>
     </style>
-    <style name="Dark" parent="android:Theme.Holo">
+    <style name="Dark" parent="Theme.AppCompat">
         <item name="DrawerBackgroundColor">@color/dark_drawer_bg</item>
         <item name="ExpandBudgetDrawable">@drawable/ic_find_next_holo_dark</item>
         <item name="CollapseBudgetDrawable">@drawable/ic_find_previous_holo_dark</item>

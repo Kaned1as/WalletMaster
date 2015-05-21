@@ -124,4 +124,8 @@
     <string name="end_date_must_be_after">Конечная дата должна быть позже начальной!</string>
     <string name="database_error_persisting_account">Ошибка сохранения аккаунта</string>
     <string name="database_error">Ошибка базы данных</string>
+    <string name="title_statistics">Статистика</string>
+    <string name="expenses_by_time">Expenses by time</string>
+    <string name="sums_by_categories">Sums by categories</string>
+    <string name="total_sum_by_time">Total sum by time</string>
 </resources>

@@ -2,12 +2,11 @@ package com.adonai.wallet;
 
 
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.DialogInterface;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.widget.CheckBox;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.database.EntityDao;

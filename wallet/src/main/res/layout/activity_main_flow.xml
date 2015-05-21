@@ -41,6 +41,13 @@
             android:name="com.adonai.wallet.BudgetsFragment"
             android:id="@+id/budgets_fragment"
             tools:layout="@layout/budgets_flow" />
+
+        <fragment
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:name="com.adonai.wallet.StatisticsFragment"
+            android:id="@+id/statistics_fragment"
+            tools:layout="@layout/statistics_flow" />
     </FrameLayout>
 
     <!-- android:layout_gravity="start" tells DrawerLayout to treat

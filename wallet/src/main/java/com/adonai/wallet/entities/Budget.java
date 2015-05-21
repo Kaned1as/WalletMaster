@@ -51,6 +51,12 @@ public class Budget extends Entity {
     @DatabaseField(columnName = "warning_amount")
     private BigDecimal warningAmount;
 
+    @DatabaseField(columnName = "max_amount")
+    private BigDecimal maxAmount; // maximum amount for the whole budget
+
+    @DatabaseField(columnName = "max_daily_amount")
+    private BigDecimal maxDailyAmount; // maximum amount for a day
+
     public String getName() {
         return name;
     }
@@ -134,11 +140,27 @@ public class Budget extends Entity {
         this.warningAmount = warningAmount;
     }
 
+    public BigDecimal getMaxAmount() {
+        return maxAmount;
+    }
+
+    public void setMaxAmount(BigDecimal maxAmount) {
+        this.maxAmount = maxAmount;
+    }
+
+    public BigDecimal getMaxDailyAmount() {
+        return maxDailyAmount;
+    }
+
+    public void setMaxDailyAmount(BigDecimal maxDailyAmount) {
+        this.maxDailyAmount = maxDailyAmount;
+    }
+
     public enum Flags {
-        REPEATING(0x1),             // repeatable budgets (daily, weekly, monthly)
-        AUTO_EXPANDING(0x2),        // auto-expanding budgets (child items automatically match the size)
-        WARN_ON_OVERFLOW(0x4),      // print a warning to user when overflown
-        WARN_ON_NEAR_BREACH(0x8);   // print a warning to user when almost overflown
+        REPEATING                       (0x1),             // repeatable budgets (daily, weekly, monthly)
+        AUTO_EXPANDING                  (0x2),        // auto-expanding budgets (child items automatically match the size)
+        WARN_ON_OVERFLOW                (0x4),      // print a warning to user when overflown
+        WARN_ON_NEAR_BREACH             (0x8);   // print a warning to user when almost overflown
 
         private int value;
 

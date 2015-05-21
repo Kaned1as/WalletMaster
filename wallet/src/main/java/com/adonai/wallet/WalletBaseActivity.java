@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.adonai.wallet.sync.SyncStateMachine;
@@ -16,7 +17,7 @@ import com.adonai.wallet.sync.SyncStateMachine;
  *
  * @author adonai
  */
-public class WalletBaseActivity extends Activity implements SyncStateMachine.SyncListener {
+public class WalletBaseActivity extends AppCompatActivity implements SyncStateMachine.SyncListener {
 
     protected SyncStateMachine mSyncMachine;
     protected ProgressDialog mProgressDialog;

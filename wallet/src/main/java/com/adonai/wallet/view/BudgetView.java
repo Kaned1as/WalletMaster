@@ -3,6 +3,9 @@ package com.adonai.wallet.view;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -108,14 +111,25 @@ public class BudgetView extends LinearLayout {
                 @Override
                 public void onClick(View v) {
                     final BudgetItemDialogFragment budgetCreate = BudgetItemDialogFragment.forBudget(mBudget.getId().toString());
-                    budgetCreate.show(((WalletBaseActivity) getContext()).getFragmentManager(), "budgetCreate");
+                    budgetCreate.show(((WalletBaseActivity) getContext()).getSupportFragmentManager(), "budgetCreate");
                 }
             });
         }
 
         mExpandedView.removeAllViews();
-        for (int i = 0; i < mBudgetItemCursorAdapter.getCount(); ++i)
-            mExpandedView.addView(mBudgetItemCursorAdapter.getView(i, null, mExpandedView));
+        for (int i = 0; i < mBudgetItemCursorAdapter.getCount(); ++i) {
+            final View budget = mBudgetItemCursorAdapter.getView(i, null, mExpandedView);
+            final BudgetItem budgetItem = mBudgetItemCursorAdapter.getItem(i);
+            mExpandedView.addView(budget);
+            budget.setOnLongClickListener(new OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    BudgetItemDialogFragment budgetModify = BudgetItemDialogFragment.forBudgetItem(budgetItem.getId().toString());
+                    budgetModify.show(((WalletBaseActivity) getContext()).getSupportFragmentManager(), "budgetModify");
+                    return true;
+                }
+            });
+        }
         mExpandedView.addView(mFooter);
 
         mState = State.EXPANDED;
@@ -181,6 +195,13 @@ public class BudgetView extends LinearLayout {
                 final ProgressBar progress = (ProgressBar) view.findViewById(R.id.deplete_progress);
                 progress.setMax(bItem.getMaxAmount().intValue());
                 progress.setProgress(currentProgress.intValue());
+                if(currentProgress.compareTo(bItem.getMaxAmount()) > 0) { // that's very important!
+                    Drawable redded = progress.getProgressDrawable().mutate();
+                    redded.setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
+                    progress.setProgressDrawable(redded);
+                } else {
+                    progress.getProgressDrawable().clearColorFilter();
+                }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
