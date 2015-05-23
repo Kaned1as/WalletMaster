@@ -96,12 +96,19 @@
             android:layout_below="@id/covered_account_label"
             android:layout_marginTop="10dp" />
 
+        <include layout="@layout/budget_item_list_item"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:id="@+id/daily_amount_progressbar"
+                 android:layout_below="@id/total_amount_progressbar"
+                 android:layout_marginTop="10dp" />
+
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/budget_items_list"
-            android:layout_below="@+id/total_amount_progressbar"
+            android:layout_below="@+id/daily_amount_progressbar"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp" />

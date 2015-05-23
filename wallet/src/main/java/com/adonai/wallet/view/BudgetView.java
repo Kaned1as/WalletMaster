@@ -49,6 +49,7 @@ public class BudgetView extends LinearLayout {
     private ImageView mExpander;
     private LinearLayout mExpandedView;
     private RelativeLayout mTotalProgress;
+    private RelativeLayout mDailyProgress;
     private View mFooter;
     private BudgetItemCursorAdapter mBudgetItemCursorAdapter;
 
@@ -58,6 +59,7 @@ public class BudgetView extends LinearLayout {
         final LayoutInflater inflater = LayoutInflater.from(context);
         mHeaderView = inflater.inflate(R.layout.budget_list_item, this, true);
         mTotalProgress = (RelativeLayout) mHeaderView.findViewById(R.id.total_amount_progressbar);
+        mDailyProgress = (RelativeLayout) mHeaderView.findViewById(R.id.daily_amount_progressbar);
         mExpandedView = (LinearLayout) mHeaderView.findViewById(R.id.budget_items_list);
         mExpander = (ImageView) mHeaderView.findViewById(R.id.expand_view);
         mExpander.setOnClickListener(new OnClickListener() {
@@ -101,7 +103,6 @@ public class BudgetView extends LinearLayout {
         if(mBudget == null) // no budget - no expanding (should not happen)
             return;
         
-        mTotalProgress.setVisibility(VISIBLE);
         updateAmounts();
 
         if(mBudgetItemCursorAdapter == null) { // never expanded before
@@ -143,24 +144,42 @@ public class BudgetView extends LinearLayout {
     }
     
     private void updateAmounts() {
+        mTotalProgress.setVisibility(VISIBLE);
         BigDecimal maxAmount = mBudget.getMaxAmount();
-        BigDecimal totalAmount = mBudget.getTotalAmount();
+        BigDecimal currentAmount = mBudget.getCurrentAmount();
         
         ProgressBar totalProgress = (ProgressBar) mTotalProgress.findViewById(R.id.deplete_progress);
         TextView maxAmountText = (TextView) mTotalProgress.findViewById(R.id.max_amount_label);
-        final TextView totalAmountTitle = (TextView) mTotalProgress.findViewById(R.id.title_label);
+        TextView totalAmountTitle = (TextView) mTotalProgress.findViewById(R.id.title_label);
         TextView currentAmountText = (TextView) mTotalProgress.findViewById(R.id.current_progress_label);
         totalAmountTitle.setText(R.string.total_amount);
         maxAmountText.setText(maxAmount.toPlainString());
-        currentAmountText.setText(totalAmount.toPlainString());
+        currentAmountText.setText(currentAmount.toPlainString());
         totalProgress.setMax(maxAmount.intValue());
-        totalProgress.setProgress(totalAmount.intValue());
+        totalProgress.setProgress(currentAmount.intValue());
+        
+        if(mBudget.getMaxDailyAmount() != null) { // we have daily amount specified
+            mDailyProgress.setVisibility(VISIBLE);
+            BigDecimal maxDailyAmount = mBudget.getMaxDailyAmount();
+            BigDecimal currentDailyAmount = mBudget.getCurrentDailyAmount();
+
+            ProgressBar dailyProgress = (ProgressBar) mDailyProgress.findViewById(R.id.deplete_progress);
+            TextView dailyAmountText = (TextView) mDailyProgress.findViewById(R.id.max_amount_label);
+            TextView dailyAmountTitle = (TextView) mDailyProgress.findViewById(R.id.title_label);
+            TextView currentDailyAmountText = (TextView) mDailyProgress.findViewById(R.id.current_progress_label);
+            dailyAmountTitle.setText(R.string.daily_amount);
+            dailyAmountText.setText(maxDailyAmount.toPlainString());
+            currentDailyAmountText.setText(currentDailyAmount.toPlainString());
+            dailyProgress.setMax(maxDailyAmount.intValue());
+            dailyProgress.setProgress(currentDailyAmount.intValue());
+        }
     }
     public void collapse() {
         if(mBudget == null) // no budget - no collapsing (should not happen)
             return;
 
         mTotalProgress.setVisibility(GONE);
+        mDailyProgress.setVisibility(GONE);
 
         if(mBudgetItemCursorAdapter != null) { // was expanded before, unregister
             mBudgetItemCursorAdapter.closeCursor();

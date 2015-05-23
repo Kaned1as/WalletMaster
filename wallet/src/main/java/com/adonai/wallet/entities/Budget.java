@@ -156,7 +156,11 @@ public class Budget extends Entity {
         return result;
     }
     
-    public BigDecimal getTotalAmount() {
+    public boolean hasExplicitMaxAmount() {
+        return maxAmount != null;
+    }
+    
+    public BigDecimal getCurrentAmount() {
         BigDecimal result = BigDecimal.ZERO;
         ForeignCollection<BudgetItem> budgets = getContent();
         if(budgets == null || budgets.isEmpty())
@@ -172,13 +176,22 @@ public class Budget extends Entity {
     public void setMaxAmount(BigDecimal maxAmount) {
         this.maxAmount = maxAmount;
     }
-    
-    public boolean hasExplicitMaxAmount() {
-        return maxAmount != null;
-    }
 
     public BigDecimal getMaxDailyAmount() {
         return maxDailyAmount;
+    }
+
+    public BigDecimal getCurrentDailyAmount() {
+        BigDecimal result = BigDecimal.ZERO;
+        ForeignCollection<BudgetItem> budgets = getContent();
+        if(budgets == null || budgets.isEmpty())
+            return result;
+
+        for(BudgetItem bi : budgets) {
+            result = result.add(bi.getDailyProgress());
+        }
+
+        return result;
     }
 
     public void setMaxDailyAmount(BigDecimal maxDailyAmount) {

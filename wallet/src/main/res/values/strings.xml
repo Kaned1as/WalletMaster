@@ -130,4 +130,7 @@
     <string name="total_sum_by_time">Total sum by time</string>
     <string name="dropdown">Dropdown</string>
     <string name="total_amount">Total amount</string>
+    <string name="daily_amount">Daily amount</string>
+    <string name="explicit_max_amount">Explicit max amount</string>
+    <string name="explicit_daily_amount">Explicit daily amount</string>
 </resources>

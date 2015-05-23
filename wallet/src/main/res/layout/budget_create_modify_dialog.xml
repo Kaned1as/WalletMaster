@@ -33,9 +33,7 @@
 
     <TableRow
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp">
+        android:layout_height="match_parent">
 
         <TextView
             android:layout_width="wrap_content"
@@ -57,9 +55,7 @@
 
     <TableRow
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp">
+        android:layout_height="match_parent">
 
         <TextView
             android:layout_width="wrap_content"
@@ -82,9 +78,7 @@
     <TableRow
         android:id="@+id/operation_charge_row"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp">
+        android:layout_height="match_parent">
 
         <TextView
             android:layout_width="wrap_content"
@@ -99,6 +93,54 @@
             android:id="@+id/covered_account_spinner"
             android:spinnerMode="dialog"
             android:prompt="@string/select_account" />
+
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/max_amount_option_row"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/explicit_max_amount"
+            android:id="@+id/explicit_max_amount_check" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/explicit_max_amount_text"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:inputType="number"
+            android:visibility="gone"/>
+
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/max_daily_amount_option_row"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/explicit_daily_amount"
+            android:id="@+id/explicit_daily_amount_check" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/explicit_daily_amount_text"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:inputType="number"
+            android:visibility="gone"/>
 
     </TableRow>
 

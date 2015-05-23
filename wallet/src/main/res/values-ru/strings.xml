@@ -129,5 +129,8 @@
     <string name="sums_by_categories">Sums by categories</string>
     <string name="total_sum_by_time">Total sum by time</string>
     <string name="dropdown">Выпадающий список</string>
-    <string name="total_amount">Общяя сумма</string>
+    <string name="total_amount">Общие траты</string>
+    <string name="daily_amount">Ежедневные траты</string>
+    <string name="explicit_max_amount">Жёсткие общие траты</string>
+    <string name="explicit_daily_amount">Жёсткие ежедневные траты</string>
 </resources>
