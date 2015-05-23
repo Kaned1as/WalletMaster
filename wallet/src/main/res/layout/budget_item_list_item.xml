@@ -3,36 +3,34 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@id/main_content_layout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingRight="5dp"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp"
-    android:paddingLeft="5dp">
+    android:layout_height="wrap_content">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:id="@+id/category_label" />
+        android:id="@+id/title_label" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textSize="10sp"
         android:id="@+id/max_amount_label"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" 
+        android:layout_above="@+id/deplete_progress" />
 
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/deplete_progress"
-        android:layout_below="@+id/category_label" />
+        android:layout_below="@+id/title_label" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textSize="10sp"
         android:id="@+id/current_progress_label"
         android:layout_below="@+id/deplete_progress"
         android:layout_centerHorizontal="true" />

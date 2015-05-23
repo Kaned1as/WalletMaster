@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.adonai.wallet.BudgetItemDialogFragment;
@@ -47,6 +48,7 @@ public class BudgetView extends LinearLayout {
     private View mHeaderView;
     private ImageView mExpander;
     private LinearLayout mExpandedView;
+    private RelativeLayout mTotalProgress;
     private View mFooter;
     private BudgetItemCursorAdapter mBudgetItemCursorAdapter;
 
@@ -55,6 +57,7 @@ public class BudgetView extends LinearLayout {
 
         final LayoutInflater inflater = LayoutInflater.from(context);
         mHeaderView = inflater.inflate(R.layout.budget_list_item, this, true);
+        mTotalProgress = (RelativeLayout) mHeaderView.findViewById(R.id.total_amount_progressbar);
         mExpandedView = (LinearLayout) mHeaderView.findViewById(R.id.budget_items_list);
         mExpander = (ImageView) mHeaderView.findViewById(R.id.expand_view);
         mExpander.setOnClickListener(new OnClickListener() {
@@ -97,6 +100,9 @@ public class BudgetView extends LinearLayout {
     public void expand() {
         if(mBudget == null) // no budget - no expanding (should not happen)
             return;
+        
+        mTotalProgress.setVisibility(VISIBLE);
+        updateAmounts();
 
         if(mBudgetItemCursorAdapter == null) { // never expanded before
             try {
@@ -135,10 +141,26 @@ public class BudgetView extends LinearLayout {
         mState = State.EXPANDED;
         updateDrawables();
     }
-
+    
+    private void updateAmounts() {
+        BigDecimal maxAmount = mBudget.getMaxAmount();
+        BigDecimal totalAmount = mBudget.getTotalAmount();
+        
+        ProgressBar totalProgress = (ProgressBar) mTotalProgress.findViewById(R.id.deplete_progress);
+        TextView maxAmountText = (TextView) mTotalProgress.findViewById(R.id.max_amount_label);
+        final TextView totalAmountTitle = (TextView) mTotalProgress.findViewById(R.id.title_label);
+        TextView currentAmountText = (TextView) mTotalProgress.findViewById(R.id.current_progress_label);
+        totalAmountTitle.setText(R.string.total_amount);
+        maxAmountText.setText(maxAmount.toPlainString());
+        currentAmountText.setText(totalAmount.toPlainString());
+        totalProgress.setMax(maxAmount.intValue());
+        totalProgress.setProgress(totalAmount.intValue());
+    }
     public void collapse() {
-        if(mBudget == null) // no budget - no expanding (should not happen)
+        if(mBudget == null) // no budget - no collapsing (should not happen)
             return;
+
+        mTotalProgress.setVisibility(GONE);
 
         if(mBudgetItemCursorAdapter != null) { // was expanded before, unregister
             mBudgetItemCursorAdapter.closeCursor();
@@ -185,7 +207,7 @@ public class BudgetView extends LinearLayout {
                 mCursor.first();
                 final BudgetItem bItem = mCursor.moveRelative(position);
                 bItem.setParentBudget(mBudget);
-                final TextView categoryText = (TextView) view.findViewById(R.id.category_label);
+                final TextView categoryText = (TextView) view.findViewById(R.id.title_label);
                 categoryText.setText(bItem.getCategory().getName());
                 final TextView maxAmountText = (TextView) view.findViewById(R.id.max_amount_label);
                 maxAmountText.setText(bItem.getMaxAmount().toPlainString());

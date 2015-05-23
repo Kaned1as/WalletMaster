@@ -128,4 +128,6 @@
     <string name="expenses_by_time">Expenses by time</string>
     <string name="sums_by_categories">Sums by categories</string>
     <string name="total_sum_by_time">Total sum by time</string>
+    <string name="dropdown">Выпадающий список</string>
+    <string name="total_amount">Общяя сумма</string>
 </resources>
