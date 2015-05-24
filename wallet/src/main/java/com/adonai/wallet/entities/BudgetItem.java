@@ -3,13 +3,17 @@ package com.adonai.wallet.entities;
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.database.EntityDao;
 import com.j256.ormlite.dao.GenericRawResults;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Entity representing a budget item. Budget item tracks sum of all expenses for specified period
@@ -76,20 +80,26 @@ public class BudgetItem extends Entity {
     public BigDecimal getDailyProgress() {
         final BigDecimal sum;
         GenericRawResults<String[]> results;
+        EntityDao<Operation> dao = DbProvider.getHelper().getEntityDao(Operation.class);
+        StringBuilder sb = new StringBuilder("SELECT SUM(amount) FROM operation WHERE category_id = ?");
+        List<String> args = new ArrayList<>();
+        args.add(category.getId().toString());
 
+        if(parentBudget.getCoveredAccount() != null) {
+            sb.append(" AND orderer_id = ?");
+            args.add(parentBudget.getCoveredAccount().getId().toString());
+        }
+        
+        // counting the beginning of current day
         Calendar currentDay = Calendar.getInstance();
         currentDay.set(Calendar.HOUR_OF_DAY, 0);
         currentDay.set(Calendar.MINUTE, 0);
         currentDay.set(Calendar.SECOND, 0);
-        currentDay.set(Calendar.MILLISECOND, 0);
-        
-        if(parentBudget.getCoveredAccount() == null) { // all accounts
-            results = DbProvider.getHelper().getOperationDao().queryRaw("SELECT SUM(amount) FROM operation WHERE category_id = ? AND time > ?", category.getId().toString(), String.valueOf(currentDay.getTime().getTime()));
-        } else {
-            results = DbProvider.getHelper().getOperationDao().queryRaw("SELECT SUM(amount) FROM operation WHERE orderer_id = ? AND category_id = ? AND time > ?", parentBudget.getCoveredAccount().getId().toString(), category.getId().toString(), String.valueOf(currentDay.getTime().getTime()));
-        }
+        sb.append(" AND time > ?");
+        args.add(String.valueOf(currentDay.getTime().getTime()));
 
         try {
+            results = dao.queryRaw(sb.toString(), args.toArray(new String[args.size()]));
             String[] res = results.getFirstResult();
             sum = res[0] == null ? BigDecimal.ZERO : new BigDecimal(res[0]);
             results.close();
@@ -103,13 +113,28 @@ public class BudgetItem extends Entity {
     public BigDecimal getAmountForBudget(Budget budget, Category category) {
         final BigDecimal sum;
         GenericRawResults<String[]> results;
-        if(budget.getCoveredAccount() == null) { // all accounts
-            results = DbProvider.getHelper().getOperationDao().queryRaw("SELECT SUM(amount) FROM operation WHERE category_id = ? AND time BETWEEN ? AND ?", category.getId().toString(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime()));
-        } else {
-            results = DbProvider.getHelper().getOperationDao().queryRaw("SELECT SUM(amount) FROM operation WHERE orderer_id = ? AND category_id = ? AND time BETWEEN ? AND ?", budget.getCoveredAccount().getId().toString(), category.getId().toString(), String.valueOf(budget.getStartTime().getTime()), String.valueOf(budget.getEndTime().getTime()));
+        EntityDao<Operation> dao = DbProvider.getHelper().getEntityDao(Operation.class);
+        StringBuilder sb = new StringBuilder("SELECT SUM(amount) FROM operation WHERE category_id = ?");
+        List<String> args = new ArrayList<>();
+        args.add(category.getId().toString());
+        
+        if(budget.getCoveredAccount() != null) {
+            sb.append(" AND orderer_id = ?");
+            args.add(budget.getCoveredAccount().getId().toString());
+        }
+        
+        if(budget.getStartTime() != null) {
+            sb.append(" AND time > ?");
+            args.add(String.valueOf(budget.getStartTime().getTime()));
         }
 
+        if(budget.getEndTime() != null) {
+            sb.append(" AND time < ?");
+            args.add(String.valueOf(budget.getEndTime().getTime()));
+        }
+        
         try {
+            results = dao.queryRaw(sb.toString(), args.toArray(new String[args.size()]));
             String[] res = results.getFirstResult();
             sum = res[0] == null ? BigDecimal.ZERO : new BigDecimal(res[0]);
             results.close();

@@ -32,8 +32,8 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
     private final static String BUDGET_REFERENCE = "budget.reference";
 
     private EditText mBudgetName;
-    private DatePickerListener mStartDate;
-    private DatePickerListener mEndDate;
+    private CheckBox mEndDateCheck;
+    private DatePickerListener mStartDate, mEndDate;
     private Spinner mCoveredAccountSelector;
     
     private CheckBox mMaxAmountCheck, mDailyAmountCheck;
@@ -55,10 +55,13 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
         assert dialog != null;
 
         mBudgetName = (EditText) dialog.findViewById(R.id.name_edit);
-        final EditText startDate = (EditText) dialog.findViewById(R.id.start_date_picker_edit);
+        EditText startDate = (EditText) dialog.findViewById(R.id.start_date_picker_edit);
         mStartDate = DatePickerListener.wrap(startDate);
+
+        mEndDateCheck = (CheckBox) dialog.findViewById(R.id.end_date_check);
         final EditText endDate = (EditText) dialog.findViewById(R.id.end_date_picker_edit);
         mEndDate = DatePickerListener.wrap(endDate);
+        mEndDateCheck.setOnCheckedChangeListener(new VisibilityCheckListener(endDate));
 
         mAccountAdapter = new AccountsWithNoneAdapter(R.string.all);
         mCoveredAccountSelector = (Spinner) dialog.findViewById(R.id.covered_account_spinner);
@@ -70,18 +73,8 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
         mMaxAmountText = (EditText) dialog.findViewById(R.id.explicit_max_amount_text);
         mDailyAmountText = (EditText) dialog.findViewById(R.id.explicit_daily_amount_text);
         
-        mMaxAmountCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mMaxAmountText.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-            }
-        });
-        mDailyAmountCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mDailyAmountText.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-            }
-        });
+        mMaxAmountCheck.setOnCheckedChangeListener(new VisibilityCheckListener(mMaxAmountText));
+        mDailyAmountCheck.setOnCheckedChangeListener(new VisibilityCheckListener(mDailyAmountText));
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // if we are modifying existing account
@@ -93,7 +86,10 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
 
             mBudgetName.setText(budget.getName());
             mStartDate.setCalendar(budget.getStartTime());
-            mEndDate.setCalendar(budget.getEndTime());
+            if(budget.getEndTime() != null) {
+                mEndDateCheck.setChecked(true);
+                mEndDate.setCalendar(budget.getEndTime());
+            }
             if(budget.getCoveredAccount() != null)
                 mCoveredAccountSelector.setSelection(mAccountAdapter.getPosition(budget.getCoveredAccount().getId()));
             if(budget.hasExplicitMaxAmount()) {
@@ -133,7 +129,10 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
                 throw new IllegalArgumentException(getString(R.string.end_date_must_be_after));
 
             tmp.setStartTime(mStartDate.getCalendar().getTime());
-            tmp.setEndTime(mEndDate.getCalendar().getTime());
+            if(mEndDateCheck.isChecked()) {
+                tmp.setEndTime(mEndDate.getCalendar().getTime());
+            } else
+                tmp.setEndTime(null);
 
             if (mCoveredAccountSelector.getSelectedItem() != null)
                 tmp.setCoveredAccount(DbProvider.getHelper().getAccountDao().queryForId(mAccountAdapter.getItemUUID(mCoveredAccountSelector.getSelectedItemPosition())));
@@ -159,6 +158,20 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
             dismiss();
         } catch (IllegalArgumentException iae) {
             Toast.makeText(getWalletActivity(), iae.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class VisibilityCheckListener implements CompoundButton.OnCheckedChangeListener {
+
+        private final View watched;
+
+        public VisibilityCheckListener(View toWatch) {
+            watched = toWatch;
+        }
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            watched.setVisibility(isChecked ? View.VISIBLE : View.GONE);
         }
     }
 }

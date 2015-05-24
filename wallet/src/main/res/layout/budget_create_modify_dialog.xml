@@ -20,6 +20,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/name"
+            android:layout_gravity="center_vertical"
             android:id="@+id/name_label" />
 
         <EditText
@@ -40,6 +41,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/start_date"
+            android:layout_gravity="center_vertical"
             android:id="@+id/start_date_label" />
 
         <EditText
@@ -58,12 +60,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
+        <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/end_date"
-            android:id="@+id/end_date_label" />
+            android:id="@+id/end_date_check" />
 
         <EditText
             android:layout_width="wrap_content"
@@ -72,7 +75,8 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:inputType="date"
             android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp" />
+            android:layout_marginRight="30dp"
+            android:visibility="gone" />
 
 
     </TableRow>
@@ -87,6 +91,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/account"
+            android:layout_gravity="center_vertical"
             android:id="@+id/covered_account_label" />
 
         <Spinner
@@ -108,6 +113,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/max"
+            android:layout_gravity="center_vertical"
             android:id="@+id/explicit_max_amount_check" />
 
         <EditText
@@ -132,6 +138,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/daily"
+            android:layout_gravity="center_vertical"
             android:id="@+id/explicit_daily_amount_check" />
 
         <EditText

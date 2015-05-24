@@ -89,7 +89,11 @@ public class BudgetView extends LinearLayout {
 
         name.setText(mBudget.getName());
         startTime.setText(VIEW_DATE_FORMAT.format(mBudget.getStartTime()));
-        endTime.setText(VIEW_DATE_FORMAT.format(mBudget.getEndTime()));
+        if(mBudget.getEndTime() != null) {
+            endTime.setText(VIEW_DATE_FORMAT.format(mBudget.getEndTime()));
+        } else {
+            endTime.setText("?");
+        }
         if(mBudget.getCoveredAccount() != null)
             coveredAccount.setText(mBudget.getCoveredAccount().getName());
         else

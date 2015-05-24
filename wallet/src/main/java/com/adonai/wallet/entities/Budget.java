@@ -39,7 +39,7 @@ public class Budget extends Entity {
     @DatabaseField(columnName = "start_time", canBeNull = false, dataType = DataType.DATE_LONG)
     private Date startTime;
 
-    @DatabaseField(columnName = "end_time", canBeNull = false, dataType = DataType.DATE_LONG)
+    @DatabaseField(columnName = "end_time", dataType = DataType.DATE_LONG)
     private Date endTime;
 
     @DatabaseField
@@ -100,22 +100,26 @@ public class Budget extends Entity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Budget)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
-        final Budget budget = (Budget) o;
+        Budget budget = (Budget) o;
 
+        if (flags != budget.flags) return false;
+        if (!name.equals(budget.name)) return false;
         if (coveredAccount != null ? !coveredAccount.equals(budget.coveredAccount) : budget.coveredAccount != null)
             return false;
-        if (!endTime.equals(budget.endTime))
+        if (content != null ? !content.equals(budget.content) : budget.content != null) return false;
+        if (!startTime.equals(budget.startTime)) return false;
+        if (endTime != null ? !endTime.equals(budget.endTime) : budget.endTime != null) return false;
+        if (repeatTimeSeconds != null ? !repeatTimeSeconds.equals(budget.repeatTimeSeconds) : budget.repeatTimeSeconds != null)
             return false;
-        if (!name.equals(budget.name))
+        if (warningAmount != null ? !warningAmount.equals(budget.warningAmount) : budget.warningAmount != null)
             return false;
-        if (!startTime.equals(budget.startTime))
-            return false;
+        if (maxAmount != null ? !maxAmount.equals(budget.maxAmount) : budget.maxAmount != null) return false;
+        return !(maxDailyAmount != null ? !maxDailyAmount.equals(budget.maxDailyAmount) : budget.maxDailyAmount != null);
 
-        return true;
     }
-
     public long getFlags() {
         return flags;
     }
