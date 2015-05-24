@@ -2,9 +2,6 @@
 <resources>
 
     <string name="app_name">Wallet Master</string>
-    <string name="title_accounts">Accounts</string>
-    <string name="title_operations">Operations</string>
-    <string name="title_budget">Budget</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
@@ -63,7 +60,6 @@
     <string name="sync_completed">Sync is completed!</string>
     <string name="modify">Modify</string>
     <string name="create_new_operation">Create new operation</string>
-    <string name="categories">Categories</string>
     <string name="add">Add</string>
     <string name="preferred_account">Preferred account</string>
     <string name="sample">Sample</string>
@@ -124,7 +120,6 @@
     <string name="end_date_must_be_after">End date must be after start date</string>
     <string name="database_error">Database error!</string>
     <string name="database_error_persisting_account">Database error while persisting account!</string>
-    <string name="title_statistics">Statistics</string>
     <string name="expenses_by_time">Expenses by time</string>
     <string name="sums_by_categories">Sums by categories</string>
     <string name="total_sum_by_time">Total sum by time</string>
@@ -133,4 +128,7 @@
     <string name="daily_amount">Daily amount</string>
     <string name="max">Max</string>
     <string name="daily">Daily</string>
+    <string name="drawer_open">Drawer opened</string>
+    <string name="drawer_close">Drawer closed</string>
+    <string name="create_new_budget">Create new budget</string>
 </resources>

@@ -102,7 +102,7 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
             }
         } else {
             builder.setPositiveButton(R.string.create, null);
-            builder.setTitle(R.string.create_new_account).setView(dialog);
+            builder.setTitle(R.string.create_new_budget).setView(dialog);
         }
 
         return builder.create();
@@ -125,12 +125,12 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
                 tmp = new Budget();
 
             tmp.setName(mBudgetName.getText().toString());
-            if (mStartDate.getCalendar().getTimeInMillis() >= mEndDate.getCalendar().getTimeInMillis())
-                throw new IllegalArgumentException(getString(R.string.end_date_must_be_after));
 
             tmp.setStartTime(mStartDate.getCalendar().getTime());
             if(mEndDateCheck.isChecked()) {
                 tmp.setEndTime(mEndDate.getCalendar().getTime());
+                if (mStartDate.getCalendar().getTimeInMillis() >= mEndDate.getCalendar().getTimeInMillis())
+                    throw new IllegalArgumentException(getString(R.string.end_date_must_be_after));
             } else
                 tmp.setEndTime(null);
 

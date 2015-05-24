@@ -1,14 +1,20 @@
 package com.adonai.wallet;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.adonai.wallet.database.DbProvider;
 
@@ -22,19 +28,19 @@ import static com.adonai.wallet.WalletConstants.ACCOUNT_SYNC_KEY;
  *
  * @author Adonai
  */
-public class MainFlow extends WalletBaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MainFlow extends WalletBaseActivity {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
 
-    private NavigationDrawerFragment mNavigationDrawerFragment;
-    private List<Fragment> mParts = new ArrayList<>(4);
-
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
-    private CharSequence mTitle;
+    private ListView mNavigationDrawer;
+    private String[] mDrawerTitles;
+    
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
+    
+    private List<Fragment> mParts = new ArrayList<>(5);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +48,11 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
         DbProvider.setHelper(this);
         setContentView(R.layout.activity_main_flow);
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
+        mNavigationDrawer = (ListView) findViewById(R.id.navigation_drawer);
+        mDrawerTitles = getResources().getStringArray(R.array.drawer_items);
+        mNavigationDrawer.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_selectable_list_item, mDrawerTitles));
+        mNavigationDrawer.setOnItemClickListener(new DrawItemClickListener());
+        
         mParts.add(getSupportFragmentManager().findFragmentById(R.id.accounts_fragment));
         mParts.add(getSupportFragmentManager().findFragmentById(R.id.operations_fragment));
         mParts.add(getSupportFragmentManager().findFragmentById(R.id.categories_fragment));
@@ -51,69 +60,56 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
         mParts.add(getSupportFragmentManager().findFragmentById(R.id.statistics_fragment));
 
         // Set up the drawer.
-        mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+
+        // Set the drawer toggle as the DrawerListener
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
 
     @Override
-    public void onBackPressed() {
-        if(!LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Utils.BACK_PRESSED))) {
-            super.onBackPressed();
-        }
+    protected void onStart() {
+        super.onStart();
+        onNavigationDrawerItemSelected(0);
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
-        final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        for(final Fragment fragment : mParts)
-            transaction.hide(fragment);
-        switch (position) {
-            case 0:
-                mTitle = getString(R.string.title_accounts);
-                break;
-            case 1:
-                mTitle = getString(R.string.title_operations);
-                break;
-            case 2:
-                mTitle = getString(R.string.categories);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_budget);
-                break;
-            case 4:
-                mTitle = getString(R.string.title_statistics);
-                break;
-        }
-        transaction.show(mParts.get(position));
-        transaction.commit();
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
     }
-
-    public void restoreActionBar() {
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
-    }
-
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            //getMenuInflater().inflate(R.menu.accounts_flow, menu);
-            restoreActionBar();
-            return true;
-        }
-        return super.onCreateOptionsMenu(menu);
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        // Pass the event to ActionBarDrawerToggle, if it returns
+        // true, then it has handled the app icon touch event
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        
+        // Handle your other action bar items...
         switch(item.getItemId()) {
             case R.id.action_settings: {
                 final Intent pref = new Intent(this, PreferenceFlow.class);
@@ -132,8 +128,34 @@ public class MainFlow extends WalletBaseActivity implements NavigationDrawerFrag
     }
 
     @Override
+    public void onBackPressed() {
+        if(!LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Utils.BACK_PRESSED))) {
+            super.onBackPressed();
+        }
+    }
+
+    public void onNavigationDrawerItemSelected(int position) {
+        // update the main content by replacing fragments
+        final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        for(final Fragment fragment : mParts)
+            transaction.hide(fragment);
+        transaction.show(mParts.get(position));
+        transaction.commit();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         DbProvider.releaseHelper();
+    }
+
+    private class DrawItemClickListener implements android.widget.AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            mNavigationDrawer.setItemChecked(position, true);
+            onNavigationDrawerItemSelected(position);
+            setTitle(mDrawerTitles[position]);
+            mDrawerLayout.closeDrawer(mNavigationDrawer);
+        }
     }
 }

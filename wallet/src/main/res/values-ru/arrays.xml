@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="drawer_items">
+        <item>Счета</item>
+        <item>Операции</item>
+        <item>Категории</item>
+        <item>Бюджет</item>
+        <item>Статистика</item>
+    </string-array>
     <string-array name="out_categories">
         <item>Транспорт</item>
         <item>Одежда</item>

@@ -71,11 +71,14 @@ public class CategoriesFragment extends WalletBaseListFragment {
     }
 
     @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
+    public void onHiddenChanged(boolean hidden) {
         final ActionBar actBar = getWalletActivity().getSupportActionBar();
-        actBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        actBar.setListNavigationCallbacks(mCategoryTypeAdapter, mNavListener);
+        if(hidden) {
+            actBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        } else {
+            actBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+            actBar.setListNavigationCallbacks(mCategoryTypeAdapter, mNavListener);
+        }
     }
 
     @Override

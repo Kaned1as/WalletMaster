@@ -66,6 +66,8 @@
             android:layout_gravity="center_vertical"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/end_date"
+            android:layout_marginLeft="-7dp"
+            android:layout_marginStart="-7dp"
             android:id="@+id/end_date_check" />
 
         <EditText
@@ -113,6 +115,8 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/max"
+            android:layout_marginLeft="-7dp"
+            android:layout_marginStart="-7dp"
             android:layout_gravity="center_vertical"
             android:id="@+id/explicit_max_amount_check" />
 
@@ -138,6 +142,8 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/daily"
+            android:layout_marginLeft="-7dp"
+            android:layout_marginStart="-7dp"
             android:layout_gravity="center_vertical"
             android:id="@+id/explicit_daily_amount_check" />
 

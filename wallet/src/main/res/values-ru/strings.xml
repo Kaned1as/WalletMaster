@@ -2,9 +2,6 @@
 <resources>
 
     <string name="app_name">Wallet Master</string>
-    <string name="title_accounts">Счета</string>
-    <string name="title_operations">Операции</string>
-    <string name="title_budget">Бюджет</string>
     <string name="navigation_drawer_open">Открыть навигацию</string>
     <string name="navigation_drawer_close">Закрыть навигацию</string>
     <string name="action_settings">Настройки</string>
@@ -63,7 +60,6 @@
     <string name="sync_completed">Синхронизация завершена!</string>
     <string name="modify">Редактировать</string>
     <string name="create_new_operation">Создать новую операцию</string>
-    <string name="categories">Категории</string>
     <string name="add">Добавить</string>
     <string name="preferred_account">Предпочитаемый аккаунт</string>
     <string name="sample">Пример</string>
@@ -124,7 +120,6 @@
     <string name="end_date_must_be_after">Конечная дата должна быть позже начальной!</string>
     <string name="database_error_persisting_account">Ошибка сохранения аккаунта</string>
     <string name="database_error">Ошибка базы данных</string>
-    <string name="title_statistics">Статистика</string>
     <string name="expenses_by_time">Expenses by time</string>
     <string name="sums_by_categories">Sums by categories</string>
     <string name="total_sum_by_time">Total sum by time</string>
@@ -133,4 +128,7 @@
     <string name="daily_amount">Ежедневные траты</string>
     <string name="max">Максимум</string>
     <string name="daily">Ежедневно</string>
+    <string name="drawer_open">Панель открыта</string>
+    <string name="drawer_close">Панель закрыта</string>
+    <string name="create_new_budget">Создать новый бюджет</string>
 </resources>
