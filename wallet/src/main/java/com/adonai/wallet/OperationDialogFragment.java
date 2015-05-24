@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -86,6 +87,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         return fragment;
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         mAccountAdapter = new UUIDSpinnerAdapter<>(getActivity(), Account.class);

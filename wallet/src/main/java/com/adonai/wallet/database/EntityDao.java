@@ -123,7 +123,7 @@ public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
         }
     }
 
-    public void registerObserver(UUIDCursorAdapter<T> observer) {
+    public void registerObserver(UUIDCursorAdapter observer) {
         mObservable.registerObserver(observer);
     }
 
@@ -135,10 +135,10 @@ public class EntityDao<T extends Entity> extends BaseDaoImpl<T, UUID> {
         mObservable.unregisterAll();
     }
 
-    private class DbNotifier extends Observable<UUIDCursorAdapter<T>> {
+    private class DbNotifier extends Observable<UUIDCursorAdapter> {
 
         public void notifyObservers() {
-            for(UUIDCursorAdapter<T> observer : mObservers) {
+            for(UUIDCursorAdapter observer : mObservers) {
                 observer.notifyDataSetChanged();
             }
         }

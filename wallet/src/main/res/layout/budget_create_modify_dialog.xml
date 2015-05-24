@@ -38,7 +38,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/start_date"
             android:id="@+id/start_date_label" />
 
@@ -46,6 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/start_date_picker_edit"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:inputType="date"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp" />
@@ -60,7 +61,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/end_date"
             android:id="@+id/end_date_label" />
 
@@ -68,6 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/end_date_picker_edit"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:inputType="date"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp" />
@@ -83,7 +85,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/account"
             android:id="@+id/covered_account_label" />
 
@@ -104,14 +106,14 @@
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/explicit_max_amount"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/max"
             android:id="@+id/explicit_max_amount_check" />
 
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:id="@+id/explicit_max_amount_text"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
@@ -128,14 +130,14 @@
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/explicit_daily_amount"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/daily"
             android:id="@+id/explicit_daily_amount_check" />
 
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:id="@+id/explicit_daily_amount_text"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"

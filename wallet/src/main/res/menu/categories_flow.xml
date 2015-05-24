@@ -1,8 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools" xmlns:compat="http://schemas.android.com/apk/res-auto"
     tools:context="com.adonai.wallet.MainFlow" >
     <item android:id="@+id/action_add_category"
         android:icon="@android:drawable/ic_menu_add"
         android:title="@string/action_add_category"
-        android:showAsAction="ifRoom" />
+        compat:showAsAction="ifRoom" />
 </menu>

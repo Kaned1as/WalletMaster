@@ -14,6 +14,7 @@ import android.widget.ListView;
 
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Budget;
+import com.adonai.wallet.entities.Operation;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.adonai.wallet.view.BudgetView;
 
@@ -78,6 +79,7 @@ public class BudgetsFragment extends WalletBaseListFragment {
     public class BudgetsAdapter extends UUIDCursorAdapter<Budget> {
         public BudgetsAdapter() {
             super(getActivity(), Budget.class);
+            DbProvider.getHelper().getEntityDao(Operation.class).registerObserver(this);
         }
 
         @Override

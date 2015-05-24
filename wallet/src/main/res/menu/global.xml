@@ -1,11 +1,11 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:compat="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"
-        android:showAsAction="never" />
+        compat:showAsAction="never" />
 
     <item android:id="@+id/action_sync"
         android:title="@string/synchronize"
         android:orderInCategory="101"
-        android:showAsAction="never" />
+        compat:showAsAction="never" />
 </menu>
