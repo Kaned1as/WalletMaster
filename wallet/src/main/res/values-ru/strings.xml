@@ -120,9 +120,9 @@
     <string name="end_date_must_be_after">Конечная дата должна быть позже начальной!</string>
     <string name="database_error_persisting_account">Ошибка сохранения аккаунта</string>
     <string name="database_error">Ошибка базы данных</string>
-    <string name="expenses_by_time">Expenses by time</string>
-    <string name="sums_by_categories">Sums by categories</string>
-    <string name="total_sum_by_time">Total sum by time</string>
+    <string name="operations_by_time">Операции/время</string>
+    <string name="sums_by_categories">Суммы по категориям</string>
+    <string name="total_sum_by_time">Суммы по времени</string>
     <string name="dropdown">Выпадающий список</string>
     <string name="total_amount">Общие траты</string>
     <string name="daily_amount">Ежедневные траты</string>
@@ -131,4 +131,5 @@
     <string name="drawer_open">Панель открыта</string>
     <string name="drawer_close">Панель закрыта</string>
     <string name="create_new_budget">Создать новый бюджет</string>
+    <string name="time">Время</string>
 </resources>

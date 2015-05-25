@@ -96,7 +96,7 @@ public class BudgetItem extends Entity {
         currentDay.set(Calendar.MINUTE, 0);
         currentDay.set(Calendar.SECOND, 0);
         sb.append(" AND time > ?");
-        args.add(String.valueOf(currentDay.getTime().getTime()));
+        args.add(String.valueOf(currentDay.getTimeInMillis()));
 
         try {
             results = dao.queryRaw(sb.toString(), args.toArray(new String[args.size()]));

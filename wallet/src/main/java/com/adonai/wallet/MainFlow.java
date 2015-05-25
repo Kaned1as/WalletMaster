@@ -53,11 +53,11 @@ public class MainFlow extends WalletBaseActivity {
         mNavigationDrawer.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_selectable_list_item, mDrawerTitles));
         mNavigationDrawer.setOnItemClickListener(new DrawItemClickListener());
         
-        mParts.add(getSupportFragmentManager().findFragmentById(R.id.accounts_fragment));
-        mParts.add(getSupportFragmentManager().findFragmentById(R.id.operations_fragment));
-        mParts.add(getSupportFragmentManager().findFragmentById(R.id.categories_fragment));
-        mParts.add(getSupportFragmentManager().findFragmentById(R.id.budgets_fragment));
-        mParts.add(getSupportFragmentManager().findFragmentById(R.id.statistics_fragment));
+        mParts.add(new AccountsFragment());
+        mParts.add(new OperationsFragment());
+        mParts.add(new CategoriesFragment());
+        mParts.add(new BudgetsFragment());
+        mParts.add(new StatisticsFragment());
 
         // Set up the drawer.
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -80,11 +80,6 @@ public class MainFlow extends WalletBaseActivity {
 
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         onNavigationDrawerItemSelected(0);
     }
 
@@ -137,9 +132,7 @@ public class MainFlow extends WalletBaseActivity {
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        for(final Fragment fragment : mParts)
-            transaction.hide(fragment);
-        transaction.show(mParts.get(position));
+        transaction.replace(R.id.container, mParts.get(position));
         transaction.commit();
     }
 

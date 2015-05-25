@@ -22,6 +22,7 @@ import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Operation;
 import com.adonai.wallet.entities.UUIDCursorAdapter;
 import com.adonai.wallet.view.OperationView;
+import com.j256.ormlite.android.AndroidDatabaseResults;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 
@@ -125,8 +126,8 @@ public class OperationsFragment extends WalletBaseListFragment {
                 view = (OperationView) convertView;
 
             try {
-                mCursor.first();
-                Operation op = mCursor.moveRelative(position);
+                ((AndroidDatabaseResults) mCursor.getRawResults()).moveAbsolute(position);
+                Operation op = mCursor.current();
                 view.setOperation(op);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
