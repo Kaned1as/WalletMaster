@@ -1,4 +1,4 @@
-package com.adonai.wallet.entities;
+package com.adonai.wallet.adapters;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -8,6 +8,7 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.adonai.wallet.R;
+import com.adonai.wallet.entities.Entity;
 
 import java.sql.SQLException;
 

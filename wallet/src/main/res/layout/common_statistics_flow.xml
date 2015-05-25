@@ -4,6 +4,62 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="*"
+        android:paddingEnd="10dp"
+        android:paddingStart="10dp"
+        android:id="@+id/dialog_table">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/statistics_category_row">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/category"
+                android:id="@+id/category_label" />
+
+            <Spinner
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/category_spinner"
+                android:spinnerMode="dialog"
+                android:prompt="@string/select_category"
+                android:layout_weight="1" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/statistics_account_row"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/account"
+                android:id="@+id/charge_account_label" />
+
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/account_spinner"
+                android:spinnerMode="dialog"
+                android:prompt="@string/select_account" />
+
+        </TableRow>
+
+    </TableLayout>
+
+
     <lecho.lib.hellocharts.view.LineChartView
         android:id="@+id/chart"
         android:layout_margin="5dp"

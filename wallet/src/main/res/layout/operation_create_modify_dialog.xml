@@ -121,7 +121,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/category_spinner"
                     android:spinnerMode="dialog"
-                    android:prompt="@string/select_preferred_acc"
+                    android:prompt="@string/select_category"
                     android:layout_weight="1" />
 
                 <ImageButton

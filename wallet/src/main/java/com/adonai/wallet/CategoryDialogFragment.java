@@ -9,8 +9,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.adonai.wallet.adapters.WithDefaultAdapter;
 import com.adonai.wallet.database.DbProvider;
+import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Category;
+import com.adonai.wallet.entities.Entity;
 
 import java.util.UUID;
 
@@ -25,7 +28,7 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
     private static final String CATEGORY_TYPE_REFERENCE = "category.type.reference";
 
     private Spinner mPreferredAccSpinner;
-    private AccountsWithNoneAdapter mAccountAdapter;
+    private WithDefaultAdapter mAccountAdapter;
     private EditText mCategoryName;
     private int mCategoryType;
 
@@ -67,7 +70,7 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
         mPreferredAccSpinner = (Spinner) dialog.findViewById(R.id.preferred_account_spinner);
         mCategoryName = (EditText) dialog.findViewById(R.id.name_edit);
 
-        mAccountAdapter = new AccountsWithNoneAdapter(R.string.none);
+        mAccountAdapter = new WithDefaultAdapter<>(this, Account.class, R.string.none);
         mPreferredAccSpinner.setAdapter(mAccountAdapter);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

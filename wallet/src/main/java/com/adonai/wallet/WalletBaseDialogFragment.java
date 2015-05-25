@@ -10,7 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.adonai.wallet.entities.Account;
-import com.adonai.wallet.entities.UUIDSpinnerAdapter;
+import com.adonai.wallet.adapters.UUIDSpinnerAdapter;
 
 import java.sql.SQLException;
 import java.util.Calendar;
@@ -83,76 +83,4 @@ public class WalletBaseDialogFragment extends DialogFragment {
         }
     }
 
-    protected class AccountsWithNoneAdapter extends UUIDSpinnerAdapter<Account> {
-        private final int mNoneResId;
-
-        public AccountsWithNoneAdapter(int noneTextResId) {
-            super(getActivity(), Account.class);
-            this.mNoneResId = noneTextResId;
-        }
-
-        @Override
-        public View newView(int position, View convertView, ViewGroup parent, int resId) {
-            final View view;
-
-            if (convertView == null) {
-                final LayoutInflater inflater = LayoutInflater.from(mContext);
-                view = inflater.inflate(resId, parent, false);
-            } else
-                view = convertView;
-
-            final TextView name = (TextView) view.findViewById(android.R.id.text1);
-            if(position == 0)
-                name.setText(mNoneResId);
-            else {
-                try {
-                    mCursor.first();
-                    Account acc = mCursor.moveRelative(position - 1);
-                    name.setText(acc.getName());
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            return view;
-        }
-
-        @Override
-        public int getCount() {
-            return super.getCount() + 1;
-        }
-
-        @Override
-        public Account getItem(int position) {
-            if(position == 0)
-                return null;
-            else
-                return super.getItem(position - 1);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            if(position == 0)
-                return -1;
-            else
-                return super.getItemId(position - 1);
-        }
-
-        @Override
-        public UUID getItemUUID(int position) {
-            if(position == 0)
-                return null;
-            else
-                return super.getItemUUID(position - 1);
-        }
-
-        @Override
-        public int getPosition(String uuid) {
-            int parent = super.getPosition(uuid);
-            if(parent >= 0)
-                return parent + 1;
-            else
-                return parent;
-        }
-    }
 }

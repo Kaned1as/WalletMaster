@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Category;
-import com.adonai.wallet.entities.UUIDCursorAdapter;
+import com.adonai.wallet.adapters.UUIDCursorAdapter;
 
 import java.sql.SQLException;
 import java.util.UUID;

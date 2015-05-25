@@ -20,7 +20,7 @@ import android.widget.ListView;
 
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Operation;
-import com.adonai.wallet.entities.UUIDCursorAdapter;
+import com.adonai.wallet.adapters.UUIDCursorAdapter;
 import com.adonai.wallet.view.OperationView;
 import com.j256.ormlite.android.AndroidDatabaseResults;
 import com.j256.ormlite.stmt.PreparedQuery;

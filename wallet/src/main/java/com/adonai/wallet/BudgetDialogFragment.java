@@ -4,20 +4,16 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.adonai.wallet.adapters.WithDefaultAdapter;
 import com.adonai.wallet.database.DbProvider;
+import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Budget;
 
 import java.math.BigDecimal;
@@ -39,7 +35,7 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
     private CheckBox mMaxAmountCheck, mDailyAmountCheck;
     private EditText mMaxAmountText, mDailyAmountText; 
     
-    private AccountsWithNoneAdapter mAccountAdapter;
+    private WithDefaultAdapter mAccountAdapter;
 
     public static BudgetDialogFragment forBudget(String budgetId) {
         final BudgetDialogFragment fragment = new BudgetDialogFragment();
@@ -63,7 +59,7 @@ public class BudgetDialogFragment extends WalletBaseDialogFragment implements Vi
         mEndDate = DatePickerListener.wrap(endDate);
         mEndDateCheck.setOnCheckedChangeListener(new VisibilityCheckListener(endDate));
 
-        mAccountAdapter = new AccountsWithNoneAdapter(R.string.all);
+        mAccountAdapter = new WithDefaultAdapter<>(this, Account.class, R.string.all);
         mCoveredAccountSelector = (Spinner) dialog.findViewById(R.id.covered_account_spinner);
         mCoveredAccountSelector.setAdapter(mAccountAdapter);
         

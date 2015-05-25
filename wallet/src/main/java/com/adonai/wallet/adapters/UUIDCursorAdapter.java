@@ -1,10 +1,11 @@
-package com.adonai.wallet.entities;
+package com.adonai.wallet.adapters;
 
 import android.app.Activity;
 import android.widget.BaseAdapter;
 
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.database.EntityDao;
+import com.adonai.wallet.entities.Entity;
 import com.j256.ormlite.android.AndroidDatabaseResults;
 import com.j256.ormlite.dao.CloseableIterator;
 import com.j256.ormlite.stmt.PreparedQuery;

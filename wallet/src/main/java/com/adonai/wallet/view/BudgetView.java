@@ -21,7 +21,7 @@ import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Budget;
 import com.adonai.wallet.entities.BudgetItem;
-import com.adonai.wallet.entities.UUIDCursorAdapter;
+import com.adonai.wallet.adapters.UUIDCursorAdapter;
 import com.j256.ormlite.stmt.Where;
 
 import java.math.BigDecimal;

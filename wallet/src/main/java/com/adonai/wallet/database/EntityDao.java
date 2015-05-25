@@ -3,7 +3,7 @@ package com.adonai.wallet.database;
 import android.database.Observable;
 
 import com.adonai.wallet.entities.Entity;
-import com.adonai.wallet.entities.UUIDCursorAdapter;
+import com.adonai.wallet.adapters.UUIDCursorAdapter;
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTableConfig;

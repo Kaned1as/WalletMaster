@@ -15,7 +15,7 @@ import android.widget.ListView;
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Budget;
 import com.adonai.wallet.entities.Operation;
-import com.adonai.wallet.entities.UUIDCursorAdapter;
+import com.adonai.wallet.adapters.UUIDCursorAdapter;
 import com.adonai.wallet.view.BudgetView;
 
 import java.sql.SQLException;

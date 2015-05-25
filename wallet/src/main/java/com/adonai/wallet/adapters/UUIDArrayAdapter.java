@@ -1,4 +1,4 @@
-package com.adonai.wallet.entities;
+package com.adonai.wallet.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.adonai.wallet.R;
+import com.adonai.wallet.entities.Entity;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

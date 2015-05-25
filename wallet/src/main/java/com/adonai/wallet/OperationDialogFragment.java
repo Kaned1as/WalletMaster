@@ -22,8 +22,8 @@ import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Operation;
-import com.adonai.wallet.entities.UUIDCursorAdapter;
-import com.adonai.wallet.entities.UUIDSpinnerAdapter;
+import com.adonai.wallet.adapters.UUIDCursorAdapter;
+import com.adonai.wallet.adapters.UUIDSpinnerAdapter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

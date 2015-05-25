@@ -7,11 +7,18 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
+import com.adonai.wallet.adapters.WithDefaultAdapter;
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.database.EntityDao;
+import com.adonai.wallet.entities.Account;
+import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Operation;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -20,14 +27,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import lecho.lib.hellocharts.formatter.AxisValueFormatter;
 import lecho.lib.hellocharts.formatter.SimpleAxisValueFormatter;
-import lecho.lib.hellocharts.formatter.SimpleLineChartValueFormatter;
 import lecho.lib.hellocharts.gesture.ZoomType;
-import lecho.lib.hellocharts.listener.DummyLineChartOnValueSelectListener;
-import lecho.lib.hellocharts.listener.LineChartOnValueSelectListener;
 import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
@@ -41,6 +45,9 @@ import lecho.lib.hellocharts.view.LineChartView;
 public class StatisticsShowFragment extends Fragment {
 
     private LineChartView mChart;
+    private Spinner mAccountSpinner, mCategorySpinner;
+    private WithDefaultAdapter<Account> mAccountAdapter;
+    private WithDefaultAdapter<Category> mCategoryAdapter;
     
     @Nullable
     @Override
@@ -55,13 +62,25 @@ public class StatisticsShowFragment extends Fragment {
         mChart.setMaxZoom(5000f);
         mChart.setValueSelectionEnabled(true);
 
+        mAccountSpinner = (Spinner) rootView.findViewById(R.id.account_spinner);
+        mAccountAdapter = new WithDefaultAdapter<>(this, Account.class, R.string.all);
+        mAccountSpinner.setAdapter(mAccountAdapter);
+        mCategorySpinner = (Spinner) rootView.findViewById(R.id.category_spinner);
+        mCategoryAdapter = new WithDefaultAdapter<>(this, Category.class, R.string.all);
+        mCategorySpinner.setAdapter(mCategoryAdapter);
+        
+        mAccountSpinner.setOnItemSelectedListener(new SelectListener());
+        mCategorySpinner.setOnItemSelectedListener(new SelectListener());
+
         return rootView;
     }
 
     @Override
     public void onStart() {
         super.onStart();
+    }
 
+    private void fillOperationsByTime(Account acc, Category cat) {
         // get list of operations for last 3 months
         try {
             Calendar last3Months = Calendar.getInstance();
@@ -69,15 +88,26 @@ public class StatisticsShowFragment extends Fragment {
             last3Months.set(Calendar.DATE, last3Months.get(Calendar.DATE) - 90);
             
             EntityDao<Operation> dao = DbProvider.getHelper().getDao(Operation.class);
-            List<Operation> expenseOperations = dao.queryBuilder().orderBy("time", false).where()
-                    .ge("time", last3Months.getTime())
-                    .and().isNotNull("orderer_id").and().isNull("beneficiar_id")
-                    .query();
+            QueryBuilder<Operation, UUID> qb = dao.queryBuilder().orderBy("time", false);
+            Where<Operation, UUID> whereExpense = qb.where().ge("time", last3Months.getTime());
+            Where<Operation, UUID> whereBeneficiar = dao.queryBuilder().where().ge("time", last3Months.getTime());
+            if(acc != null) {
+                whereExpense.and().eq("orderer_id", acc).and().isNull("beneficiar_id");
+                whereBeneficiar.and().eq("beneficiar_id", acc).and().isNull("orderer_id");
+            } else {
+                whereExpense.and().isNotNull("orderer_id").and().isNull("beneficiar_id");
+                whereBeneficiar.and().isNotNull("beneficiar_id").and().isNull("orderer_id");
+            }
+            if(cat != null) {
+                whereExpense.and().eq("category_id", cat);
+                whereBeneficiar.and().eq("category_id", cat);
+            }
 
-            List<Operation> benefitOperations = dao.queryBuilder().orderBy("time", false).where()
-                    .ge("time", last3Months.getTime())
-                    .and().isNotNull("beneficiar_id").and().isNull("orderer_id")
-                    .query();
+            qb.setWhere(whereExpense);
+            List<Operation> expenseOperations = qb.query();
+
+            qb.setWhere(whereBeneficiar);
+            List<Operation> benefitOperations = qb.query();
             
             // fill array of points
             List<PointValue> expensePoints = new ArrayList<>(expenseOperations.size());
@@ -102,7 +132,7 @@ public class StatisticsShowFragment extends Fragment {
             LineChartData lcd = new LineChartData(lines).setBaseValue(0);
 
             float start, stop;
-            if(!expenseOperations.isEmpty()) {
+            if(expenseOperations.isEmpty()) {
                 start = last3Months.getTimeInMillis();
                 stop = System.currentTimeMillis();
             } else {
@@ -133,6 +163,20 @@ public class StatisticsShowFragment extends Fragment {
             mChart.setLineChartData(lcd);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    private class SelectListener implements AdapterView.OnItemSelectedListener {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            fillOperationsByTime(
+                    mAccountAdapter.getItem(mAccountSpinner.getSelectedItemPosition()), 
+                    mCategoryAdapter.getItem(mCategorySpinner.getSelectedItemPosition()));
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
         }
     }
 }

@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Entity;
-import com.adonai.wallet.entities.UUIDArrayAdapter;
+import com.adonai.wallet.adapters.UUIDArrayAdapter;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
 
