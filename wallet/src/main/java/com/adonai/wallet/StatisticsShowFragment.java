@@ -37,6 +37,8 @@ import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.model.SubcolumnValue;
+import lecho.lib.hellocharts.view.ColumnChartView;
 import lecho.lib.hellocharts.view.LineChartView;
 
 /**
@@ -44,7 +46,7 @@ import lecho.lib.hellocharts.view.LineChartView;
  */
 public class StatisticsShowFragment extends Fragment {
 
-    private LineChartView mChart;
+    private ColumnChartView mChart;
     private Spinner mAccountSpinner, mCategorySpinner;
     private WithDefaultAdapter<Account> mAccountAdapter;
     private WithDefaultAdapter<Category> mCategoryAdapter;
@@ -55,7 +57,7 @@ public class StatisticsShowFragment extends Fragment {
         final View rootView = inflater.inflate(R.layout.common_statistics_flow, container, false);
         assert rootView != null;
         
-        mChart = (LineChartView) rootView.findViewById(R.id.chart);
+        mChart = (ColumnChartView) rootView.findViewById(R.id.chart);
         mChart.setInteractive(true);
         mChart.setZoomEnabled(true);
         mChart.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);
@@ -110,7 +112,7 @@ public class StatisticsShowFragment extends Fragment {
             List<Operation> benefitOperations = qb.query();
             
             // fill array of points
-            List<PointValue> expensePoints = new ArrayList<>(expenseOperations.size());
+            List<SubcolumnValue> expensePoints = new ArrayList<>(expenseOperations.size());
             for(Operation op : expenseOperations) {
                 expensePoints.add(new PointValue(op.getTime().getTime(), op.getAmount().floatValue()));
             }
@@ -178,5 +180,15 @@ public class StatisticsShowFragment extends Fragment {
         public void onNothingSelected(AdapterView<?> parent) {
 
         }
+    }
+
+    private long floorToDay(Date date) {
+        Calendar current = Calendar.getInstance();
+        current.setTime(date);
+        current.set(Calendar.HOUR, 0);
+        current.set(Calendar.MINUTE, 0);
+        current.set(Calendar.SECOND, 0);
+        current.set(Calendar.MILLISECOND, 0);
+        return current.getTimeInMillis();
     }
 }
