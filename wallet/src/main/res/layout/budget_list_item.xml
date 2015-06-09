@@ -89,26 +89,34 @@
             android:layout_marginLeft="10dp"
             android:layout_marginStart="10dp" />
 
-        <include layout="@layout/budget_item_list_item"
+        <include layout="@layout/progressbar_with_counters"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/total_amount_progressbar"
             android:layout_below="@id/covered_account_label"
             android:layout_marginTop="10dp" />
 
-        <include layout="@layout/budget_item_list_item"
-                 android:layout_width="match_parent"
-                 android:layout_height="wrap_content"
-                 android:id="@+id/daily_amount_progressbar"
-                 android:layout_below="@id/total_amount_progressbar"
-                 android:layout_marginTop="10dp" />
+        <include layout="@layout/progressbar_with_counters"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:id="@+id/daily_amount_progressbar"
+             android:layout_below="@id/total_amount_progressbar"
+             android:layout_marginTop="10dp" />
+        
+        <TextView
+            android:id="@+id/slice_by_day"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/daily_amount_progressbar"
+            android:layout_marginTop="10dp"
+            android:hint="@string/slice_by_day"/>
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/budget_items_list"
-            android:layout_below="@+id/daily_amount_progressbar"
+            android:layout_below="@+id/slice_by_day"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp" />

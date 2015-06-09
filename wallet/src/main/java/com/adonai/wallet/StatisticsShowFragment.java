@@ -25,8 +25,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -46,7 +49,7 @@ import lecho.lib.hellocharts.view.LineChartView;
  */
 public class StatisticsShowFragment extends Fragment {
 
-    private ColumnChartView mChart;
+    private LineChartView mChart;
     private Spinner mAccountSpinner, mCategorySpinner;
     private WithDefaultAdapter<Account> mAccountAdapter;
     private WithDefaultAdapter<Category> mCategoryAdapter;
@@ -57,7 +60,7 @@ public class StatisticsShowFragment extends Fragment {
         final View rootView = inflater.inflate(R.layout.common_statistics_flow, container, false);
         assert rootView != null;
         
-        mChart = (ColumnChartView) rootView.findViewById(R.id.chart);
+        mChart = (LineChartView) rootView.findViewById(R.id.chart);
         mChart.setInteractive(true);
         mChart.setZoomEnabled(true);
         mChart.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);
@@ -90,7 +93,7 @@ public class StatisticsShowFragment extends Fragment {
             last3Months.set(Calendar.DATE, last3Months.get(Calendar.DATE) - 90);
             
             EntityDao<Operation> dao = DbProvider.getHelper().getDao(Operation.class);
-            QueryBuilder<Operation, UUID> qb = dao.queryBuilder().orderBy("time", false);
+            QueryBuilder<Operation, UUID> qb = dao.queryBuilder().orderBy("time", true);
             Where<Operation, UUID> whereExpense = qb.where().ge("time", last3Months.getTime());
             Where<Operation, UUID> whereBeneficiar = dao.queryBuilder().where().ge("time", last3Months.getTime());
             if(acc != null) {
@@ -112,14 +115,34 @@ public class StatisticsShowFragment extends Fragment {
             List<Operation> benefitOperations = qb.query();
             
             // fill array of points
-            List<SubcolumnValue> expensePoints = new ArrayList<>(expenseOperations.size());
+            List<PointValue> expensePoints = new ArrayList<>(expenseOperations.size());
+            Map<Long, Float> expensesByDay = new LinkedHashMap<>();
             for(Operation op : expenseOperations) {
-                expensePoints.add(new PointValue(op.getTime().getTime(), op.getAmount().floatValue()));
+                Long day = floorToDay(op.getTime());
+                if(expensesByDay.containsKey(day)) {
+                    expensesByDay.put(day, expensesByDay.get(day) + op.getAmount().floatValue());
+                } else {
+                    expensesByDay.put(day, op.getAmount().floatValue());
+                }
+            }
+            
+            for(Long key : expensesByDay.keySet()) {
+                expensePoints.add(new PointValue(key, expensesByDay.get(key)));
             }
 
             List<PointValue> benefitPoints = new ArrayList<>(benefitOperations.size());
+            Map<Long, Float> benefitsByDay = new LinkedHashMap<>();
             for(Operation op : benefitOperations) {
-                benefitPoints.add(new PointValue(op.getTime().getTime(), op.getAmount().floatValue()));
+                Long day = floorToDay(op.getTime());
+                if(benefitsByDay.containsKey(day)) {
+                    benefitsByDay.put(day, benefitsByDay.get(day) + op.getAmount().floatValue());
+                } else {
+                    benefitsByDay.put(day, op.getAmount().floatValue());
+                }
+            }
+
+            for(Long key : benefitsByDay.keySet()) {
+                benefitPoints.add(new PointValue(key, benefitsByDay.get(key)));
             }
             
             // obtaining list of lines
@@ -134,13 +157,18 @@ public class StatisticsShowFragment extends Fragment {
             LineChartData lcd = new LineChartData(lines).setBaseValue(0);
 
             float start, stop;
-            if(expenseOperations.isEmpty()) {
+            if(expenseOperations.size() < 2) {
                 start = last3Months.getTimeInMillis();
                 stop = System.currentTimeMillis();
             } else {
                 start = expenseOperations.get(0).getTime().getTime();
                 stop = expenseOperations.get(expenseOperations.size() - 1).getTime().getTime();
             }
+            
+            // fill initial zeroes
+            expensePoints.add(0, new PointValue(start, 0));
+            benefitPoints.add(0, new PointValue(start, 0));
+            
             Axis xAxis = Axis.generateAxisFromRange(start, stop, TimeUnit.DAYS.toMillis(1))
                 .setName(getString(R.string.time))
                     .setHasTiltedLabels(true)

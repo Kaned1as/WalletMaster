@@ -132,4 +132,5 @@
     <string name="drawer_close">Drawer closed</string>
     <string name="create_new_budget">Create new budget</string>
     <string name="time">Time</string>
+    <string name="slice_by_day">Slice by day</string>
 </resources>

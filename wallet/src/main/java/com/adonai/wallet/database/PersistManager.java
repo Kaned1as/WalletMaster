@@ -37,7 +37,7 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
     private static final String DATABASE_NAME ="wallet.db";
 
     //с каждым увеличением версии, при нахождении в устройстве БД с предыдущей версией будет выполнен метод onUpgrade();
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     //ссылки на DAO соответсвующие сущностям, хранимым в БД
     private EntityDao<Account> accountDao = null;
@@ -131,6 +131,12 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
     //Выполняется, когда БД имеет версию отличную от текущей
     @Override
     public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVer, int newVer) {
+        switch (oldVer) {
+            case 5:
+                db.execSQL("UPDATE account SET backup = NULL");
+                db.execSQL("UPDATE category SET backup = NULL");
+                db.execSQL("UPDATE operation SET backup = NULL");
+        }
     }
 
     public RuntimeExceptionDao<Account, UUID> getAccountDao() {

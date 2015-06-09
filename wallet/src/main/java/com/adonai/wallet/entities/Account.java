@@ -115,4 +115,9 @@ public class Account extends Entity {
                 .build();
 
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

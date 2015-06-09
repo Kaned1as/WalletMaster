@@ -26,7 +26,10 @@ import com.j256.ormlite.stmt.Where;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static com.adonai.wallet.Utils.VIEW_DATE_FORMAT;
 
@@ -50,6 +53,7 @@ public class BudgetView extends LinearLayout {
     private LinearLayout mExpandedView;
     private RelativeLayout mTotalProgress;
     private RelativeLayout mDailyProgress;
+    private TextView mSliceByDay;
     private View mFooter;
     private BudgetItemCursorAdapter mBudgetItemCursorAdapter;
 
@@ -60,6 +64,7 @@ public class BudgetView extends LinearLayout {
         mHeaderView = inflater.inflate(R.layout.budget_list_item, this, true);
         mTotalProgress = (RelativeLayout) mHeaderView.findViewById(R.id.total_amount_progressbar);
         mDailyProgress = (RelativeLayout) mHeaderView.findViewById(R.id.daily_amount_progressbar);
+        mSliceByDay = (TextView) mHeaderView.findViewById(R.id.slice_by_day);
         mExpandedView = (LinearLayout) mHeaderView.findViewById(R.id.budget_items_list);
         mExpander = (ImageView) mHeaderView.findViewById(R.id.expand_view);
         mExpander.setOnClickListener(new OnClickListener() {
@@ -176,6 +181,31 @@ public class BudgetView extends LinearLayout {
             currentDailyAmountText.setText(currentDailyAmount.toPlainString());
             dailyProgress.setMax(maxDailyAmount.intValue());
             dailyProgress.setProgress(currentDailyAmount.intValue());
+
+            if(mBudget.getEndTime() != null) { // we have end time ,let's see slice
+                long timeDiff = mBudget.getEndTime().getTime() - mBudget.getStartTime().getTime();
+                long days = timeDiff / TimeUnit.DAYS.toMillis(1);
+                long currentDayDiff = Calendar.getInstance().getTimeInMillis() - mBudget.getStartTime().getTime();
+                long daysSinceStart = currentDayDiff / TimeUnit.DAYS.toMillis(1);
+                if(days > 0 && daysSinceStart > 0) { // we both have budget more than on zero days and one day passed
+                    mSliceByDay.setVisibility(VISIBLE);
+                    BigDecimal amountForToday = mBudget.getMaxAmount()
+                            .multiply(new BigDecimal(daysSinceStart))
+                            .divide(new BigDecimal(days), 2, BigDecimal.ROUND_HALF_UP)
+                            .subtract(currentAmount);
+
+                    String sign;
+                    if(amountForToday.signum() > 0) {
+                        sign = "+";
+                        mSliceByDay.setTextColor(getResources().getColor(R.color.green_amount));
+                    } else {
+                        sign = "-";
+                        mSliceByDay.setTextColor(getResources().getColor(R.color.red_amount));
+                    }
+                    String sliceAmountForToday = sign + amountForToday.toPlainString();
+                    mSliceByDay.setText(getResources().getString(R.string.slice_by_day) + ": " + sliceAmountForToday);
+                }
+            }
         }
     }
     public void collapse() {
@@ -184,6 +214,7 @@ public class BudgetView extends LinearLayout {
 
         mTotalProgress.setVisibility(GONE);
         mDailyProgress.setVisibility(GONE);
+        mSliceByDay.setVisibility(GONE);
 
         if(mBudgetItemCursorAdapter != null) { // was expanded before, unregister
             mBudgetItemCursorAdapter.closeCursor();
@@ -222,7 +253,7 @@ public class BudgetView extends LinearLayout {
             final LayoutInflater inflater = LayoutInflater.from(mContext);
 
             if (convertView == null)
-                view = inflater.inflate(R.layout.budget_item_list_item, parent, false);
+                view = inflater.inflate(R.layout.progressbar_with_counters, parent, false);
             else
                 view = convertView;
 

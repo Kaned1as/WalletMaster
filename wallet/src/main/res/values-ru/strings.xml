@@ -132,4 +132,5 @@
     <string name="drawer_close">Панель закрыта</string>
     <string name="create_new_budget">Создать новый бюджет</string>
     <string name="time">Время</string>
+    <string name="slice_by_day">Срез по дням</string>
 </resources>

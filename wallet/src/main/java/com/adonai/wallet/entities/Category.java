@@ -105,4 +105,9 @@ public class Category extends Entity {
                 .setCategory(cat)
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
