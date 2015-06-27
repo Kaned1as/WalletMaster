@@ -4,6 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,9 +21,13 @@ import android.widget.ListView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
+import com.adonai.wallet.database.AbstractAsyncLoader;
 import com.adonai.wallet.database.DbProvider;
+import com.adonai.wallet.database.EntityDao;
+import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.adapters.UUIDCursorAdapter;
+import com.j256.ormlite.android.AndroidDatabaseResults;
 
 import java.sql.SQLException;
 import java.util.UUID;
@@ -35,8 +43,9 @@ import static com.adonai.wallet.entities.Category.CategoryType;
 public class CategoriesFragment extends WalletBaseListFragment {
 
     private SpinnerAdapter mCategoryTypeAdapter;
-    private CategoriesAdapter mCategoriesAdapter;
-    private ActionBar.OnNavigationListener mNavListener;
+    private CategoryNavigator mNavListener;
+
+    private RetrieveContentsCallback mContentRetrieveCallback = new RetrieveContentsCallback();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -50,18 +59,9 @@ public class CategoriesFragment extends WalletBaseListFragment {
         mNavListener = new CategoryNavigator();
 
         mEntityList = (ListView) rootView.findViewById(R.id.categories_list);
-        mEntityList.setOnItemLongClickListener(new CategoryEditListener());
-
-        mCategoriesAdapter = new CategoriesAdapter(getActivity(), R.layout.category_list_item, CategoryType.EXPENSE);
-        mEntityList.setAdapter(mCategoriesAdapter);
-
+        getLoaderManager().initLoader(Utils.CATEGORIES_LOADER, Bundle.EMPTY, mContentRetrieveCallback);
+        
         return rootView;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mCategoriesAdapter.closeCursor();
     }
 
     @Override
@@ -71,21 +71,25 @@ public class CategoriesFragment extends WalletBaseListFragment {
     }
 
     @Override
-    public void onHiddenChanged(boolean hidden) {
-        final ActionBar actBar = getWalletActivity().getSupportActionBar();
-        if(hidden) {
-            actBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        } else {
-            actBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-            actBar.setListNavigationCallbacks(mCategoryTypeAdapter, mNavListener);
-        }
+    public void onStart() {
+        super.onStart();
+        ActionBar actBar = getWalletActivity().getSupportActionBar();
+        actBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        actBar.setListNavigationCallbacks(mCategoryTypeAdapter, mNavListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        ActionBar actBar = getWalletActivity().getSupportActionBar();
+        actBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add_category:
-                final CategoryDialogFragment fragment = CategoryDialogFragment.newInstance(mCategoriesAdapter.getCategoryType().ordinal());
+                final CategoryDialogFragment fragment = CategoryDialogFragment.newInstance(mNavListener.selectedPos);
                 fragment.show(getFragmentManager(), "categoryCreate");
                 break;
             default:
@@ -95,10 +99,13 @@ public class CategoriesFragment extends WalletBaseListFragment {
     }
 
     private class CategoryNavigator implements ActionBar.OnNavigationListener {
+        
+        private int selectedPos = CategoryType.EXPENSE.ordinal();
 
         @Override
         public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-            mCategoriesAdapter.setCategoryType(CategoryType.values()[itemPosition]);
+            selectedPos = itemPosition;
+            getLoaderManager().getLoader(Utils.CATEGORIES_LOADER).onContentChanged();
             return true;
         }
     }
@@ -134,8 +141,8 @@ public class CategoriesFragment extends WalletBaseListFragment {
                 view = convertView;
 
             try {
-                mCursor.first();
-                Category cat = mCursor.moveRelative(position);
+                ((AndroidDatabaseResults) mCursor.getRawResults()).moveAbsolute(position);
+                Category cat = mCursor.current();
 
                 final TextView name = (TextView) view.findViewById(android.R.id.text1);
                 name.setText(cat.getName());
@@ -154,7 +161,6 @@ public class CategoriesFragment extends WalletBaseListFragment {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-            notifyDataSetChanged();
         }
 
         public CategoryType getCategoryType() {
@@ -180,17 +186,58 @@ public class CategoriesFragment extends WalletBaseListFragment {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
+            CategoriesAdapter adapter = (CategoriesAdapter) mEntityList.getAdapter();
             switch (which) {
                 case 0: // modify
-                    final UUID categoryID = mCategoriesAdapter.getItemUUID(mItemPosition);
+                    final UUID categoryID = adapter.getItemUUID(mItemPosition);
                     final CategoryDialogFragment fragment = CategoryDialogFragment.forCategory(categoryID.toString());
                     fragment.show(getFragmentManager(), "categoryCreate");
                     break;
                 case 1: // delete
-                    final UUID categoryId = mCategoriesAdapter.getItemUUID(mItemPosition);
+                    final UUID categoryId = adapter.getItemUUID(mItemPosition);
                     DbProvider.getHelper().getCategoryDao().deleteById(categoryId);
                     break;
             }
         }
+    }
+
+    private class RetrieveContentsCallback implements LoaderManager.LoaderCallbacks<CategoriesAdapter> {
+        @Override
+        public Loader<CategoriesAdapter> onCreateLoader(int id, @NonNull final Bundle args) {
+            AbstractAsyncLoader<CategoriesAdapter> toRegister = new AbstractAsyncLoader<CategoriesAdapter>(getActivity()) {
+                @Nullable
+                @Override
+                public CategoriesAdapter loadInBackground() {
+                    if(!isStarted()) // task was cancelled
+                        return null;
+
+                    // check the DB for accounts
+                    CategoryType type = CategoryType.values()[mNavListener.selectedPos];
+                    return new CategoriesAdapter(getActivity(), R.layout.category_list_item, type);
+                }
+
+                @Override
+                protected void onForceLoad() {
+                    if(mData != null) { // close old adapter before loading new one
+                        mData.closeCursor();
+                    }
+                    super.onForceLoad();
+                }
+            };
+            EntityDao<Category> accDao = DbProvider.getHelper().getDao(Category.class);
+            accDao.registerObserver(toRegister);
+            return toRegister;
+        }
+
+        @Override
+        public void onLoadFinished(Loader<CategoriesAdapter> loader, CategoriesAdapter data) {
+            mEntityList.setAdapter(data);
+            mEntityList.setOnItemLongClickListener(new CategoryEditListener());
+        }
+
+        @Override
+        public void onLoaderReset(Loader<CategoriesAdapter> loader) {
+        }
+
     }
 }

@@ -62,7 +62,6 @@ public class OperationsFragment extends WalletBaseListFragment {
         assert rootView != null;
 
         mEntityList = (ListView) rootView.findViewById(R.id.operations_list);
-
         getLoaderManager().initLoader(Utils.OPERATIONS_LOADER, Bundle.EMPTY, mContentRetrieveCallback);
 
         return rootView;
@@ -248,7 +247,7 @@ public class OperationsFragment extends WalletBaseListFragment {
                     super.onForceLoad();
                 }
             };
-            EntityDao<Account> accDao = DbProvider.getHelper().getDao(Account.class);
+            EntityDao<Operation> accDao = DbProvider.getHelper().getDao(Operation.class);
             accDao.registerObserver(toRegister);
             return toRegister;
         }

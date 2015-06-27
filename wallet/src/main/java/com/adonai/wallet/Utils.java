@@ -23,6 +23,7 @@ public class Utils {
     
     public static int ACCOUNTS_LOADER = 0;
     public static int OPERATIONS_LOADER = 1;
+    public static int CATEGORIES_LOADER = 2;
 
     @SuppressWarnings("unchecked") // we know what we want
     public static <T> T getValue(String value, T defaultValue) {

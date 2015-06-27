@@ -83,6 +83,7 @@ public class CategoryDialogFragment extends WalletBaseDialogFragment implements 
 
             Category tmp = DbProvider.getHelper().getCategoryDao().queryForId(UUID.fromString(getArguments().getString(CATEGORY_REFERENCE)));
             mCategoryName.setText(tmp.getName());
+            mCategoryType = tmp.getType().ordinal();
             if(tmp.getPreferredAccount() != null) // optional
                 mPreferredAccSpinner.setSelection(mAccountAdapter.getPosition(tmp.getPreferredAccount().getId()));
         } else { // new category create

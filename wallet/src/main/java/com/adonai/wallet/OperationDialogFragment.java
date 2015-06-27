@@ -68,7 +68,6 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
     private UUIDSpinnerAdapter<Account> mAccountAdapter;
 
     public OperationDialogFragment() {
-        //super();
     }
 
     public static OperationDialogFragment forOperation(String operationId) {
@@ -105,7 +104,7 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         mChargeAccountSelector.setAdapter(mAccountAdapter);
         mChargeAccountSelector.setOnItemSelectedListener(accountSelectListener);
 
-        mCategoriesAdapter = new CategoriesAdapter(getActivity(), android.R.layout.simple_spinner_item, Category.CategoryType.EXPENSE);
+        mCategoriesAdapter = new CategoriesAdapter(getActivity(), R.layout.tall_list_item, Category.CategoryType.EXPENSE);
 
         mCategorySelector = (Spinner) dialog.findViewById(R.id.category_spinner);
         mCategorySelector.setOnItemSelectedListener(new CategorySelectListener());
@@ -181,7 +180,8 @@ public class OperationDialogFragment extends WalletBaseDialogFragment implements
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             final UUID categoryID = ((UUIDCursorAdapter) mCategorySelector.getAdapter()).getItemUUID(position);
             final Category cat = DbProvider.getHelper().getCategoryDao().queryForId(categoryID);
-            if (cat.getPreferredAccount() != null)  { // selected category has preferred account
+            boolean explicitAccount = getArguments().containsKey(ACCOUNT_REFERENCE);
+            if (!explicitAccount && cat.getPreferredAccount() != null)  { // selected category has preferred account
                 final UUID accId = cat.getPreferredAccount().getId();
                 final int accPosition = mAccountAdapter.getPosition(accId); // get position
                 if(position != -1) {

@@ -27,6 +27,7 @@ import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.database.EntityDao;
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.adapters.UUIDCursorAdapter;
+import com.j256.ormlite.android.AndroidDatabaseResults;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -55,9 +56,8 @@ public class AccountsFragment extends WalletBaseListFragment {
         assert rootView != null;
 
         mEntityList = (ListView) rootView.findViewById(R.id.account_list);
-        budgetSum = (TextView) rootView.findViewById(R.id.account_sum);
-
         getLoaderManager().initLoader(Utils.ACCOUNTS_LOADER, Bundle.EMPTY, mContentRetrieveCallback);
+        budgetSum = (TextView) rootView.findViewById(R.id.account_sum);
 
         return rootView;
     }
@@ -98,8 +98,8 @@ public class AccountsFragment extends WalletBaseListFragment {
                 view = convertView;
 
             try {
-                mCursor.first();
-                Account acc = mCursor.moveRelative(position);
+                ((AndroidDatabaseResults) mCursor.getRawResults()).moveAbsolute(position);
+                Account acc = mCursor.current();
 
                 final int accColor = acc.getColor();
                 final float[] rounds = new float[8];
