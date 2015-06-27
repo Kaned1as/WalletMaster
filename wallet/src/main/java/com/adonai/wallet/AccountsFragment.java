@@ -8,6 +8,10 @@ import android.graphics.Shader;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,7 +22,9 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.adonai.wallet.database.AbstractAsyncLoader;
 import com.adonai.wallet.database.DbProvider;
+import com.adonai.wallet.database.EntityDao;
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.adapters.UUIDCursorAdapter;
 
@@ -36,9 +42,10 @@ import static com.adonai.wallet.Utils.convertDpToPixel;
  */
 public class AccountsFragment extends WalletBaseListFragment {
 
-    private AccountsAdapter mAccountsAdapter;
     private TextView budgetSum;
     private final EntityDeleteListener mAccountDeleter = new EntityDeleteListener(R.string.really_delete_account);
+
+    private RetrieveContentsCallback mContentRetrieveCallback = new RetrieveContentsCallback();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -50,11 +57,7 @@ public class AccountsFragment extends WalletBaseListFragment {
         mEntityList = (ListView) rootView.findViewById(R.id.account_list);
         budgetSum = (TextView) rootView.findViewById(R.id.account_sum);
 
-        mAccountsAdapter = new AccountsAdapter();
-
-        mEntityList.setAdapter(mAccountsAdapter);
-        mEntityList.setOnItemLongClickListener(new AccountLongClickListener());
-        mEntityList.setOnItemClickListener(new AccountClickListener());
+        getLoaderManager().initLoader(Utils.ACCOUNTS_LOADER, Bundle.EMPTY, mContentRetrieveCallback);
 
         return rootView;
     }
@@ -133,16 +136,11 @@ public class AccountsFragment extends WalletBaseListFragment {
         }
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mAccountsAdapter.closeCursor();
-    }
-
     private class AccountClickListener implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            final UUID accountID = mAccountsAdapter.getItemUUID(position);
+            final AccountsAdapter adapter = (AccountsAdapter) parent.getAdapter();
+            final UUID accountID = adapter.getItemUUID(position);
             final Account managed = DbProvider.getHelper().getAccountDao().queryForId(accountID);
             if(managed != null) {
                 OperationDialogFragment.forAccount(managed.getId().toString()).show(getFragmentManager(), "createOperation");
@@ -159,7 +157,8 @@ public class AccountsFragment extends WalletBaseListFragment {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            final UUID accID = mAccountsAdapter.getItemUUID(mItemPosition);
+            final AccountsAdapter adapter = (AccountsAdapter) mEntityList.getAdapter();
+            final UUID accID = adapter.getItemUUID(mItemPosition);
             final Account acc = DbProvider.getHelper().getAccountDao().queryForId(accID);
             switch (which) {
                 case 0: // modify
@@ -171,4 +170,45 @@ public class AccountsFragment extends WalletBaseListFragment {
             }
         }
     }
+
+    private class RetrieveContentsCallback implements LoaderManager.LoaderCallbacks<AccountsAdapter> {
+        @Override
+        public Loader<AccountsAdapter> onCreateLoader(int id, @NonNull final Bundle args) {
+            AbstractAsyncLoader<AccountsAdapter> toRegister = new AbstractAsyncLoader<AccountsAdapter>(getActivity()) {
+                @Nullable
+                @Override
+                public AccountsAdapter loadInBackground() {
+                    if(!isStarted()) // task was cancelled
+                        return null;
+        
+                    // check the DB for accounts
+                    return new AccountsAdapter();
+                }
+
+                @Override
+                protected void onForceLoad() {
+                    if(mData != null) { // close old adapter before loading new one
+                        mData.closeCursor();
+                    }
+                    super.onForceLoad();
+                }
+            };
+            EntityDao<Account> accDao = DbProvider.getHelper().getDao(Account.class);
+            accDao.registerObserver(toRegister);
+            return toRegister;
+        }
+
+        @Override
+        public void onLoadFinished(Loader<AccountsAdapter> loader, AccountsAdapter data) {
+            mEntityList.setAdapter(data);
+            mEntityList.setOnItemLongClickListener(new AccountLongClickListener());
+            mEntityList.setOnItemClickListener(new AccountClickListener());
+        }
+
+        @Override
+        public void onLoaderReset(Loader<AccountsAdapter> loader) {
+        }
+
+    }
+
 }

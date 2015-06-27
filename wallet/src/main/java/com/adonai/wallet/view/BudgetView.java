@@ -189,10 +189,14 @@ public class BudgetView extends LinearLayout {
                 long daysSinceStart = currentDayDiff / TimeUnit.DAYS.toMillis(1);
                 if(days > 0 && daysSinceStart > 0) { // we both have budget more than on zero days and one day passed
                     mSliceByDay.setVisibility(VISIBLE);
-                    BigDecimal amountForToday = mBudget.getMaxAmount()
+                    BigDecimal amountForToday = mBudget.getMaxDailyAmount()
+                            .multiply(new BigDecimal(daysSinceStart))
+                            .subtract(currentAmount);
+                    
+                    /*BigDecimal amountForToday = mBudget.getMaxAmount()
                             .multiply(new BigDecimal(daysSinceStart))
                             .divide(new BigDecimal(days), 2, BigDecimal.ROUND_HALF_UP)
-                            .subtract(currentAmount);
+                            .subtract(currentAmount);*/
 
                     String sign;
                     if(amountForToday.signum() > 0) {

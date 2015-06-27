@@ -52,7 +52,7 @@ public class UUIDArrayAdapter extends ArrayAdapter<Entity> {
 
             final TextView nameText = (TextView) view.findViewById(android.R.id.text1);
             nameText.setText(name);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        } catch (Exception e) { // workaround to API 19 multi-catch incompatibility
             e.printStackTrace();
         }
 

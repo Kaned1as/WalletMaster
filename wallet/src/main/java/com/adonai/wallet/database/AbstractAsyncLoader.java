@@ -12,7 +12,7 @@ import android.support.v4.content.AsyncTaskLoader;
  */
 public abstract class AbstractAsyncLoader<D> extends AsyncTaskLoader<D> {
 
-    private D mData;
+    protected D mData;
 
     public AbstractAsyncLoader(Context context) {
         super(context);

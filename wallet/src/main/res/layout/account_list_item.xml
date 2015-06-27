@@ -16,7 +16,7 @@
             android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:layout_gravity="left"
+            android:layout_gravity="start"
             android:gravity="center_vertical">
 
             <TextView
@@ -40,14 +40,14 @@
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:gravity="center_vertical|right">
+            android:gravity="center_vertical|end">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:id="@+id/account_amount_label"
-                android:gravity="center_vertical|right"
+                android:gravity="center_vertical|end"
                 android:maxLines="1"
                 android:text="@string/placeholder_text" />
 
@@ -57,6 +57,7 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="@string/placeholder_text"
                 android:id="@+id/account_currency_label"
+                android:layout_marginEnd="10dp"
                 android:layout_marginRight="10dp" />
         </LinearLayout>
 

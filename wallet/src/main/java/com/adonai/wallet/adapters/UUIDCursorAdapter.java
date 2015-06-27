@@ -25,7 +25,7 @@ import java.util.UUID;
  */
 public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
 
-    private final EntityDao<T> mDao;
+    protected final EntityDao<T> mDao;
     protected final Activity mContext;
 
     protected PreparedQuery<T> mQuery = null;
@@ -37,7 +37,6 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
         try {
             mDao = DbProvider.getHelper().getDao(clazz);
             mContext = context;
-            mDao.registerObserver(this);
             defaultWhere = mDao.queryBuilder().where().eq("deleted", false);
             mCursor = defaultWhere.iterator();
         } catch (SQLException e) {
@@ -48,14 +47,11 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
     /**
      * Constructor for cursor adapter with specific where
      * @param context context to build objects on
-     * @param dao entity dao for objects
-     * @param builder builder with specific ordering
      */
     public UUIDCursorAdapter(Activity context, Class<T> clazz, Where<T, UUID> where) {
         try {
             mDao = DbProvider.getHelper().getDao(clazz);
             mContext = context;
-            mDao.registerObserver(this);
             defaultWhere = where.and().eq("deleted", false);
             mCursor = defaultWhere.iterator();
         } catch (SQLException e) {
@@ -66,7 +62,6 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
     /**
      * Constructor for cursor adapter with specific ordering of objects
      * @param context context to build objects on
-     * @param dao entity dao for objects
      * @param builder builder with specific ordering
      */
     public UUIDCursorAdapter(Activity context, Class<T> clazz, QueryBuilder<T, UUID> builder) {
@@ -74,7 +69,6 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
             // set dao and context
             mDao = DbProvider.getHelper().getDao(clazz);
             mContext = context;
-            mDao.registerObserver(this);
             defaultWhere = builder.where().eq("deleted", false);
             mQuery = defaultWhere.prepare(); // don't query objects marked as deleted
             mCursor = mDao.iterator(mQuery);
@@ -147,8 +141,13 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
     }
 
     public void setQuery(PreparedQuery<T> query) {
-        mQuery = query;
-        notifyDataSetChanged();
+        try {
+            mQuery = query;
+            mCursor = mQuery != null ? mDao.iterator(mQuery) : defaultWhere.iterator();
+            notifyDataSetChanged();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setQuery(QueryBuilder<T, UUID> qBuilder) {
@@ -160,23 +159,7 @@ public abstract class UUIDCursorAdapter<T extends Entity> extends BaseAdapter {
         }
     }
 
-    @Override
-    public void notifyDataSetChanged() {
-        mContext.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    mCursor = (mQuery != null) ? mDao.iterator(mQuery) : defaultWhere.iterator();
-                    UUIDCursorAdapter.super.notifyDataSetChanged();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-    }
-
     public void closeCursor() {
         mCursor.closeQuietly();
-        mDao.unregisterObserver(this);
     }
 }

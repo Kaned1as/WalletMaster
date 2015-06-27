@@ -37,7 +37,7 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
     private static final String DATABASE_NAME ="wallet.db";
 
     //с каждым увеличением версии, при нахождении в устройстве БД с предыдущей версией будет выполнен метод onUpgrade();
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     //ссылки на DAO соответсвующие сущностям, хранимым в БД
     private EntityDao<Account> accountDao = null;
@@ -132,7 +132,7 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVer, int newVer) {
         switch (oldVer) {
-            case 5:
+            case 6:
                 db.execSQL("UPDATE account SET backup = NULL");
                 db.execSQL("UPDATE category SET backup = NULL");
                 db.execSQL("UPDATE operation SET backup = NULL");
@@ -140,70 +140,57 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
     }
 
     public RuntimeExceptionDao<Account, UUID> getAccountDao() {
-        if(accountDao == null)
-            try {
-                accountDao = getDao(Account.class);
-            } catch (SQLException e) {
-                throw new RuntimeException(e); // should not happen
-            }
+        if(accountDao == null) {
+            accountDao = getDao(Account.class);
+        }
         return new RuntimeExceptionDao<>(accountDao);
     }
 
     public RuntimeExceptionDao<Budget, UUID> getBudgetDao() {
-        if(budgetDao == null)
-            try {
-                budgetDao = getDao(Budget.class);
-            } catch (SQLException e) {
-                throw new RuntimeException(e); // should not happen
-            }
+        if(budgetDao == null) {
+            budgetDao = getDao(Budget.class);
+        }
         return new RuntimeExceptionDao<>(budgetDao);
     }
 
     public RuntimeExceptionDao<BudgetItem, UUID> getBudgetItemDao() {
-        if(budgetItemDao == null)
-            try {
-                budgetItemDao = getDao(BudgetItem.class);
-            } catch (SQLException e) {
-                throw new RuntimeException(e); // should not happen
-            }
+        if(budgetItemDao == null) {
+            budgetItemDao = getDao(BudgetItem.class);
+        }
         return new RuntimeExceptionDao<>(budgetItemDao);
     }
 
     public RuntimeExceptionDao<Category, UUID> getCategoryDao() {
-        if(categoryDao == null)
-            try {
-                categoryDao = getDao(Category.class);
-            } catch (SQLException e) {
-                throw new RuntimeException(e); // should not happen
-            }
+        if(categoryDao == null) {
+            categoryDao = getDao(Category.class);
+        }
         return new RuntimeExceptionDao<>(categoryDao);
     }
 
     public RuntimeExceptionDao<Currency, String> getCurrencyDao() {
-        if(currencyDao == null)
-            try {
-                currencyDao = getDao(Currency.class);
-            } catch (SQLException e) {
-                throw new RuntimeException(e); // should not happen
-            }
+        if(currencyDao == null) {
+            currencyDao = getDao(Currency.class);
+        }
         return new RuntimeExceptionDao<>(currencyDao);
     }
 
     public RuntimeExceptionDao<Operation, UUID> getOperationDao() {
-        if(operationDao == null)
-            try {
-                operationDao = getDao(Operation.class);
-            } catch (SQLException e) {
-                throw new RuntimeException(e); // should not happen
-            }
+        if(operationDao == null) {
+            operationDao = getDao(Operation.class);
+        }
         return new RuntimeExceptionDao<>(operationDao);
     }
 
     public <T extends Entity> EntityDao<T> getEntityDao(Class<T> clazz) {
+        return getDao(clazz);
+    }
+
+    @Override
+    public <D extends Dao<T, ?>, T> D getDao(Class<T> clazz) {
         try {
-            return getDao(clazz);
+            return super.getDao(clazz);
         } catch (SQLException e) {
-            throw new RuntimeException(e); // should not happen
+            throw new RuntimeException(e);
         }
     }
 

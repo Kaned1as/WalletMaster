@@ -68,6 +68,7 @@ public class MainFlow extends WalletBaseActivity {
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
+                onNavigationDrawerItemSelected(mNavigationDrawer.getCheckedItemPosition());
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
@@ -146,7 +147,6 @@ public class MainFlow extends WalletBaseActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             mNavigationDrawer.setItemChecked(position, true);
-            onNavigationDrawerItemSelected(position);
             setTitle(mDrawerTitles[position]);
             mDrawerLayout.closeDrawer(mNavigationDrawer);
         }

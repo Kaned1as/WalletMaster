@@ -79,7 +79,7 @@ public class BudgetsFragment extends WalletBaseListFragment {
     public class BudgetsAdapter extends UUIDCursorAdapter<Budget> {
         public BudgetsAdapter() {
             super(getActivity(), Budget.class);
-            DbProvider.getHelper().getEntityDao(Operation.class).registerObserver(this);
+            //DbProvider.getHelper().getEntityDao(Operation.class).registerObserver(this);
         }
 
         @Override

@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.Locale;
 
 /**
  * Additional class used for global methods and constants
@@ -16,9 +17,12 @@ import java.util.Iterator;
  * @author adonai
  */
 public class Utils {
-    public final static SimpleDateFormat VIEW_DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
+    public final static SimpleDateFormat VIEW_DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
 
     public static final String BACK_PRESSED = "BACK_PRESSED_INTENT";
+    
+    public static int ACCOUNTS_LOADER = 0;
+    public static int OPERATIONS_LOADER = 1;
 
     @SuppressWarnings("unchecked") // we know what we want
     public static <T> T getValue(String value, T defaultValue) {
