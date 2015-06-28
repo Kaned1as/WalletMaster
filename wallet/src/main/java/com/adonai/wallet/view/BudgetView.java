@@ -1,7 +1,9 @@
 package com.adonai.wallet.view;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -15,10 +17,14 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.adonai.wallet.AccountDialogFragment;
 import com.adonai.wallet.BudgetItemDialogFragment;
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseActivity;
+import com.adonai.wallet.WalletBaseListFragment;
 import com.adonai.wallet.database.DbProvider;
+import com.adonai.wallet.database.EntityDao;
+import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Budget;
 import com.adonai.wallet.entities.BudgetItem;
 import com.adonai.wallet.adapters.UUIDCursorAdapter;
@@ -140,8 +146,11 @@ public class BudgetView extends LinearLayout {
             budget.setOnLongClickListener(new OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    BudgetItemDialogFragment budgetModify = BudgetItemDialogFragment.forBudgetItem(budgetItem.getId().toString());
-                    budgetModify.show(((WalletBaseActivity) getContext()).getSupportFragmentManager(), "budgetModify");
+                    final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
+                    alertDialog.setItems(R.array.entity_choice_common, new BudgetItemChoice(budgetItem))
+                            .setTitle(R.string.select_action)
+                            .create()
+                            .show();
                     return true;
                 }
             });
@@ -150,6 +159,28 @@ public class BudgetView extends LinearLayout {
 
         mState = State.EXPANDED;
         updateDrawables();
+    }
+
+    private class BudgetItemChoice implements DialogInterface.OnClickListener {
+
+        private final BudgetItem budgetItem;
+        
+        public BudgetItemChoice(BudgetItem budgetItem) {
+            this.budgetItem = budgetItem;
+        }
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case 0: // modify
+                    BudgetItemDialogFragment budgetModify = BudgetItemDialogFragment.forBudgetItem(budgetItem.getId().toString());
+                    budgetModify.show(((WalletBaseActivity) getContext()).getSupportFragmentManager(), "budgetModify");
+                    break;
+                case 1: // delete
+                    DbProvider.getHelper().getBudgetItemDao().delete(budgetItem);
+                    break;
+            }
+        }
     }
     
     private void updateAmounts() {
@@ -287,17 +318,6 @@ public class BudgetView extends LinearLayout {
             }
 
             return view;
-        }
-
-        @Override
-        public void notifyDataSetChanged() {
-            BudgetItemCursorAdapter.super.notifyDataSetChanged();
-            mContext.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    expand();
-                }
-            });
         }
     }
 }
