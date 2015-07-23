@@ -1,4 +1,4 @@
-package com.adonai.wallet;
+package com.adonai.wallet.sync;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.adonai.wallet.R;
+import com.adonai.wallet.WalletBaseDialogFragment;
 import com.adonai.wallet.sync.SyncStateMachine;
 
 import static com.adonai.wallet.WalletConstants.ACCOUNT_NAME_KEY;
@@ -22,7 +24,7 @@ import static com.adonai.wallet.WalletConstants.ACCOUNT_SYNC_KEY;
  *
  * @author adonai
  */
-public class SyncDialogFragment extends WalletBaseDialogFragment implements View.OnClickListener, SyncStateMachine.SyncListener {
+public class SyncDialogFragment extends WalletBaseDialogFragment implements View.OnClickListener {
 
     private RadioGroup mSyncType;
     private EditText mAccountName;
@@ -41,7 +43,6 @@ public class SyncDialogFragment extends WalletBaseDialogFragment implements View
         builder.setView(dialog);
         builder.setPositiveButton(R.string.confirm, null);
 
-        getWalletActivity().getSyncMachine().registerObserver(this);
         return builder.create();
     }
 
@@ -52,7 +53,7 @@ public class SyncDialogFragment extends WalletBaseDialogFragment implements View
         dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(this);
     }
 
-    @Override
+    //@Override
     public void handleSyncMessage(SyncStateMachine.State what, String errorMsg) {
         switch (what) {
             case AUTH_ACK:
@@ -66,7 +67,6 @@ public class SyncDialogFragment extends WalletBaseDialogFragment implements View
 
     @Override
     public void onDestroyView() {
-        getWalletActivity().getSyncMachine().unregisterObserver(this);
         super.onDestroyView();
     }
 
@@ -78,8 +78,5 @@ public class SyncDialogFragment extends WalletBaseDialogFragment implements View
             .putString(ACCOUNT_PASSWORD_KEY, mAccountPassword.getText().toString())
             .putBoolean(ACCOUNT_SYNC_KEY, mSyncType.getCheckedRadioButtonId() == R.id.already_have_radio)
             .commit();
-
-
-        getWalletActivity().startSync();
     }
 }

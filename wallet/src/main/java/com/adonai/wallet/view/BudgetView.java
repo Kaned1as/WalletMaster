@@ -213,7 +213,7 @@ public class BudgetView extends LinearLayout {
             dailyProgress.setMax(maxDailyAmount.intValue());
             dailyProgress.setProgress(currentDailyAmount.intValue());
 
-            if(mBudget.getEndTime() != null) { // we have end time ,let's see slice
+            if(mBudget.getEndTime() != null) { // we have end time, let's see slice
                 long timeDiff = mBudget.getEndTime().getTime() - mBudget.getStartTime().getTime();
                 long days = timeDiff / TimeUnit.DAYS.toMillis(1);
                 long currentDayDiff = Calendar.getInstance().getTimeInMillis() - mBudget.getStartTime().getTime();

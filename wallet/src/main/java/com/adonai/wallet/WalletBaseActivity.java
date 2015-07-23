@@ -2,6 +2,7 @@ package com.adonai.wallet;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,9 +18,8 @@ import com.adonai.wallet.sync.SyncStateMachine;
  *
  * @author adonai
  */
-public class WalletBaseActivity extends AppCompatActivity implements SyncStateMachine.SyncListener {
+public class WalletBaseActivity extends AppCompatActivity {
 
-    protected SyncStateMachine mSyncMachine;
     protected ProgressDialog mProgressDialog;
     protected SharedPreferences mPreferences;
     protected Handler mHandler;
@@ -29,7 +29,6 @@ public class WalletBaseActivity extends AppCompatActivity implements SyncStateMa
         super.onCreate(savedInstanceState);
 
         // add all the currencies that are stored within mEntityDAO
-        mSyncMachine = new SyncStateMachine(this);
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setIndeterminate(true);
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -43,25 +42,16 @@ public class WalletBaseActivity extends AppCompatActivity implements SyncStateMa
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mSyncMachine.shutdown();
         mProgressDialog.dismiss();
     }
 
-    public SyncStateMachine getSyncMachine() {
-        return mSyncMachine;
-    }
-
+    /**
     public void startSync() {
         mProgressDialog.setTitle(R.string.sync_starting);
         mProgressDialog.setMessage(getString(R.string.authenticating));
         mProgressDialog.show();
-        mSyncMachine.setState(SyncStateMachine.State.AUTH);
     }
-
-    @Override
-    public void handleSyncMessage(SyncStateMachine.State what, String errorMsg) {
-        mHandler.sendMessage(mHandler.obtainMessage(what.ordinal(), errorMsg));
-    }
+     **/
 
     private class SyncCallback implements Handler.Callback {
         @Override

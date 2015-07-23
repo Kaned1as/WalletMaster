@@ -24,4 +24,12 @@ public class DbProvider {
         OpenHelperManager.releaseHelper();
         databaseHelper = null;
     }
+
+    public static PersistManager getTempHelper(Context context) {
+        return OpenHelperManager.getHelper(context, PersistManager.class);
+    }
+
+    public static void releaseTempHelper() {
+        OpenHelperManager.releaseHelper();
+    }
 }

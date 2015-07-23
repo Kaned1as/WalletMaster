@@ -1,14 +1,13 @@
 package com.adonai.wallet.sync;
 
+import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Observable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.preference.PreferenceManager;
 
 import com.adonai.wallet.R;
-import com.adonai.wallet.WalletBaseActivity;
 import com.adonai.wallet.WalletConstants;
 import com.adonai.wallet.database.DbProvider;
 import com.adonai.wallet.entities.Account;
@@ -63,7 +62,7 @@ import static com.adonai.wallet.sync.SyncProtocol.SyncResponse;
  *
  *
  */
-public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> {
+public class SyncStateMachine {
     public enum State {
         INIT,
         REGISTER(true),
@@ -71,7 +70,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
         REGISTER_ACK,
         REGISTER_DENIED,
 
-        AUTH(true),
+        SYNC_START(true),
         AUTH_SENT,
         AUTH_ACK,
         AUTH_DENIED,
@@ -104,34 +103,22 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
         }
     }
 
-    public interface SyncListener {
-        void handleSyncMessage(State state, String errorMsg);
-    }
-
     private State state;
     private Handler mHandler;
     private Socket mSocket;
 
-    private final WalletBaseActivity mContext;
+    private final Context mContext;
     private final SocketCallback mCallback = new SocketCallback();
     private final SharedPreferences mPreferences;
 
 
-    public SyncStateMachine(WalletBaseActivity context) {
+    public SyncStateMachine(Context context) {
         final HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
         mHandler = new Handler(thr.getLooper(), mCallback);
 
-        mObservers.add(context);
         mContext = context;
         mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-    }
-
-    @SuppressWarnings("unchecked")
-    public void notifyListeners(State state, String errorString) {
-        final List<SyncListener> shadow = (List<SyncListener>) mObservers.clone();
-        for(final SyncListener lsnr : shadow)
-            lsnr.handleSyncMessage(state, errorString);
     }
 
     public void shutdown() {
@@ -148,16 +135,12 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
         this.state = state;
         if(state.isActionNeeded()) // state is for internal handling, not for notifying
             mHandler.sendEmptyMessage(state.ordinal());
-        else
-            notifyListeners(state, null);
     }
 
     public void setState(State state, String errorMsg) {
         this.state = state;
         if(state.isActionNeeded())
             mHandler.sendEmptyMessage(state.ordinal());
-        else
-            notifyListeners(state, errorMsg);
     }
 
     public boolean isSyncing() {
@@ -170,7 +153,7 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
             final State state = State.values()[msg.what];
             try {
                 switch (state) {
-                    case AUTH: { // at this state, account should be already configured and accessible from preferences!
+                    case SYNC_START: { // at this state, account should be already configured and accessible from preferences!
                         if (!mPreferences.contains(WalletConstants.ACCOUNT_NAME_KEY))
                             throw new RuntimeException("No account configured! Can't sync!"); // shouldn't happen
                         start();
@@ -381,10 +364,6 @@ public class SyncStateMachine extends Observable<SyncStateMachine.SyncListener> 
         }
 
         private void finish() throws IOException {
-            //final DatabaseDAO db = DatabaseDAO.getInstance();
-            //db.clearActions();
-            //db.setTransactionSuccessful();
-            //db.endTransaction();
             mSocket.close();
             setState(State.INIT, mContext.getString(R.string.sync_completed));
             DbProvider.getHelper().getWritableDatabase().setTransactionSuccessful();
