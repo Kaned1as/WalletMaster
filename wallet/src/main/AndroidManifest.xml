@@ -6,7 +6,10 @@
     
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+    
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
 
     <application android:theme="@style/Light"
         android:allowBackup="true"
@@ -47,6 +50,12 @@
             <meta-data android:name="android.content.SyncAdapter"
                        android:resource="@xml/sync_adapter" />
         </service>
+
+        <provider 
+            android:name=".sync.StubContentProvider"
+            android:authorities="com.adonai.wallet.datasync.provider"
+            android:exported="false"
+            android:syncable="true"/>
         
     </application>
 

@@ -1,7 +1,13 @@
 package com.adonai.wallet.sync;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentProvider;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -13,8 +19,12 @@ import android.widget.Toast;
 
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletBaseDialogFragment;
+import com.adonai.wallet.WalletConstants;
 import com.adonai.wallet.sync.SyncStateMachine;
 
+import java.util.concurrent.TimeUnit;
+
+import static com.adonai.wallet.WalletConstants.*;
 import static com.adonai.wallet.WalletConstants.ACCOUNT_NAME_KEY;
 import static com.adonai.wallet.WalletConstants.ACCOUNT_PASSWORD_KEY;
 import static com.adonai.wallet.WalletConstants.ACCOUNT_SYNC_KEY;
@@ -70,13 +80,40 @@ public class SyncDialogFragment extends WalletBaseDialogFragment implements View
         super.onDestroyView();
     }
 
+    @SuppressWarnings("deprecation") // accountManager.removeAccount
     @Override
     public void onClick(View button) {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        prefs.edit()
-            .putString(ACCOUNT_NAME_KEY, mAccountName.getText().toString())
-            .putString(ACCOUNT_PASSWORD_KEY, mAccountPassword.getText().toString())
-            .putBoolean(ACCOUNT_SYNC_KEY, mSyncType.getCheckedRadioButtonId() == R.id.already_have_radio)
-            .commit();
+        String accountName = mAccountName.getText().toString();
+        String accountPassword = mAccountPassword.getText().toString();
+        Boolean isSynced = mSyncType.getCheckedRadioButtonId() == R.id.already_have_radio;
+
+        // Create the account type and default account
+        Account newAccount = new Account(accountName, ACCOUNT_TYPE);
+        Bundle properties = new Bundle();
+        properties.putString(WalletConstants.ACCOUNT_SYNC_KEY, isSynced.toString());
+        
+        // Get an instance of the Android account manager
+        AccountManager accountManager = (AccountManager) getActivity().getSystemService(Context.ACCOUNT_SERVICE);
+        Account[] associatedAccounts = accountManager.getAccountsByType(ACCOUNT_TYPE);
+        for(Account acc : associatedAccounts) {
+            accountManager.removeAccount(acc, null, null); // clear all previous accounts
+        }
+        /*
+         * Add the account and account type, no password or user data
+         * If successful, return the Account object, otherwise report an error.
+         */
+        if (accountManager.addAccountExplicitly(newAccount, accountPassword, properties)) {
+            // success, let's start sync
+            Bundle syncProperties = new Bundle(2);
+            syncProperties.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true); // request manual sync
+            syncProperties.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true); // start immediately
+            
+            ContentResolver.requestSync(newAccount, SYNC_AUTHORITY, syncProperties); // sync now!
+            ContentResolver.addPeriodicSync(newAccount, SYNC_AUTHORITY, Bundle.EMPTY, TimeUnit.MINUTES.toSeconds(30));
+            
+            dismiss();
+        } else {
+            Toast.makeText(getActivity(), R.string.cannot_create_account, Toast.LENGTH_LONG).show();
+        }
     }
 }

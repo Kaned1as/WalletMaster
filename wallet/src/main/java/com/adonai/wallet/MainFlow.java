@@ -1,5 +1,9 @@
 package com.adonai.wallet;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -21,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.adonai.wallet.WalletConstants.ACCOUNT_SYNC_KEY;
+import static com.adonai.wallet.WalletConstants.ACCOUNT_TYPE;
 
 /**
  * Main activity of wallet master
@@ -108,18 +113,23 @@ public class MainFlow extends WalletBaseActivity {
         
         // Handle your other action bar items...
         switch(item.getItemId()) {
-            case R.id.action_settings: {
+            case R.id.action_settings:
                 final Intent pref = new Intent(this, PreferenceFlow.class);
                 startActivity(pref);
                 break;
-            }
-            case R.id.action_sync: {
-                if(mPreferences.contains(ACCOUNT_SYNC_KEY)) // have already configured sync account previously...
-                    startSync();
-                else // need to configure now!
+            case R.id.action_sync:
+                AccountManager accountManager = (AccountManager) getSystemService(Context.ACCOUNT_SERVICE);
+                Account[] associatedAccounts = accountManager.getAccountsByType(ACCOUNT_TYPE);
+                if(associatedAccounts.length > 0) { // actually only one is possible, take it
+                    Account realAccount = associatedAccounts[0];
+                    Bundle syncProperties = new Bundle(2);
+                    syncProperties.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true); // request manual sync
+                    syncProperties.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true); // start immediately
+                    ContentResolver.requestSync(realAccount, WalletConstants.SYNC_AUTHORITY, syncProperties);
+                } else { // need to configure now!
                     new SyncDialogFragment().show(getSupportFragmentManager(), "syncAcc");
+                }
                 break;
-            }
         }
         return super.onOptionsItemSelected(item);
     }

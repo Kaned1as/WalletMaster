@@ -133,4 +133,5 @@
     <string name="create_new_budget">Create new budget</string>
     <string name="time">Time</string>
     <string name="slice_by_day">Slice by day</string>
+    <string name="cannot_create_account">Cannot create account!</string>
 </resources>
