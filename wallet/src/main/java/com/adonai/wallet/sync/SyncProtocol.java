@@ -8,10 +8,10 @@ public final class SyncProtocol {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface SyncRequestOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface SyncRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.adonai.wallet.sync.SyncRequest)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string account = 1;
     /**
      * <code>required string account = 1;</code>
      */
@@ -26,7 +26,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getAccountBytes();
 
-    // required string password = 2;
     /**
      * <code>required string password = 2;</code>
      */
@@ -41,7 +40,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getPasswordBytes();
 
-    // required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;
     /**
      * <code>required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;</code>
      */
@@ -55,8 +53,9 @@ public final class SyncProtocol {
    * Protobuf type {@code com.adonai.wallet.sync.SyncRequest}
    */
   public static final class SyncRequest extends
-      com.google.protobuf.GeneratedMessage
-      implements SyncRequestOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:com.adonai.wallet.sync.SyncRequest)
+      SyncRequestOrBuilder {
     // Use SyncRequest.newBuilder() to construct.
     private SyncRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -103,13 +102,15 @@ public final class SyncProtocol {
               break;
             }
             case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              account_ = input.readBytes();
+              account_ = bs;
               break;
             }
             case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
-              password_ = input.readBytes();
+              password_ = bs;
               break;
             }
             case 24: {
@@ -253,7 +254,6 @@ public final class SyncProtocol {
     }
 
     private int bitField0_;
-    // required string account = 1;
     public static final int ACCOUNT_FIELD_NUMBER = 1;
     private java.lang.Object account_;
     /**
@@ -296,7 +296,6 @@ public final class SyncProtocol {
       }
     }
 
-    // required string password = 2;
     public static final int PASSWORD_FIELD_NUMBER = 2;
     private java.lang.Object password_;
     /**
@@ -339,7 +338,6 @@ public final class SyncProtocol {
       }
     }
 
-    // required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;
     public static final int SYNCTYPE_FIELD_NUMBER = 3;
     private com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType syncType_;
     /**
@@ -363,7 +361,8 @@ public final class SyncProtocol {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasAccount()) {
         memoizedIsInitialized = 0;
@@ -496,8 +495,9 @@ public final class SyncProtocol {
      * Protobuf type {@code com.adonai.wallet.sync.SyncRequest}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.adonai.wallet.sync.SyncProtocol.SyncRequestOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.adonai.wallet.sync.SyncRequest)
+        com.adonai.wallet.sync.SyncProtocol.SyncRequestOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_SyncRequest_descriptor;
@@ -644,7 +644,6 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required string account = 1;
       private java.lang.Object account_ = "";
       /**
        * <code>required string account = 1;</code>
@@ -658,9 +657,12 @@ public final class SyncProtocol {
       public java.lang.String getAccount() {
         java.lang.Object ref = account_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          account_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            account_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -718,7 +720,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // required string password = 2;
       private java.lang.Object password_ = "";
       /**
        * <code>required string password = 2;</code>
@@ -732,9 +733,12 @@ public final class SyncProtocol {
       public java.lang.String getPassword() {
         java.lang.Object ref = password_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          password_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            password_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -792,7 +796,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;
       private com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType syncType_ = com.adonai.wallet.sync.SyncProtocol.SyncRequest.SyncType.REGISTER;
       /**
        * <code>required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;</code>
@@ -839,10 +842,10 @@ public final class SyncProtocol {
     // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.SyncRequest)
   }
 
-  public interface SyncResponseOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface SyncResponseOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.adonai.wallet.sync.SyncResponse)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required .com.adonai.wallet.sync.SyncResponse.SyncAck syncAck = 1;
     /**
      * <code>required .com.adonai.wallet.sync.SyncResponse.SyncAck syncAck = 1;</code>
      */
@@ -856,8 +859,9 @@ public final class SyncProtocol {
    * Protobuf type {@code com.adonai.wallet.sync.SyncResponse}
    */
   public static final class SyncResponse extends
-      com.google.protobuf.GeneratedMessage
-      implements SyncResponseOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:com.adonai.wallet.sync.SyncResponse)
+      SyncResponseOrBuilder {
     // Use SyncResponse.newBuilder() to construct.
     private SyncResponse(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -1063,7 +1067,6 @@ public final class SyncProtocol {
     }
 
     private int bitField0_;
-    // required .com.adonai.wallet.sync.SyncResponse.SyncAck syncAck = 1;
     public static final int SYNCACK_FIELD_NUMBER = 1;
     private com.adonai.wallet.sync.SyncProtocol.SyncResponse.SyncAck syncAck_;
     /**
@@ -1085,7 +1088,8 @@ public final class SyncProtocol {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasSyncAck()) {
         memoizedIsInitialized = 0;
@@ -1196,8 +1200,9 @@ public final class SyncProtocol {
      * Protobuf type {@code com.adonai.wallet.sync.SyncResponse}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.adonai.wallet.sync.SyncProtocol.SyncResponseOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.adonai.wallet.sync.SyncResponse)
+        com.adonai.wallet.sync.SyncProtocol.SyncResponseOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_SyncResponse_descriptor;
@@ -1314,7 +1319,6 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required .com.adonai.wallet.sync.SyncResponse.SyncAck syncAck = 1;
       private com.adonai.wallet.sync.SyncProtocol.SyncResponse.SyncAck syncAck_ = com.adonai.wallet.sync.SyncProtocol.SyncResponse.SyncAck.OK;
       /**
        * <code>required .com.adonai.wallet.sync.SyncResponse.SyncAck syncAck = 1;</code>
@@ -1361,10 +1365,10 @@ public final class SyncProtocol {
     // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.SyncResponse)
   }
 
-  public interface EntityRequestOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface EntityRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.adonai.wallet.sync.EntityRequest)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required uint64 lastKnownServerTimestamp = 1;
     /**
      * <code>required uint64 lastKnownServerTimestamp = 1;</code>
      *
@@ -1386,8 +1390,9 @@ public final class SyncProtocol {
    * Protobuf type {@code com.adonai.wallet.sync.EntityRequest}
    */
   public static final class EntityRequest extends
-      com.google.protobuf.GeneratedMessage
-      implements EntityRequestOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:com.adonai.wallet.sync.EntityRequest)
+      EntityRequestOrBuilder {
     // Use EntityRequest.newBuilder() to construct.
     private EntityRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -1478,7 +1483,6 @@ public final class SyncProtocol {
     }
 
     private int bitField0_;
-    // required uint64 lastKnownServerTimestamp = 1;
     public static final int LASTKNOWNSERVERTIMESTAMP_FIELD_NUMBER = 1;
     private long lastKnownServerTimestamp_;
     /**
@@ -1508,7 +1512,8 @@ public final class SyncProtocol {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasLastKnownServerTimestamp()) {
         memoizedIsInitialized = 0;
@@ -1619,8 +1624,9 @@ public final class SyncProtocol {
      * Protobuf type {@code com.adonai.wallet.sync.EntityRequest}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.adonai.wallet.sync.SyncProtocol.EntityRequestOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.adonai.wallet.sync.EntityRequest)
+        com.adonai.wallet.sync.SyncProtocol.EntityRequestOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_EntityRequest_descriptor;
@@ -1737,7 +1743,6 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required uint64 lastKnownServerTimestamp = 1;
       private long lastKnownServerTimestamp_ ;
       /**
        * <code>required uint64 lastKnownServerTimestamp = 1;</code>
@@ -1797,10 +1802,10 @@ public final class SyncProtocol {
     // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.EntityRequest)
   }
 
-  public interface EntityResponseOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface EntityResponseOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.adonai.wallet.sync.EntityResponse)
+      com.google.protobuf.MessageOrBuilder {
 
-    // repeated .com.adonai.wallet.sync.Entity modified = 1;
     /**
      * <code>repeated .com.adonai.wallet.sync.Entity modified = 1;</code>
      *
@@ -1845,7 +1850,6 @@ public final class SyncProtocol {
     com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder getModifiedOrBuilder(
         int index);
 
-    // repeated .com.adonai.wallet.sync.Entity added = 2;
     /**
      * <code>repeated .com.adonai.wallet.sync.Entity added = 2;</code>
      *
@@ -1894,8 +1898,9 @@ public final class SyncProtocol {
    * Protobuf type {@code com.adonai.wallet.sync.EntityResponse}
    */
   public static final class EntityResponse extends
-      com.google.protobuf.GeneratedMessage
-      implements EntityResponseOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:com.adonai.wallet.sync.EntityResponse)
+      EntityResponseOrBuilder {
     // Use EntityResponse.newBuilder() to construct.
     private EntityResponse(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -2002,7 +2007,6 @@ public final class SyncProtocol {
       return PARSER;
     }
 
-    // repeated .com.adonai.wallet.sync.Entity modified = 1;
     public static final int MODIFIED_FIELD_NUMBER = 1;
     private java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> modified_;
     /**
@@ -2058,7 +2062,6 @@ public final class SyncProtocol {
       return modified_.get(index);
     }
 
-    // repeated .com.adonai.wallet.sync.Entity added = 2;
     public static final int ADDED_FIELD_NUMBER = 2;
     private java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> added_;
     /**
@@ -2121,7 +2124,8 @@ public final class SyncProtocol {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       for (int i = 0; i < getModifiedCount(); i++) {
         if (!getModified(i).isInitialized()) {
@@ -2247,8 +2251,9 @@ public final class SyncProtocol {
      * Protobuf type {@code com.adonai.wallet.sync.EntityResponse}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.adonai.wallet.sync.SyncProtocol.EntityResponseOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.adonai.wallet.sync.EntityResponse)
+        com.adonai.wallet.sync.SyncProtocol.EntityResponseOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_EntityResponse_descriptor;
@@ -2446,7 +2451,6 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // repeated .com.adonai.wallet.sync.Entity modified = 1;
       private java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> modified_ =
         java.util.Collections.emptyList();
       private void ensureModifiedIsMutable() {
@@ -2628,7 +2632,8 @@ public final class SyncProtocol {
           java.lang.Iterable<? extends com.adonai.wallet.sync.SyncProtocol.Entity> values) {
         if (modifiedBuilder_ == null) {
           ensureModifiedIsMutable();
-          super.addAll(values, modified_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, modified_);
           onChanged();
         } else {
           modifiedBuilder_.addAllMessages(values);
@@ -2758,7 +2763,6 @@ public final class SyncProtocol {
         return modifiedBuilder_;
       }
 
-      // repeated .com.adonai.wallet.sync.Entity added = 2;
       private java.util.List<com.adonai.wallet.sync.SyncProtocol.Entity> added_ =
         java.util.Collections.emptyList();
       private void ensureAddedIsMutable() {
@@ -2940,7 +2944,8 @@ public final class SyncProtocol {
           java.lang.Iterable<? extends com.adonai.wallet.sync.SyncProtocol.Entity> values) {
         if (addedBuilder_ == null) {
           ensureAddedIsMutable();
-          super.addAll(values, added_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, added_);
           onChanged();
         } else {
           addedBuilder_.addAllMessages(values);
@@ -3081,10 +3086,10 @@ public final class SyncProtocol {
     // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.EntityResponse)
   }
 
-  public interface EntityAckOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface EntityAckOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.adonai.wallet.sync.EntityAck)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required uint64 newServerTimestamp = 1;
     /**
      * <code>required uint64 newServerTimestamp = 1;</code>
      */
@@ -3098,8 +3103,9 @@ public final class SyncProtocol {
    * Protobuf type {@code com.adonai.wallet.sync.EntityAck}
    */
   public static final class EntityAck extends
-      com.google.protobuf.GeneratedMessage
-      implements EntityAckOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:com.adonai.wallet.sync.EntityAck)
+      EntityAckOrBuilder {
     // Use EntityAck.newBuilder() to construct.
     private EntityAck(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -3190,7 +3196,6 @@ public final class SyncProtocol {
     }
 
     private int bitField0_;
-    // required uint64 newServerTimestamp = 1;
     public static final int NEWSERVERTIMESTAMP_FIELD_NUMBER = 1;
     private long newServerTimestamp_;
     /**
@@ -3212,7 +3217,8 @@ public final class SyncProtocol {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasNewServerTimestamp()) {
         memoizedIsInitialized = 0;
@@ -3323,8 +3329,9 @@ public final class SyncProtocol {
      * Protobuf type {@code com.adonai.wallet.sync.EntityAck}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.adonai.wallet.sync.SyncProtocol.EntityAckOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.adonai.wallet.sync.EntityAck)
+        com.adonai.wallet.sync.SyncProtocol.EntityAckOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_EntityAck_descriptor;
@@ -3441,7 +3448,6 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required uint64 newServerTimestamp = 1;
       private long newServerTimestamp_ ;
       /**
        * <code>required uint64 newServerTimestamp = 1;</code>
@@ -3485,10 +3491,10 @@ public final class SyncProtocol {
     // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.EntityAck)
   }
 
-  public interface EntityOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface EntityOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.adonai.wallet.sync.Entity)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string ID = 1;
     /**
      * <code>required string ID = 1;</code>
      */
@@ -3503,7 +3509,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getIDBytes();
 
-    // required bool deleted = 2;
     /**
      * <code>required bool deleted = 2;</code>
      */
@@ -3513,7 +3518,6 @@ public final class SyncProtocol {
      */
     boolean getDeleted();
 
-    // optional .com.adonai.wallet.sync.Account account = 3;
     /**
      * <code>optional .com.adonai.wallet.sync.Account account = 3;</code>
      */
@@ -3527,7 +3531,6 @@ public final class SyncProtocol {
      */
     com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder getAccountOrBuilder();
 
-    // optional .com.adonai.wallet.sync.Operation operation = 4;
     /**
      * <code>optional .com.adonai.wallet.sync.Operation operation = 4;</code>
      */
@@ -3541,7 +3544,6 @@ public final class SyncProtocol {
      */
     com.adonai.wallet.sync.SyncProtocol.OperationOrBuilder getOperationOrBuilder();
 
-    // optional .com.adonai.wallet.sync.Category category = 5;
     /**
      * <code>optional .com.adonai.wallet.sync.Category category = 5;</code>
      */
@@ -3555,7 +3557,6 @@ public final class SyncProtocol {
      */
     com.adonai.wallet.sync.SyncProtocol.CategoryOrBuilder getCategoryOrBuilder();
 
-    // optional .com.adonai.wallet.sync.Budget budget = 6;
     /**
      * <code>optional .com.adonai.wallet.sync.Budget budget = 6;</code>
      */
@@ -3573,8 +3574,9 @@ public final class SyncProtocol {
    * Protobuf type {@code com.adonai.wallet.sync.Entity}
    */
   public static final class Entity extends
-      com.google.protobuf.GeneratedMessage
-      implements EntityOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:com.adonai.wallet.sync.Entity)
+      EntityOrBuilder {
     // Use Entity.newBuilder() to construct.
     private Entity(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -3621,8 +3623,9 @@ public final class SyncProtocol {
               break;
             }
             case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              iD_ = input.readBytes();
+              iD_ = bs;
               break;
             }
             case 16: {
@@ -3722,7 +3725,6 @@ public final class SyncProtocol {
     }
 
     private int bitField0_;
-    // required string ID = 1;
     public static final int ID_FIELD_NUMBER = 1;
     private java.lang.Object iD_;
     /**
@@ -3765,7 +3767,6 @@ public final class SyncProtocol {
       }
     }
 
-    // required bool deleted = 2;
     public static final int DELETED_FIELD_NUMBER = 2;
     private boolean deleted_;
     /**
@@ -3781,7 +3782,6 @@ public final class SyncProtocol {
       return deleted_;
     }
 
-    // optional .com.adonai.wallet.sync.Account account = 3;
     public static final int ACCOUNT_FIELD_NUMBER = 3;
     private com.adonai.wallet.sync.SyncProtocol.Account account_;
     /**
@@ -3803,7 +3803,6 @@ public final class SyncProtocol {
       return account_;
     }
 
-    // optional .com.adonai.wallet.sync.Operation operation = 4;
     public static final int OPERATION_FIELD_NUMBER = 4;
     private com.adonai.wallet.sync.SyncProtocol.Operation operation_;
     /**
@@ -3825,7 +3824,6 @@ public final class SyncProtocol {
       return operation_;
     }
 
-    // optional .com.adonai.wallet.sync.Category category = 5;
     public static final int CATEGORY_FIELD_NUMBER = 5;
     private com.adonai.wallet.sync.SyncProtocol.Category category_;
     /**
@@ -3847,7 +3845,6 @@ public final class SyncProtocol {
       return category_;
     }
 
-    // optional .com.adonai.wallet.sync.Budget budget = 6;
     public static final int BUDGET_FIELD_NUMBER = 6;
     private com.adonai.wallet.sync.SyncProtocol.Budget budget_;
     /**
@@ -3880,7 +3877,8 @@ public final class SyncProtocol {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasID()) {
         memoizedIsInitialized = 0;
@@ -4054,8 +4052,9 @@ public final class SyncProtocol {
      * Protobuf type {@code com.adonai.wallet.sync.Entity}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.adonai.wallet.sync.Entity)
+        com.adonai.wallet.sync.SyncProtocol.EntityOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_Entity_descriptor;
@@ -4283,7 +4282,6 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required string ID = 1;
       private java.lang.Object iD_ = "";
       /**
        * <code>required string ID = 1;</code>
@@ -4297,9 +4295,12 @@ public final class SyncProtocol {
       public java.lang.String getID() {
         java.lang.Object ref = iD_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          iD_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            iD_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -4357,7 +4358,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // required bool deleted = 2;
       private boolean deleted_ ;
       /**
        * <code>required bool deleted = 2;</code>
@@ -4390,7 +4390,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // optional .com.adonai.wallet.sync.Account account = 3;
       private com.adonai.wallet.sync.SyncProtocol.Account account_ = com.adonai.wallet.sync.SyncProtocol.Account.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           com.adonai.wallet.sync.SyncProtocol.Account, com.adonai.wallet.sync.SyncProtocol.Account.Builder, com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder> accountBuilder_;
@@ -4499,7 +4498,7 @@ public final class SyncProtocol {
         if (accountBuilder_ == null) {
           accountBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               com.adonai.wallet.sync.SyncProtocol.Account, com.adonai.wallet.sync.SyncProtocol.Account.Builder, com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder>(
-                  account_,
+                  getAccount(),
                   getParentForChildren(),
                   isClean());
           account_ = null;
@@ -4507,7 +4506,6 @@ public final class SyncProtocol {
         return accountBuilder_;
       }
 
-      // optional .com.adonai.wallet.sync.Operation operation = 4;
       private com.adonai.wallet.sync.SyncProtocol.Operation operation_ = com.adonai.wallet.sync.SyncProtocol.Operation.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           com.adonai.wallet.sync.SyncProtocol.Operation, com.adonai.wallet.sync.SyncProtocol.Operation.Builder, com.adonai.wallet.sync.SyncProtocol.OperationOrBuilder> operationBuilder_;
@@ -4616,7 +4614,7 @@ public final class SyncProtocol {
         if (operationBuilder_ == null) {
           operationBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               com.adonai.wallet.sync.SyncProtocol.Operation, com.adonai.wallet.sync.SyncProtocol.Operation.Builder, com.adonai.wallet.sync.SyncProtocol.OperationOrBuilder>(
-                  operation_,
+                  getOperation(),
                   getParentForChildren(),
                   isClean());
           operation_ = null;
@@ -4624,7 +4622,6 @@ public final class SyncProtocol {
         return operationBuilder_;
       }
 
-      // optional .com.adonai.wallet.sync.Category category = 5;
       private com.adonai.wallet.sync.SyncProtocol.Category category_ = com.adonai.wallet.sync.SyncProtocol.Category.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           com.adonai.wallet.sync.SyncProtocol.Category, com.adonai.wallet.sync.SyncProtocol.Category.Builder, com.adonai.wallet.sync.SyncProtocol.CategoryOrBuilder> categoryBuilder_;
@@ -4733,7 +4730,7 @@ public final class SyncProtocol {
         if (categoryBuilder_ == null) {
           categoryBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               com.adonai.wallet.sync.SyncProtocol.Category, com.adonai.wallet.sync.SyncProtocol.Category.Builder, com.adonai.wallet.sync.SyncProtocol.CategoryOrBuilder>(
-                  category_,
+                  getCategory(),
                   getParentForChildren(),
                   isClean());
           category_ = null;
@@ -4741,7 +4738,6 @@ public final class SyncProtocol {
         return categoryBuilder_;
       }
 
-      // optional .com.adonai.wallet.sync.Budget budget = 6;
       private com.adonai.wallet.sync.SyncProtocol.Budget budget_ = com.adonai.wallet.sync.SyncProtocol.Budget.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           com.adonai.wallet.sync.SyncProtocol.Budget, com.adonai.wallet.sync.SyncProtocol.Budget.Builder, com.adonai.wallet.sync.SyncProtocol.BudgetOrBuilder> budgetBuilder_;
@@ -4850,7 +4846,7 @@ public final class SyncProtocol {
         if (budgetBuilder_ == null) {
           budgetBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               com.adonai.wallet.sync.SyncProtocol.Budget, com.adonai.wallet.sync.SyncProtocol.Budget.Builder, com.adonai.wallet.sync.SyncProtocol.BudgetOrBuilder>(
-                  budget_,
+                  getBudget(),
                   getParentForChildren(),
                   isClean());
           budget_ = null;
@@ -4869,10 +4865,10 @@ public final class SyncProtocol {
     // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.Entity)
   }
 
-  public interface AccountOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface AccountOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.adonai.wallet.sync.Account)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string name = 2;
     /**
      * <code>required string name = 2;</code>
      */
@@ -4887,7 +4883,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getNameBytes();
 
-    // required string currency = 3;
     /**
      * <code>required string currency = 3;</code>
      */
@@ -4902,7 +4897,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getCurrencyBytes();
 
-    // required string amount = 4;
     /**
      * <code>required string amount = 4;</code>
      *
@@ -4929,7 +4923,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getAmountBytes();
 
-    // optional string description = 5;
     /**
      * <code>optional string description = 5;</code>
      */
@@ -4944,7 +4937,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getDescriptionBytes();
 
-    // optional int32 color = 6;
     /**
      * <code>optional int32 color = 6;</code>
      */
@@ -4962,8 +4954,9 @@ public final class SyncProtocol {
    * </pre>
    */
   public static final class Account extends
-      com.google.protobuf.GeneratedMessage
-      implements AccountOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:com.adonai.wallet.sync.Account)
+      AccountOrBuilder {
     // Use Account.newBuilder() to construct.
     private Account(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -5010,23 +5003,27 @@ public final class SyncProtocol {
               break;
             }
             case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              name_ = input.readBytes();
+              name_ = bs;
               break;
             }
             case 26: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
-              currency_ = input.readBytes();
+              currency_ = bs;
               break;
             }
             case 34: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000004;
-              amount_ = input.readBytes();
+              amount_ = bs;
               break;
             }
             case 42: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000008;
-              description_ = input.readBytes();
+              description_ = bs;
               break;
             }
             case 48: {
@@ -5074,7 +5071,6 @@ public final class SyncProtocol {
     }
 
     private int bitField0_;
-    // required string name = 2;
     public static final int NAME_FIELD_NUMBER = 2;
     private java.lang.Object name_;
     /**
@@ -5117,7 +5113,6 @@ public final class SyncProtocol {
       }
     }
 
-    // required string currency = 3;
     public static final int CURRENCY_FIELD_NUMBER = 3;
     private java.lang.Object currency_;
     /**
@@ -5160,7 +5155,6 @@ public final class SyncProtocol {
       }
     }
 
-    // required string amount = 4;
     public static final int AMOUNT_FIELD_NUMBER = 4;
     private java.lang.Object amount_;
     /**
@@ -5215,7 +5209,6 @@ public final class SyncProtocol {
       }
     }
 
-    // optional string description = 5;
     public static final int DESCRIPTION_FIELD_NUMBER = 5;
     private java.lang.Object description_;
     /**
@@ -5258,7 +5251,6 @@ public final class SyncProtocol {
       }
     }
 
-    // optional int32 color = 6;
     public static final int COLOR_FIELD_NUMBER = 6;
     private int color_;
     /**
@@ -5284,7 +5276,8 @@ public final class SyncProtocol {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasName()) {
         memoizedIsInitialized = 0;
@@ -5435,8 +5428,9 @@ public final class SyncProtocol {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.adonai.wallet.sync.Account)
+        com.adonai.wallet.sync.SyncProtocol.AccountOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_Account_descriptor;
@@ -5605,7 +5599,6 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required string name = 2;
       private java.lang.Object name_ = "";
       /**
        * <code>required string name = 2;</code>
@@ -5619,9 +5612,12 @@ public final class SyncProtocol {
       public java.lang.String getName() {
         java.lang.Object ref = name_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          name_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -5679,7 +5675,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // required string currency = 3;
       private java.lang.Object currency_ = "";
       /**
        * <code>required string currency = 3;</code>
@@ -5693,9 +5688,12 @@ public final class SyncProtocol {
       public java.lang.String getCurrency() {
         java.lang.Object ref = currency_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          currency_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            currency_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -5753,7 +5751,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // required string amount = 4;
       private java.lang.Object amount_ = "";
       /**
        * <code>required string amount = 4;</code>
@@ -5775,9 +5772,12 @@ public final class SyncProtocol {
       public java.lang.String getAmount() {
         java.lang.Object ref = amount_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          amount_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            amount_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -5851,7 +5851,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // optional string description = 5;
       private java.lang.Object description_ = "";
       /**
        * <code>optional string description = 5;</code>
@@ -5865,9 +5864,12 @@ public final class SyncProtocol {
       public java.lang.String getDescription() {
         java.lang.Object ref = description_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          description_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            description_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -5925,7 +5927,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // optional int32 color = 6;
       private int color_ ;
       /**
        * <code>optional int32 color = 6;</code>
@@ -5969,10 +5970,10 @@ public final class SyncProtocol {
     // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.Account)
   }
 
-  public interface OperationOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface OperationOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.adonai.wallet.sync.Operation)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required uint64 time = 2;
     /**
      * <code>required uint64 time = 2;</code>
      */
@@ -5982,7 +5983,6 @@ public final class SyncProtocol {
      */
     long getTime();
 
-    // required string categoryId = 3;
     /**
      * <code>required string categoryId = 3;</code>
      */
@@ -5997,7 +5997,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getCategoryIdBytes();
 
-    // required string amount = 4;
     /**
      * <code>required string amount = 4;</code>
      */
@@ -6012,7 +6011,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getAmountBytes();
 
-    // optional string description = 5;
     /**
      * <code>optional string description = 5;</code>
      */
@@ -6027,7 +6025,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getDescriptionBytes();
 
-    // optional string ordererId = 6;
     /**
      * <code>optional string ordererId = 6;</code>
      */
@@ -6042,7 +6039,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getOrdererIdBytes();
 
-    // optional string beneficiarId = 7;
     /**
      * <code>optional string beneficiarId = 7;</code>
      */
@@ -6057,7 +6053,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getBeneficiarIdBytes();
 
-    // optional double convertingRate = 8;
     /**
      * <code>optional double convertingRate = 8;</code>
      */
@@ -6075,8 +6070,9 @@ public final class SyncProtocol {
    * </pre>
    */
   public static final class Operation extends
-      com.google.protobuf.GeneratedMessage
-      implements OperationOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:com.adonai.wallet.sync.Operation)
+      OperationOrBuilder {
     // Use Operation.newBuilder() to construct.
     private Operation(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -6128,28 +6124,33 @@ public final class SyncProtocol {
               break;
             }
             case 26: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
-              categoryId_ = input.readBytes();
+              categoryId_ = bs;
               break;
             }
             case 34: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000004;
-              amount_ = input.readBytes();
+              amount_ = bs;
               break;
             }
             case 42: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000008;
-              description_ = input.readBytes();
+              description_ = bs;
               break;
             }
             case 50: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000010;
-              ordererId_ = input.readBytes();
+              ordererId_ = bs;
               break;
             }
             case 58: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000020;
-              beneficiarId_ = input.readBytes();
+              beneficiarId_ = bs;
               break;
             }
             case 65: {
@@ -6197,7 +6198,6 @@ public final class SyncProtocol {
     }
 
     private int bitField0_;
-    // required uint64 time = 2;
     public static final int TIME_FIELD_NUMBER = 2;
     private long time_;
     /**
@@ -6213,7 +6213,6 @@ public final class SyncProtocol {
       return time_;
     }
 
-    // required string categoryId = 3;
     public static final int CATEGORYID_FIELD_NUMBER = 3;
     private java.lang.Object categoryId_;
     /**
@@ -6256,7 +6255,6 @@ public final class SyncProtocol {
       }
     }
 
-    // required string amount = 4;
     public static final int AMOUNT_FIELD_NUMBER = 4;
     private java.lang.Object amount_;
     /**
@@ -6299,7 +6297,6 @@ public final class SyncProtocol {
       }
     }
 
-    // optional string description = 5;
     public static final int DESCRIPTION_FIELD_NUMBER = 5;
     private java.lang.Object description_;
     /**
@@ -6342,7 +6339,6 @@ public final class SyncProtocol {
       }
     }
 
-    // optional string ordererId = 6;
     public static final int ORDERERID_FIELD_NUMBER = 6;
     private java.lang.Object ordererId_;
     /**
@@ -6385,7 +6381,6 @@ public final class SyncProtocol {
       }
     }
 
-    // optional string beneficiarId = 7;
     public static final int BENEFICIARID_FIELD_NUMBER = 7;
     private java.lang.Object beneficiarId_;
     /**
@@ -6428,7 +6423,6 @@ public final class SyncProtocol {
       }
     }
 
-    // optional double convertingRate = 8;
     public static final int CONVERTINGRATE_FIELD_NUMBER = 8;
     private double convertingRate_;
     /**
@@ -6456,7 +6450,8 @@ public final class SyncProtocol {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasTime()) {
         memoizedIsInitialized = 0;
@@ -6621,8 +6616,9 @@ public final class SyncProtocol {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.adonai.wallet.sync.SyncProtocol.OperationOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.adonai.wallet.sync.Operation)
+        com.adonai.wallet.sync.SyncProtocol.OperationOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_Operation_descriptor;
@@ -6811,7 +6807,6 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required uint64 time = 2;
       private long time_ ;
       /**
        * <code>required uint64 time = 2;</code>
@@ -6844,7 +6839,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // required string categoryId = 3;
       private java.lang.Object categoryId_ = "";
       /**
        * <code>required string categoryId = 3;</code>
@@ -6858,9 +6852,12 @@ public final class SyncProtocol {
       public java.lang.String getCategoryId() {
         java.lang.Object ref = categoryId_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          categoryId_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            categoryId_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -6918,7 +6915,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // required string amount = 4;
       private java.lang.Object amount_ = "";
       /**
        * <code>required string amount = 4;</code>
@@ -6932,9 +6928,12 @@ public final class SyncProtocol {
       public java.lang.String getAmount() {
         java.lang.Object ref = amount_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          amount_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            amount_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -6992,7 +6991,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // optional string description = 5;
       private java.lang.Object description_ = "";
       /**
        * <code>optional string description = 5;</code>
@@ -7006,9 +7004,12 @@ public final class SyncProtocol {
       public java.lang.String getDescription() {
         java.lang.Object ref = description_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          description_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            description_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -7066,7 +7067,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // optional string ordererId = 6;
       private java.lang.Object ordererId_ = "";
       /**
        * <code>optional string ordererId = 6;</code>
@@ -7080,9 +7080,12 @@ public final class SyncProtocol {
       public java.lang.String getOrdererId() {
         java.lang.Object ref = ordererId_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          ordererId_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            ordererId_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -7140,7 +7143,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // optional string beneficiarId = 7;
       private java.lang.Object beneficiarId_ = "";
       /**
        * <code>optional string beneficiarId = 7;</code>
@@ -7154,9 +7156,12 @@ public final class SyncProtocol {
       public java.lang.String getBeneficiarId() {
         java.lang.Object ref = beneficiarId_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          beneficiarId_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            beneficiarId_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -7214,7 +7219,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // optional double convertingRate = 8;
       private double convertingRate_ ;
       /**
        * <code>optional double convertingRate = 8;</code>
@@ -7258,10 +7262,10 @@ public final class SyncProtocol {
     // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.Operation)
   }
 
-  public interface CategoryOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface CategoryOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.adonai.wallet.sync.Category)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string name = 2;
     /**
      * <code>required string name = 2;</code>
      */
@@ -7276,7 +7280,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getNameBytes();
 
-    // required uint32 type = 3;
     /**
      * <code>required uint32 type = 3;</code>
      */
@@ -7286,7 +7289,6 @@ public final class SyncProtocol {
      */
     int getType();
 
-    // optional string preferredAccount = 4;
     /**
      * <code>optional string preferredAccount = 4;</code>
      */
@@ -7309,8 +7311,9 @@ public final class SyncProtocol {
    * </pre>
    */
   public static final class Category extends
-      com.google.protobuf.GeneratedMessage
-      implements CategoryOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:com.adonai.wallet.sync.Category)
+      CategoryOrBuilder {
     // Use Category.newBuilder() to construct.
     private Category(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -7357,8 +7360,9 @@ public final class SyncProtocol {
               break;
             }
             case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              name_ = input.readBytes();
+              name_ = bs;
               break;
             }
             case 24: {
@@ -7367,8 +7371,9 @@ public final class SyncProtocol {
               break;
             }
             case 34: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000004;
-              preferredAccount_ = input.readBytes();
+              preferredAccount_ = bs;
               break;
             }
           }
@@ -7411,7 +7416,6 @@ public final class SyncProtocol {
     }
 
     private int bitField0_;
-    // required string name = 2;
     public static final int NAME_FIELD_NUMBER = 2;
     private java.lang.Object name_;
     /**
@@ -7454,7 +7458,6 @@ public final class SyncProtocol {
       }
     }
 
-    // required uint32 type = 3;
     public static final int TYPE_FIELD_NUMBER = 3;
     private int type_;
     /**
@@ -7470,7 +7473,6 @@ public final class SyncProtocol {
       return type_;
     }
 
-    // optional string preferredAccount = 4;
     public static final int PREFERREDACCOUNT_FIELD_NUMBER = 4;
     private java.lang.Object preferredAccount_;
     /**
@@ -7521,7 +7523,8 @@ public final class SyncProtocol {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasName()) {
         memoizedIsInitialized = 0;
@@ -7654,8 +7657,9 @@ public final class SyncProtocol {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.adonai.wallet.sync.SyncProtocol.CategoryOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.adonai.wallet.sync.Category)
+        com.adonai.wallet.sync.SyncProtocol.CategoryOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_Category_descriptor;
@@ -7798,7 +7802,6 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required string name = 2;
       private java.lang.Object name_ = "";
       /**
        * <code>required string name = 2;</code>
@@ -7812,9 +7815,12 @@ public final class SyncProtocol {
       public java.lang.String getName() {
         java.lang.Object ref = name_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          name_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -7872,7 +7878,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // required uint32 type = 3;
       private int type_ ;
       /**
        * <code>required uint32 type = 3;</code>
@@ -7905,7 +7910,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // optional string preferredAccount = 4;
       private java.lang.Object preferredAccount_ = "";
       /**
        * <code>optional string preferredAccount = 4;</code>
@@ -7919,9 +7923,12 @@ public final class SyncProtocol {
       public java.lang.String getPreferredAccount() {
         java.lang.Object ref = preferredAccount_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          preferredAccount_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            preferredAccount_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -7990,10 +7997,10 @@ public final class SyncProtocol {
     // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.Category)
   }
 
-  public interface BudgetOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface BudgetOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.adonai.wallet.sync.Budget)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string name = 2;
     /**
      * <code>required string name = 2;</code>
      */
@@ -8008,7 +8015,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getNameBytes();
 
-    // required uint64 from = 3;
     /**
      * <code>required uint64 from = 3;</code>
      *
@@ -8026,7 +8032,6 @@ public final class SyncProtocol {
      */
     long getFrom();
 
-    // required string till = 4;
     /**
      * <code>required string till = 4;</code>
      *
@@ -8053,7 +8058,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getTillBytes();
 
-    // optional string coveredAccountId = 5;
     /**
      * <code>optional string coveredAccountId = 5;</code>
      *
@@ -8080,7 +8084,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getCoveredAccountIdBytes();
 
-    // repeated .com.adonai.wallet.sync.BudgetItem content = 6;
     /**
      * <code>repeated .com.adonai.wallet.sync.BudgetItem content = 6;</code>
      *
@@ -8133,8 +8136,9 @@ public final class SyncProtocol {
    * </pre>
    */
   public static final class Budget extends
-      com.google.protobuf.GeneratedMessage
-      implements BudgetOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:com.adonai.wallet.sync.Budget)
+      BudgetOrBuilder {
     // Use Budget.newBuilder() to construct.
     private Budget(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -8181,8 +8185,9 @@ public final class SyncProtocol {
               break;
             }
             case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              name_ = input.readBytes();
+              name_ = bs;
               break;
             }
             case 24: {
@@ -8191,13 +8196,15 @@ public final class SyncProtocol {
               break;
             }
             case 34: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000004;
-              till_ = input.readBytes();
+              till_ = bs;
               break;
             }
             case 42: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000008;
-              coveredAccountId_ = input.readBytes();
+              coveredAccountId_ = bs;
               break;
             }
             case 50: {
@@ -8251,7 +8258,6 @@ public final class SyncProtocol {
     }
 
     private int bitField0_;
-    // required string name = 2;
     public static final int NAME_FIELD_NUMBER = 2;
     private java.lang.Object name_;
     /**
@@ -8294,7 +8300,6 @@ public final class SyncProtocol {
       }
     }
 
-    // required uint64 from = 3;
     public static final int FROM_FIELD_NUMBER = 3;
     private long from_;
     /**
@@ -8318,7 +8323,6 @@ public final class SyncProtocol {
       return from_;
     }
 
-    // required string till = 4;
     public static final int TILL_FIELD_NUMBER = 4;
     private java.lang.Object till_;
     /**
@@ -8373,7 +8377,6 @@ public final class SyncProtocol {
       }
     }
 
-    // optional string coveredAccountId = 5;
     public static final int COVEREDACCOUNTID_FIELD_NUMBER = 5;
     private java.lang.Object coveredAccountId_;
     /**
@@ -8428,7 +8431,6 @@ public final class SyncProtocol {
       }
     }
 
-    // repeated .com.adonai.wallet.sync.BudgetItem content = 6;
     public static final int CONTENT_FIELD_NUMBER = 6;
     private java.util.List<com.adonai.wallet.sync.SyncProtocol.BudgetItem> content_;
     /**
@@ -8494,7 +8496,8 @@ public final class SyncProtocol {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasName()) {
         memoizedIsInitialized = 0;
@@ -8651,8 +8654,9 @@ public final class SyncProtocol {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.adonai.wallet.sync.SyncProtocol.BudgetOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.adonai.wallet.sync.Budget)
+        com.adonai.wallet.sync.SyncProtocol.BudgetOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_Budget_descriptor;
@@ -8858,7 +8862,6 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required string name = 2;
       private java.lang.Object name_ = "";
       /**
        * <code>required string name = 2;</code>
@@ -8872,9 +8875,12 @@ public final class SyncProtocol {
       public java.lang.String getName() {
         java.lang.Object ref = name_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          name_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -8932,7 +8938,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // required uint64 from = 3;
       private long from_ ;
       /**
        * <code>required uint64 from = 3;</code>
@@ -8981,7 +8986,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // required string till = 4;
       private java.lang.Object till_ = "";
       /**
        * <code>required string till = 4;</code>
@@ -9003,9 +9007,12 @@ public final class SyncProtocol {
       public java.lang.String getTill() {
         java.lang.Object ref = till_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          till_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            till_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -9079,7 +9086,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // optional string coveredAccountId = 5;
       private java.lang.Object coveredAccountId_ = "";
       /**
        * <code>optional string coveredAccountId = 5;</code>
@@ -9101,9 +9107,12 @@ public final class SyncProtocol {
       public java.lang.String getCoveredAccountId() {
         java.lang.Object ref = coveredAccountId_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          coveredAccountId_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            coveredAccountId_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -9177,7 +9186,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // repeated .com.adonai.wallet.sync.BudgetItem content = 6;
       private java.util.List<com.adonai.wallet.sync.SyncProtocol.BudgetItem> content_ =
         java.util.Collections.emptyList();
       private void ensureContentIsMutable() {
@@ -9359,7 +9367,8 @@ public final class SyncProtocol {
           java.lang.Iterable<? extends com.adonai.wallet.sync.SyncProtocol.BudgetItem> values) {
         if (contentBuilder_ == null) {
           ensureContentIsMutable();
-          super.addAll(values, content_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, content_);
           onChanged();
         } else {
           contentBuilder_.addAllMessages(values);
@@ -9500,10 +9509,10 @@ public final class SyncProtocol {
     // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.Budget)
   }
 
-  public interface BudgetItemOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface BudgetItemOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:com.adonai.wallet.sync.BudgetItem)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string parentBudgetId = 2;
     /**
      * <code>required string parentBudgetId = 2;</code>
      */
@@ -9518,7 +9527,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getParentBudgetIdBytes();
 
-    // required string categoryId = 3;
     /**
      * <code>required string categoryId = 3;</code>
      */
@@ -9533,7 +9541,6 @@ public final class SyncProtocol {
     com.google.protobuf.ByteString
         getCategoryIdBytes();
 
-    // required uint64 maxAmount = 4;
     /**
      * <code>required uint64 maxAmount = 4;</code>
      *
@@ -9559,8 +9566,9 @@ public final class SyncProtocol {
    * </pre>
    */
   public static final class BudgetItem extends
-      com.google.protobuf.GeneratedMessage
-      implements BudgetItemOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:com.adonai.wallet.sync.BudgetItem)
+      BudgetItemOrBuilder {
     // Use BudgetItem.newBuilder() to construct.
     private BudgetItem(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -9607,13 +9615,15 @@ public final class SyncProtocol {
               break;
             }
             case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              parentBudgetId_ = input.readBytes();
+              parentBudgetId_ = bs;
               break;
             }
             case 26: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
-              categoryId_ = input.readBytes();
+              categoryId_ = bs;
               break;
             }
             case 32: {
@@ -9661,7 +9671,6 @@ public final class SyncProtocol {
     }
 
     private int bitField0_;
-    // required string parentBudgetId = 2;
     public static final int PARENTBUDGETID_FIELD_NUMBER = 2;
     private java.lang.Object parentBudgetId_;
     /**
@@ -9704,7 +9713,6 @@ public final class SyncProtocol {
       }
     }
 
-    // required string categoryId = 3;
     public static final int CATEGORYID_FIELD_NUMBER = 3;
     private java.lang.Object categoryId_;
     /**
@@ -9747,7 +9755,6 @@ public final class SyncProtocol {
       }
     }
 
-    // required uint64 maxAmount = 4;
     public static final int MAXAMOUNT_FIELD_NUMBER = 4;
     private long maxAmount_;
     /**
@@ -9779,7 +9786,8 @@ public final class SyncProtocol {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasParentBudgetId()) {
         memoizedIsInitialized = 0;
@@ -9916,8 +9924,9 @@ public final class SyncProtocol {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.adonai.wallet.sync.SyncProtocol.BudgetItemOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:com.adonai.wallet.sync.BudgetItem)
+        com.adonai.wallet.sync.SyncProtocol.BudgetItemOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return com.adonai.wallet.sync.SyncProtocol.internal_static_com_adonai_wallet_sync_BudgetItem_descriptor;
@@ -10064,7 +10073,6 @@ public final class SyncProtocol {
       }
       private int bitField0_;
 
-      // required string parentBudgetId = 2;
       private java.lang.Object parentBudgetId_ = "";
       /**
        * <code>required string parentBudgetId = 2;</code>
@@ -10078,9 +10086,12 @@ public final class SyncProtocol {
       public java.lang.String getParentBudgetId() {
         java.lang.Object ref = parentBudgetId_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          parentBudgetId_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            parentBudgetId_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -10138,7 +10149,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // required string categoryId = 3;
       private java.lang.Object categoryId_ = "";
       /**
        * <code>required string categoryId = 3;</code>
@@ -10152,9 +10162,12 @@ public final class SyncProtocol {
       public java.lang.String getCategoryId() {
         java.lang.Object ref = categoryId_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          categoryId_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            categoryId_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -10212,7 +10225,6 @@ public final class SyncProtocol {
         return this;
       }
 
-      // required uint64 maxAmount = 4;
       private long maxAmount_ ;
       /**
        * <code>required uint64 maxAmount = 4;</code>
@@ -10272,57 +10284,57 @@ public final class SyncProtocol {
     // @@protoc_insertion_point(class_scope:com.adonai.wallet.sync.BudgetItem)
   }
 
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_com_adonai_wallet_sync_SyncRequest_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_com_adonai_wallet_sync_SyncRequest_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_com_adonai_wallet_sync_SyncResponse_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_com_adonai_wallet_sync_SyncResponse_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_com_adonai_wallet_sync_EntityRequest_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_com_adonai_wallet_sync_EntityRequest_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_com_adonai_wallet_sync_EntityResponse_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_com_adonai_wallet_sync_EntityResponse_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_com_adonai_wallet_sync_EntityAck_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_com_adonai_wallet_sync_EntityAck_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_com_adonai_wallet_sync_Entity_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_com_adonai_wallet_sync_Entity_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_com_adonai_wallet_sync_Account_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_com_adonai_wallet_sync_Account_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_com_adonai_wallet_sync_Operation_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_com_adonai_wallet_sync_Operation_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_com_adonai_wallet_sync_Category_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_com_adonai_wallet_sync_Category_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_com_adonai_wallet_sync_Budget_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_com_adonai_wallet_sync_Budget_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_com_adonai_wallet_sync_BudgetItem_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -10372,83 +10384,83 @@ public final class SyncProtocol {
       "yId\030\003 \002(\t\022\021\n\tmaxAmount\030\004 \002(\004"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_com_adonai_wallet_sync_SyncRequest_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_com_adonai_wallet_sync_SyncRequest_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_com_adonai_wallet_sync_SyncRequest_descriptor,
-              new java.lang.String[] { "Account", "Password", "SyncType", });
-          internal_static_com_adonai_wallet_sync_SyncResponse_descriptor =
-            getDescriptor().getMessageTypes().get(1);
-          internal_static_com_adonai_wallet_sync_SyncResponse_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_com_adonai_wallet_sync_SyncResponse_descriptor,
-              new java.lang.String[] { "SyncAck", });
-          internal_static_com_adonai_wallet_sync_EntityRequest_descriptor =
-            getDescriptor().getMessageTypes().get(2);
-          internal_static_com_adonai_wallet_sync_EntityRequest_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_com_adonai_wallet_sync_EntityRequest_descriptor,
-              new java.lang.String[] { "LastKnownServerTimestamp", });
-          internal_static_com_adonai_wallet_sync_EntityResponse_descriptor =
-            getDescriptor().getMessageTypes().get(3);
-          internal_static_com_adonai_wallet_sync_EntityResponse_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_com_adonai_wallet_sync_EntityResponse_descriptor,
-              new java.lang.String[] { "Modified", "Added", });
-          internal_static_com_adonai_wallet_sync_EntityAck_descriptor =
-            getDescriptor().getMessageTypes().get(4);
-          internal_static_com_adonai_wallet_sync_EntityAck_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_com_adonai_wallet_sync_EntityAck_descriptor,
-              new java.lang.String[] { "NewServerTimestamp", });
-          internal_static_com_adonai_wallet_sync_Entity_descriptor =
-            getDescriptor().getMessageTypes().get(5);
-          internal_static_com_adonai_wallet_sync_Entity_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_com_adonai_wallet_sync_Entity_descriptor,
-              new java.lang.String[] { "ID", "Deleted", "Account", "Operation", "Category", "Budget", });
-          internal_static_com_adonai_wallet_sync_Account_descriptor =
-            getDescriptor().getMessageTypes().get(6);
-          internal_static_com_adonai_wallet_sync_Account_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_com_adonai_wallet_sync_Account_descriptor,
-              new java.lang.String[] { "Name", "Currency", "Amount", "Description", "Color", });
-          internal_static_com_adonai_wallet_sync_Operation_descriptor =
-            getDescriptor().getMessageTypes().get(7);
-          internal_static_com_adonai_wallet_sync_Operation_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_com_adonai_wallet_sync_Operation_descriptor,
-              new java.lang.String[] { "Time", "CategoryId", "Amount", "Description", "OrdererId", "BeneficiarId", "ConvertingRate", });
-          internal_static_com_adonai_wallet_sync_Category_descriptor =
-            getDescriptor().getMessageTypes().get(8);
-          internal_static_com_adonai_wallet_sync_Category_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_com_adonai_wallet_sync_Category_descriptor,
-              new java.lang.String[] { "Name", "Type", "PreferredAccount", });
-          internal_static_com_adonai_wallet_sync_Budget_descriptor =
-            getDescriptor().getMessageTypes().get(9);
-          internal_static_com_adonai_wallet_sync_Budget_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_com_adonai_wallet_sync_Budget_descriptor,
-              new java.lang.String[] { "Name", "From", "Till", "CoveredAccountId", "Content", });
-          internal_static_com_adonai_wallet_sync_BudgetItem_descriptor =
-            getDescriptor().getMessageTypes().get(10);
-          internal_static_com_adonai_wallet_sync_BudgetItem_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_com_adonai_wallet_sync_BudgetItem_descriptor,
-              new java.lang.String[] { "ParentBudgetId", "CategoryId", "MaxAmount", });
-          return null;
-        }
-      };
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
+    internal_static_com_adonai_wallet_sync_SyncRequest_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_com_adonai_wallet_sync_SyncRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_com_adonai_wallet_sync_SyncRequest_descriptor,
+        new java.lang.String[] { "Account", "Password", "SyncType", });
+    internal_static_com_adonai_wallet_sync_SyncResponse_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_com_adonai_wallet_sync_SyncResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_com_adonai_wallet_sync_SyncResponse_descriptor,
+        new java.lang.String[] { "SyncAck", });
+    internal_static_com_adonai_wallet_sync_EntityRequest_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_com_adonai_wallet_sync_EntityRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_com_adonai_wallet_sync_EntityRequest_descriptor,
+        new java.lang.String[] { "LastKnownServerTimestamp", });
+    internal_static_com_adonai_wallet_sync_EntityResponse_descriptor =
+      getDescriptor().getMessageTypes().get(3);
+    internal_static_com_adonai_wallet_sync_EntityResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_com_adonai_wallet_sync_EntityResponse_descriptor,
+        new java.lang.String[] { "Modified", "Added", });
+    internal_static_com_adonai_wallet_sync_EntityAck_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_com_adonai_wallet_sync_EntityAck_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_com_adonai_wallet_sync_EntityAck_descriptor,
+        new java.lang.String[] { "NewServerTimestamp", });
+    internal_static_com_adonai_wallet_sync_Entity_descriptor =
+      getDescriptor().getMessageTypes().get(5);
+    internal_static_com_adonai_wallet_sync_Entity_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_com_adonai_wallet_sync_Entity_descriptor,
+        new java.lang.String[] { "ID", "Deleted", "Account", "Operation", "Category", "Budget", });
+    internal_static_com_adonai_wallet_sync_Account_descriptor =
+      getDescriptor().getMessageTypes().get(6);
+    internal_static_com_adonai_wallet_sync_Account_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_com_adonai_wallet_sync_Account_descriptor,
+        new java.lang.String[] { "Name", "Currency", "Amount", "Description", "Color", });
+    internal_static_com_adonai_wallet_sync_Operation_descriptor =
+      getDescriptor().getMessageTypes().get(7);
+    internal_static_com_adonai_wallet_sync_Operation_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_com_adonai_wallet_sync_Operation_descriptor,
+        new java.lang.String[] { "Time", "CategoryId", "Amount", "Description", "OrdererId", "BeneficiarId", "ConvertingRate", });
+    internal_static_com_adonai_wallet_sync_Category_descriptor =
+      getDescriptor().getMessageTypes().get(8);
+    internal_static_com_adonai_wallet_sync_Category_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_com_adonai_wallet_sync_Category_descriptor,
+        new java.lang.String[] { "Name", "Type", "PreferredAccount", });
+    internal_static_com_adonai_wallet_sync_Budget_descriptor =
+      getDescriptor().getMessageTypes().get(9);
+    internal_static_com_adonai_wallet_sync_Budget_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_com_adonai_wallet_sync_Budget_descriptor,
+        new java.lang.String[] { "Name", "From", "Till", "CoveredAccountId", "Content", });
+    internal_static_com_adonai_wallet_sync_BudgetItem_descriptor =
+      getDescriptor().getMessageTypes().get(10);
+    internal_static_com_adonai_wallet_sync_BudgetItem_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_com_adonai_wallet_sync_BudgetItem_descriptor,
+        new java.lang.String[] { "ParentBudgetId", "CategoryId", "MaxAmount", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

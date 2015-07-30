@@ -24,9 +24,14 @@ public class WalletSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     @Override
-    public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
+    public void onPerformSync(Account account, 
+                              Bundle extras, 
+                              String authority, 
+                              ContentProviderClient provider, 
+                              SyncResult syncResult) 
+    {
         syncResult.fullSyncRequested = true;
-        SyncStateMachine stateMachine = new SyncStateMachine(getContext());
-        stateMachine.setState(SyncStateMachine.State.SYNC_START);
+        SyncStateMachine stateMachine = new SyncStateMachine(getContext(), syncResult, account);
+        stateMachine.syncBlocking();
     }
 }

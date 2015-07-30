@@ -1,11 +1,14 @@
 package com.adonai.wallet.sync;
 
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SyncResult;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletConstants;
@@ -25,6 +28,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import static com.adonai.wallet.sync.SyncProtocol.SyncRequest;
 import static com.adonai.wallet.sync.SyncProtocol.SyncResponse;
@@ -106,38 +110,40 @@ public class SyncStateMachine {
     private State state;
     private Handler mHandler;
     private Socket mSocket;
+    
 
     private final Context mContext;
+    private final SyncResult mSyncResult;
+    private final android.accounts.Account mAccount;
+    
     private final SocketCallback mCallback = new SocketCallback();
     private final SharedPreferences mPreferences;
+    private final Object mSyncLock = new Object();
 
 
-    public SyncStateMachine(Context context) {
+    public SyncStateMachine(Context context, SyncResult sr, android.accounts.Account account) {
         final HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
         mHandler = new Handler(thr.getLooper(), mCallback);
 
-        mContext = context;
         mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        mContext = context;
+        mAccount = account;
+        mSyncResult = sr;
     }
 
     public void shutdown() {
+        mCallback.interruptSync(mContext.getString(R.string.force_shutdown));
         mHandler.getLooper().quit();
-        if(mSocket != null)
-            try {
-                mSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
     }
 
-    public void setState(State state) {
+    private void setState(State state) {
         this.state = state;
         if(state.isActionNeeded()) // state is for internal handling, not for notifying
             mHandler.sendEmptyMessage(state.ordinal());
     }
 
-    public void setState(State state, String errorMsg) {
+    private void setState(State state, String errorMsg) {
         this.state = state;
         if(state.isActionNeeded())
             mHandler.sendEmptyMessage(state.ordinal());
@@ -145,6 +151,21 @@ public class SyncStateMachine {
 
     public boolean isSyncing() {
         return state != State.INIT;
+    }
+    
+    public void startSync() {
+        setState(SyncStateMachine.State.SYNC_START);
+    }
+    
+    public void syncBlocking() {
+        setState(SyncStateMachine.State.SYNC_START);
+        synchronized (mSyncLock) {
+            try {
+                mSyncLock.wait();
+            } catch (InterruptedException e) {
+                Log.e("SYNC", "Interrupted!");
+            }
+        }
     }
 
     private class SocketCallback implements Handler.Callback {
@@ -154,9 +175,7 @@ public class SyncStateMachine {
             try {
                 switch (state) {
                     case SYNC_START: { // at this state, account should be already configured and accessible from preferences!
-                        if (!mPreferences.contains(WalletConstants.ACCOUNT_NAME_KEY))
-                            throw new RuntimeException("No account configured! Can't sync!"); // shouldn't happen
-                        start();
+                        initSync();
 
                         final InputStream is = mSocket.getInputStream();
                         final OutputStream os = mSocket.getOutputStream();
@@ -344,39 +363,53 @@ public class SyncStateMachine {
                             DbProvider.getHelper().getEntityDao(Operation.class).updateByServer(changedOp);
                         }
 
-                        finish();
+                        finishSync();
                         break;
                     }
                 }
-            } catch (Exception io) {
-                interrupt(io.getMessage());
+            } catch (IOException io) {
+                mSyncResult.stats.numIoExceptions = 1;
+                interruptSync(io.getMessage());
+            } catch (SQLException sql) {
+                mSyncResult.databaseError = true;
+                interruptSync(sql.getMessage());
             }
             return true;
         }
 
-        private void start() throws IOException {
+        private void initSync() throws IOException {
             /*DatabaseDAO.getInstance().beginTransaction();*/
             mSocket = new Socket(); // creating socket here!
             //mSocket.setSoTimeout(10000);
             //mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "anticitizen.dhis.org"), 17001));
-            mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "192.168.1.166"), 17001));
+            mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "192.168.1.165"), 17001));
             DbProvider.getHelper().getWritableDatabase().beginTransaction();
         }
 
-        private void finish() throws IOException {
+        private void finishSync() throws IOException {
             mSocket.close();
             setState(State.INIT, mContext.getString(R.string.sync_completed));
             DbProvider.getHelper().getWritableDatabase().setTransactionSuccessful();
             DbProvider.getHelper().getWritableDatabase().endTransaction();
+            
+            // if we use blocking sync, this will finish it
+            synchronized (mSyncLock) {
+                mSyncLock.notify();
+            }
         }
 
-        private void interrupt(String error) {
+        private void interruptSync(String error) {
             DbProvider.getHelper().getWritableDatabase().endTransaction();
             setState(State.INIT, error);
             if(!mSocket.isClosed())
                 try {
                     mSocket.close();
                 } catch (IOException e) { throw new RuntimeException(e); } // should not happen
+
+            // if we use blocking sync, this will finish it
+            synchronized (mSyncLock) {
+                mSyncLock.notify();
+            }
         }
 
         private void sendLastTimestamp(OutputStream os, Class<? extends Entity> clazz) throws IOException, SQLException {
@@ -389,29 +422,36 @@ public class SyncStateMachine {
 
         private void handleAuthResponse(InputStream is) throws IOException {
             final SyncResponse response = SyncResponse.parseDelimitedFrom(is);
+            AccountManager accountManager = (AccountManager) mContext.getSystemService(Context.ACCOUNT_SERVICE);
             switch (response.getSyncAck()) {
                 case OK:
                     setState(State.AUTH_ACK);
                     setState(State.ACC_REQ);
-                    mPreferences.edit().putBoolean(WalletConstants.ACCOUNT_SYNC_KEY, true).apply(); // save auth
+
+                    accountManager.setUserData(mAccount, WalletConstants.ACCOUNT_SYNC_KEY, "true");
                     break;
                 case AUTH_WRONG:
-                    interrupt(mContext.getString(R.string.auth_invalid));
-                    clearAccountInfo();
+                    mSyncResult.stats.numAuthExceptions = 1;
+                    interruptSync(mContext.getString(R.string.auth_invalid));
+                    accountManager.removeAccount(mAccount, null, null); // clear all previous accounts
                     break;
                 case ACCOUNT_EXISTS:
-                    interrupt(mContext.getString(R.string.account_already_exist));
-                    clearAccountInfo();
+                    mSyncResult.stats.numAuthExceptions = 1;
+                    interruptSync(mContext.getString(R.string.account_already_exist));
+                    accountManager.removeAccount(mAccount, null, null); // clear all previous accounts
                     break;
             }
         }
 
         private void sendAuthRequest(OutputStream os) throws IOException {
             // fill request
+            AccountManager accountManager = (AccountManager) mContext.getSystemService(Context.ACCOUNT_SERVICE);
+            String password = accountManager.getPassword(mAccount);
+            String isSyncedAlready = accountManager.getUserData(mAccount, WalletConstants.ACCOUNT_SYNC_KEY);
             final SyncRequest.Builder request = SyncRequest.newBuilder()
-                    .setAccount(mPreferences.getString(WalletConstants.ACCOUNT_NAME_KEY, ""))
-                    .setPassword(mPreferences.getString(WalletConstants.ACCOUNT_PASSWORD_KEY, ""));
-            if(mPreferences.getBoolean(WalletConstants.ACCOUNT_SYNC_KEY, false)) // already synchronized
+                    .setAccount(mAccount.name)
+                    .setPassword(password);
+            if(isSyncedAlready.equals("true")) // already synchronized
                 request.setSyncType(SyncRequest.SyncType.MERGE);
             else
                 request.setSyncType(SyncRequest.SyncType.REGISTER);
@@ -454,14 +494,6 @@ public class SyncStateMachine {
             result.setAmount(local.getAmount().subtract(base.getAmount()).add(remote.getAmount()));
 
         return result;
-    }
-
-    private void clearAccountInfo() {
-        mPreferences.edit()
-                .remove(WalletConstants.ACCOUNT_SYNC_KEY)
-                .remove(WalletConstants.ACCOUNT_NAME_KEY)
-                .remove(WalletConstants.ACCOUNT_PASSWORD_KEY)
-                .apply();
     }
 
     public static <T extends Entity> long getLastServerTimestamp(Class<T> clazz) throws SQLException {

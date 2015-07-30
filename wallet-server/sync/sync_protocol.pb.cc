@@ -431,6 +431,7 @@ const int SyncRequest::kSyncTypeFieldNumber;
 SyncRequest::SyncRequest()
   : ::google::protobuf::Message() {
   SharedCtor();
+  // @@protoc_insertion_point(constructor:com.adonai.wallet.sync.SyncRequest)
 }
 
 void SyncRequest::InitAsDefaultInstance() {
@@ -440,25 +441,28 @@ SyncRequest::SyncRequest(const SyncRequest& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:com.adonai.wallet.sync.SyncRequest)
 }
 
 void SyncRequest::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  account_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  password_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  account_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  password_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   synctype_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
 SyncRequest::~SyncRequest() {
+  // @@protoc_insertion_point(destructor:com.adonai.wallet.sync.SyncRequest)
   SharedDtor();
 }
 
 void SyncRequest::SharedDtor() {
-  if (account_ != &::google::protobuf::internal::kEmptyString) {
+  if (account_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete account_;
   }
-  if (password_ != &::google::protobuf::internal::kEmptyString) {
+  if (password_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete password_;
   }
   if (this != default_instance_) {
@@ -487,14 +491,14 @@ SyncRequest* SyncRequest::New() const {
 }
 
 void SyncRequest::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+  if (_has_bits_[0 / 32] & 7) {
     if (has_account()) {
-      if (account_ != &::google::protobuf::internal::kEmptyString) {
+      if (account_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         account_->clear();
       }
     }
     if (has_password()) {
-      if (password_ != &::google::protobuf::internal::kEmptyString) {
+      if (password_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         password_->clear();
       }
     }
@@ -506,21 +510,25 @@ void SyncRequest::Clear() {
 
 bool SyncRequest::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
+  // @@protoc_insertion_point(parse_start:com.adonai.wallet.sync.SyncRequest)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required string account = 1;
       case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_account()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->account().data(), this->account().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "account");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(18)) goto parse_password;
         break;
@@ -528,16 +536,16 @@ bool SyncRequest::MergePartialFromCodedStream(
 
       // required string password = 2;
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 18) {
          parse_password:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_password()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->password().data(), this->password().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "password");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(24)) goto parse_syncType;
         break;
@@ -545,8 +553,7 @@ bool SyncRequest::MergePartialFromCodedStream(
 
       // required .com.adonai.wallet.sync.SyncRequest.SyncType syncType = 3;
       case 3: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+        if (tag == 24) {
          parse_syncType:
           int value;
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
@@ -558,17 +565,18 @@ bool SyncRequest::MergePartialFromCodedStream(
             mutable_unknown_fields()->AddVarint(3, value);
           }
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
-        if (input->ExpectAtEnd()) return true;
+        if (input->ExpectAtEnd()) goto success;
         break;
       }
 
       default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
+          goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
@@ -576,27 +584,35 @@ bool SyncRequest::MergePartialFromCodedStream(
       }
     }
   }
+success:
+  // @@protoc_insertion_point(parse_success:com.adonai.wallet.sync.SyncRequest)
   return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:com.adonai.wallet.sync.SyncRequest)
+  return false;
 #undef DO_
 }
 
 void SyncRequest::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:com.adonai.wallet.sync.SyncRequest)
   // required string account = 1;
   if (has_account()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->account().data(), this->account().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "account");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->account(), output);
   }
 
   // required string password = 2;
   if (has_password()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->password().data(), this->password().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "password");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->password(), output);
   }
 
@@ -610,15 +626,18 @@ void SyncRequest::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
+  // @@protoc_insertion_point(serialize_end:com.adonai.wallet.sync.SyncRequest)
 }
 
 ::google::protobuf::uint8* SyncRequest::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:com.adonai.wallet.sync.SyncRequest)
   // required string account = 1;
   if (has_account()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->account().data(), this->account().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "account");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         1, this->account(), target);
@@ -626,9 +645,10 @@ void SyncRequest::SerializeWithCachedSizes(
 
   // required string password = 2;
   if (has_password()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->password().data(), this->password().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "password");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         2, this->password(), target);
@@ -644,6 +664,7 @@ void SyncRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
+  // @@protoc_insertion_point(serialize_to_array_end:com.adonai.wallet.sync.SyncRequest)
   return target;
 }
 
@@ -785,6 +806,7 @@ const int SyncResponse::kSyncAckFieldNumber;
 SyncResponse::SyncResponse()
   : ::google::protobuf::Message() {
   SharedCtor();
+  // @@protoc_insertion_point(constructor:com.adonai.wallet.sync.SyncResponse)
 }
 
 void SyncResponse::InitAsDefaultInstance() {
@@ -794,6 +816,7 @@ SyncResponse::SyncResponse(const SyncResponse& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:com.adonai.wallet.sync.SyncResponse)
 }
 
 void SyncResponse::SharedCtor() {
@@ -803,6 +826,7 @@ void SyncResponse::SharedCtor() {
 }
 
 SyncResponse::~SyncResponse() {
+  // @@protoc_insertion_point(destructor:com.adonai.wallet.sync.SyncResponse)
   SharedDtor();
 }
 
@@ -833,23 +857,24 @@ SyncResponse* SyncResponse::New() const {
 }
 
 void SyncResponse::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    syncack_ = 200;
-  }
+  syncack_ = 200;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
 bool SyncResponse::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
+  // @@protoc_insertion_point(parse_start:com.adonai.wallet.sync.SyncResponse)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required .com.adonai.wallet.sync.SyncResponse.SyncAck syncAck = 1;
       case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+        if (tag == 8) {
           int value;
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
@@ -860,17 +885,18 @@ bool SyncResponse::MergePartialFromCodedStream(
             mutable_unknown_fields()->AddVarint(1, value);
           }
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
-        if (input->ExpectAtEnd()) return true;
+        if (input->ExpectAtEnd()) goto success;
         break;
       }
 
       default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
+          goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
@@ -878,12 +904,18 @@ bool SyncResponse::MergePartialFromCodedStream(
       }
     }
   }
+success:
+  // @@protoc_insertion_point(parse_success:com.adonai.wallet.sync.SyncResponse)
   return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:com.adonai.wallet.sync.SyncResponse)
+  return false;
 #undef DO_
 }
 
 void SyncResponse::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:com.adonai.wallet.sync.SyncResponse)
   // required .com.adonai.wallet.sync.SyncResponse.SyncAck syncAck = 1;
   if (has_syncack()) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
@@ -894,10 +926,12 @@ void SyncResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
+  // @@protoc_insertion_point(serialize_end:com.adonai.wallet.sync.SyncResponse)
 }
 
 ::google::protobuf::uint8* SyncResponse::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:com.adonai.wallet.sync.SyncResponse)
   // required .com.adonai.wallet.sync.SyncResponse.SyncAck syncAck = 1;
   if (has_syncack()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
@@ -908,6 +942,7 @@ void SyncResponse::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
+  // @@protoc_insertion_point(serialize_to_array_end:com.adonai.wallet.sync.SyncResponse)
   return target;
 }
 
@@ -1000,6 +1035,7 @@ const int EntityRequest::kLastKnownServerTimestampFieldNumber;
 EntityRequest::EntityRequest()
   : ::google::protobuf::Message() {
   SharedCtor();
+  // @@protoc_insertion_point(constructor:com.adonai.wallet.sync.EntityRequest)
 }
 
 void EntityRequest::InitAsDefaultInstance() {
@@ -1009,6 +1045,7 @@ EntityRequest::EntityRequest(const EntityRequest& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:com.adonai.wallet.sync.EntityRequest)
 }
 
 void EntityRequest::SharedCtor() {
@@ -1018,6 +1055,7 @@ void EntityRequest::SharedCtor() {
 }
 
 EntityRequest::~EntityRequest() {
+  // @@protoc_insertion_point(destructor:com.adonai.wallet.sync.EntityRequest)
   SharedDtor();
 }
 
@@ -1048,39 +1086,41 @@ EntityRequest* EntityRequest::New() const {
 }
 
 void EntityRequest::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    lastknownservertimestamp_ = GOOGLE_ULONGLONG(0);
-  }
+  lastknownservertimestamp_ = GOOGLE_ULONGLONG(0);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
 bool EntityRequest::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
+  // @@protoc_insertion_point(parse_start:com.adonai.wallet.sync.EntityRequest)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required uint64 lastKnownServerTimestamp = 1;
       case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+        if (tag == 8) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
                  input, &lastknownservertimestamp_)));
           set_has_lastknownservertimestamp();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
-        if (input->ExpectAtEnd()) return true;
+        if (input->ExpectAtEnd()) goto success;
         break;
       }
 
       default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
+          goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
@@ -1088,12 +1128,18 @@ bool EntityRequest::MergePartialFromCodedStream(
       }
     }
   }
+success:
+  // @@protoc_insertion_point(parse_success:com.adonai.wallet.sync.EntityRequest)
   return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:com.adonai.wallet.sync.EntityRequest)
+  return false;
 #undef DO_
 }
 
 void EntityRequest::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:com.adonai.wallet.sync.EntityRequest)
   // required uint64 lastKnownServerTimestamp = 1;
   if (has_lastknownservertimestamp()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->lastknownservertimestamp(), output);
@@ -1103,10 +1149,12 @@ void EntityRequest::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
+  // @@protoc_insertion_point(serialize_end:com.adonai.wallet.sync.EntityRequest)
 }
 
 ::google::protobuf::uint8* EntityRequest::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:com.adonai.wallet.sync.EntityRequest)
   // required uint64 lastKnownServerTimestamp = 1;
   if (has_lastknownservertimestamp()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->lastknownservertimestamp(), target);
@@ -1116,6 +1164,7 @@ void EntityRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
+  // @@protoc_insertion_point(serialize_to_array_end:com.adonai.wallet.sync.EntityRequest)
   return target;
 }
 
@@ -1210,6 +1259,7 @@ const int EntityResponse::kAddedFieldNumber;
 EntityResponse::EntityResponse()
   : ::google::protobuf::Message() {
   SharedCtor();
+  // @@protoc_insertion_point(constructor:com.adonai.wallet.sync.EntityResponse)
 }
 
 void EntityResponse::InitAsDefaultInstance() {
@@ -1219,6 +1269,7 @@ EntityResponse::EntityResponse(const EntityResponse& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:com.adonai.wallet.sync.EntityResponse)
 }
 
 void EntityResponse::SharedCtor() {
@@ -1227,6 +1278,7 @@ void EntityResponse::SharedCtor() {
 }
 
 EntityResponse::~EntityResponse() {
+  // @@protoc_insertion_point(destructor:com.adonai.wallet.sync.EntityResponse)
   SharedDtor();
 }
 
@@ -1265,19 +1317,22 @@ void EntityResponse::Clear() {
 
 bool EntityResponse::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
+  // @@protoc_insertion_point(parse_start:com.adonai.wallet.sync.EntityResponse)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // repeated .com.adonai.wallet.sync.Entity modified = 1;
       case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 10) {
          parse_modified:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_modified()));
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(10)) goto parse_modified;
         if (input->ExpectTag(18)) goto parse_added;
@@ -1286,24 +1341,24 @@ bool EntityResponse::MergePartialFromCodedStream(
 
       // repeated .com.adonai.wallet.sync.Entity added = 2;
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 18) {
          parse_added:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_added()));
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(18)) goto parse_added;
-        if (input->ExpectAtEnd()) return true;
+        if (input->ExpectAtEnd()) goto success;
         break;
       }
 
       default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
+          goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
@@ -1311,12 +1366,18 @@ bool EntityResponse::MergePartialFromCodedStream(
       }
     }
   }
+success:
+  // @@protoc_insertion_point(parse_success:com.adonai.wallet.sync.EntityResponse)
   return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:com.adonai.wallet.sync.EntityResponse)
+  return false;
 #undef DO_
 }
 
 void EntityResponse::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:com.adonai.wallet.sync.EntityResponse)
   // repeated .com.adonai.wallet.sync.Entity modified = 1;
   for (int i = 0; i < this->modified_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -1333,10 +1394,12 @@ void EntityResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
+  // @@protoc_insertion_point(serialize_end:com.adonai.wallet.sync.EntityResponse)
 }
 
 ::google::protobuf::uint8* EntityResponse::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:com.adonai.wallet.sync.EntityResponse)
   // repeated .com.adonai.wallet.sync.Entity modified = 1;
   for (int i = 0; i < this->modified_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
@@ -1355,6 +1418,7 @@ void EntityResponse::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
+  // @@protoc_insertion_point(serialize_to_array_end:com.adonai.wallet.sync.EntityResponse)
   return target;
 }
 
@@ -1421,12 +1485,8 @@ void EntityResponse::CopyFrom(const EntityResponse& from) {
 
 bool EntityResponse::IsInitialized() const {
 
-  for (int i = 0; i < modified_size(); i++) {
-    if (!this->modified(i).IsInitialized()) return false;
-  }
-  for (int i = 0; i < added_size(); i++) {
-    if (!this->added(i).IsInitialized()) return false;
-  }
+  if (!::google::protobuf::internal::AllAreInitialized(this->modified())) return false;
+  if (!::google::protobuf::internal::AllAreInitialized(this->added())) return false;
   return true;
 }
 
@@ -1458,6 +1518,7 @@ const int EntityAck::kNewServerTimestampFieldNumber;
 EntityAck::EntityAck()
   : ::google::protobuf::Message() {
   SharedCtor();
+  // @@protoc_insertion_point(constructor:com.adonai.wallet.sync.EntityAck)
 }
 
 void EntityAck::InitAsDefaultInstance() {
@@ -1467,6 +1528,7 @@ EntityAck::EntityAck(const EntityAck& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:com.adonai.wallet.sync.EntityAck)
 }
 
 void EntityAck::SharedCtor() {
@@ -1476,6 +1538,7 @@ void EntityAck::SharedCtor() {
 }
 
 EntityAck::~EntityAck() {
+  // @@protoc_insertion_point(destructor:com.adonai.wallet.sync.EntityAck)
   SharedDtor();
 }
 
@@ -1506,39 +1569,41 @@ EntityAck* EntityAck::New() const {
 }
 
 void EntityAck::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    newservertimestamp_ = GOOGLE_ULONGLONG(0);
-  }
+  newservertimestamp_ = GOOGLE_ULONGLONG(0);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
 
 bool EntityAck::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
+  // @@protoc_insertion_point(parse_start:com.adonai.wallet.sync.EntityAck)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required uint64 newServerTimestamp = 1;
       case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+        if (tag == 8) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
                  input, &newservertimestamp_)));
           set_has_newservertimestamp();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
-        if (input->ExpectAtEnd()) return true;
+        if (input->ExpectAtEnd()) goto success;
         break;
       }
 
       default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
+          goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
@@ -1546,12 +1611,18 @@ bool EntityAck::MergePartialFromCodedStream(
       }
     }
   }
+success:
+  // @@protoc_insertion_point(parse_success:com.adonai.wallet.sync.EntityAck)
   return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:com.adonai.wallet.sync.EntityAck)
+  return false;
 #undef DO_
 }
 
 void EntityAck::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:com.adonai.wallet.sync.EntityAck)
   // required uint64 newServerTimestamp = 1;
   if (has_newservertimestamp()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->newservertimestamp(), output);
@@ -1561,10 +1632,12 @@ void EntityAck::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
+  // @@protoc_insertion_point(serialize_end:com.adonai.wallet.sync.EntityAck)
 }
 
 ::google::protobuf::uint8* EntityAck::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:com.adonai.wallet.sync.EntityAck)
   // required uint64 newServerTimestamp = 1;
   if (has_newservertimestamp()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->newservertimestamp(), target);
@@ -1574,6 +1647,7 @@ void EntityAck::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
+  // @@protoc_insertion_point(serialize_to_array_end:com.adonai.wallet.sync.EntityAck)
   return target;
 }
 
@@ -1672,6 +1746,7 @@ const int Entity::kBudgetFieldNumber;
 Entity::Entity()
   : ::google::protobuf::Message() {
   SharedCtor();
+  // @@protoc_insertion_point(constructor:com.adonai.wallet.sync.Entity)
 }
 
 void Entity::InitAsDefaultInstance() {
@@ -1685,11 +1760,13 @@ Entity::Entity(const Entity& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:com.adonai.wallet.sync.Entity)
 }
 
 void Entity::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   deleted_ = false;
   account_ = NULL;
   operation_ = NULL;
@@ -1699,11 +1776,12 @@ void Entity::SharedCtor() {
 }
 
 Entity::~Entity() {
+  // @@protoc_insertion_point(destructor:com.adonai.wallet.sync.Entity)
   SharedDtor();
 }
 
 void Entity::SharedDtor() {
-  if (id_ != &::google::protobuf::internal::kEmptyString) {
+  if (id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete id_;
   }
   if (this != default_instance_) {
@@ -1736,9 +1814,9 @@ Entity* Entity::New() const {
 }
 
 void Entity::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+  if (_has_bits_[0 / 32] & 63) {
     if (has_id()) {
-      if (id_ != &::google::protobuf::internal::kEmptyString) {
+      if (id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         id_->clear();
       }
     }
@@ -1762,21 +1840,25 @@ void Entity::Clear() {
 
 bool Entity::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
+  // @@protoc_insertion_point(parse_start:com.adonai.wallet.sync.Entity)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required string ID = 1;
       case 1: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_id()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->id().data(), this->id().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "id");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(16)) goto parse_deleted;
         break;
@@ -1784,15 +1866,14 @@ bool Entity::MergePartialFromCodedStream(
 
       // required bool deleted = 2;
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+        if (tag == 16) {
          parse_deleted:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
                  input, &deleted_)));
           set_has_deleted();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(26)) goto parse_account;
         break;
@@ -1800,13 +1881,12 @@ bool Entity::MergePartialFromCodedStream(
 
       // optional .com.adonai.wallet.sync.Account account = 3;
       case 3: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 26) {
          parse_account:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_account()));
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(34)) goto parse_operation;
         break;
@@ -1814,13 +1894,12 @@ bool Entity::MergePartialFromCodedStream(
 
       // optional .com.adonai.wallet.sync.Operation operation = 4;
       case 4: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 34) {
          parse_operation:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_operation()));
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(42)) goto parse_category;
         break;
@@ -1828,13 +1907,12 @@ bool Entity::MergePartialFromCodedStream(
 
       // optional .com.adonai.wallet.sync.Category category = 5;
       case 5: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 42) {
          parse_category:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_category()));
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(50)) goto parse_budget;
         break;
@@ -1842,23 +1920,23 @@ bool Entity::MergePartialFromCodedStream(
 
       // optional .com.adonai.wallet.sync.Budget budget = 6;
       case 6: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 50) {
          parse_budget:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_budget()));
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
-        if (input->ExpectAtEnd()) return true;
+        if (input->ExpectAtEnd()) goto success;
         break;
       }
 
       default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
+          goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
@@ -1866,18 +1944,25 @@ bool Entity::MergePartialFromCodedStream(
       }
     }
   }
+success:
+  // @@protoc_insertion_point(parse_success:com.adonai.wallet.sync.Entity)
   return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:com.adonai.wallet.sync.Entity)
+  return false;
 #undef DO_
 }
 
 void Entity::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:com.adonai.wallet.sync.Entity)
   // required string ID = 1;
   if (has_id()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->id().data(), this->id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "id");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       1, this->id(), output);
   }
 
@@ -1914,15 +1999,18 @@ void Entity::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
+  // @@protoc_insertion_point(serialize_end:com.adonai.wallet.sync.Entity)
 }
 
 ::google::protobuf::uint8* Entity::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:com.adonai.wallet.sync.Entity)
   // required string ID = 1;
   if (has_id()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->id().data(), this->id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "id");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         1, this->id(), target);
@@ -1965,6 +2053,7 @@ void Entity::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
+  // @@protoc_insertion_point(serialize_to_array_end:com.adonai.wallet.sync.Entity)
   return target;
 }
 
@@ -2127,6 +2216,7 @@ const int Account::kColorFieldNumber;
 Account::Account()
   : ::google::protobuf::Message() {
   SharedCtor();
+  // @@protoc_insertion_point(constructor:com.adonai.wallet.sync.Account)
 }
 
 void Account::InitAsDefaultInstance() {
@@ -2136,33 +2226,36 @@ Account::Account(const Account& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:com.adonai.wallet.sync.Account)
 }
 
 void Account::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  currency_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  amount_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  description_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  currency_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  amount_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  description_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   color_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
 Account::~Account() {
+  // @@protoc_insertion_point(destructor:com.adonai.wallet.sync.Account)
   SharedDtor();
 }
 
 void Account::SharedDtor() {
-  if (name_ != &::google::protobuf::internal::kEmptyString) {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete name_;
   }
-  if (currency_ != &::google::protobuf::internal::kEmptyString) {
+  if (currency_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete currency_;
   }
-  if (amount_ != &::google::protobuf::internal::kEmptyString) {
+  if (amount_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete amount_;
   }
-  if (description_ != &::google::protobuf::internal::kEmptyString) {
+  if (description_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete description_;
   }
   if (this != default_instance_) {
@@ -2191,24 +2284,24 @@ Account* Account::New() const {
 }
 
 void Account::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+  if (_has_bits_[0 / 32] & 31) {
     if (has_name()) {
-      if (name_ != &::google::protobuf::internal::kEmptyString) {
+      if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         name_->clear();
       }
     }
     if (has_currency()) {
-      if (currency_ != &::google::protobuf::internal::kEmptyString) {
+      if (currency_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         currency_->clear();
       }
     }
     if (has_amount()) {
-      if (amount_ != &::google::protobuf::internal::kEmptyString) {
+      if (amount_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         amount_->clear();
       }
     }
     if (has_description()) {
-      if (description_ != &::google::protobuf::internal::kEmptyString) {
+      if (description_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         description_->clear();
       }
     }
@@ -2220,21 +2313,25 @@ void Account::Clear() {
 
 bool Account::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
+  // @@protoc_insertion_point(parse_start:com.adonai.wallet.sync.Account)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required string name = 2;
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 18) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_name()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->name().data(), this->name().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "name");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(26)) goto parse_currency;
         break;
@@ -2242,16 +2339,16 @@ bool Account::MergePartialFromCodedStream(
 
       // required string currency = 3;
       case 3: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 26) {
          parse_currency:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_currency()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->currency().data(), this->currency().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "currency");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(34)) goto parse_amount;
         break;
@@ -2259,16 +2356,16 @@ bool Account::MergePartialFromCodedStream(
 
       // required string amount = 4;
       case 4: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 34) {
          parse_amount:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_amount()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->amount().data(), this->amount().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "amount");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(42)) goto parse_description;
         break;
@@ -2276,16 +2373,16 @@ bool Account::MergePartialFromCodedStream(
 
       // optional string description = 5;
       case 5: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 42) {
          parse_description:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_description()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->description().data(), this->description().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "description");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(48)) goto parse_color;
         break;
@@ -2293,25 +2390,25 @@ bool Account::MergePartialFromCodedStream(
 
       // optional int32 color = 6;
       case 6: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+        if (tag == 48) {
          parse_color:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
                  input, &color_)));
           set_has_color();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
-        if (input->ExpectAtEnd()) return true;
+        if (input->ExpectAtEnd()) goto success;
         break;
       }
 
       default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
+          goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
@@ -2319,45 +2416,55 @@ bool Account::MergePartialFromCodedStream(
       }
     }
   }
+success:
+  // @@protoc_insertion_point(parse_success:com.adonai.wallet.sync.Account)
   return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:com.adonai.wallet.sync.Account)
+  return false;
 #undef DO_
 }
 
 void Account::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:com.adonai.wallet.sync.Account)
   // required string name = 2;
   if (has_name()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->name().data(), this->name().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "name");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->name(), output);
   }
 
   // required string currency = 3;
   if (has_currency()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->currency().data(), this->currency().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "currency");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       3, this->currency(), output);
   }
 
   // required string amount = 4;
   if (has_amount()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->amount().data(), this->amount().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "amount");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       4, this->amount(), output);
   }
 
   // optional string description = 5;
   if (has_description()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->description().data(), this->description().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "description");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       5, this->description(), output);
   }
 
@@ -2370,15 +2477,18 @@ void Account::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
+  // @@protoc_insertion_point(serialize_end:com.adonai.wallet.sync.Account)
 }
 
 ::google::protobuf::uint8* Account::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:com.adonai.wallet.sync.Account)
   // required string name = 2;
   if (has_name()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->name().data(), this->name().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "name");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         2, this->name(), target);
@@ -2386,9 +2496,10 @@ void Account::SerializeWithCachedSizes(
 
   // required string currency = 3;
   if (has_currency()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->currency().data(), this->currency().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "currency");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         3, this->currency(), target);
@@ -2396,9 +2507,10 @@ void Account::SerializeWithCachedSizes(
 
   // required string amount = 4;
   if (has_amount()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->amount().data(), this->amount().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "amount");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         4, this->amount(), target);
@@ -2406,9 +2518,10 @@ void Account::SerializeWithCachedSizes(
 
   // optional string description = 5;
   if (has_description()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->description().data(), this->description().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "description");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         5, this->description(), target);
@@ -2423,6 +2536,7 @@ void Account::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
+  // @@protoc_insertion_point(serialize_to_array_end:com.adonai.wallet.sync.Account)
   return target;
 }
 
@@ -2566,6 +2680,7 @@ const int Operation::kConvertingRateFieldNumber;
 Operation::Operation()
   : ::google::protobuf::Message() {
   SharedCtor();
+  // @@protoc_insertion_point(constructor:com.adonai.wallet.sync.Operation)
 }
 
 void Operation::InitAsDefaultInstance() {
@@ -2575,38 +2690,41 @@ Operation::Operation(const Operation& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:com.adonai.wallet.sync.Operation)
 }
 
 void Operation::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   time_ = GOOGLE_ULONGLONG(0);
-  categoryid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  amount_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  description_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  ordererid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  beneficiarid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  categoryid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  amount_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  description_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ordererid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  beneficiarid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   convertingrate_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
 Operation::~Operation() {
+  // @@protoc_insertion_point(destructor:com.adonai.wallet.sync.Operation)
   SharedDtor();
 }
 
 void Operation::SharedDtor() {
-  if (categoryid_ != &::google::protobuf::internal::kEmptyString) {
+  if (categoryid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete categoryid_;
   }
-  if (amount_ != &::google::protobuf::internal::kEmptyString) {
+  if (amount_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete amount_;
   }
-  if (description_ != &::google::protobuf::internal::kEmptyString) {
+  if (description_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete description_;
   }
-  if (ordererid_ != &::google::protobuf::internal::kEmptyString) {
+  if (ordererid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete ordererid_;
   }
-  if (beneficiarid_ != &::google::protobuf::internal::kEmptyString) {
+  if (beneficiarid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete beneficiarid_;
   }
   if (this != default_instance_) {
@@ -2635,30 +2753,30 @@ Operation* Operation::New() const {
 }
 
 void Operation::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+  if (_has_bits_[0 / 32] & 127) {
     time_ = GOOGLE_ULONGLONG(0);
     if (has_categoryid()) {
-      if (categoryid_ != &::google::protobuf::internal::kEmptyString) {
+      if (categoryid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         categoryid_->clear();
       }
     }
     if (has_amount()) {
-      if (amount_ != &::google::protobuf::internal::kEmptyString) {
+      if (amount_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         amount_->clear();
       }
     }
     if (has_description()) {
-      if (description_ != &::google::protobuf::internal::kEmptyString) {
+      if (description_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         description_->clear();
       }
     }
     if (has_ordererid()) {
-      if (ordererid_ != &::google::protobuf::internal::kEmptyString) {
+      if (ordererid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         ordererid_->clear();
       }
     }
     if (has_beneficiarid()) {
-      if (beneficiarid_ != &::google::protobuf::internal::kEmptyString) {
+      if (beneficiarid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         beneficiarid_->clear();
       }
     }
@@ -2670,20 +2788,23 @@ void Operation::Clear() {
 
 bool Operation::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
+  // @@protoc_insertion_point(parse_start:com.adonai.wallet.sync.Operation)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required uint64 time = 2;
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+        if (tag == 16) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
                  input, &time_)));
           set_has_time();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(26)) goto parse_categoryId;
         break;
@@ -2691,16 +2812,16 @@ bool Operation::MergePartialFromCodedStream(
 
       // required string categoryId = 3;
       case 3: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 26) {
          parse_categoryId:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_categoryid()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->categoryid().data(), this->categoryid().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "categoryid");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(34)) goto parse_amount;
         break;
@@ -2708,16 +2829,16 @@ bool Operation::MergePartialFromCodedStream(
 
       // required string amount = 4;
       case 4: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 34) {
          parse_amount:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_amount()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->amount().data(), this->amount().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "amount");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(42)) goto parse_description;
         break;
@@ -2725,16 +2846,16 @@ bool Operation::MergePartialFromCodedStream(
 
       // optional string description = 5;
       case 5: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 42) {
          parse_description:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_description()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->description().data(), this->description().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "description");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(50)) goto parse_ordererId;
         break;
@@ -2742,16 +2863,16 @@ bool Operation::MergePartialFromCodedStream(
 
       // optional string ordererId = 6;
       case 6: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 50) {
          parse_ordererId:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_ordererid()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->ordererid().data(), this->ordererid().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "ordererid");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(58)) goto parse_beneficiarId;
         break;
@@ -2759,16 +2880,16 @@ bool Operation::MergePartialFromCodedStream(
 
       // optional string beneficiarId = 7;
       case 7: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 58) {
          parse_beneficiarId:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_beneficiarid()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->beneficiarid().data(), this->beneficiarid().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "beneficiarid");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(65)) goto parse_convertingRate;
         break;
@@ -2776,25 +2897,25 @@ bool Operation::MergePartialFromCodedStream(
 
       // optional double convertingRate = 8;
       case 8: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_FIXED64) {
+        if (tag == 65) {
          parse_convertingRate:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, &convertingrate_)));
           set_has_convertingrate();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
-        if (input->ExpectAtEnd()) return true;
+        if (input->ExpectAtEnd()) goto success;
         break;
       }
 
       default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
+          goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
@@ -2802,12 +2923,18 @@ bool Operation::MergePartialFromCodedStream(
       }
     }
   }
+success:
+  // @@protoc_insertion_point(parse_success:com.adonai.wallet.sync.Operation)
   return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:com.adonai.wallet.sync.Operation)
+  return false;
 #undef DO_
 }
 
 void Operation::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:com.adonai.wallet.sync.Operation)
   // required uint64 time = 2;
   if (has_time()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->time(), output);
@@ -2815,46 +2942,51 @@ void Operation::SerializeWithCachedSizes(
 
   // required string categoryId = 3;
   if (has_categoryid()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->categoryid().data(), this->categoryid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "categoryid");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       3, this->categoryid(), output);
   }
 
   // required string amount = 4;
   if (has_amount()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->amount().data(), this->amount().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "amount");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       4, this->amount(), output);
   }
 
   // optional string description = 5;
   if (has_description()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->description().data(), this->description().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "description");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       5, this->description(), output);
   }
 
   // optional string ordererId = 6;
   if (has_ordererid()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->ordererid().data(), this->ordererid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "ordererid");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       6, this->ordererid(), output);
   }
 
   // optional string beneficiarId = 7;
   if (has_beneficiarid()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->beneficiarid().data(), this->beneficiarid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "beneficiarid");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       7, this->beneficiarid(), output);
   }
 
@@ -2867,10 +2999,12 @@ void Operation::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
+  // @@protoc_insertion_point(serialize_end:com.adonai.wallet.sync.Operation)
 }
 
 ::google::protobuf::uint8* Operation::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:com.adonai.wallet.sync.Operation)
   // required uint64 time = 2;
   if (has_time()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->time(), target);
@@ -2878,9 +3012,10 @@ void Operation::SerializeWithCachedSizes(
 
   // required string categoryId = 3;
   if (has_categoryid()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->categoryid().data(), this->categoryid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "categoryid");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         3, this->categoryid(), target);
@@ -2888,9 +3023,10 @@ void Operation::SerializeWithCachedSizes(
 
   // required string amount = 4;
   if (has_amount()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->amount().data(), this->amount().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "amount");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         4, this->amount(), target);
@@ -2898,9 +3034,10 @@ void Operation::SerializeWithCachedSizes(
 
   // optional string description = 5;
   if (has_description()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->description().data(), this->description().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "description");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         5, this->description(), target);
@@ -2908,9 +3045,10 @@ void Operation::SerializeWithCachedSizes(
 
   // optional string ordererId = 6;
   if (has_ordererid()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->ordererid().data(), this->ordererid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "ordererid");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         6, this->ordererid(), target);
@@ -2918,9 +3056,10 @@ void Operation::SerializeWithCachedSizes(
 
   // optional string beneficiarId = 7;
   if (has_beneficiarid()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->beneficiarid().data(), this->beneficiarid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "beneficiarid");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         7, this->beneficiarid(), target);
@@ -2935,6 +3074,7 @@ void Operation::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
+  // @@protoc_insertion_point(serialize_to_array_end:com.adonai.wallet.sync.Operation)
   return target;
 }
 
@@ -3094,6 +3234,7 @@ const int Category::kPreferredAccountFieldNumber;
 Category::Category()
   : ::google::protobuf::Message() {
   SharedCtor();
+  // @@protoc_insertion_point(constructor:com.adonai.wallet.sync.Category)
 }
 
 void Category::InitAsDefaultInstance() {
@@ -3103,25 +3244,28 @@ Category::Category(const Category& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:com.adonai.wallet.sync.Category)
 }
 
 void Category::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   type_ = 0u;
-  preferredaccount_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  preferredaccount_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
 Category::~Category() {
+  // @@protoc_insertion_point(destructor:com.adonai.wallet.sync.Category)
   SharedDtor();
 }
 
 void Category::SharedDtor() {
-  if (name_ != &::google::protobuf::internal::kEmptyString) {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete name_;
   }
-  if (preferredaccount_ != &::google::protobuf::internal::kEmptyString) {
+  if (preferredaccount_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete preferredaccount_;
   }
   if (this != default_instance_) {
@@ -3150,15 +3294,15 @@ Category* Category::New() const {
 }
 
 void Category::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+  if (_has_bits_[0 / 32] & 7) {
     if (has_name()) {
-      if (name_ != &::google::protobuf::internal::kEmptyString) {
+      if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         name_->clear();
       }
     }
     type_ = 0u;
     if (has_preferredaccount()) {
-      if (preferredaccount_ != &::google::protobuf::internal::kEmptyString) {
+      if (preferredaccount_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         preferredaccount_->clear();
       }
     }
@@ -3169,21 +3313,25 @@ void Category::Clear() {
 
 bool Category::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
+  // @@protoc_insertion_point(parse_start:com.adonai.wallet.sync.Category)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required string name = 2;
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 18) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_name()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->name().data(), this->name().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "name");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(24)) goto parse_type;
         break;
@@ -3191,15 +3339,14 @@ bool Category::MergePartialFromCodedStream(
 
       // required uint32 type = 3;
       case 3: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+        if (tag == 24) {
          parse_type:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
                  input, &type_)));
           set_has_type();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(34)) goto parse_preferredAccount;
         break;
@@ -3207,26 +3354,27 @@ bool Category::MergePartialFromCodedStream(
 
       // optional string preferredAccount = 4;
       case 4: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 34) {
          parse_preferredAccount:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_preferredaccount()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->preferredaccount().data(), this->preferredaccount().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "preferredaccount");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
-        if (input->ExpectAtEnd()) return true;
+        if (input->ExpectAtEnd()) goto success;
         break;
       }
 
       default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
+          goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
@@ -3234,18 +3382,25 @@ bool Category::MergePartialFromCodedStream(
       }
     }
   }
+success:
+  // @@protoc_insertion_point(parse_success:com.adonai.wallet.sync.Category)
   return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:com.adonai.wallet.sync.Category)
+  return false;
 #undef DO_
 }
 
 void Category::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:com.adonai.wallet.sync.Category)
   // required string name = 2;
   if (has_name()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->name().data(), this->name().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "name");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->name(), output);
   }
 
@@ -3256,10 +3411,11 @@ void Category::SerializeWithCachedSizes(
 
   // optional string preferredAccount = 4;
   if (has_preferredaccount()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->preferredaccount().data(), this->preferredaccount().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "preferredaccount");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       4, this->preferredaccount(), output);
   }
 
@@ -3267,15 +3423,18 @@ void Category::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
+  // @@protoc_insertion_point(serialize_end:com.adonai.wallet.sync.Category)
 }
 
 ::google::protobuf::uint8* Category::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:com.adonai.wallet.sync.Category)
   // required string name = 2;
   if (has_name()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->name().data(), this->name().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "name");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         2, this->name(), target);
@@ -3288,9 +3447,10 @@ void Category::SerializeWithCachedSizes(
 
   // optional string preferredAccount = 4;
   if (has_preferredaccount()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->preferredaccount().data(), this->preferredaccount().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "preferredaccount");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         4, this->preferredaccount(), target);
@@ -3300,6 +3460,7 @@ void Category::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
+  // @@protoc_insertion_point(serialize_to_array_end:com.adonai.wallet.sync.Category)
   return target;
 }
 
@@ -3419,6 +3580,7 @@ const int Budget::kContentFieldNumber;
 Budget::Budget()
   : ::google::protobuf::Message() {
   SharedCtor();
+  // @@protoc_insertion_point(constructor:com.adonai.wallet.sync.Budget)
 }
 
 void Budget::InitAsDefaultInstance() {
@@ -3428,29 +3590,32 @@ Budget::Budget(const Budget& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:com.adonai.wallet.sync.Budget)
 }
 
 void Budget::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   from_ = GOOGLE_ULONGLONG(0);
-  till_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  coveredaccountid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  till_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  coveredaccountid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
 Budget::~Budget() {
+  // @@protoc_insertion_point(destructor:com.adonai.wallet.sync.Budget)
   SharedDtor();
 }
 
 void Budget::SharedDtor() {
-  if (name_ != &::google::protobuf::internal::kEmptyString) {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete name_;
   }
-  if (till_ != &::google::protobuf::internal::kEmptyString) {
+  if (till_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete till_;
   }
-  if (coveredaccountid_ != &::google::protobuf::internal::kEmptyString) {
+  if (coveredaccountid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete coveredaccountid_;
   }
   if (this != default_instance_) {
@@ -3479,20 +3644,20 @@ Budget* Budget::New() const {
 }
 
 void Budget::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+  if (_has_bits_[0 / 32] & 15) {
     if (has_name()) {
-      if (name_ != &::google::protobuf::internal::kEmptyString) {
+      if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         name_->clear();
       }
     }
     from_ = GOOGLE_ULONGLONG(0);
     if (has_till()) {
-      if (till_ != &::google::protobuf::internal::kEmptyString) {
+      if (till_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         till_->clear();
       }
     }
     if (has_coveredaccountid()) {
-      if (coveredaccountid_ != &::google::protobuf::internal::kEmptyString) {
+      if (coveredaccountid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         coveredaccountid_->clear();
       }
     }
@@ -3504,21 +3669,25 @@ void Budget::Clear() {
 
 bool Budget::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
+  // @@protoc_insertion_point(parse_start:com.adonai.wallet.sync.Budget)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required string name = 2;
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 18) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_name()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->name().data(), this->name().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "name");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(24)) goto parse_from;
         break;
@@ -3526,15 +3695,14 @@ bool Budget::MergePartialFromCodedStream(
 
       // required uint64 from = 3;
       case 3: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+        if (tag == 24) {
          parse_from:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
                  input, &from_)));
           set_has_from();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(34)) goto parse_till;
         break;
@@ -3542,16 +3710,16 @@ bool Budget::MergePartialFromCodedStream(
 
       // required string till = 4;
       case 4: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 34) {
          parse_till:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_till()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->till().data(), this->till().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "till");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(42)) goto parse_coveredAccountId;
         break;
@@ -3559,16 +3727,16 @@ bool Budget::MergePartialFromCodedStream(
 
       // optional string coveredAccountId = 5;
       case 5: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 42) {
          parse_coveredAccountId:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_coveredaccountid()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->coveredaccountid().data(), this->coveredaccountid().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "coveredaccountid");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(50)) goto parse_content;
         break;
@@ -3576,24 +3744,24 @@ bool Budget::MergePartialFromCodedStream(
 
       // repeated .com.adonai.wallet.sync.BudgetItem content = 6;
       case 6: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 50) {
          parse_content:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_content()));
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(50)) goto parse_content;
-        if (input->ExpectAtEnd()) return true;
+        if (input->ExpectAtEnd()) goto success;
         break;
       }
 
       default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
+          goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
@@ -3601,18 +3769,25 @@ bool Budget::MergePartialFromCodedStream(
       }
     }
   }
+success:
+  // @@protoc_insertion_point(parse_success:com.adonai.wallet.sync.Budget)
   return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:com.adonai.wallet.sync.Budget)
+  return false;
 #undef DO_
 }
 
 void Budget::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:com.adonai.wallet.sync.Budget)
   // required string name = 2;
   if (has_name()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->name().data(), this->name().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "name");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->name(), output);
   }
 
@@ -3623,19 +3798,21 @@ void Budget::SerializeWithCachedSizes(
 
   // required string till = 4;
   if (has_till()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->till().data(), this->till().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "till");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       4, this->till(), output);
   }
 
   // optional string coveredAccountId = 5;
   if (has_coveredaccountid()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->coveredaccountid().data(), this->coveredaccountid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "coveredaccountid");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       5, this->coveredaccountid(), output);
   }
 
@@ -3649,15 +3826,18 @@ void Budget::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
+  // @@protoc_insertion_point(serialize_end:com.adonai.wallet.sync.Budget)
 }
 
 ::google::protobuf::uint8* Budget::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:com.adonai.wallet.sync.Budget)
   // required string name = 2;
   if (has_name()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->name().data(), this->name().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "name");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         2, this->name(), target);
@@ -3670,9 +3850,10 @@ void Budget::SerializeWithCachedSizes(
 
   // required string till = 4;
   if (has_till()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->till().data(), this->till().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "till");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         4, this->till(), target);
@@ -3680,9 +3861,10 @@ void Budget::SerializeWithCachedSizes(
 
   // optional string coveredAccountId = 5;
   if (has_coveredaccountid()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->coveredaccountid().data(), this->coveredaccountid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "coveredaccountid");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         5, this->coveredaccountid(), target);
@@ -3699,6 +3881,7 @@ void Budget::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
+  // @@protoc_insertion_point(serialize_to_array_end:com.adonai.wallet.sync.Budget)
   return target;
 }
 
@@ -3801,9 +3984,7 @@ void Budget::CopyFrom(const Budget& from) {
 bool Budget::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
 
-  for (int i = 0; i < content_size(); i++) {
-    if (!this->content(i).IsInitialized()) return false;
-  }
+  if (!::google::protobuf::internal::AllAreInitialized(this->content())) return false;
   return true;
 }
 
@@ -3840,6 +4021,7 @@ const int BudgetItem::kMaxAmountFieldNumber;
 BudgetItem::BudgetItem()
   : ::google::protobuf::Message() {
   SharedCtor();
+  // @@protoc_insertion_point(constructor:com.adonai.wallet.sync.BudgetItem)
 }
 
 void BudgetItem::InitAsDefaultInstance() {
@@ -3849,25 +4031,28 @@ BudgetItem::BudgetItem(const BudgetItem& from)
   : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:com.adonai.wallet.sync.BudgetItem)
 }
 
 void BudgetItem::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  parentbudgetid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  categoryid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  parentbudgetid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  categoryid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   maxamount_ = GOOGLE_ULONGLONG(0);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
 BudgetItem::~BudgetItem() {
+  // @@protoc_insertion_point(destructor:com.adonai.wallet.sync.BudgetItem)
   SharedDtor();
 }
 
 void BudgetItem::SharedDtor() {
-  if (parentbudgetid_ != &::google::protobuf::internal::kEmptyString) {
+  if (parentbudgetid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete parentbudgetid_;
   }
-  if (categoryid_ != &::google::protobuf::internal::kEmptyString) {
+  if (categoryid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete categoryid_;
   }
   if (this != default_instance_) {
@@ -3896,14 +4081,14 @@ BudgetItem* BudgetItem::New() const {
 }
 
 void BudgetItem::Clear() {
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+  if (_has_bits_[0 / 32] & 7) {
     if (has_parentbudgetid()) {
-      if (parentbudgetid_ != &::google::protobuf::internal::kEmptyString) {
+      if (parentbudgetid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         parentbudgetid_->clear();
       }
     }
     if (has_categoryid()) {
-      if (categoryid_ != &::google::protobuf::internal::kEmptyString) {
+      if (categoryid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         categoryid_->clear();
       }
     }
@@ -3915,21 +4100,25 @@ void BudgetItem::Clear() {
 
 bool BudgetItem::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  while ((tag = input->ReadTag()) != 0) {
+  // @@protoc_insertion_point(parse_start:com.adonai.wallet.sync.BudgetItem)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
       // required string parentBudgetId = 2;
       case 2: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 18) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_parentbudgetid()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->parentbudgetid().data(), this->parentbudgetid().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "parentbudgetid");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(26)) goto parse_categoryId;
         break;
@@ -3937,16 +4126,16 @@ bool BudgetItem::MergePartialFromCodedStream(
 
       // required string categoryId = 3;
       case 3: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+        if (tag == 26) {
          parse_categoryId:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_categoryid()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->categoryid().data(), this->categoryid().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "categoryid");
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
         if (input->ExpectTag(32)) goto parse_maxAmount;
         break;
@@ -3954,25 +4143,25 @@ bool BudgetItem::MergePartialFromCodedStream(
 
       // required uint64 maxAmount = 4;
       case 4: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+        if (tag == 32) {
          parse_maxAmount:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
                  input, &maxamount_)));
           set_has_maxamount();
         } else {
-          goto handle_uninterpreted;
+          goto handle_unusual;
         }
-        if (input->ExpectAtEnd()) return true;
+        if (input->ExpectAtEnd()) goto success;
         break;
       }
 
       default: {
-      handle_uninterpreted:
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          return true;
+          goto success;
         }
         DO_(::google::protobuf::internal::WireFormat::SkipField(
               input, tag, mutable_unknown_fields()));
@@ -3980,27 +4169,35 @@ bool BudgetItem::MergePartialFromCodedStream(
       }
     }
   }
+success:
+  // @@protoc_insertion_point(parse_success:com.adonai.wallet.sync.BudgetItem)
   return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:com.adonai.wallet.sync.BudgetItem)
+  return false;
 #undef DO_
 }
 
 void BudgetItem::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:com.adonai.wallet.sync.BudgetItem)
   // required string parentBudgetId = 2;
   if (has_parentbudgetid()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->parentbudgetid().data(), this->parentbudgetid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "parentbudgetid");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       2, this->parentbudgetid(), output);
   }
 
   // required string categoryId = 3;
   if (has_categoryid()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->categoryid().data(), this->categoryid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "categoryid");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       3, this->categoryid(), output);
   }
 
@@ -4013,15 +4210,18 @@ void BudgetItem::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
+  // @@protoc_insertion_point(serialize_end:com.adonai.wallet.sync.BudgetItem)
 }
 
 ::google::protobuf::uint8* BudgetItem::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:com.adonai.wallet.sync.BudgetItem)
   // required string parentBudgetId = 2;
   if (has_parentbudgetid()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->parentbudgetid().data(), this->parentbudgetid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "parentbudgetid");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         2, this->parentbudgetid(), target);
@@ -4029,9 +4229,10 @@ void BudgetItem::SerializeWithCachedSizes(
 
   // required string categoryId = 3;
   if (has_categoryid()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->categoryid().data(), this->categoryid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "categoryid");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         3, this->categoryid(), target);
@@ -4046,6 +4247,7 @@ void BudgetItem::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
+  // @@protoc_insertion_point(serialize_to_array_end:com.adonai.wallet.sync.BudgetItem)
   return target;
 }
 

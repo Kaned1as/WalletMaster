@@ -134,4 +134,5 @@
     <string name="time">Время</string>
     <string name="slice_by_day">Срез по дням</string>
     <string name="cannot_create_account">Cannot create account!</string>
+    <string name="force_shutdown">Forced shutdown</string>
 </resources>

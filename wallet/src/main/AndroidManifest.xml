@@ -42,8 +42,7 @@
         
         <service
             android:name=".sync.WalletSyncService"
-            android:exported="true"
-            android:process=":sync">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter"/>
             </intent-filter>
