@@ -6,7 +6,10 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 
 /**
- * Created by adonai on 24.07.15.
+ * Sync service as suggested in Android Devs tutorial
+ * 
+ * @author Adonai
+ * @author Android Developers
  */
 public class WalletSyncService extends Service {
     

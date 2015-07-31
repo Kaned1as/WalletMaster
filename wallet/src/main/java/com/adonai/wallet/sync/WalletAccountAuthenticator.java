@@ -58,7 +58,7 @@ public class WalletAccountAuthenticator extends AbstractAccountAuthenticator {
     
     // Updating user credentials is not supported
     @Override
-    public Bundle updateCredentials(AccountAuthenticatorResponse r, Account account,String s, Bundle bundle) 
+    public Bundle updateCredentials(AccountAuthenticatorResponse r, Account account, String s, Bundle bundle) 
             throws NetworkErrorException 
     {
         throw new UnsupportedOperationException();

@@ -135,4 +135,5 @@
     <string name="slice_by_day">Slice by day</string>
     <string name="cannot_create_account">Cannot create account!</string>
     <string name="force_shutdown">Forced shutdown</string>
+    <string name="sync_error">Error while syncing!</string>
 </resources>

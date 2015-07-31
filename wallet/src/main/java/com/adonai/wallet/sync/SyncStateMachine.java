@@ -9,10 +9,12 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.adonai.wallet.R;
 import com.adonai.wallet.WalletConstants;
 import com.adonai.wallet.database.DbProvider;
+import com.adonai.wallet.database.PersistManager;
 import com.adonai.wallet.entities.Account;
 import com.adonai.wallet.entities.Category;
 import com.adonai.wallet.entities.Entity;
@@ -107,10 +109,12 @@ public class SyncStateMachine {
         }
     }
 
-    private State state;
-    private Handler mHandler;
-    private Socket mSocket;
-    
+    /**
+     * These fields are updated during syncing
+     */
+    private State state;                    // to know our state
+    private Socket mSocket;                 // to communicate with server
+    private PersistManager mPersistContext; // to make DB calls
 
     private final Context mContext;
     private final SyncResult mSyncResult;
@@ -119,10 +123,11 @@ public class SyncStateMachine {
     private final SocketCallback mCallback = new SocketCallback();
     private final SharedPreferences mPreferences;
     private final Object mSyncLock = new Object();
+    private final Handler mHandler;
 
 
     public SyncStateMachine(Context context, SyncResult sr, android.accounts.Account account) {
-        final HandlerThread thr = new HandlerThread("ServiceThread");
+        final HandlerThread thr = new HandlerThread("WalletSyncThread");
         thr.start();
         mHandler = new Handler(thr.getLooper(), mCallback);
 
@@ -133,19 +138,13 @@ public class SyncStateMachine {
     }
 
     public void shutdown() {
-        mCallback.interruptSync(mContext.getString(R.string.force_shutdown));
+        interruptSync(mContext.getString(R.string.force_shutdown));
         mHandler.getLooper().quit();
     }
 
     private void setState(State state) {
         this.state = state;
         if(state.isActionNeeded()) // state is for internal handling, not for notifying
-            mHandler.sendEmptyMessage(state.ordinal());
-    }
-
-    private void setState(State state, String errorMsg) {
-        this.state = state;
-        if(state.isActionNeeded())
             mHandler.sendEmptyMessage(state.ordinal());
     }
 
@@ -198,14 +197,14 @@ public class SyncStateMachine {
                         List<Account> changedAccs = new ArrayList<>(serverSide.getModifiedList().size());
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
                             Account remote = Account.fromProtoEntity(entity);
-                            Account local = DbProvider.getHelper().getAccountDao().queryForId(remote.getId());
+                            Account local = mPersistContext.getAccountDao().queryForId(remote.getId());
                             if(local == null) { // not found on client, but exists remotely, should create on client
-                                DbProvider.getHelper().getEntityDao(Account.class).createByServer(remote);
+                                mPersistContext.getEntityDao(Account.class).createByServer(remote);
                             } else if (!local.isDirty()) { // updated on server but not on client, replace local with remote
-                                DbProvider.getHelper().getEntityDao(Account.class).updateByServer(remote);
+                                mPersistContext.getEntityDao(Account.class).updateByServer(remote);
                             } else { // update on server and on client, should resolve conflicts
                                 remote = mergeAccounts(remote, local, (Account) local.getBackup());
-                                DbProvider.getHelper().getEntityDao(Account.class).update(remote); // do not reset dirty flag
+                                mPersistContext.getEntityDao(Account.class).update(remote); // do not reset dirty flag
                             }
                             changedAccs.add(remote);
                         }
@@ -214,14 +213,14 @@ public class SyncStateMachine {
                         SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
 
                         // adding newly inserted entities
-                        List<Account> newAccounts = DbProvider.getHelper().getAccountDao().queryBuilder().where().isNull("last_modified").query();
+                        List<Account> newAccounts = mPersistContext.getAccountDao().queryBuilder().where().isNull("last_modified").query();
                         newAccounts.removeAll(changedAccs);
                         for(Account newAcc : newAccounts) {
                             serverUpdate.addAdded(newAcc.toProtoEntity());
                         }
                         // adding modified entities
-                        //List<Account> dirtyAccounts = DbProvider.getHelper().getAccountDao().queryBuilder().where().isNotNull("backup").query(); // TODO: restore with 4.49
-                        List<Account> dirtyAccounts = DbProvider.getHelper().getAccountDao().queryBuilder().where().raw("backup IS NOT NULL").query();
+                        //List<Account> dirtyAccounts = mPersistContext.getAccountDao().queryBuilder().where().isNotNull("backup").query(); // TODO: restore with 4.49
+                        List<Account> dirtyAccounts = mPersistContext.getAccountDao().queryBuilder().where().raw("backup IS NOT NULL").query();
                         for(Account dirtyAcc : dirtyAccounts) {
                             serverUpdate.addModified(dirtyAcc.toProtoEntity());
                         }
@@ -232,15 +231,15 @@ public class SyncStateMachine {
                         // updating local entities with new timestamp
                         for(Account newAcc : newAccounts) {
                             newAcc.setLastModified(newTimestamp);
-                            DbProvider.getHelper().getEntityDao(Account.class).updateByServer(newAcc);
+                            mPersistContext.getEntityDao(Account.class).updateByServer(newAcc);
                         }
                         for(Account dirtyAcc : dirtyAccounts) {
                             dirtyAcc.setLastModified(newTimestamp);
-                            DbProvider.getHelper().getEntityDao(Account.class).updateByServer(dirtyAcc);
+                            mPersistContext.getEntityDao(Account.class).updateByServer(dirtyAcc);
                         }
                         for(Account changedAcc : changedAccs) {
                             changedAcc.setLastModified(newTimestamp);
-                            DbProvider.getHelper().getEntityDao(Account.class).updateByServer(changedAcc);
+                            mPersistContext.getEntityDao(Account.class).updateByServer(changedAcc);
                         }
                         setState(State.CAT_REQ);
                         break;
@@ -259,13 +258,13 @@ public class SyncStateMachine {
                         List<Category> changedCategories = new ArrayList<>(serverSide.getModifiedList().size());
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
                             final Category remote = Category.fromProtoEntity(entity);
-                            final Category local = DbProvider.getHelper().getCategoryDao().queryForId(remote.getId());
+                            final Category local = mPersistContext.getCategoryDao().queryForId(remote.getId());
                             if(local == null) { // not found on client, but exists remotely, should create on client
-                                DbProvider.getHelper().getEntityDao(Category.class).createByServer(remote);
+                                mPersistContext.getEntityDao(Category.class).createByServer(remote);
                             } else if (!local.isDirty()) { // updated on server but not on client, replace local with remote
-                                DbProvider.getHelper().getEntityDao(Category.class).updateByServer(remote);
+                                mPersistContext.getEntityDao(Category.class).updateByServer(remote);
                             } else { // update on server and on client, should resolve conflicts (just take server version for now)
-                                DbProvider.getHelper().getEntityDao(Category.class).updateByServer(remote);
+                                mPersistContext.getEntityDao(Category.class).updateByServer(remote);
                             }
                             changedCategories.add(remote);
                         }
@@ -274,14 +273,14 @@ public class SyncStateMachine {
                         SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
 
                         // adding newly inserted entities
-                        List<Category> newCategories = DbProvider.getHelper().getCategoryDao().queryBuilder().where().isNull("last_modified").query();
+                        List<Category> newCategories = mPersistContext.getCategoryDao().queryBuilder().where().isNull("last_modified").query();
                         newCategories.removeAll(changedCategories);
                         for(Category newCategory : newCategories) {
                             serverUpdate.addAdded(newCategory.toProtoEntity());
                         }
                         // adding modified entities
-                        //List<Category> dirtyCategories = DbProvider.getHelper().getCategoryDao().queryBuilder().where().isNotNull("backup").query(); // TODO: restore with 4.49
-                        List<Category> dirtyCategories = DbProvider.getHelper().getCategoryDao().queryBuilder().where().raw("backup IS NOT NULL").query();
+                        //List<Category> dirtyCategories = mPersistContext.getCategoryDao().queryBuilder().where().isNotNull("backup").query(); // TODO: restore with 4.49
+                        List<Category> dirtyCategories = mPersistContext.getCategoryDao().queryBuilder().where().raw("backup IS NOT NULL").query();
                         for(Category dirtyCategory : dirtyCategories) {
                             serverUpdate.addModified(dirtyCategory.toProtoEntity());
                         }
@@ -292,15 +291,15 @@ public class SyncStateMachine {
                         // updating local entities with new timestamp
                         for(Category newCategory : newCategories) {
                             newCategory.setLastModified(newTimestamp);
-                            DbProvider.getHelper().getEntityDao(Category.class).updateByServer(newCategory);
+                            mPersistContext.getEntityDao(Category.class).updateByServer(newCategory);
                         }
                         for(Category dirtyCategory : dirtyCategories) {
                             dirtyCategory.setLastModified(newTimestamp);
-                            DbProvider.getHelper().getEntityDao(Category.class).updateByServer(dirtyCategory);
+                            mPersistContext.getEntityDao(Category.class).updateByServer(dirtyCategory);
                         }
                         for(Category changedCategory : changedCategories) {
                             changedCategory.setLastModified(newTimestamp);
-                            DbProvider.getHelper().getEntityDao(Category.class).updateByServer(changedCategory);
+                            mPersistContext.getEntityDao(Category.class).updateByServer(changedCategory);
                         }
                         setState(State.OP_REQ);
                         break;
@@ -319,13 +318,13 @@ public class SyncStateMachine {
                         List<Operation> changedOps = new ArrayList<>(serverSide.getModifiedList().size());
                         for(final SyncProtocol.Entity entity : serverSide.getModifiedList()) {
                             final Operation remote = Operation.fromProtoEntity(entity);
-                            final Operation local = DbProvider.getHelper().getOperationDao().queryForId(remote.getId());
+                            final Operation local = mPersistContext.getOperationDao().queryForId(remote.getId());
                             if(local == null) { // not found on client, but exists remotely, should create on client
-                                DbProvider.getHelper().getEntityDao(Operation.class).createByServer(remote);
+                                mPersistContext.getEntityDao(Operation.class).createByServer(remote);
                             } else if (!local.isDirty()) { // updated on server but not on client, replace local with remote
-                                DbProvider.getHelper().getEntityDao(Operation.class).updateByServer(remote);
+                                mPersistContext.getEntityDao(Operation.class).updateByServer(remote);
                             } else { // update on server and on client, should resolve conflicts
-                                DbProvider.getHelper().getEntityDao(Operation.class).updateByServer(remote); // just take server version
+                                mPersistContext.getEntityDao(Operation.class).updateByServer(remote); // just take server version
                             }
                             changedOps.add(remote);
                         }
@@ -334,14 +333,14 @@ public class SyncStateMachine {
                         SyncProtocol.EntityResponse.Builder serverUpdate = SyncProtocol.EntityResponse.newBuilder();
 
                         // adding newly inserted entities
-                        List<Operation> newOperations = DbProvider.getHelper().getOperationDao().queryBuilder().where().isNull("last_modified").query();
+                        List<Operation> newOperations = mPersistContext.getOperationDao().queryBuilder().where().isNull("last_modified").query();
                         newOperations.removeAll(changedOps);
                         for(Operation newOp : newOperations) {
                             serverUpdate.addAdded(newOp.toProtoEntity());
                         }
                         // adding modified entities
-                        //List<Operation> dirtyOperations = DbProvider.getHelper().getAccountDao().queryBuilder().where().isNotNull("backup").query(); // TODO: restore with 4.49
-                        List<Operation> dirtyOperations = DbProvider.getHelper().getOperationDao().queryBuilder().where().raw("backup IS NOT NULL").query();
+                        //List<Operation> dirtyOperations = mPersistContext.getAccountDao().queryBuilder().where().isNotNull("backup").query(); // TODO: restore with 4.49
+                        List<Operation> dirtyOperations = mPersistContext.getOperationDao().queryBuilder().where().raw("backup IS NOT NULL").query();
                         for(Operation dirtyOp : dirtyOperations) {
                             serverUpdate.addModified(dirtyOp.toProtoEntity());
                         }
@@ -352,15 +351,15 @@ public class SyncStateMachine {
                         // updating local entities with new timestamp
                         for(Operation newOp : newOperations) {
                             newOp.setLastModified(newTimestamp);
-                            DbProvider.getHelper().getEntityDao(Operation.class).updateByServer(newOp);
+                            mPersistContext.getEntityDao(Operation.class).updateByServer(newOp);
                         }
                         for(Operation dirtyOp : dirtyOperations) {
                             dirtyOp.setLastModified(newTimestamp);
-                            DbProvider.getHelper().getEntityDao(Operation.class).updateByServer(dirtyOp);
+                            mPersistContext.getEntityDao(Operation.class).updateByServer(dirtyOp);
                         }
                         for(Operation changedOp : changedOps) {
                             changedOp.setLastModified(newTimestamp);
-                            DbProvider.getHelper().getEntityDao(Operation.class).updateByServer(changedOp);
+                            mPersistContext.getEntityDao(Operation.class).updateByServer(changedOp);
                         }
 
                         finishSync();
@@ -375,41 +374,6 @@ public class SyncStateMachine {
                 interruptSync(sql.getMessage());
             }
             return true;
-        }
-
-        private void initSync() throws IOException {
-            /*DatabaseDAO.getInstance().beginTransaction();*/
-            mSocket = new Socket(); // creating socket here!
-            //mSocket.setSoTimeout(10000);
-            //mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "anticitizen.dhis.org"), 17001));
-            mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "192.168.1.165"), 17001));
-            DbProvider.getHelper().getWritableDatabase().beginTransaction();
-        }
-
-        private void finishSync() throws IOException {
-            mSocket.close();
-            setState(State.INIT, mContext.getString(R.string.sync_completed));
-            DbProvider.getHelper().getWritableDatabase().setTransactionSuccessful();
-            DbProvider.getHelper().getWritableDatabase().endTransaction();
-            
-            // if we use blocking sync, this will finish it
-            synchronized (mSyncLock) {
-                mSyncLock.notify();
-            }
-        }
-
-        private void interruptSync(String error) {
-            DbProvider.getHelper().getWritableDatabase().endTransaction();
-            setState(State.INIT, error);
-            if(!mSocket.isClosed())
-                try {
-                    mSocket.close();
-                } catch (IOException e) { throw new RuntimeException(e); } // should not happen
-
-            // if we use blocking sync, this will finish it
-            synchronized (mSyncLock) {
-                mSyncLock.notify();
-            }
         }
 
         private void sendLastTimestamp(OutputStream os, Class<? extends Entity> clazz) throws IOException, SQLException {
@@ -461,6 +425,56 @@ public class SyncStateMachine {
         }
     }
 
+    private void interruptSync(String error) {
+        safeCloseSocket();
+        mPersistContext.getWritableDatabase().endTransaction();
+        DbProvider.releaseTempHelper();
+        setState(State.INIT);
+        
+        // notify about error
+        Toast.makeText(mContext, mContext.getString(R.string.sync_error) + ": " + error, Toast.LENGTH_SHORT).show();
+
+        // if we use blocking sync, this will finish it
+        synchronized (mSyncLock) {
+            mSyncLock.notify();
+        }
+    }
+
+    private void finishSync() {
+        safeCloseSocket();
+        mPersistContext.getWritableDatabase().setTransactionSuccessful();
+        mPersistContext.getWritableDatabase().endTransaction();
+        DbProvider.releaseTempHelper();
+        setState(State.INIT); // mContext.getString(R.string.sync_completed)
+
+        // if we use blocking sync, this will finish it
+        synchronized (mSyncLock) {
+            mSyncLock.notify();
+        }
+    }
+    
+    private void safeCloseSocket() {
+        if(state == State.INIT)
+            return; // nothing to do
+        
+        if(!mSocket.isClosed())
+            try {
+                mSocket.close();
+            } catch (IOException e) {
+                Log.e("SYNC", "Unexpected error while closing socket", e); // should not happen, swallow
+            } 
+    }
+
+    private void initSync() throws IOException {
+        mPersistContext = DbProvider.getTempHelper(mContext);
+        mPersistContext.getWritableDatabase().beginTransaction();
+            /*DatabaseDAO.getInstance().beginTransaction();*/
+        mSocket = new Socket(); // creating socket here!
+        //mSocket.setSoTimeout(10000);
+        //mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "anticitizen.dhis.org"), 17001));
+        mSocket.connect(new InetSocketAddress(mPreferences.getString("sync.server", "192.168.1.165"), 17001));
+    }
+
     private Account mergeAccounts(Account remote, Account local, Account base) {
         final Account result = new Account();
         result.setId(local.getId());
@@ -496,10 +510,10 @@ public class SyncStateMachine {
         return result;
     }
 
-    public static <T extends Entity> long getLastServerTimestamp(Class<T> clazz) throws SQLException {
+    private <T extends Entity> long getLastServerTimestamp(Class<T> clazz) throws SQLException {
         String tableName = clazz.getAnnotation(DatabaseTable.class).tableName();
         if(tableName.isEmpty())
             tableName = clazz.getSimpleName().toLowerCase();
-        return DbProvider.getHelper().getEntityDao(clazz).queryRawValue("select ifnull(max(last_modified), 0) from " + tableName);
+        return mPersistContext.getEntityDao(clazz).queryRawValue("select ifnull(max(last_modified), 0) from " + tableName);
     }
 }
