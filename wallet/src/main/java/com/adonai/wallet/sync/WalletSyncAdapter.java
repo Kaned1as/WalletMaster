@@ -36,12 +36,7 @@ public class WalletSyncAdapter extends AbstractThreadedSyncAdapter {
     {
         syncResult.fullSyncRequested = true;
         
-        SyncStateMachine stateMachine = new SyncStateMachine(getContext(), syncResult, account);
+        SyncStateMachine stateMachine = new SyncStateMachine(getContext(), syncResult, account, extras);
         stateMachine.syncBlocking();
-
-        boolean isManualSync = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL);
-        if(isManualSync && !syncResult.hasError()) {
-            Toast.makeText(getContext(), R.string.sync_completed, Toast.LENGTH_SHORT).show();
-        }
     }
 }

@@ -1,9 +1,11 @@
 package com.adonai.wallet.sync;
 
 import android.accounts.AccountManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SyncResult;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -120,27 +122,34 @@ public class SyncStateMachine {
     private final SyncResult mSyncResult;
     private final android.accounts.Account mAccount;
     
-    private final SocketCallback mCallback = new SocketCallback();
     private final SharedPreferences mPreferences;
     private final Object mSyncLock = new Object();
     private final Handler mHandler;
 
+    /**
+     * Data extracted from bundle
+     */
+    private final boolean isManualSync;
 
-    public SyncStateMachine(Context context, SyncResult sr, android.accounts.Account account) {
+
+    public SyncStateMachine(Context context, SyncResult sr, android.accounts.Account account, Bundle extras) {
         final HandlerThread thr = new HandlerThread("WalletSyncThread");
         thr.start();
-        mHandler = new Handler(thr.getLooper(), mCallback);
+        mHandler = new Handler(thr.getLooper(), new SocketCallback());
 
         mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         mContext = context;
         mAccount = account;
         mSyncResult = sr;
+
+        isManualSync = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL);
     }
 
+    /*
     public void shutdown() {
         interruptSync(mContext.getString(R.string.force_shutdown));
         mHandler.getLooper().quit();
-    }
+    }*/
 
     private void setState(State state) {
         this.state = state;
@@ -368,10 +377,10 @@ public class SyncStateMachine {
                 }
             } catch (IOException io) {
                 mSyncResult.stats.numIoExceptions = 1;
-                interruptSync(io.getMessage());
+                interruptSync(io.getLocalizedMessage());
             } catch (SQLException sql) {
                 mSyncResult.databaseError = true;
-                interruptSync(sql.getMessage());
+                interruptSync(sql.getLocalizedMessage());
             }
             return true;
         }
@@ -425,6 +434,11 @@ public class SyncStateMachine {
         }
     }
 
+    /**
+     * Toast needs looper thread to exist so be sure to call this method only from {@link SocketCallback}'s thread
+     * @param error error to display to the user
+     * @see #mHandler
+     */
     private void interruptSync(String error) {
         safeCloseSocket();
         mPersistContext.getWritableDatabase().endTransaction();
@@ -438,19 +452,31 @@ public class SyncStateMachine {
         synchronized (mSyncLock) {
             mSyncLock.notify();
         }
+
+        safeQuitThread();
     }
 
+    /**
+     * Toast needs looper thread to exist so be sure to call this method only from {@link SocketCallback}'s thread
+     * @see #mHandler
+     */
     private void finishSync() {
         safeCloseSocket();
         mPersistContext.getWritableDatabase().setTransactionSuccessful();
         mPersistContext.getWritableDatabase().endTransaction();
         DbProvider.releaseTempHelper();
-        setState(State.INIT); // mContext.getString(R.string.sync_completed)
+        setState(State.INIT);
+
+        if(isManualSync && !mSyncResult.hasError()) {
+            Toast.makeText(mContext, mContext.getString(R.string.sync_completed), Toast.LENGTH_SHORT).show();
+        }
 
         // if we use blocking sync, this will finish it
         synchronized (mSyncLock) {
             mSyncLock.notify();
         }
+
+        safeQuitThread();
     }
     
     private void safeCloseSocket() {
@@ -463,6 +489,18 @@ public class SyncStateMachine {
             } catch (IOException e) {
                 Log.e("SYNC", "Unexpected error while closing socket", e); // should not happen, swallow
             } 
+    }
+
+    /**
+     * Finish after 5 seconds to let the toast show its contents
+     */
+    private void safeQuitThread() {
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mHandler.getLooper().quit();  // finish handler thread
+            }
+        }, 5000);
     }
 
     private void initSync() throws IOException {
