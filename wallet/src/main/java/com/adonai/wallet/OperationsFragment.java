@@ -88,7 +88,7 @@ public class OperationsFragment extends WalletBaseListFragment {
             case R.id.action_add_operation:
                 final OperationDialogFragment opCreate = new OperationDialogFragment();
                 opCreate.show(getFragmentManager(), "opCreate");
-                break;
+                return true;
             case R.id.operation_filter:
                 // form filtering map
                 Map<String, Pair<FilterType, String>> allowedToFilter = new HashMap<>(3);
@@ -99,14 +99,13 @@ public class OperationsFragment extends WalletBaseListFragment {
                 final WalletBaseFilterFragment<Operation> opFilter = WalletBaseFilterFragment.newInstance(Operation.class, allowedToFilter);
                 opFilter.setFilterCursorListener(adapter);
                 opFilter.show(getFragmentManager(), "opFilter");
-                break;
+                return true;
             case R.id.operation_reset_filter:
                 adapter.resetFilter();
-                break;
+                return true;
             default:
-                break;
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     private class OperationsAdapter extends UUIDCursorAdapter<Operation> implements WalletBaseFilterFragment.FilterCursorListener<Operation> {

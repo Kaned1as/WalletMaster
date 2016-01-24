@@ -74,11 +74,10 @@ public class AccountsFragment extends WalletBaseListFragment {
             case R.id.action_add_account:
                 final AccountDialogFragment accountCreate = new AccountDialogFragment();
                 accountCreate.show(getFragmentManager(), "accCreate");
-                break;
+                return true;
             default:
-                break;
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     private class AccountsAdapter extends UUIDCursorAdapter<Account> {

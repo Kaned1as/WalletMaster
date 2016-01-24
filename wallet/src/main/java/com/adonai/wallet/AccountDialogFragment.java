@@ -112,7 +112,6 @@ public class AccountDialogFragment extends WalletBaseDialogFragment implements D
             tmp = new Account();
         fillAccountFieldsFromGUI(tmp);
         DbProvider.getHelper().getAccountDao().createOrUpdate(tmp);
-        dismiss();
     }
 
     public class ColorSpinnerAdapter extends ArrayAdapter<String> implements SpinnerAdapter {

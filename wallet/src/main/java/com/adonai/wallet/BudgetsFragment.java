@@ -66,11 +66,10 @@ public class BudgetsFragment extends WalletBaseListFragment {
             case R.id.action_add_budget:
                 final BudgetDialogFragment budgetCreate = new BudgetDialogFragment();
                 budgetCreate.show(getFragmentManager(), "budgetCreate");
-                break;
+                return true;
             default:
-                break;
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
 

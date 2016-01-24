@@ -123,7 +123,7 @@ public class MainFlow extends WalletBaseActivity {
             case R.id.action_settings:
                 final Intent pref = new Intent(this, PreferenceFlow.class);
                 startActivity(pref);
-                break;
+                return true;
             case R.id.action_sync:
                 AccountManager accountManager = (AccountManager) getSystemService(Context.ACCOUNT_SERVICE);
                 Account[] associatedAccounts = accountManager.getAccountsByType(ACCOUNT_TYPE);
@@ -136,9 +136,10 @@ public class MainFlow extends WalletBaseActivity {
                 } else { // need to configure now!
                     new SyncDialogFragment().show(getSupportFragmentManager(), "syncAcc");
                 }
-                break;
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

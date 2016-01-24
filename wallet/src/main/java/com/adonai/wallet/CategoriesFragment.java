@@ -91,11 +91,10 @@ public class CategoriesFragment extends WalletBaseListFragment {
             case R.id.action_add_category:
                 final CategoryDialogFragment fragment = CategoryDialogFragment.newInstance(mNavListener.selectedPos);
                 fragment.show(getFragmentManager(), "categoryCreate");
-                break;
+                return true;
             default:
-                break;
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     private class CategoryNavigator implements ActionBar.OnNavigationListener {
